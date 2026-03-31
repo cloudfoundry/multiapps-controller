@@ -37,8 +37,7 @@
         <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
         <flowable:in source="mtaId" target="mtaId"></flowable:in>
-        <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
-        <flowable:in source="completeMtaDeploymentDescriptor" target="completeMtaDeploymentDescriptor"></flowable:in>
+        <flowable:in source="unbindServiceTimeoutProcessVariable" target="unbindServiceTimeoutProcessVariable"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="cloudServiceBindingsToDelete" flowable:elementVariable="serviceBindingToDelete">
         <extensionElements>
@@ -71,6 +70,7 @@
             <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
             <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
             <flowable:in source="mtaId" target="mtaId"></flowable:in>
+            <flowable:in source="deleteServiceKeyTimeoutProcessVariable" target="deleteServiceKeyTimeoutProcessVariable"></flowable:in>
         </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="cloudServiceKeysToDelete" flowable:elementVariable="serviceKeyToProcess">
         <extensionElements></extensionElements>

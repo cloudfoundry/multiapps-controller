@@ -17,7 +17,6 @@
         <flowable:in source="user" target="user"></flowable:in>
         <flowable:in source="userGuid" target="userGuid"></flowable:in>
         <flowable:in source="correlationId" target="correlationId"></flowable:in>
-        <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
         <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
         <flowable:in source="hookForExecution" target="hookForExecution"></flowable:in>
         <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
@@ -47,7 +46,6 @@
         <flowable:in source="user" target="user"></flowable:in>
         <flowable:in source="userGuid" target="userGuid"></flowable:in>
         <flowable:in source="correlationId" target="correlationId"></flowable:in>
-        <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
         <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
         <flowable:in source="hookForExecution" target="hookForExecution"></flowable:in>
         <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
@@ -105,9 +103,7 @@
             <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
             <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
             <flowable:in source="mtaId" target="mtaId"></flowable:in>
-            <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
-            <flowable:in source="mtaDeploymentDescriptorWithSystemParameters" target="mtaDeploymentDescriptorWithSystemParameters"></flowable:in>
-            <flowable:in source="completeMtaDeploymentDescriptor" target="completeMtaDeploymentDescriptor"></flowable:in>
+            <flowable:in source="unbindServiceTimeoutProcessVariable" target="unbindServiceTimeoutProcessVariable"></flowable:in>
           </extensionElements>
           <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="cloudServiceBindingsToDelete" flowable:elementVariable="serviceBindingToDelete">
             <extensionElements>

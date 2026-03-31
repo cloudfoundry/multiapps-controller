@@ -32,7 +32,6 @@
         <flowable:in source="orgId" target="orgId"></flowable:in>
         <flowable:in source="mtaId" target="mtaId"></flowable:in>
         <flowable:in source="namespace" target="namespace"></flowable:in>
-        <flowable:in source="completeMtaDeploymentDescriptor" target="completeMtaDeploymentDescriptor"></flowable:in>
         <flowable:in source="dynamicResolvableParameters" target="dynamicResolvableParameters"></flowable:in>
         <flowable:in source="ctsCurrentFileInfo" target="ctsCurrentFileInfo"></flowable:in>
         <flowable:in source="archiveEntriesPositions" target="archiveEntriesPositions"></flowable:in>
@@ -40,6 +39,13 @@
         <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
         <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
+        <flowable:in source="createServiceTimeoutProcessVariable" target="createServiceTimeoutProcessVariable"></flowable:in>
+        <flowable:in source="deleteServiceTimeoutProcessVariable" target="deleteServiceTimeoutProcessVariable"></flowable:in>
+        <flowable:in source="updateServiceTimeoutProcessVariable" target="updateServiceTimeoutProcessVariable"></flowable:in>
+        <flowable:in source="bindServiceTimeoutProcessVariable" target="bindServiceTimeoutProcessVariable"></flowable:in>
+        <flowable:in source="unbindServiceTimeoutProcessVariable" target="unbindServiceTimeoutProcessVariable"></flowable:in>
+        <flowable:in source="createServiceKeyTimeoutProcessVariable" target="createServiceKeyTimeoutProcessVariable"></flowable:in>
+        <flowable:in source="deleteServiceKeyTimeoutProcessVariable" target="deleteServiceKeyTimeoutProcessVariable"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToCreate" flowable:elementVariable="serviceToProcess">
         <extensionElements></extensionElements>

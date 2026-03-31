@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
@@ -25,7 +26,8 @@ public class TimeoutValueResolver {
                                                                       this::extractTimeoutFromResourceParameters,
                                                                       this::extractTimeoutFromDescriptorParameters);
 
-    private final List<TimeoutSource> serviceTimeoutSources = List.of(this::extractTimeoutFromResourceParameters,
+    private final List<TimeoutSource> serviceTimeoutSources = List.of(this::extractTimeoutFromServiceObject,
+                                                                      this::extractTimeoutFromResourceParameters,
                                                                       this::resolveProcessVariableTimeout,
                                                                       this::extractTimeoutFromDescriptorParameters);
 
@@ -82,14 +84,74 @@ public class TimeoutValueResolver {
         Resource resource = timeoutServiceResourceNameResolver.resolveResource(context, timeoutType, descriptor, this.logger);
         if (resource == null) {
             if (timeoutType.isServiceScoped()) {
-                logger.warn("Could not resolve descriptor resource for timeout type {0}; resource-level timeout parameter {1} cannot be applied",
-                            timeoutType,
-                            paramName);
+                logger.warn(
+                    "Could not resolve descriptor resource for timeout type {0}; resource-level timeout parameter {1} cannot be applied",
+                    timeoutType,
+                    paramName);
             }
             return null;
         }
         Object timeout = getResourceParameter(resource, paramName);
         return resolveTimeoutIfValid(timeout, paramName, timeoutType);
+    }
+
+    private TimeoutResolution extractTimeoutFromServiceObject(ProcessContext context, TimeoutType timeoutType) {
+        CloudServiceInstanceExtended service = getServiceFromContext(context, timeoutType);
+        if (service == null) {
+            return null;
+        }
+
+        Duration timeout = null;
+        switch (timeoutType) {
+            case CREATE_SERVICE:
+                timeout = service.getCreateServiceTimeout();
+                break;
+            case DELETE_SERVICE:
+                timeout = service.getDeleteServiceTimeout();
+                break;
+            case UPDATE_SERVICE:
+                timeout = service.getUpdateServiceTimeout();
+                break;
+            case BIND_SERVICE:
+                timeout = service.getBindServiceTimeout();
+                break;
+            case UNBIND_SERVICE:
+                timeout = service.getUnbindServiceTimeout();
+                break;
+            case CREATE_SERVICE_KEY:
+                timeout = service.getCreateServiceKeyTimeout();
+                break;
+            case DELETE_SERVICE_KEY:
+                timeout = service.getDeleteServiceKeyTimeout();
+                break;
+            default:
+                break;
+        }
+
+        if (timeout != null) {
+            String paramName = timeoutType.getEntityLevelParamName();
+            return new TimeoutResolution(timeout, paramName != null ? paramName : "service-level");
+        }
+        return null;
+    }
+
+    private CloudServiceInstanceExtended getServiceFromContext(ProcessContext context, TimeoutType timeoutType) {
+        // For bind/unbind operations, look up service by name from SERVICES_TO_BIND
+        if (timeoutType == TimeoutType.BIND_SERVICE || timeoutType == TimeoutType.UNBIND_SERVICE) {
+            String serviceName = context.getVariableIfSet(Variables.SERVICE_TO_UNBIND_BIND);
+            if (serviceName != null) {
+                List<CloudServiceInstanceExtended> servicesToBind = context.getVariableIfSet(Variables.SERVICES_TO_BIND);
+                if (servicesToBind != null) {
+                    return servicesToBind.stream()
+                                        .filter(service -> serviceName.equals(service.getName()))
+                                        .findFirst()
+                                        .orElse(null);
+                }
+            }
+        }
+        
+        // For other service operations, use SERVICE_TO_PROCESS
+        return context.getVariableIfSet(Variables.SERVICE_TO_PROCESS);
     }
 
     private TimeoutResolution extractTimeoutFromDescriptorParameters(ProcessContext context, TimeoutType timeoutType) {

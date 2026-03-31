@@ -87,14 +87,11 @@
         <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
         <flowable:in source="appsTaskExecutionTimeout" target="appsTaskExecutionTimeout"></flowable:in>
         <flowable:in source="taskExecutionTimeoutDefault" target="taskExecutionTimeoutDefault"></flowable:in>
-        <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
         <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
         <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
         <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
         <flowable:in source="mtaId" target="mtaId"></flowable:in>
-        <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
-        <flowable:in source="completeMtaDeploymentDescriptor" target="completeMtaDeploymentDescriptor"></flowable:in>
       </extensionElements>
     </callActivity>
     <callActivity id="hooksCallActivity" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution, execution)}" flowable:calledElementType="key" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
@@ -111,14 +108,11 @@
         <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
         <flowable:in source="appsTaskExecutionTimeout" target="appsTaskExecutionTimeout"></flowable:in>
         <flowable:in source="taskExecutionTimeoutDefault" target="taskExecutionTimeoutDefault"></flowable:in>
-        <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
         <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
         <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
         <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
         <flowable:in source="mtaId" target="mtaId"></flowable:in>
-        <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
-        <flowable:in source="completeMtaDeploymentDescriptor" target="completeMtaDeploymentDescriptor"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution"></multiInstanceLoopCharacteristics>
     </callActivity>
@@ -141,14 +135,11 @@
         <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
         <flowable:in source="appsTaskExecutionTimeout" target="appsTaskExecutionTimeout"></flowable:in>
         <flowable:in source="taskExecutionTimeoutDefault" target="taskExecutionTimeoutDefault"></flowable:in>
-        <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
         <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
         <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
         <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
         <flowable:in source="mtaId" target="mtaId"></flowable:in>
-        <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
-        <flowable:in source="completeMtaDeploymentDescriptor" target="completeMtaDeploymentDescriptor"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution"></multiInstanceLoopCharacteristics>
     </callActivity>
@@ -180,8 +171,8 @@
         <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
         <flowable:in source="mtaId" target="mtaId"></flowable:in>
-        <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
-        <flowable:in source="completeMtaDeploymentDescriptor" target="completeMtaDeploymentDescriptor"></flowable:in>
+        <flowable:in source="bindServiceTimeoutProcessVariable" target="bindServiceTimeoutProcessVariable"></flowable:in>
+        <flowable:in source="unbindServiceTimeoutProcessVariable" target="unbindServiceTimeoutProcessVariable"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToUnbindBind" flowable:elementVariable="serviceToUnbindBind"></multiInstanceLoopCharacteristics>
     </callActivity>
@@ -217,6 +208,8 @@
         <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
         <flowable:in source="mtaId" target="mtaId"></flowable:in>
+        <flowable:in source="bindServiceTimeoutProcessVariable" target="bindServiceTimeoutProcessVariable"></flowable:in>
+        <flowable:in source="unbindServiceTimeoutProcessVariable" target="unbindServiceTimeoutProcessVariable"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="true" flowable:collection="servicesToUnbindBind" flowable:elementVariable="serviceToUnbindBind"></multiInstanceLoopCharacteristics>
     </callActivity>
@@ -332,13 +325,11 @@
         <flowable:in source="taskExecutionTimeoutDefault" target="taskExecutionTimeoutDefault"></flowable:in>
         <flowable:in source="processId" target="processId"></flowable:in>
         <flowable:in source="__TASK_ID" target="__TASK_ID"></flowable:in>
-        <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
         <flowable:in source="ctsCurrentFileInfo" target="ctsCurrentFileInfo"></flowable:in>
         <flowable:in source="dependentModulesToStop" target="dependentModulesToStop"></flowable:in>
         <flowable:in source="appsToStopCount" target="appsToStopCount"></flowable:in>
         <flowable:in source="appsToStopIndex" target="appsToStopIndex"></flowable:in>
         <flowable:in source="delayAfterAppStop" target="delayAfterAppStop"></flowable:in>
-        <flowable:in source="completeMtaDeploymentDescriptor" target="completeMtaDeploymentDescriptor"></flowable:in>
         <flowable:in source="mtaMajorSchemaVersion" target="mtaMajorSchemaVersion"></flowable:in>
         <flowable:in source="phase" target="phase"></flowable:in>
         <flowable:in source="keepOriginalAppNamesAfterDeploy" target="keepOriginalAppNamesAfterDeploy"></flowable:in>

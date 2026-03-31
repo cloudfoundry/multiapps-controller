@@ -12,6 +12,7 @@
         <flowable:executionListener event="start" delegateExpression="${startProcessListener}"></flowable:executionListener>
       </extensionElements>
     </startEvent>
+    <serviceTask id="globalTimeoutSettingTask" name="Set Global Timeouts" flowable:async="true" flowable:delegateExpression="${globalTimeoutSettingStep}"></serviceTask>
     <endEvent id="endEvent" name="End">
       <extensionElements>
         <flowable:executionListener event="end" delegateExpression="${endProcessListener}"></flowable:executionListener>
@@ -19,7 +20,8 @@
       </extensionElements>
     </endEvent>
     <serviceTask id="prepareToUndeployTask" name="Prepare Undeploy" flowable:async="true" flowable:delegateExpression="${prepareToUndeployStep}"></serviceTask>
-    <sequenceFlow id="flow1" sourceRef="startEvent" targetRef="detectDeployedMtaTask"></sequenceFlow>
+    <sequenceFlow id="flow1" sourceRef="startEvent" targetRef="globalTimeoutSettingTask"></sequenceFlow>
+    <sequenceFlow id="globalTimeoutToDetectMta" sourceRef="globalTimeoutSettingTask" targetRef="detectDeployedMtaTask"></sequenceFlow>
     <sequenceFlow id="flow3" sourceRef="prepareToUndeployTask" targetRef="buildUndeployModelTask"></sequenceFlow>
     <serviceTask id="deleteServiceBrokersTask" name="Delete Service Brokers" flowable:async="true" flowable:delegateExpression="${deleteServiceBrokersStep}"></serviceTask>
     <serviceTask id="deleteDiscontinuedConfigurationEntriesTask" name="Delete Discontinued Configuration Entries" flowable:async="true" flowable:delegateExpression="${deleteDiscontinuedConfigurationEntriesStep}"></serviceTask>
@@ -126,9 +128,7 @@
         <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
         <flowable:in source="mtaId" target="mtaId"></flowable:in>
-        <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
-        <flowable:in source="mtaDeploymentDescriptorWithSystemParameters" target="mtaDeploymentDescriptorWithSystemParameters"></flowable:in>
-        <flowable:in source="completeMtaDeploymentDescriptor" target="completeMtaDeploymentDescriptor"></flowable:in>
+        <flowable:in source="deleteServiceKeyTimeoutProcessVariable" target="deleteServiceKeyTimeoutProcessVariable"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="serviceKeysToDelete" flowable:elementVariable="serviceKeyToProcess"></multiInstanceLoopCharacteristics>
     </callActivity>

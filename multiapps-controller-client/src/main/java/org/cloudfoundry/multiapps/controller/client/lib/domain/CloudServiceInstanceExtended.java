@@ -1,5 +1,7 @@
 package org.cloudfoundry.multiapps.controller.client.lib.domain;
 
+import java.time.Duration;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.cloudfoundry.multiapps.common.Nullable;
@@ -52,5 +54,26 @@ public abstract class CloudServiceInstanceExtended extends CloudServiceInstance 
 
     @Nullable
     public abstract Boolean shouldFailOnTagsUpdateFailure();
+
+    @Nullable
+    public abstract Duration getCreateServiceTimeout();
+
+    @Nullable
+    public abstract Duration getDeleteServiceTimeout();
+
+    @Nullable
+    public abstract Duration getUpdateServiceTimeout();
+
+    @Nullable
+    public abstract Duration getBindServiceTimeout();
+
+    @Nullable
+    public abstract Duration getUnbindServiceTimeout();
+
+    @Nullable
+    public abstract Duration getCreateServiceKeyTimeout();
+
+    @Nullable
+    public abstract Duration getDeleteServiceKeyTimeout();
 
 }
