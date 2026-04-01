@@ -94,7 +94,7 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
         Optional<ObjectStoreServiceInfo> objectStoreServiceInfoOptional = getAppropriateProvider(objectStoreProviderName,
                                                                                                  providersServiceInfo);
         if (objectStoreServiceInfoOptional.isEmpty()) {
-            LOGGER.warn(Messages.NO_OBJECTSTORE_PROVIDER_FOUND);
+            LOGGER.warn(MessageFormat.format(Messages.NO_OBJECTSTORE_PROVIDER_FOUND_FOR_0, objectStoreProviderName));
             return Optional.empty();
         }
         return tryToCreateObjectStore(objectStoreServiceInfoOptional.get(), exceptions);

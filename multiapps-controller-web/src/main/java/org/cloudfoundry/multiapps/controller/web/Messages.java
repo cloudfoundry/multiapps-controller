@@ -58,7 +58,7 @@ public final class Messages {
 
     // WARN log messages
 
-    public static final String NO_OBJECTSTORE_PROVIDER_FOUND = "No ObjectStore provider found!";
+    public static final String NO_OBJECTSTORE_PROVIDER_FOUND_FOR_0 = "No ObjectStore provider found for {0}!";
 
     // INFO log messages
     public static final String ALM_SERVICE_ENV_INITIALIZED = "Deploy service environment initialized";
