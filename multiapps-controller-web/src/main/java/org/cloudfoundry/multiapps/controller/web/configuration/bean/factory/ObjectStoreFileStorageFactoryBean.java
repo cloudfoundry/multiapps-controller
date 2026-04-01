@@ -23,7 +23,6 @@ import org.cloudfoundry.multiapps.controller.persistence.services.JCloudsObjectS
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
-import org.cloudfoundry.multiapps.controller.web.configuration.service.ImmutableObjectStoreServiceInfo;
 import org.cloudfoundry.multiapps.controller.web.configuration.service.ObjectStoreServiceInfo;
 import org.cloudfoundry.multiapps.controller.web.configuration.service.ObjectStoreServiceInfoCreator;
 import org.jclouds.ContextBuilder;
@@ -92,11 +91,13 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
     private Optional<FileStorage> createObjectStoreBasedOnProvider(String objectStoreProviderName,
                                                                    List<ObjectStoreServiceInfo> providersServiceInfo,
                                                                    Map<String, Exception> exceptions) {
-        return switch (objectStoreProviderName) {
-            case Constants.AZURE -> tryToCreateSdkObjectStore(exceptions, Constants.AZUREBLOB);
-            case Constants.GCP -> tryToCreateSdkObjectStore(exceptions, Constants.GOOGLE_CLOUD_STORAGE);
-            default -> tryToCreateJCloudsObjectStore(objectStoreProviderName, providersServiceInfo, exceptions);
-        };
+        Optional<ObjectStoreServiceInfo> objectStoreServiceInfoOptional = getAppropriateProvider(objectStoreProviderName,
+                                                                                                 providersServiceInfo);
+        if (objectStoreServiceInfoOptional.isEmpty()) {
+            LOGGER.warn(MessageFormat.format(Messages.NO_OBJECTSTORE_PROVIDER_FOUND_FOR_0, objectStoreProviderName));
+            return Optional.empty();
+        }
+        return tryToCreateObjectStore(objectStoreServiceInfoOptional.get(), exceptions);
     }
 
     private Optional<ObjectStoreServiceInfo> getAppropriateProvider(String objectStoreProviderName,
@@ -105,25 +106,6 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
         return providersServiceInfo.stream()
                                    .filter(provider -> appropriateProvider.equals(provider.getProvider()))
                                    .findFirst();
-    }
-
-    private Optional<FileStorage> tryToCreateJCloudsObjectStore(String objectStoreProviderName,
-                                                                List<ObjectStoreServiceInfo> providersServiceInfo,
-                                                                Map<String, Exception> exceptions) {
-        Optional<ObjectStoreServiceInfo> objectStoreServiceInfoOptional = getAppropriateProvider(objectStoreProviderName,
-                                                                                                 providersServiceInfo);
-        if (objectStoreServiceInfoOptional.isPresent()) {
-            ObjectStoreServiceInfo objectStoreServiceInfo = objectStoreServiceInfoOptional.get();
-            return tryToCreateObjectStore(objectStoreServiceInfo, exceptions);
-        }
-        LOGGER.warn(Messages.NO_OBJECTSTORE_PROVIDER_FOUND);
-        return Optional.empty();
-    }
-
-    private Optional<FileStorage> tryToCreateSdkObjectStore(Map<String, Exception> exceptions, String providerName) {
-        return tryToCreateObjectStore(ImmutableObjectStoreServiceInfo.builder()
-                                                                     .provider(providerName)
-                                                                     .build(), exceptions);
     }
 
     private Optional<FileStorage> tryToCreateObjectStore(ObjectStoreServiceInfo objectStoreServiceInfo,
