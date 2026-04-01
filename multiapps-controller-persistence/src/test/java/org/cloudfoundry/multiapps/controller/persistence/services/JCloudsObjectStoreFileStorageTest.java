@@ -31,9 +31,17 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class JCloudsObjectStoreFileStorageTest {
 
@@ -368,4 +376,47 @@ class JCloudsObjectStoreFileStorageTest {
         assertEquals(expectedFileExist, blobExists);
     }
 
+    @Test
+    void existsInObjectStoreWithMockedBlobStoreVerifiesBlobExistsCalled() {
+        BlobStore mockBlobStore = mock(BlobStore.class);
+        FileEntry fileEntry = createFileEntry();
+        JCloudsObjectStoreFileStorage testFileStorage = new JCloudsObjectStoreFileStorage(mockBlobStore, CONTAINER);
+
+        when(mockBlobStore.blobExists(CONTAINER, fileEntry.getId())).thenReturn(true);
+
+        boolean result = testFileStorage.existsInObjectStore(fileEntry);
+
+        verify(mockBlobStore, times(1)).blobExists(CONTAINER, fileEntry.getId());
+        assertTrue(result);
+    }
+
+    @Test
+    void existsInObjectStoreWithMockedBlobStoreFileNotFound() {
+        BlobStore mockBlobStore = mock(BlobStore.class);
+        FileEntry fileEntry = createFileEntry();
+        JCloudsObjectStoreFileStorage testFileStorage = new JCloudsObjectStoreFileStorage(mockBlobStore, CONTAINER);
+
+        when(mockBlobStore.blobExists(CONTAINER, fileEntry.getId())).thenReturn(false);
+
+        boolean result = testFileStorage.existsInObjectStore(fileEntry);
+
+        verify(mockBlobStore, times(1)).blobExists(CONTAINER, fileEntry.getId());
+        assertFalse(result);
+    }
+
+    @Test
+    void existsInObjectStoreWithMockedBlobStoreVerifiesCorrectContainer() {
+        BlobStore mockBlobStore = mock(BlobStore.class);
+        String testContainer = "test-container";
+        FileEntry fileEntry = createFileEntry();
+        JCloudsObjectStoreFileStorage testFileStorage = new JCloudsObjectStoreFileStorage(mockBlobStore, testContainer);
+
+        when(mockBlobStore.blobExists(testContainer, fileEntry.getId())).thenReturn(true);
+
+        boolean result = testFileStorage.existsInObjectStore(fileEntry);
+
+        verify(mockBlobStore, times(1)).blobExists(testContainer, fileEntry.getId());
+        verify(mockBlobStore, never()).blobExists(eq("wrong-container"), any());
+        assertTrue(result);
+    }
 }
