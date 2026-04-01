@@ -77,7 +77,7 @@ public class JCloudsObjectStoreFileStorage extends ObjectStoreFileStorage {
 
     @Override
     protected boolean existsInObjectStore(FileEntry fileEntry) {
-        return blobStore.blobMetadata(container, fileEntry.getId()) != null;
+        return blobStore.blobExists(container, fileEntry.getId());
     }
 
     @Override
