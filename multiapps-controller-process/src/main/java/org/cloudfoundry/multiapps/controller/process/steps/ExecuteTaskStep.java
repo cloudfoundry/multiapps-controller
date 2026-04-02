@@ -11,10 +11,13 @@ import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudTask;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
+import org.cloudfoundry.multiapps.controller.core.model.ApplicationColor;
+import org.cloudfoundry.multiapps.controller.core.model.HookPhaseProcessType;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.cloudfoundry.multiapps.mta.model.Hook;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -35,11 +38,71 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
         CloudTask taskToExecute = StepsUtil.getTask(context);
         CloudControllerClient client = context.getControllerClient();
 
-        getStepLogger().info(Messages.EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName());
-        CloudTask startedTask = client.runTask(app.getName(), taskToExecute);
+        String appName = resolveTargetAppName(context, app);
+
+        getStepLogger().info(Messages.EXECUTING_TASK_ON_APP, taskToExecute.getName(), appName);
+        CloudTask startedTask = client.runTask(appName, taskToExecute);
         context.setVariable(Variables.STARTED_TASK, startedTask);
         context.setVariable(Variables.START_TIME, currentTimeSupplier.getAsLong());
         return StepPhase.POLL;
+    }
+
+    private String resolveTargetAppName(ProcessContext context, CloudApplicationExtended app) {
+        Hook hook = context.getVariable(Variables.HOOK_FOR_EXECUTION);
+        if (hook == null || hook.getPhaseConfigs().isEmpty()) {
+            return app.getName();
+        }
+
+        String currentPhase = buildCurrentPhaseString(context, hook);
+        String targetApp = hook.getPhaseConfigs()
+                               .stream()
+                               .filter(config -> currentPhase.equals(config.get("phase")))
+                               .map(config -> config.get("target-app"))
+                               .findFirst()
+                               .orElse(null);
+
+        if (targetApp == null) {
+            return app.getName();
+        }
+
+        return resolveAppNameForTarget(context, app, targetApp);
+    }
+
+    private String buildCurrentPhaseString(ProcessContext context, Hook hook) {
+        // The hook's own phase string already contains the correct deployment type prefix.
+        // Use it directly rather than reconstructing from context variables that may be
+        // unavailable in the hook subprocess (e.g. SERVICE_ID absent → null process type).
+        return hook.getPhases()
+                   .stream()
+                   .filter(p -> p.contains(".application."))
+                   .findFirst()
+                   .orElse("");
+    }
+
+    private String resolveAppNameForTarget(ProcessContext context, CloudApplicationExtended app, String targetApp) {
+        ApplicationColor idleColor = context.getVariable(Variables.IDLE_MTA_COLOR);
+        ApplicationColor liveColor = context.getVariable(Variables.LIVE_MTA_COLOR);
+
+        if (idleColor == null || liveColor == null) {
+            return app.getName();
+        }
+
+        if (HookPhaseProcessType.HookProcessPhase.IDLE.getType().equals(targetApp)) {
+            return swapColorSuffix(app.getName(), liveColor, idleColor);
+        }
+        if (HookPhaseProcessType.HookProcessPhase.LIVE.getType().equals(targetApp)) {
+            return swapColorSuffix(app.getName(), idleColor, liveColor);
+        }
+        return app.getName();
+    }
+
+    private String swapColorSuffix(String appName, ApplicationColor fromColor, ApplicationColor toColor) {
+        String fromSuffix = fromColor.asSuffix();
+        String toSuffix = toColor.asSuffix();
+        if (appName.endsWith(fromSuffix)) {
+            return appName.substring(0, appName.length() - fromSuffix.length()) + toSuffix;
+        }
+        return appName;
     }
 
     @Override
