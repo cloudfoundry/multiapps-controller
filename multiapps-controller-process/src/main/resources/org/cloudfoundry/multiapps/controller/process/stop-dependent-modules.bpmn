@@ -57,6 +57,9 @@
         <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
         <flowable:in source="mtaId" target="mtaId"></flowable:in>
+        <flowable:in source="subprocessPhase" target="subprocessPhase"></flowable:in>
+        <flowable:in source="idleMtaColor" target="idleMtaColor"></flowable:in>
+        <flowable:in source="liveMtaColor" target="liveMtaColor"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution"></multiInstanceLoopCharacteristics>
     </callActivity>

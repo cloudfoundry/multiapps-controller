@@ -20,4 +20,8 @@ public class DeploymentTypeDeterminer {
         return processTypeParser.getProcessType(context.getExecution());
     }
 
+    public ProcessType determineDeploymentTypeSafely(ProcessContext context) {
+        return processTypeParser.getProcessType(context.getExecution(), false);
+    }
+
 }
