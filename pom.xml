@@ -103,16 +103,6 @@
 
     <url>https://github.com/cloudfoundry-incubator/multiapps-controller</url>
 
-    <developers>
-        <developer>
-            <id>ddonchev</id>
-            <name>Dimitar Donchev</name>
-            <email>dimitar.donchev@sap.com</email>
-            <organization>${project.organization.name}</organization>
-            <organizationUrl>${project.organization.url}</organizationUrl>
-        </developer>
-    </developers>
-
     <build>
         <pluginManagement>
             <plugins>
