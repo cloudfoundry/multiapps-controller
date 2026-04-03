@@ -37,13 +37,13 @@ import org.cloudfoundry.multiapps.controller.process.flowable.ProcessActionRegis
 import org.cloudfoundry.multiapps.controller.process.metadata.ProcessTypeToOperationMetadataMapper;
 import org.cloudfoundry.multiapps.controller.process.util.OperationsHelper;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.cloudfoundry.multiapps.controller.web.monitoring.ApiUsageLogger;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -85,9 +85,12 @@ class OperationsApiServiceImplTest {
     private ProcessAction processAction;
     @Mock
     private OperationsApiServiceAuditLog operationsApiServiceAuditLog;
+    @Mock
+    private ApiUsageLogger apiUsageLogger;
+    @Mock
+    private HttpServletRequest httpServletRequest;
 
-    @InjectMocks
-    private OperationsApiServiceImpl operationsApiService = new OperationsApiServiceImpl();
+    private OperationsApiServiceImpl operationsApiService;
 
     private static final String SPACE_GUID = "896e6be9-8217-4a1c-b938-09b30966157a";
     private static final String ORG_GUID = "0a42c085-b772-4b1e-bf4d-75c463aab5f6";
@@ -112,6 +115,10 @@ class OperationsApiServiceImplTest {
     public void initialize() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
+        operationsApiService = new OperationsApiServiceImpl(clientFactory, tokenService, operationService, operationMetadataMapper,
+                                                            logsService, flowableFacade, operationsHelper, progressMessageService,
+                                                            processActionRegistry, operationsApiServiceAuditLog, apiUsageLogger,
+                                                            httpServletRequest);
         operations = new LinkedList<>();
         operations.add(createOperation(FINISHED_PROCESS, Operation.State.FINISHED, Collections.emptyMap()));
         operations.add(createOperation(RUNNING_PROCESS, Operation.State.RUNNING, Collections.emptyMap()));
