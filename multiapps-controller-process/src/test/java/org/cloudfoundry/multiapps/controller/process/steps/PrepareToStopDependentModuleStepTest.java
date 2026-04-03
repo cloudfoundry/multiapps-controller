@@ -71,8 +71,7 @@ class PrepareToStopDependentModuleStepTest extends SyncFlowableStepTest<PrepareT
                                                                                                  .metadata(ImmutableCloudMetadata.of(
                                                                                                      UUID.randomUUID()
                                                                                                  ))
-                                                                                                 .staging(createStaging(
-                                                                                                     true))
+                                                                                                 .staging(createStaging())
                                                                                                  .build();
         context.setVariable(Variables.APP_TO_PROCESS, applicationExtended);
         context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, completeDeploymentDescriptor);
@@ -80,9 +79,8 @@ class PrepareToStopDependentModuleStepTest extends SyncFlowableStepTest<PrepareT
         when(applicationCloudModelBuilder.build(Mockito.any(), Mockito.any())).thenReturn(applicationExtended);
     }
 
-    private Staging createStaging(boolean isReadinessHealthCheckEnabled) {
+    private Staging createStaging() {
         return ImmutableStaging.builder()
-                               .isReadinessHealthCheckEnabled(isReadinessHealthCheckEnabled)
                                .readinessHealthCheckType("http")
                                .build();
     }

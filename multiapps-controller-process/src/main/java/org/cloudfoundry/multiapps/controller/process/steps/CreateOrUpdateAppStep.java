@@ -19,8 +19,6 @@ import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudApplication;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ImmutableApplicationToCreateDto;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
@@ -72,7 +70,6 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         CloudControllerClient client = context.getControllerClient();
         CloudApplication existingApp = client.getApplication(app.getName(), false);
         context.setVariable(Variables.EXISTING_APP, existingApp);
-        app = getApplicationWithReadinessEnabledInStaging(app);
 
         StepFlowHandler flowHandler = createStepFlowHandler(context, client, app, existingApp);
 
@@ -108,17 +105,6 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             return new CreateAppFlowHandler(context, client, app);
         }
         return new UpdateAppFlowHandler(context, client, app, existingApp);
-    }
-
-    private CloudApplicationExtended getApplicationWithReadinessEnabledInStaging(CloudApplicationExtended app) {
-        Boolean isReadinessHealthCheckEnabled = configuration.getIsReadinessHealthCheckEnabled();
-        if (isReadinessHealthCheckEnabled == null || !isReadinessHealthCheckEnabled) {
-            return app;
-        }
-        Staging newStaging = ImmutableStaging.copyOf(app.getStaging())
-                                             .withIsReadinessHealthCheckEnabled(configuration.getIsReadinessHealthCheckEnabled());
-        return ImmutableCloudApplicationExtended.copyOf(app)
-                                                .withStaging(newStaging);
     }
 
     private abstract class StepFlowHandler {
