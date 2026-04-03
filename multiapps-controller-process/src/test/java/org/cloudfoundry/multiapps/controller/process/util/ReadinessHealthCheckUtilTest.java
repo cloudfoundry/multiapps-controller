@@ -27,40 +27,38 @@ class ReadinessHealthCheckUtilTest {
     static Stream<Arguments> testShouldWaitForAppToBecomeRoutable() {
         return Stream.of(
             // (0) Test shouldWaitForAppToBecomeRoutable when enabled is null
-            Arguments.of(null, null, false),
+            Arguments.of(null, false),
             // (1) Test shouldWaitForAppToBecomeRoutable when enabled is false
-            Arguments.of(false, null, false),
+            Arguments.of(null, false),
             // (2) Test shouldWaitForAppToBecomeRoutable when enabled is true and type is null
-            Arguments.of(true, null, false),
+            Arguments.of(null, false),
             // (3) Test shouldWaitForAppToBecomeRoutable when enabled is true and type is not null
-            Arguments.of(true, "http", true));
+            Arguments.of("http", true));
     }
 
     @ParameterizedTest
     @MethodSource
-    void testShouldWaitForAppToBecomeRoutable(Boolean isReadinessHealthCheckEnabled, String readinessHealthCheckType,
-                                              boolean expectedResult) {
+    void testShouldWaitForAppToBecomeRoutable(String readinessHealthCheckType, boolean expectedResult) {
         assertEquals(expectedResult, ReadinessHealthCheckUtil.shouldWaitForAppToBecomeRoutable(
-            createContext(isReadinessHealthCheckEnabled, readinessHealthCheckType)));
+            createContext(readinessHealthCheckType)));
     }
 
-    private ProcessContext createContext(Boolean isReadinessHealthCheckEnabled, String readinessHealthCheckType) {
+    private ProcessContext createContext(String readinessHealthCheckType) {
         DelegateExecution execution = MockDelegateExecution.createSpyInstance();
         ProcessContext context = new ProcessContext(execution, stepLogger, clientProvider);
 
-        context.setVariable(Variables.APP_TO_PROCESS, createAppToProcess(isReadinessHealthCheckEnabled, readinessHealthCheckType));
+        context.setVariable(Variables.APP_TO_PROCESS, createAppToProcess(readinessHealthCheckType));
         return context;
     }
 
-    private CloudApplicationExtended createAppToProcess(Boolean isReadinessHealthCheckEnabled, String readinessHealthCheckType) {
+    private CloudApplicationExtended createAppToProcess(String readinessHealthCheckType) {
         return ImmutableCloudApplicationExtended.builder()
-                                                .staging(createStaging(isReadinessHealthCheckEnabled, readinessHealthCheckType))
+                                                .staging(createStaging(readinessHealthCheckType))
                                                 .build();
     }
 
-    private Staging createStaging(Boolean isReadinessHealthCheckEnabled, String readinessHealthCheckType) {
+    private Staging createStaging(String readinessHealthCheckType) {
         return ImmutableStaging.builder()
-                               .isReadinessHealthCheckEnabled(isReadinessHealthCheckEnabled)
                                .readinessHealthCheckType(readinessHealthCheckType)
                                .build();
     }
