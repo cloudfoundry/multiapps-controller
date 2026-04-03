@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.cf.clients;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -13,48 +11,23 @@ import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 
 public class ServiceInstanceRoutesGetter extends CustomControllerClient {
 
-    private static final int MAX_CHAR_LENGTH_FOR_PARAMS_IN_REQUEST = 4000;
+    private static final String SERVICE_ROUTE_BINDINGS_URI_PREFIX = "/v3/service_route_bindings?";
+    private static final String ROUTE_GUIDS_PARAM_PREFIX = "route_guids=";
 
     public ServiceInstanceRoutesGetter(ApplicationConfiguration configuration, WebClientFactory webClientFactory,
                                        CloudCredentials credentials, String correlationId) {
         super(configuration, webClientFactory, credentials, correlationId);
     }
 
-    public List<ServiceRouteBinding> getServiceRouteBindings(Collection<String> routeGuids) {
+    public List<ServiceRouteBinding> getServiceRouteBindings(List<String> routeGuids) {
         return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> doGetServiceRouteBindings(routeGuids));
     }
 
-    private List<ServiceRouteBinding> doGetServiceRouteBindings(Collection<String> routeGuids) {
-        var batchedRouteGuids = getBatchedRouteGuids(routeGuids);
-        var responseMapper = new ServiceRouteBindingsResponseMapper();
-        return batchedRouteGuids.stream()
-                                .map(this::getServiceRouteBindingsUrl)
-                                .map(url -> getListOfResources(responseMapper, url))
-                                .flatMap(List::stream)
-                                .collect(Collectors.toList());
-    }
-
-    private List<List<String>> getBatchedRouteGuids(Collection<String> routeGuids) {
-        List<List<String>> batches = new ArrayList<>();
-        int currentBatchLength = 0, currentBatchIndex = 0;
-        batches.add(new ArrayList<>());
-
-        for (String routeGuid : routeGuids) {
-            int elementLength = routeGuid.length();
-            if (elementLength + currentBatchLength >= MAX_CHAR_LENGTH_FOR_PARAMS_IN_REQUEST) {
-                batches.add(new ArrayList<>());
-                currentBatchIndex++;
-                currentBatchLength = 0;
-            }
-            batches.get(currentBatchIndex)
-                   .add(routeGuid);
-            currentBatchLength += elementLength;
-        }
-        return batches;
-    }
-
-    private String getServiceRouteBindingsUrl(Collection<String> routeGuids) {
-        return "/v3/service_route_bindings?route_guids=" + String.join(",", routeGuids);
+    private List<ServiceRouteBinding> doGetServiceRouteBindings(List<String> routeGuids) {
+        return getListOfResourcesInBatches(new ServiceRouteBindingsResponseMapper(),
+                                           SERVICE_ROUTE_BINDINGS_URI_PREFIX,
+                                           ROUTE_GUIDS_PARAM_PREFIX,
+                                           routeGuids);
     }
 
     protected static class ServiceRouteBindingsResponseMapper extends ResourcesResponseMapper<ServiceRouteBinding> {

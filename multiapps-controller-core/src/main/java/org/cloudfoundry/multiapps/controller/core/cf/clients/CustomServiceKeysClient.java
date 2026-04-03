@@ -18,11 +18,10 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 
 public class CustomServiceKeysClient extends CustomControllerClient {
-
     private static final String SERVICE_KEYS_RESOURCE_BASE_URI = "/v3/service_credential_bindings";
     private static final String SERVICE_KEYS_BY_METADATA_SELECTOR_URI = SERVICE_KEYS_RESOURCE_BASE_URI + "?type=key&label_selector={value}";
     private static final String INCLUDE_SERVICE_INSTANCE_RESOURCES_PARAM = "&include=service_instance";
-
+    private static final String SERVICE_INSTANCE_GUIDS_PARAM_PREFIX = "&service_instance_guids=";
     private final CloudEntityResourceMapper resourceMapper = new CloudEntityResourceMapper();
 
     public CustomServiceKeysClient(ApplicationConfiguration configuration, WebClientFactory webClientFactory, CloudCredentials credentials,
@@ -35,17 +34,13 @@ public class CustomServiceKeysClient extends CustomControllerClient {
         String mtaId,
         String mtaNamespace,
         List<String> existingServiceGuids) {
-
         String labelSelector = buildMtaMetadataLabelSelector(spaceGuid, mtaId, mtaNamespace);
-
         List<String> allServiceGuids = existingServiceGuids.stream()
                                                            .filter(Objects::nonNull)
                                                            .toList();
-
         if (allServiceGuids.isEmpty()) {
             return List.of();
         }
-
         return new CustomControllerClientErrorHandler()
             .handleErrorsOrReturnResult(
                 () -> getServiceKeysByMetadataInternal(labelSelector, allServiceGuids)
@@ -57,15 +52,11 @@ public class CustomServiceKeysClient extends CustomControllerClient {
         String mtaId,
         String mtaNamespace,
         List<DeployedMtaService> services) {
-
         String labelSelector = buildMtaMetadataLabelSelector(spaceGuid, mtaId, mtaNamespace);
-
         List<String> managedGuids = extractManagedServiceGuids(services);
-
         if (managedGuids.isEmpty()) {
             return List.of();
         }
-
         return new CustomControllerClientErrorHandler()
             .handleErrorsOrReturnResult(
                 () -> getServiceKeysByMetadataInternal(labelSelector, managedGuids)
@@ -75,7 +66,6 @@ public class CustomServiceKeysClient extends CustomControllerClient {
     private String buildMtaMetadataLabelSelector(String spaceGuid,
                                                  String mtaId,
                                                  String mtaNamespace) {
-
         return MtaMetadataCriteriaBuilder.builder()
                                          .label(MtaMetadataLabels.SPACE_GUID)
                                          .hasValue(spaceGuid)
@@ -98,13 +88,12 @@ public class CustomServiceKeysClient extends CustomControllerClient {
     }
 
     private List<DeployedMtaServiceKey> getServiceKeysByMetadataInternal(String labelSelector, List<String> guids) {
-
-        String uriSuffix = INCLUDE_SERVICE_INSTANCE_RESOURCES_PARAM
-            + "&service_instance_guids=" + String.join(",", guids);
-
-        return getListOfResources(new ServiceKeysResponseMapper(),
-                                  SERVICE_KEYS_BY_METADATA_SELECTOR_URI + uriSuffix,
-                                  labelSelector);
+        String expandedUriPrefix = SERVICE_KEYS_BY_METADATA_SELECTOR_URI.replace("{value}", labelSelector)
+            + INCLUDE_SERVICE_INSTANCE_RESOURCES_PARAM;
+        return getListOfResourcesInBatches(new ServiceKeysResponseMapper(),
+                                           expandedUriPrefix,
+                                           SERVICE_INSTANCE_GUIDS_PARAM_PREFIX,
+                                           guids);
     }
 
     private List<DeployedMtaService> getManagedServices(List<DeployedMtaService> services) {
@@ -132,12 +121,10 @@ public class CustomServiceKeysClient extends CustomControllerClient {
 
         public Map<String, CloudServiceInstance> getIncludedServiceInstancesMapping() {
             List<Object> serviceInstances = getIncludedResources().getOrDefault("service_instances", Collections.emptyList());
-
             return serviceInstances.stream()
                                    .distinct()
                                    .map(service -> (Map<String, Object>) service)
                                    .collect(Collectors.toMap(service -> (String) service.get("guid"), resourceMapper::mapService));
-
         }
     }
 }
