@@ -69,14 +69,16 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
     }
 
     private String buildCurrentPhaseString(ProcessContext context, Hook hook) {
-        // The hook's own phase string already contains the correct deployment type prefix.
-        // Use it directly rather than reconstructing from context variables that may be
-        // unavailable in the hook subprocess (e.g. SERVICE_ID absent → null process type).
+        String hookExecutionPhase = context.getVariable(Variables.HOOK_EXECUTION_PHASE);
         return hook.getPhases()
                    .stream()
-                   .filter(p -> p.contains(".application."))
+                   .filter(p -> p.equals(hookExecutionPhase))
                    .findFirst()
-                   .orElse("");
+                   .orElseGet(() -> hook.getPhases()
+                                        .stream()
+                                        .filter(p -> p.contains(".application."))
+                                        .findFirst()
+                                        .orElse(""));
     }
 
     private String resolveAppNameForTarget(ProcessContext context, CloudApplicationExtended app, String targetApp) {
