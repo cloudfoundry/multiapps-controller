@@ -26,6 +26,13 @@ public class DefaultApplicationServicesUpdateCallback implements ApplicationServ
 
     @Override
     public void onError(CloudOperationException e, String applicationName, String serviceInstanceName) {
+        // Handle 404 Not Found - service instance may have been deleted during rollback/unbind
+        if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+            context.getStepLogger()
+                   .debug(String.format("%s: Service instance \"{%s}\" was not found; skipping binding (service may have been deleted)",
+                                       Messages.COULD_NOT_BIND_SERVICE_TO_APP, serviceInstanceName));
+            return;
+        }
         if (e.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
             UUID applicationGuid = controllerClient.getApplicationGuid(applicationName);
             UUID serviceInstanceGuid = controllerClient.getRequiredServiceInstanceGuid(serviceInstanceName);
