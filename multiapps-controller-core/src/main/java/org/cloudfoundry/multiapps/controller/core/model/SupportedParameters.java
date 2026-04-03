@@ -217,7 +217,9 @@ public class SupportedParameters {
     public static final Set<String> DEPENDENCY_PARAMETERS = Set.of(BINDING_NAME, ENV_VAR_NAME, VISIBILITY, USE_LIVE_ROUTES,
                                                                    SERVICE_BINDING_CONFIG, DELETE_SERVICE_KEY_AFTER_DEPLOYMENT);
 
-    public static final Set<String> MODULE_HOOK_PARAMETERS = Set.of(NAME, COMMAND, MEMORY, DISK_QUOTA, HOOK_REQUIRES);
+    public static final String HOOK_TARGET_APP = "hook-target-app";
+
+    public static final Set<String> MODULE_HOOK_PARAMETERS = Set.of(NAME, COMMAND, MEMORY, DISK_QUOTA, HOOK_REQUIRES, HOOK_TARGET_APP);
 
     public static final Set<String> CONFIGURATION_REFERENCE_PARAMETERS = Set.of(PROVIDER_NID, PROVIDER_ID, TARGET, VERSION,
                                                                                 DEPRECATED_CONFIG_MTA_ID, DEPRECATED_CONFIG_MTA_VERSION,
