@@ -2,40 +2,21 @@ package org.cloudfoundry.multiapps.controller.core.cf.clients;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
-import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class CFOptimizedEventGetterTest {
+class CFOptimizedEventGetterTest extends CustomControllerClientBaseTest {
 
     private static final String EVENT_TYPE = "audit.app.update";
     private static final String TIMESTAMP = "2024-06-01T00:00:00Z";
-
-    @Mock
-    private WebClientFactory webClientFactory;
-    @Mock
-    private ApplicationConfiguration applicationConfiguration;
-    @Mock
-    private WebClient webClient;
-
-    @SuppressWarnings("rawtypes")
-    private final WebClient.RequestHeadersUriSpec requestHeadersUriSpec = Mockito.mock(WebClient.RequestHeadersUriSpec.class);
-    @SuppressWarnings("rawtypes")
-    private final WebClient.RequestHeadersSpec requestHeadersSpec = Mockito.mock(WebClient.RequestHeadersSpec.class);
-    @Mock
-    private WebClient.ResponseSpec responseSpec;
 
     private CFOptimizedEventGetter client;
 
@@ -53,7 +34,7 @@ class CFOptimizedEventGetterTest {
 
     @Test
     void testFindEventsBuildsCorrectUri() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         client.findEvents(EVENT_TYPE, TIMESTAMP);
 
@@ -70,7 +51,7 @@ class CFOptimizedEventGetterTest {
 
     @Test
     void testFindEventsWithEmptyResponseReturnsEmptyList() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         List<String> result = client.findEvents(EVENT_TYPE, TIMESTAMP);
 
@@ -82,7 +63,7 @@ class CFOptimizedEventGetterTest {
         String spaceGuid = UUID.randomUUID()
                                .toString();
         String responseJson = buildAuditEventsResponse(List.of(spaceGuid));
-        stubWebClientToReturn(responseJson);
+        stubWebClientToReturnResponse(responseJson);
 
         List<String> result = client.findEvents(EVENT_TYPE, TIMESTAMP);
 
@@ -99,7 +80,7 @@ class CFOptimizedEventGetterTest {
         String spaceGuid3 = UUID.randomUUID()
                                 .toString();
         String responseJson = buildAuditEventsResponse(List.of(spaceGuid1, spaceGuid2, spaceGuid3));
-        stubWebClientToReturn(responseJson);
+        stubWebClientToReturnResponse(responseJson);
 
         List<String> result = client.findEvents(EVENT_TYPE, TIMESTAMP);
 
@@ -115,7 +96,7 @@ class CFOptimizedEventGetterTest {
                                .toString();
         // Build a response with one event having a valid space guid and one with null guid
         String responseJson = buildAuditEventsResponseWithNullSpaceGuid(spaceGuid);
-        stubWebClientToReturn(responseJson);
+        stubWebClientToReturnResponse(responseJson);
 
         List<String> result = client.findEvents(EVENT_TYPE, TIMESTAMP);
 
@@ -133,7 +114,7 @@ class CFOptimizedEventGetterTest {
         String page1Json = buildAuditEventsResponseWithPagination(List.of(spaceGuid1), "/v3/audit_events?page=2");
         String page2Json = buildAuditEventsResponse(List.of(spaceGuid2));
 
-        stubWebClientToReturnSequentially(page1Json, page2Json);
+        stubWebClientToReturnResponse(page1Json, page2Json);
 
         List<String> result = client.findEvents(EVENT_TYPE, TIMESTAMP);
 
@@ -144,7 +125,7 @@ class CFOptimizedEventGetterTest {
 
     @Test
     void testFindEventsMakesExactlyOneHttpCallForSinglePage() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         client.findEvents(EVENT_TYPE, TIMESTAMP);
 
@@ -160,7 +141,7 @@ class CFOptimizedEventGetterTest {
         String page1Json = buildAuditEventsResponseWithPagination(List.of(spaceGuid), "/v3/audit_events?page=2");
         String page2Json = buildAuditEventsResponse(List.of(spaceGuid));
 
-        stubWebClientToReturnSequentially(page1Json, page2Json);
+        stubWebClientToReturnResponse(page1Json, page2Json);
 
         client.findEvents(EVENT_TYPE, TIMESTAMP);
 
@@ -170,7 +151,7 @@ class CFOptimizedEventGetterTest {
 
     @Test
     void testFindEventsWithDifferentEventType() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         String customType = "audit.app.delete";
         client.findEvents(customType, TIMESTAMP);
@@ -185,7 +166,7 @@ class CFOptimizedEventGetterTest {
 
     @Test
     void testFindEventsWithDifferentTimestamp() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         String customTimestamp = "2025-12-31T23:59:59Z";
         client.findEvents(EVENT_TYPE, customTimestamp);
@@ -204,63 +185,11 @@ class CFOptimizedEventGetterTest {
                                .toString();
         // Same space guid appearing in multiple events
         String responseJson = buildAuditEventsResponse(List.of(spaceGuid, spaceGuid, spaceGuid));
-        stubWebClientToReturn(responseJson);
+        stubWebClientToReturnResponse(responseJson);
 
         List<String> result = client.findEvents(EVENT_TYPE, TIMESTAMP);
 
         assertEquals(3, result.size(), "Duplicate space IDs should be preserved since the mapper does not deduplicate");
-    }
-
-    @SuppressWarnings("unchecked")
-    private void stubWebClientToReturnEmptyPage() {
-        Mockito.when(webClient.get())
-               .thenReturn(requestHeadersUriSpec);
-        Mockito.when(requestHeadersUriSpec.uri(Mockito.anyString()))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.headers(Mockito.any(Consumer.class)))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.retrieve())
-               .thenReturn(responseSpec);
-        Mockito.when(responseSpec.bodyToMono(String.class))
-               .thenReturn(Mono.just("{\"resources\":[],\"pagination\":{\"next\":null}}"));
-    }
-
-    @SuppressWarnings("unchecked")
-    private void stubWebClientToReturn(String responseJson) {
-        Mockito.when(webClient.get())
-               .thenReturn(requestHeadersUriSpec);
-        Mockito.when(requestHeadersUriSpec.uri(Mockito.anyString()))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.headers(Mockito.any(Consumer.class)))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.retrieve())
-               .thenReturn(responseSpec);
-        Mockito.when(responseSpec.bodyToMono(String.class))
-               .thenReturn(Mono.just(responseJson));
-    }
-
-    @SuppressWarnings("unchecked")
-    private void stubWebClientToReturnSequentially(String... responses) {
-        Mockito.when(webClient.get())
-               .thenReturn(requestHeadersUriSpec);
-        Mockito.when(requestHeadersUriSpec.uri(Mockito.anyString()))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.headers(Mockito.any(Consumer.class)))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.retrieve())
-               .thenReturn(responseSpec);
-
-        if (responses.length == 1) {
-            Mockito.when(responseSpec.bodyToMono(String.class))
-                   .thenReturn(Mono.just(responses[0]));
-        } else {
-            @SuppressWarnings("rawtypes") Mono[] remaining = new Mono[responses.length - 1];
-            for (int i = 1; i < responses.length; i++) {
-                remaining[i - 1] = Mono.just(responses[i]);
-            }
-            Mockito.when(responseSpec.bodyToMono(String.class))
-                   .thenReturn(Mono.just(responses[0]), remaining);
-        }
     }
 
     private String buildAuditEventsResponse(List<String> spaceGuids) {

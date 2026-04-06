@@ -2,39 +2,20 @@ package org.cloudfoundry.multiapps.controller.core.cf.clients;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
-import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class AppBoundServiceInstanceNamesGetterTest {
+class AppBoundServiceInstanceNamesGetterTest extends CustomControllerClientBaseTest {
 
     private static final String CORRELATION_ID = "test-correlation-id";
-
-    @Mock
-    private WebClientFactory webClientFactory;
-    @Mock
-    private ApplicationConfiguration applicationConfiguration;
-    @Mock
-    private WebClient webClient;
-
-    @SuppressWarnings("rawtypes")
-    private final WebClient.RequestHeadersUriSpec requestHeadersUriSpec = Mockito.mock(WebClient.RequestHeadersUriSpec.class);
-    @SuppressWarnings("rawtypes")
-    private final WebClient.RequestHeadersSpec requestHeadersSpec = Mockito.mock(WebClient.RequestHeadersSpec.class);
-    @Mock
-    private WebClient.ResponseSpec responseSpec;
 
     private AppBoundServiceInstanceNamesGetter client;
 
@@ -53,7 +34,7 @@ class AppBoundServiceInstanceNamesGetterTest {
 
     @Test
     void testGetServiceInstanceNamesBoundToAppBuildsCorrectUri() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         UUID appGuid = UUID.randomUUID();
         client.getServiceInstanceNamesBoundToApp(appGuid);
@@ -73,7 +54,7 @@ class AppBoundServiceInstanceNamesGetterTest {
 
     @Test
     void testGetServiceInstanceNamesBoundToAppWithEmptyResponseReturnsEmptyList() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         UUID appGuid = UUID.randomUUID();
         List<String> result = client.getServiceInstanceNamesBoundToApp(appGuid);
@@ -84,8 +65,8 @@ class AppBoundServiceInstanceNamesGetterTest {
     @Test
     void testGetServiceInstanceNamesBoundToAppReturnsSingleServiceName() {
         String serviceName = "my-database";
-        String responseJson = buildResponseWithIncludedServiceInstances(List.of(serviceName));
-        stubWebClientToReturn(responseJson);
+        String responseJson = buildResponseWithIncludedServiceInstances(List.of(serviceName), null);
+        stubWebClientToReturnResponse(responseJson);
 
         UUID appGuid = UUID.randomUUID();
         List<String> result = client.getServiceInstanceNamesBoundToApp(appGuid);
@@ -97,8 +78,8 @@ class AppBoundServiceInstanceNamesGetterTest {
     @Test
     void testGetServiceInstanceNamesBoundToAppReturnsMultipleServiceNames() {
         List<String> serviceNames = List.of("db-service", "cache-service", "queue-service");
-        String responseJson = buildResponseWithIncludedServiceInstances(serviceNames);
-        stubWebClientToReturn(responseJson);
+        String responseJson = buildResponseWithIncludedServiceInstances(serviceNames, null);
+        stubWebClientToReturnResponse(responseJson);
 
         UUID appGuid = UUID.randomUUID();
         List<String> result = client.getServiceInstanceNamesBoundToApp(appGuid);
@@ -112,8 +93,8 @@ class AppBoundServiceInstanceNamesGetterTest {
     @Test
     void testGetServiceInstanceNamesBoundToAppDeduplicatesServiceNames() {
         List<String> serviceNames = List.of("my-service", "my-service", "other-service");
-        String responseJson = buildResponseWithIncludedServiceInstances(serviceNames);
-        stubWebClientToReturn(responseJson);
+        String responseJson = buildResponseWithIncludedServiceInstances(serviceNames, null);
+        stubWebClientToReturnResponse(responseJson);
 
         UUID appGuid = UUID.randomUUID();
         List<String> result = client.getServiceInstanceNamesBoundToApp(appGuid);
@@ -127,7 +108,7 @@ class AppBoundServiceInstanceNamesGetterTest {
     void testGetServiceInstanceNamesBoundToAppWithNoIncludedResourcesReturnsEmptyList() {
         // Response has resources but no "included" section
         String responseJson = "{\"resources\":[{\"guid\":\"" + UUID.randomUUID() + "\"}],\"pagination\":{\"next\":null}}";
-        stubWebClientToReturn(responseJson);
+        stubWebClientToReturnResponse(responseJson);
 
         UUID appGuid = UUID.randomUUID();
         List<String> result = client.getServiceInstanceNamesBoundToApp(appGuid);
@@ -137,11 +118,11 @@ class AppBoundServiceInstanceNamesGetterTest {
 
     @Test
     void testGetServiceInstanceNamesBoundToAppPaginatedResponseFollowsAllPages() {
-        String page1Json = buildResponseWithIncludedServiceInstancesAndPagination(
+        String page1Json = buildResponseWithIncludedServiceInstances(
             List.of("svc-page1"), "/v3/service_credential_bindings?page=2");
-        String page2Json = buildResponseWithIncludedServiceInstances(List.of("svc-page2"));
+        String page2Json = buildResponseWithIncludedServiceInstances(List.of("svc-page2"), null);
 
-        stubWebClientToReturnSequentially(page1Json, page2Json);
+        stubWebClientToReturnResponse(page1Json, page2Json);
 
         UUID appGuid = UUID.randomUUID();
         List<String> result = client.getServiceInstanceNamesBoundToApp(appGuid);
@@ -153,7 +134,7 @@ class AppBoundServiceInstanceNamesGetterTest {
 
     @Test
     void testGetServiceInstanceNamesBoundToAppMakesExactlyOneHttpCallForSinglePage() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         UUID appGuid = UUID.randomUUID();
         client.getServiceInstanceNamesBoundToApp(appGuid);
@@ -164,11 +145,11 @@ class AppBoundServiceInstanceNamesGetterTest {
 
     @Test
     void testGetServiceInstanceNamesBoundToAppMakesTwoHttpCallsForTwoPages() {
-        String page1Json = buildResponseWithIncludedServiceInstancesAndPagination(
+        String page1Json = buildResponseWithIncludedServiceInstances(
             List.of("svc-1"), "/v3/service_credential_bindings?page=2");
-        String page2Json = buildResponseWithIncludedServiceInstances(List.of("svc-2"));
+        String page2Json = buildResponseWithIncludedServiceInstances(List.of("svc-2"), null);
 
-        stubWebClientToReturnSequentially(page1Json, page2Json);
+        stubWebClientToReturnResponse(page1Json, page2Json);
 
         UUID appGuid = UUID.randomUUID();
         client.getServiceInstanceNamesBoundToApp(appGuid);
@@ -183,7 +164,7 @@ class AppBoundServiceInstanceNamesGetterTest {
         String responseJson = "{\"resources\":[{\"guid\":\"" + UUID.randomUUID() + "\"}],"
             + "\"included\":{\"service_instances\":[]},"
             + "\"pagination\":{\"next\":null}}";
-        stubWebClientToReturn(responseJson);
+        stubWebClientToReturnResponse(responseJson);
 
         UUID appGuid = UUID.randomUUID();
         List<String> result = client.getServiceInstanceNamesBoundToApp(appGuid);
@@ -194,11 +175,11 @@ class AppBoundServiceInstanceNamesGetterTest {
     @Test
     void testGetServiceInstanceNamesBoundToAppDeduplicatesAcrossPages() {
         // Same service name appears on both pages
-        String page1Json = buildResponseWithIncludedServiceInstancesAndPagination(
+        String page1Json = buildResponseWithIncludedServiceInstances(
             List.of("shared-service"), "/v3/service_credential_bindings?page=2");
-        String page2Json = buildResponseWithIncludedServiceInstances(List.of("shared-service"));
+        String page2Json = buildResponseWithIncludedServiceInstances(List.of("shared-service"), null);
 
-        stubWebClientToReturnSequentially(page1Json, page2Json);
+        stubWebClientToReturnResponse(page1Json, page2Json);
 
         UUID appGuid = UUID.randomUUID();
         List<String> result = client.getServiceInstanceNamesBoundToApp(appGuid);
@@ -207,102 +188,58 @@ class AppBoundServiceInstanceNamesGetterTest {
         assertEquals("shared-service", result.getFirst());
     }
 
-    @SuppressWarnings("unchecked")
-    private void stubWebClientToReturnEmptyPage() {
-        Mockito.when(webClient.get())
-               .thenReturn(requestHeadersUriSpec);
-        Mockito.when(requestHeadersUriSpec.uri(Mockito.anyString()))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.headers(Mockito.any(Consumer.class)))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.retrieve())
-               .thenReturn(responseSpec);
-        Mockito.when(responseSpec.bodyToMono(String.class))
-               .thenReturn(Mono.just("{\"resources\":[],\"pagination\":{\"next\":null}}"));
+    private String buildResponseWithIncludedServiceInstances(List<String> serviceNames, String nextPageHref) {
+        List<UUID> serviceInstanceGuids = serviceNames.stream()
+                                                      .map(service -> UUID.randomUUID())
+                                                      .toList();
+        String bindingResourcesJson = buildBindingResourcesJson(serviceInstanceGuids);
+        String serviceInstancesJson = buildServiceInstanceResourcesJson(serviceNames, serviceInstanceGuids);
+        String paginationJson = buildPaginationJson(nextPageHref);
+
+        return "{\"resources\":[" + bindingResourcesJson + "],"
+            + "\"included\":{\"service_instances\":[" + serviceInstancesJson + "]},"
+            + "\"pagination\":" + paginationJson + "}";
     }
 
-    @SuppressWarnings("unchecked")
-    private void stubWebClientToReturn(String responseJson) {
-        Mockito.when(webClient.get())
-               .thenReturn(requestHeadersUriSpec);
-        Mockito.when(requestHeadersUriSpec.uri(Mockito.anyString()))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.headers(Mockito.any(Consumer.class)))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.retrieve())
-               .thenReturn(responseSpec);
-        Mockito.when(responseSpec.bodyToMono(String.class))
-               .thenReturn(Mono.just(responseJson));
-    }
-
-    @SuppressWarnings("unchecked")
-    private void stubWebClientToReturnSequentially(String... responses) {
-        Mockito.when(webClient.get())
-               .thenReturn(requestHeadersUriSpec);
-        Mockito.when(requestHeadersUriSpec.uri(Mockito.anyString()))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.headers(Mockito.any(Consumer.class)))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.retrieve())
-               .thenReturn(responseSpec);
-
-        if (responses.length == 1) {
-            Mockito.when(responseSpec.bodyToMono(String.class))
-                   .thenReturn(Mono.just(responses[0]));
-        } else {
-            @SuppressWarnings("rawtypes") Mono[] remaining = new Mono[responses.length - 1];
-            for (int i = 1; i < responses.length; i++) {
-                remaining[i - 1] = Mono.just(responses[i]);
-            }
-            Mockito.when(responseSpec.bodyToMono(String.class))
-                   .thenReturn(Mono.just(responses[0]), remaining);
-        }
-    }
-
-    private String buildResponseWithIncludedServiceInstances(List<String> serviceNames) {
-        return buildResponseWithIncludedServiceInstancesAndPagination(serviceNames, null);
-    }
-
-    private String buildResponseWithIncludedServiceInstancesAndPagination(List<String> serviceNames, String nextPageHref) {
-        String nextPage = nextPageHref == null ? "null" : "{\"href\":\"" + nextPageHref + "\"}";
-
-        StringBuilder bindingResources = new StringBuilder();
-        StringBuilder serviceInstanceResources = new StringBuilder();
-
-        for (int i = 0; i < serviceNames.size(); i++) {
-            UUID serviceInstanceGuid = UUID.randomUUID();
-
+    private String buildBindingResourcesJson(List<UUID> serviceInstanceGuids) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < serviceInstanceGuids.size(); i++) {
             if (i > 0) {
-                bindingResources.append(",");
-                serviceInstanceResources.append(",");
+                sb.append(",");
             }
-
-            bindingResources.append("{")
-                            .append("\"guid\":\"")
-                            .append(UUID.randomUUID())
-                            .append("\",")
-                            .append("\"type\":\"app\",")
-                            .append("\"relationships\":{")
-                            .append("  \"service_instance\":{\"data\":{\"guid\":\"")
-                            .append(serviceInstanceGuid)
-                            .append("\"}}")
-                            .append("}")
-                            .append("}");
-
-            serviceInstanceResources.append("{")
-                                    .append("\"guid\":\"")
-                                    .append(serviceInstanceGuid)
-                                    .append("\",")
-                                    .append("\"name\":\"")
-                                    .append(serviceNames.get(i))
-                                    .append("\",")
-                                    .append("\"type\":\"managed\"")
-                                    .append("}");
+            sb.append(buildSingleBindingResourceJson(serviceInstanceGuids.get(i)));
         }
+        return sb.toString();
+    }
 
-        return "{\"resources\":[" + bindingResources + "],"
-            + "\"included\":{\"service_instances\":[" + serviceInstanceResources + "]},"
-            + "\"pagination\":{\"next\":" + nextPage + "}}";
+    private String buildSingleBindingResourceJson(UUID serviceInstanceGuid) {
+        return "{\"guid\":\"" + UUID.randomUUID() + "\","
+            + "\"type\":\"app\","
+            + "\"relationships\":{"
+            + "\"service_instance\":{\"data\":{\"guid\":\"" + serviceInstanceGuid + "\"}}"
+            + "}}";
+    }
+
+    private String buildServiceInstanceResourcesJson(List<String> serviceNames, List<UUID> serviceInstanceGuids) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < serviceNames.size(); i++) {
+            if (i > 0) {
+                sb.append(",");
+            }
+            sb.append(buildSingleServiceInstanceJson(serviceNames.get(i), serviceInstanceGuids.get(i)));
+        }
+        return sb.toString();
+    }
+
+    private String buildSingleServiceInstanceJson(String serviceName, UUID serviceInstanceGuid) {
+        return "{\"guid\":\"" + serviceInstanceGuid + "\","
+            + "\"name\":\"" + serviceName + "\","
+            + "\"type\":\"managed\"}";
+    }
+
+    private String buildPaginationJson(String nextPageHref) {
+        String nextPage = nextPageHref == null ? "null" : "{\"href\":\"" + nextPageHref + "\"}";
+        return "{\"next\":" + nextPage + "}";
     }
 }
 

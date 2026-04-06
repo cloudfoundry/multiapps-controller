@@ -36,28 +36,71 @@ public abstract class CustomControllerClient {
         this.headerConfiguration = new CloudControllerHeaderConfiguration(configuration.getVersion());
     }
 
-    protected <T> List<T> getListOfResources(ResourcesResponseMapper<T> responseMapper, String uri) {
-        PaginationV3 pagination = addPageOfResources(uri, responseMapper);
+    protected <T> List<T> getListOfResources(ResourcesResponseMapper<T> responseMapper, String uri, Object... urlVariables) {
+        PaginationV3 pagination = addPageOfResources(uri, responseMapper, urlVariables);
         while (!StringUtils.isEmpty(pagination.getNextUri())) {
             pagination = addPageOfResources(pagination.getNextUri(), responseMapper);
         }
         return responseMapper.getMappedResources();
     }
 
-    protected <T> List<T> getListOfResourcesInBatches(ResourcesResponseMapper<T> responseMapper, String uriPrefix, String batchParamPrefix,
-                                                      List<String> batchValues) {
-        int fixedUriLength = uriPrefix.length() + batchParamPrefix.length();
-        List<List<String>> batches = splitIntoBatches(batchValues, fixedUriLength);
+    private PaginationV3 addPageOfResources(String uri, ResourcesResponseMapper<?> responseMapper, Object... urlVariables) {
+        String responseString = webClient.get()
+                                         .uri(uri, urlVariables)
+                                         .headers(httpHeaders -> httpHeaders.addAll(generateRequestHeaders()))
+                                         .retrieve()
+                                         .bodyToMono(String.class)
+                                         .block();
+        Map<String, Object> responseMap = JsonUtil.convertJsonToMap(responseString);
+        responseMapper.addResources(responseMap);
+        return PaginationV3.fromResponse(responseMap);
+    }
+
+    private MultiValueMap<String, String> generateRequestHeaders() {
+        var result = new LinkedMultiValueMap<String, String>();
+        headerConfiguration.generateHeaders(correlationId)
+                           .forEach(result::add);
+        return result;
+    }
+
+    protected <T> List<T> getListOfResourcesInBatches(ResourcesResponseMapper<T> responseMapper, String uriPrefix,
+                                                      List<String> batchValues, Object... urlVariables) {
+        int expandedPrefixLength = calculateExpandedLength(uriPrefix, urlVariables);
+        List<List<String>> batches = splitIntoBatches(batchValues, expandedPrefixLength);
         return batches.stream()
-                      .map(batch -> {
-                          String uri = uriPrefix + batchParamPrefix + String.join(",", batch);
-                          return getListOfResources(responseMapper, uri);
-                      })
+                      .map(batch ->
+                               getListOfResources(responseMapper, uriPrefix, batch, urlVariables)
+                      )
                       .flatMap(List::stream)
                       .toList();
     }
 
-    List<List<String>> splitIntoBatches(List<String> values, int fixedUriLength) {
+    private int calculateExpandedLength(String uriPrefix, Object[] urlVariables) {
+        if (urlVariables == null || urlVariables.length == 0) {
+            return uriPrefix.length();
+        }
+        int urlVariablesLength = 0;
+        for (Object variable : urlVariables) {
+            urlVariablesLength += String.valueOf(variable)
+                                        .length();
+        }
+        int placeholdersLength = calculatePlaceholdersLength(uriPrefix);
+        return (uriPrefix.length() - placeholdersLength) + urlVariablesLength;
+    }
+
+    private int calculatePlaceholdersLength(String uriPrefix) {
+        int length = 0;
+        int searchFrom = 0;
+        int start;
+        int end;
+        while ((start = uriPrefix.indexOf('{', searchFrom)) >= 0 && (end = uriPrefix.indexOf('}', start)) >= 0) {
+            length += end - start + 1;
+            searchFrom = end + 1;
+        }
+        return length;
+    }
+
+    protected List<List<String>> splitIntoBatches(List<String> values, int fixedUriLength) {
         int maxBatchLength = Math.max(1, MAX_URI_QUERY_LENGTH - fixedUriLength);
         List<List<String>> batches = new ArrayList<>();
         List<String> currentBatch = new ArrayList<>();
@@ -82,23 +125,10 @@ public abstract class CustomControllerClient {
         return batches;
     }
 
-    private PaginationV3 addPageOfResources(String uri, ResourcesResponseMapper<?> responseMapper) {
-        String responseString = webClient.get()
-                                         .uri(uri)
-                                         .headers(httpHeaders -> httpHeaders.addAll(generateRequestHeaders()))
-                                         .retrieve()
-                                         .bodyToMono(String.class)
-                                         .block();
-        Map<String, Object> responseMap = JsonUtil.convertJsonToMap(responseString);
-        responseMapper.addResources(responseMap);
-        return PaginationV3.fromResponse(responseMap);
-    }
-
-    private MultiValueMap<String, String> generateRequestHeaders() {
-        var result = new LinkedMultiValueMap<String, String>();
-        headerConfiguration.generateHeaders(correlationId)
-                           .forEach(result::add);
-        return result;
+    private <T> List<T> getListOfResources(ResourcesResponseMapper<T> responseMapper, String uriPrefix,
+                                           List<String> batch, Object... urlVariables) {
+        String uri = uriPrefix + String.join(",", batch);
+        return getListOfResources(responseMapper, uri, urlVariables);
     }
 
     public static abstract class ResourcesResponseMapper<T> {

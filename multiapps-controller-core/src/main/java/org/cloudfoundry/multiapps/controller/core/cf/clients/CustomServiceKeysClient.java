@@ -88,12 +88,11 @@ public class CustomServiceKeysClient extends CustomControllerClient {
     }
 
     private List<DeployedMtaServiceKey> getServiceKeysByMetadataInternal(String labelSelector, List<String> guids) {
-        String expandedUriPrefix = SERVICE_KEYS_BY_METADATA_SELECTOR_URI.replace("{value}", labelSelector)
-            + INCLUDE_SERVICE_INSTANCE_RESOURCES_PARAM;
+        String expandedUriPrefix =
+            SERVICE_KEYS_BY_METADATA_SELECTOR_URI + INCLUDE_SERVICE_INSTANCE_RESOURCES_PARAM + SERVICE_INSTANCE_GUIDS_PARAM_PREFIX;
         return getListOfResourcesInBatches(new ServiceKeysResponseMapper(),
                                            expandedUriPrefix,
-                                           SERVICE_INSTANCE_GUIDS_PARAM_PREFIX,
-                                           guids);
+                                           guids, labelSelector);
     }
 
     private List<DeployedMtaService> getManagedServices(List<DeployedMtaService> services) {

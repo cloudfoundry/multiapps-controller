@@ -4,40 +4,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceRouteBinding;
-import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ServiceInstanceRoutesGetterTest {
+class ServiceInstanceRoutesGetterTest extends CustomControllerClientBaseTest {
 
     private static final String CORRELATION_ID = "test-correlation-id";
-
-    @Mock
-    private WebClientFactory webClientFactory;
-    @Mock
-    private ApplicationConfiguration applicationConfiguration;
-    @Mock
-    private WebClient webClient;
-
-    @SuppressWarnings("rawtypes")
-    private final WebClient.RequestHeadersUriSpec requestHeadersUriSpec = Mockito.mock(WebClient.RequestHeadersUriSpec.class);
-    @SuppressWarnings("rawtypes")
-    private final WebClient.RequestHeadersSpec requestHeadersSpec = Mockito.mock(WebClient.RequestHeadersSpec.class);
-    @Mock
-    private WebClient.ResponseSpec responseSpec;
 
     private ServiceInstanceRoutesGetter client;
 
@@ -63,7 +44,7 @@ class ServiceInstanceRoutesGetterTest {
 
     @Test
     void testGetServiceRouteBindingsBuildsCorrectUri() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         String routeGuid = UUID.randomUUID()
                                .toString();
@@ -82,7 +63,7 @@ class ServiceInstanceRoutesGetterTest {
 
     @Test
     void testGetServiceRouteBindingsJoinsMultipleGuidsWithComma() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         String routeGuid1 = UUID.randomUUID()
                                 .toString();
@@ -106,8 +87,8 @@ class ServiceInstanceRoutesGetterTest {
         String serviceInstanceGuid = UUID.randomUUID()
                                          .toString();
 
-        String responseJson = buildServiceRouteBindingsResponse(routeGuid, serviceInstanceGuid);
-        stubWebClientToReturn(responseJson);
+        String responseJson = buildServiceRouteBindingsResponse(routeGuid, serviceInstanceGuid, null);
+        stubWebClientToReturnResponse(responseJson);
 
         List<ServiceRouteBinding> result = client.getServiceRouteBindings(List.of(routeGuid));
 
@@ -119,7 +100,7 @@ class ServiceInstanceRoutesGetterTest {
 
     @Test
     void testGetServiceRouteBindingsWithEmptyResponseReturnsEmptyList() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         String routeGuid = UUID.randomUUID()
                                .toString();
@@ -141,7 +122,7 @@ class ServiceInstanceRoutesGetterTest {
         String responseJson = buildMultipleServiceRouteBindingsResponse(
             List.of(routeGuid1, routeGuid2),
             List.of(serviceInstanceGuid1, serviceInstanceGuid2));
-        stubWebClientToReturn(responseJson);
+        stubWebClientToReturnResponse(responseJson);
 
         List<ServiceRouteBinding> result = client.getServiceRouteBindings(List.of(routeGuid1, routeGuid2));
 
@@ -168,7 +149,7 @@ class ServiceInstanceRoutesGetterTest {
         String responseJson = buildMultipleServiceRouteBindingsResponse(
             List.of(routeGuid, routeGuid),
             List.of(serviceInstanceGuid1, serviceInstanceGuid2));
-        stubWebClientToReturn(responseJson);
+        stubWebClientToReturnResponse(responseJson);
 
         List<ServiceRouteBinding> result = client.getServiceRouteBindings(List.of(routeGuid));
 
@@ -192,11 +173,11 @@ class ServiceInstanceRoutesGetterTest {
         String serviceInstanceGuid2 = UUID.randomUUID()
                                           .toString();
 
-        String page1Json = buildServiceRouteBindingsResponseWithPagination(routeGuid, serviceInstanceGuid1,
-                                                                           "/v3/service_route_bindings?page=2");
-        String page2Json = buildServiceRouteBindingsResponse(routeGuid, serviceInstanceGuid2);
+        String page1Json = buildServiceRouteBindingsResponse(routeGuid, serviceInstanceGuid1,
+                                                             "/v3/service_route_bindings?page=2");
+        String page2Json = buildServiceRouteBindingsResponse(routeGuid, serviceInstanceGuid2, null);
 
-        stubWebClientToReturnSequentially(page1Json, page2Json);
+        stubWebClientToReturnResponse(page1Json, page2Json);
 
         List<ServiceRouteBinding> result = client.getServiceRouteBindings(List.of(routeGuid));
 
@@ -209,7 +190,7 @@ class ServiceInstanceRoutesGetterTest {
 
     @Test
     void testBatchingTriggeredWithManyGuids() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         List<String> manyGuids = generateRandomGuids(200);
 
@@ -221,7 +202,7 @@ class ServiceInstanceRoutesGetterTest {
 
     @Test
     void testSingleBatchWithFewGuids() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         List<String> fewGuids = generateRandomGuids(3);
 
@@ -233,7 +214,7 @@ class ServiceInstanceRoutesGetterTest {
 
     @Test
     void testBatchedUrisNeverExceedMaxLength() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         List<String> manyGuids = generateRandomGuids(800);
         client.getServiceRouteBindings(manyGuids);
@@ -251,7 +232,7 @@ class ServiceInstanceRoutesGetterTest {
 
     @Test
     void testBatchedRequestsContainAllGuidsInOrder() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         List<String> manyGuids = generateRandomGuids(200);
         client.getServiceRouteBindings(manyGuids);
@@ -280,8 +261,8 @@ class ServiceInstanceRoutesGetterTest {
         String serviceInstanceGuid1 = UUID.randomUUID()
                                           .toString();
 
-        String response = buildServiceRouteBindingsResponse(routeGuid1, serviceInstanceGuid1);
-        stubWebClientToReturn(response);
+        String response = buildServiceRouteBindingsResponse(routeGuid1, serviceInstanceGuid1, null);
+        stubWebClientToReturnResponse(response);
 
         List<ServiceRouteBinding> result = client.getServiceRouteBindings(List.of(routeGuid1));
 
@@ -290,58 +271,6 @@ class ServiceInstanceRoutesGetterTest {
                                        .getRouteId());
         assertEquals(serviceInstanceGuid1, result.getFirst()
                                                  .getServiceInstanceId());
-    }
-
-    @SuppressWarnings("unchecked")
-    private void stubWebClientToReturnEmptyPage() {
-        Mockito.when(webClient.get())
-               .thenReturn(requestHeadersUriSpec);
-        Mockito.when(requestHeadersUriSpec.uri(Mockito.anyString()))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.headers(Mockito.any(Consumer.class)))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.retrieve())
-               .thenReturn(responseSpec);
-        Mockito.when(responseSpec.bodyToMono(String.class))
-               .thenReturn(Mono.just("{\"resources\":[],\"pagination\":{\"next\":null}}"));
-    }
-
-    @SuppressWarnings("unchecked")
-    private void stubWebClientToReturn(String responseJson) {
-        Mockito.when(webClient.get())
-               .thenReturn(requestHeadersUriSpec);
-        Mockito.when(requestHeadersUriSpec.uri(Mockito.anyString()))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.headers(Mockito.any(Consumer.class)))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.retrieve())
-               .thenReturn(responseSpec);
-        Mockito.when(responseSpec.bodyToMono(String.class))
-               .thenReturn(Mono.just(responseJson));
-    }
-
-    @SuppressWarnings("unchecked")
-    private void stubWebClientToReturnSequentially(String... responses) {
-        Mockito.when(webClient.get())
-               .thenReturn(requestHeadersUriSpec);
-        Mockito.when(requestHeadersUriSpec.uri(Mockito.anyString()))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.headers(Mockito.any(Consumer.class)))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.retrieve())
-               .thenReturn(responseSpec);
-
-        if (responses.length == 1) {
-            Mockito.when(responseSpec.bodyToMono(String.class))
-                   .thenReturn(Mono.just(responses[0]));
-        } else {
-            @SuppressWarnings("rawtypes") Mono[] remaining = new Mono[responses.length - 1];
-            for (int i = 1; i < responses.length; i++) {
-                remaining[i - 1] = Mono.just(responses[i]);
-            }
-            Mockito.when(responseSpec.bodyToMono(String.class))
-                   .thenReturn(Mono.just(responses[0]), remaining);
-        }
     }
 
     private List<String> generateRandomGuids(int count) {
@@ -353,55 +282,45 @@ class ServiceInstanceRoutesGetterTest {
         return guids;
     }
 
-    private String buildServiceRouteBindingsResponse(String routeGuid, String serviceInstanceGuid) {
-        return buildServiceRouteBindingsResponseWithPagination(routeGuid, serviceInstanceGuid, null);
+    private String buildServiceRouteBindingsResponse(String routeGuid, String serviceInstanceGuid, String nextPageHref) {
+        String resourceJson = buildRouteBindingResourceJson(routeGuid, serviceInstanceGuid);
+        return assembleRouteBindingsResponseJson(resourceJson, buildPaginationJson(nextPageHref));
     }
 
-    private String buildServiceRouteBindingsResponseWithPagination(String routeGuid, String serviceInstanceGuid, String nextPageHref) {
+    private String buildRouteBindingResourceJson(String routeGuid, String serviceInstanceGuid) {
+        return "{\"guid\":\"" + UUID.randomUUID() + "\","
+            + "\"created_at\":\"2024-01-01T00:00:00Z\","
+            + "\"updated_at\":\"2024-01-01T00:00:00Z\","
+            + "\"relationships\":{"
+            + "\"route\":{\"data\":{\"guid\":\"" + routeGuid + "\"}},"
+            + "\"service_instance\":{\"data\":{\"guid\":\"" + serviceInstanceGuid + "\"}}"
+            + "}}";
+    }
+
+    private String buildPaginationJson(String nextPageHref) {
         String nextPage = nextPageHref == null ? "null" : "{\"href\":\"" + nextPageHref + "\"}";
-        return "{"
-            + "\"resources\":["
-            + "  {"
-            + "    \"guid\":\"" + UUID.randomUUID() + "\","
-            + "    \"created_at\":\"2024-01-01T00:00:00Z\","
-            + "    \"updated_at\":\"2024-01-01T00:00:00Z\","
-            + "    \"relationships\":{"
-            + "      \"route\":{\"data\":{\"guid\":\"" + routeGuid + "\"}},"
-            + "      \"service_instance\":{\"data\":{\"guid\":\"" + serviceInstanceGuid + "\"}}"
-            + "    }"
-            + "  }"
-            + "],"
-            + "\"pagination\":{\"next\":" + nextPage + "}"
-            + "}";
+        return "{\"next\":" + nextPage + "}";
+    }
+
+    private String assembleRouteBindingsResponseJson(String resourcesJson, String paginationJson) {
+        return "{\"resources\":[" + resourcesJson + "],"
+            + "\"pagination\":" + paginationJson + "}";
     }
 
     private String buildMultipleServiceRouteBindingsResponse(List<String> routeGuids, List<String> serviceInstanceGuids) {
-        StringBuilder resources = new StringBuilder();
+        String resourcesJson = buildMultipleRouteBindingResourcesJson(routeGuids, serviceInstanceGuids);
+        return assembleRouteBindingsResponseJson(resourcesJson, buildPaginationJson(null));
+    }
+
+    private String buildMultipleRouteBindingResourcesJson(List<String> routeGuids, List<String> serviceInstanceGuids) {
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < routeGuids.size(); i++) {
             if (i > 0) {
-                resources.append(",");
+                sb.append(",");
             }
-            resources.append("{")
-                     .append("\"guid\":\"")
-                     .append(UUID.randomUUID())
-                     .append("\",")
-                     .append("\"created_at\":\"2024-01-01T00:00:00Z\",")
-                     .append("\"updated_at\":\"2024-01-01T00:00:00Z\",")
-                     .append("\"relationships\":{")
-                     .append("  \"route\":{\"data\":{\"guid\":\"")
-                     .append(routeGuids.get(i))
-                     .append("\"}},")
-                     .append("  \"service_instance\":{\"data\":{\"guid\":\"")
-                     .append(serviceInstanceGuids.get(i))
-                     .append("\"}}")
-                     .append("}")
-                     .append("}");
+            sb.append(buildRouteBindingResourceJson(routeGuids.get(i), serviceInstanceGuids.get(i)));
         }
-
-        return "{"
-            + "\"resources\":[" + resources + "],"
-            + "\"pagination\":{\"next\":null}"
-            + "}";
+        return sb.toString();
     }
 }
 

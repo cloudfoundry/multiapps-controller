@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceType;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
@@ -13,41 +12,22 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloud
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaService;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaService;
-import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class CustomServiceKeysClientTest {
+class CustomServiceKeysClientTest extends CustomControllerClientBaseTest {
 
     private static final String SPACE_GUID = "space-guid-123";
     private static final String MTA_ID = "my-mta";
     private static final String MTA_NAMESPACE = "my-namespace";
     private static final String CORRELATION_ID = "test-correlation-id";
-
-    @Mock
-    private WebClientFactory webClientFactory;
-    @Mock
-    private ApplicationConfiguration applicationConfiguration;
-    @Mock
-    private WebClient webClient;
-
-    @SuppressWarnings("rawtypes")
-    private final WebClient.RequestHeadersUriSpec requestHeadersUriSpec = Mockito.mock(WebClient.RequestHeadersUriSpec.class);
-    @SuppressWarnings("rawtypes")
-    private final WebClient.RequestHeadersSpec requestHeadersSpec = Mockito.mock(WebClient.RequestHeadersSpec.class);
-    @Mock
-    private WebClient.ResponseSpec responseSpec;
 
     private CustomServiceKeysClient client;
 
@@ -85,7 +65,7 @@ class CustomServiceKeysClientTest {
 
     @Test
     void testGetServiceKeysByExistingGuidsFiltersNullGuids() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         String randomServiceGuid = UUID.randomUUID()
                                        .toString();
@@ -97,27 +77,20 @@ class CustomServiceKeysClientTest {
         client.getServiceKeysByMetadataAndExistingGuids(SPACE_GUID, MTA_ID, MTA_NAMESPACE,
                                                         guidsWithNulls);
 
-        ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(requestHeadersUriSpec)
-               .uri(uriCaptor.capture());
-        String capturedUri = uriCaptor.getValue();
+        String capturedUri = capturedResolvedUris.getFirst();
         assertTrue(capturedUri.endsWith(MessageFormat.format("&service_instance_guids={0}", randomServiceGuid)),
                    "service_instance_guids should contain only the non-null guid");
     }
 
     @Test
     void testGetServiceKeysByExistingGuidsBuildsCorrectUri() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         String guid = UUID.randomUUID()
                           .toString();
         client.getServiceKeysByMetadataAndExistingGuids(SPACE_GUID, MTA_ID, MTA_NAMESPACE, List.of(guid));
 
-        ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(requestHeadersUriSpec)
-               .uri(uriCaptor.capture());
-
-        String capturedUri = uriCaptor.getValue();
+        String capturedUri = capturedResolvedUris.getFirst();
         assertTrue(capturedUri.startsWith("/v3/service_credential_bindings?type=key&label_selector="),
                    "URI should start with the service keys base path");
         assertTrue(capturedUri.contains("space_guid=" + SPACE_GUID), "URI should contain the space_guid label selector");
@@ -128,7 +101,7 @@ class CustomServiceKeysClientTest {
 
     @Test
     void testGetServiceKeysByExistingGuidsJoinsMultipleGuidsWithComma() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         String guid1 = UUID.randomUUID()
                            .toString();
@@ -136,11 +109,7 @@ class CustomServiceKeysClientTest {
                            .toString();
         client.getServiceKeysByMetadataAndExistingGuids(SPACE_GUID, MTA_ID, MTA_NAMESPACE, List.of(guid1, guid2));
 
-        ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(requestHeadersUriSpec)
-               .uri(uriCaptor.capture());
-
-        String capturedUri = uriCaptor.getValue();
+        String capturedUri = capturedResolvedUris.getFirst();
         assertTrue(capturedUri.contains("&service_instance_guids=" + guid1 + "," + guid2),
                    "URI should contain both guids joined by comma");
     }
@@ -150,8 +119,8 @@ class CustomServiceKeysClientTest {
         UUID serviceInstanceGuid = UUID.randomUUID();
         UUID serviceKeyGuid = UUID.randomUUID();
 
-        String responseJson = buildServiceKeysResponse(serviceKeyGuid, serviceInstanceGuid, "my-key", "my-service");
-        stubWebClientToReturn(responseJson);
+        String responseJson = buildServiceKeysResponse(serviceKeyGuid, serviceInstanceGuid, "my-key", "my-service", null);
+        stubWebClientToReturnResponse(responseJson);
 
         List<DeployedMtaServiceKey> result = client.getServiceKeysByMetadataAndExistingGuids(SPACE_GUID, MTA_ID, MTA_NAMESPACE,
                                                                                              List.of(serviceInstanceGuid.toString()));
@@ -168,7 +137,7 @@ class CustomServiceKeysClientTest {
 
     @Test
     void testGetServiceKeysByExistingGuidsWithEmptyResponseReturnsEmptyList() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         String guid = UUID.randomUUID()
                           .toString();
@@ -231,18 +200,15 @@ class CustomServiceKeysClientTest {
 
     @Test
     void testGetServiceKeysByManagedServicesMakesHttpCall() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         UUID serviceGuid = UUID.randomUUID();
         DeployedMtaService managedService = buildManagedService("managed-svc", serviceGuid);
 
         client.getServiceKeysByMetadataAndManagedServices(SPACE_GUID, MTA_ID, MTA_NAMESPACE,
                                                           List.of(managedService));
-        ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(requestHeadersUriSpec)
-               .uri(uriCaptor.capture());
 
-        String capturedUri = uriCaptor.getValue();
+        String capturedUri = capturedResolvedUris.getFirst();
         assertTrue(capturedUri.contains("&service_instance_guids=" + serviceGuid), "URI should contain the guid of the managed service");
         Mockito.verify(webClient, Mockito.times(1))
                .get();
@@ -250,7 +216,7 @@ class CustomServiceKeysClientTest {
 
     @Test
     void testGetServiceKeysByManagedServicesUsesOnlyManagedGuids() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         UUID managedGuid = UUID.randomUUID();
         UUID userProvidedGuid = UUID.randomUUID();
@@ -265,11 +231,7 @@ class CustomServiceKeysClientTest {
 
         client.getServiceKeysByMetadataAndManagedServices(SPACE_GUID, MTA_ID, MTA_NAMESPACE, List.of(managedService, userProvidedService));
 
-        ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(requestHeadersUriSpec)
-               .uri(uriCaptor.capture());
-
-        String capturedUri = uriCaptor.getValue();
+        String capturedUri = capturedResolvedUris.getFirst();
         assertTrue(capturedUri.endsWith("&service_instance_guids=" + managedGuid),
                    "URI should contain only the managed service guid");
         assertFalse(capturedUri.contains(userProvidedGuid.toString()), "URI should not contain the user-provided service guid");
@@ -282,8 +244,8 @@ class CustomServiceKeysClientTest {
 
         String serviceKeyName = "sk-1";
         String serviceInstanceName = "svc-1";
-        String responseJson = buildServiceKeysResponse(serviceKeyGuid, serviceInstanceGuid, serviceKeyName, serviceInstanceName);
-        stubWebClientToReturn(responseJson);
+        String responseJson = buildServiceKeysResponse(serviceKeyGuid, serviceInstanceGuid, serviceKeyName, serviceInstanceName, null);
+        stubWebClientToReturnResponse(responseJson);
 
         DeployedMtaService managedService = buildManagedService(serviceInstanceName, serviceInstanceGuid);
 
@@ -300,17 +262,13 @@ class CustomServiceKeysClientTest {
 
     @Test
     void testLabelSelectorContainsSpaceGuidMtaIdAndMtaNamespace() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         String guid = UUID.randomUUID()
                           .toString();
         client.getServiceKeysByMetadataAndExistingGuids(SPACE_GUID, MTA_ID, MTA_NAMESPACE, List.of(guid));
 
-        ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(requestHeadersUriSpec)
-               .uri(uriCaptor.capture());
-
-        String capturedUri = uriCaptor.getValue();
+        String capturedUri = capturedResolvedUris.getFirst();
         assertTrue(capturedUri.contains("space_guid=" + SPACE_GUID));
         assertTrue(capturedUri.contains("mta_id="));
         assertTrue(capturedUri.contains("mta_namespace="));
@@ -318,40 +276,32 @@ class CustomServiceKeysClientTest {
 
     @Test
     void testLabelSelectorWithNullNamespaceUsesDoesNotExist() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         String guid = UUID.randomUUID()
                           .toString();
         client.getServiceKeysByMetadataAndExistingGuids(SPACE_GUID, MTA_ID, null, List.of(guid));
 
-        ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(requestHeadersUriSpec)
-               .uri(uriCaptor.capture());
-
-        String capturedUri = uriCaptor.getValue();
+        String capturedUri = capturedResolvedUris.getFirst();
         // When namespace is null/empty, the label selector uses "!" prefix (doesNotExist)
         assertTrue(capturedUri.contains("!mta_namespace"), "When namespace is null, label selector should use !mta_namespace");
     }
 
     @Test
     void testLabelSelectorWithEmptyNamespaceUsesDoesNotExist() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         String guid = UUID.randomUUID()
                           .toString();
         client.getServiceKeysByMetadataAndExistingGuids(SPACE_GUID, MTA_ID, "", List.of(guid));
 
-        ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(requestHeadersUriSpec)
-               .uri(uriCaptor.capture());
-
-        String capturedUri = uriCaptor.getValue();
+        String capturedUri = capturedResolvedUris.getFirst();
         assertTrue(capturedUri.contains("!mta_namespace"), "When namespace is empty, label selector should use !mta_namespace");
     }
 
     @Test
     void testBatchingTriggeredWithManyGuids() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         // Generate enough GUIDs to force multiple batches (each UUID is 36 chars, limit is 4000)
         List<String> manyGuids = generateRandomGuids(200);
@@ -365,7 +315,7 @@ class CustomServiceKeysClientTest {
 
     @Test
     void testSingleBatchWithFewGuids() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         List<String> fewGuids = generateRandomGuids(3);
 
@@ -377,16 +327,12 @@ class CustomServiceKeysClientTest {
 
     @Test
     void testBatchedUrisNeverExceedMaxLength() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         List<String> manyGuids = generateRandomGuids(800);
         client.getServiceKeysByMetadataAndExistingGuids(SPACE_GUID, MTA_ID, MTA_NAMESPACE, manyGuids);
 
-        ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(requestHeadersUriSpec, Mockito.atLeastOnce())
-               .uri(uriCaptor.capture());
-
-        for (String uri : uriCaptor.getAllValues()) {
+        for (String uri : capturedResolvedUris) {
             assertTrue(uri.length() <= CustomControllerClient.MAX_URI_QUERY_LENGTH,
                        "URI length " + uri.length() + " exceeds MAX_URI_QUERY_LENGTH "
                            + CustomControllerClient.MAX_URI_QUERY_LENGTH);
@@ -395,17 +341,13 @@ class CustomServiceKeysClientTest {
 
     @Test
     void testBatchedRequestsContainAllGuidsInOrder() {
-        stubWebClientToReturnEmptyPage();
+        stubWebClientToReturnResponse();
 
         List<String> manyGuids = generateRandomGuids(200);
         client.getServiceKeysByMetadataAndExistingGuids(SPACE_GUID, MTA_ID, MTA_NAMESPACE, manyGuids);
 
-        ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(requestHeadersUriSpec, Mockito.atLeastOnce())
-               .uri(uriCaptor.capture());
-
         List<String> allCapturedGuids = new ArrayList<>();
-        for (String uri : uriCaptor.getAllValues()) {
+        for (String uri : capturedResolvedUris) {
             int idx = uri.indexOf("&service_instance_guids=");
             assertTrue(idx >= 0, "URI should contain &service_instance_guids=");
             String guidsStr = uri.substring(idx + "&service_instance_guids=".length());
@@ -424,11 +366,11 @@ class CustomServiceKeysClientTest {
         UUID keyGuid1 = UUID.randomUUID();
         UUID keyGuid2 = UUID.randomUUID();
 
-        String page1Json = buildServiceKeysResponseWithPagination(keyGuid1, siGuid, "key-1", "svc-1",
-                                                                  "/v3/service_credential_bindings?page=2");
-        String page2Json = buildServiceKeysResponse(keyGuid2, siGuid, "key-2", "svc-1");
+        String page1Json = buildServiceKeysResponse(keyGuid1, siGuid, "key-1", "svc-1",
+                                                    "/v3/service_credential_bindings?page=2");
+        String page2Json = buildServiceKeysResponse(keyGuid2, siGuid, "key-2", "svc-1", null);
 
-        stubWebClientToReturnSequentially(page1Json, page2Json);
+        stubWebClientToReturnResponse(page1Json, page2Json);
 
         List<DeployedMtaServiceKey> result = client.getServiceKeysByMetadataAndExistingGuids(SPACE_GUID, MTA_ID, MTA_NAMESPACE,
                                                                                              List.of(siGuid.toString()));
@@ -447,7 +389,7 @@ class CustomServiceKeysClientTest {
         UUID keyGuid2 = UUID.randomUUID();
 
         String responseJson = buildMultiKeyResponse(List.of(keyGuid1, keyGuid2), siGuid, List.of("key-a", "key-b"), "shared-service");
-        stubWebClientToReturn(responseJson);
+        stubWebClientToReturnResponse(responseJson);
 
         List<DeployedMtaServiceKey> result = client.getServiceKeysByMetadataAndExistingGuids(SPACE_GUID, MTA_ID, MTA_NAMESPACE,
                                                                                              List.of(siGuid.toString()));
@@ -464,58 +406,6 @@ class CustomServiceKeysClientTest {
         assertEquals("shared-service", result.get(1)
                                              .getServiceInstance()
                                              .getName());
-    }
-
-    @SuppressWarnings("unchecked")
-    private void stubWebClientToReturnEmptyPage() {
-        Mockito.when(webClient.get())
-               .thenReturn(requestHeadersUriSpec);
-        Mockito.when(requestHeadersUriSpec.uri(Mockito.anyString()))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.headers(Mockito.any(Consumer.class)))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.retrieve())
-               .thenReturn(responseSpec);
-        Mockito.when(responseSpec.bodyToMono(String.class))
-               .thenReturn(Mono.just("{\"resources\":[],\"pagination\":{\"next\":null}}"));
-    }
-
-    @SuppressWarnings("unchecked")
-    private void stubWebClientToReturn(String responseJson) {
-        Mockito.when(webClient.get())
-               .thenReturn(requestHeadersUriSpec);
-        Mockito.when(requestHeadersUriSpec.uri(Mockito.anyString()))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.headers(Mockito.any(Consumer.class)))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.retrieve())
-               .thenReturn(responseSpec);
-        Mockito.when(responseSpec.bodyToMono(String.class))
-               .thenReturn(Mono.just(responseJson));
-    }
-
-    @SuppressWarnings("unchecked")
-    private void stubWebClientToReturnSequentially(String... responses) {
-        Mockito.when(webClient.get())
-               .thenReturn(requestHeadersUriSpec);
-        Mockito.when(requestHeadersUriSpec.uri(Mockito.anyString()))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.headers(Mockito.any(Consumer.class)))
-               .thenReturn(requestHeadersSpec);
-        Mockito.when(requestHeadersSpec.retrieve())
-               .thenReturn(responseSpec);
-
-        if (responses.length == 1) {
-            Mockito.when(responseSpec.bodyToMono(String.class))
-                   .thenReturn(Mono.just(responses[0]));
-        } else {
-            @SuppressWarnings("rawtypes") Mono[] remaining = new Mono[responses.length - 1];
-            for (int i = 1; i < responses.length; i++) {
-                remaining[i - 1] = Mono.just(responses[i]);
-            }
-            Mockito.when(responseSpec.bodyToMono(String.class))
-                   .thenReturn(Mono.just(responses[0]), remaining);
-        }
     }
 
     private DeployedMtaService buildManagedService(String name, UUID guid) {
@@ -537,52 +427,59 @@ class CustomServiceKeysClientTest {
         return guids;
     }
 
-    private String buildServiceKeysResponse(UUID serviceKeyGuid, UUID serviceInstanceGuid, String keyName, String serviceName) {
-        return buildServiceKeysResponseWithPagination(serviceKeyGuid, serviceInstanceGuid, keyName, serviceName, null);
+    private String buildServiceKeysResponse(UUID serviceKeyGuid, UUID serviceInstanceGuid, String keyName, String serviceName,
+                                            String nextPageHref) {
+        String keyResourceJson = buildServiceKeyResourceJson(serviceKeyGuid, keyName, serviceInstanceGuid);
+        String serviceInstanceJson = buildServiceInstanceJson(serviceInstanceGuid, serviceName);
+        return assembleResponseJson(keyResourceJson, serviceInstanceJson, buildPaginationJson(nextPageHref));
     }
 
-    private String buildServiceKeysResponseWithPagination(UUID serviceKeyGuid, UUID serviceInstanceGuid, String keyName, String serviceName,
-                                                          String nextPageHref) {
+    private String buildServiceKeyResourceJson(UUID keyGuid, String keyName, UUID serviceInstanceGuid) {
+        return "{\"guid\":\"" + keyGuid + "\","
+            + "\"name\":\"" + keyName + "\","
+            + "\"type\":\"key\","
+            + "\"created_at\":\"2024-01-01T00:00:00Z\","
+            + "\"updated_at\":\"2024-01-01T00:00:00Z\","
+            + "\"metadata\":{\"labels\":{},\"annotations\":{}},"
+            + "\"relationships\":{\"service_instance\":{\"data\":{\"guid\":\"" + serviceInstanceGuid + "\"}}}"
+            + "}";
+    }
+
+    private String buildServiceInstanceJson(UUID serviceInstanceGuid, String serviceName) {
+        return "{\"guid\":\"" + serviceInstanceGuid + "\","
+            + "\"name\":\"" + serviceName + "\","
+            + "\"type\":\"managed\","
+            + "\"created_at\":\"2024-01-01T00:00:00Z\","
+            + "\"updated_at\":\"2024-01-01T00:00:00Z\","
+            + "\"metadata\":{\"labels\":{},\"annotations\":{}}}";
+    }
+
+    private String buildPaginationJson(String nextPageHref) {
         String nextPage = nextPageHref == null ? "null" : "{\"href\":\"" + nextPageHref + "\"}";
-        return "{" + "\"resources\":[" + "  {" + "    \"guid\":\"" + serviceKeyGuid + "\"," + "    \"name\":\"" + keyName + "\","
-            + "    \"type\":\"key\"," + "    \"created_at\":\"2024-01-01T00:00:00Z\"," + "    \"updated_at\":\"2024-01-01T00:00:00Z\","
-            + "    \"metadata\":{\"labels\":{},\"annotations\":{}}," + "    \"relationships\":{"
-            + "      \"service_instance\":{\"data\":{\"guid\":\"" + serviceInstanceGuid + "\"}}" + "    }" + "  }" + "]," + "\"included\":{"
-            + "  \"service_instances\":[" + "    {" + "      \"guid\":\"" + serviceInstanceGuid + "\"," + "      \"name\":\"" + serviceName
-            + "\"," + "      \"type\":\"managed\"," + "      \"created_at\":\"2024-01-01T00:00:00Z\","
-            + "      \"updated_at\":\"2024-01-01T00:00:00Z\"," + "      \"metadata\":{\"labels\":{},\"annotations\":{}}" + "    }" + "  ]"
-            + "}," + "\"pagination\":{\"next\":" + nextPage + "}" + "}";
+        return "{\"next\":" + nextPage + "}";
+    }
+
+    private String assembleResponseJson(String resourcesJson, String serviceInstancesJson, String paginationJson) {
+        return "{\"resources\":[" + resourcesJson + "],"
+            + "\"included\":{\"service_instances\":[" + serviceInstancesJson + "]},"
+            + "\"pagination\":" + paginationJson + "}";
     }
 
     private String buildMultiKeyResponse(List<UUID> keyGuids, UUID serviceInstanceGuid, List<String> keyNames, String serviceName) {
-        StringBuilder resources = new StringBuilder();
+        String keyResourcesJson = buildMultipleServiceKeyResourcesJson(keyGuids, keyNames, serviceInstanceGuid);
+        String serviceInstanceJson = buildServiceInstanceJson(serviceInstanceGuid, serviceName);
+        return assembleResponseJson(keyResourcesJson, serviceInstanceJson, buildPaginationJson(null));
+    }
+
+    private String buildMultipleServiceKeyResourcesJson(List<UUID> keyGuids, List<String> keyNames, UUID serviceInstanceGuid) {
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < keyGuids.size(); i++) {
             if (i > 0) {
-                resources.append(",");
+                sb.append(",");
             }
-            resources.append("{")
-                     .append("\"guid\":\"")
-                     .append(keyGuids.get(i))
-                     .append("\",")
-                     .append("\"name\":\"")
-                     .append(keyNames.get(i))
-                     .append("\",")
-                     .append("\"type\":\"key\",")
-                     .append("\"created_at\":\"2024-01-01T00:00:00Z\",")
-                     .append("\"updated_at\":\"2024-01-01T00:00:00Z\",")
-                     .append("\"metadata\":{\"labels\":{},\"annotations\":{}},")
-                     .append("\"relationships\":{")
-                     .append("  \"service_instance\":{\"data\":{\"guid\":\"")
-                     .append(serviceInstanceGuid)
-                     .append("\"}}")
-                     .append("}")
-                     .append("}");
+            sb.append(buildServiceKeyResourceJson(keyGuids.get(i), keyNames.get(i), serviceInstanceGuid));
         }
-
-        return "{" + "\"resources\":[" + resources + "]," + "\"included\":{" + "  \"service_instances\":[" + "    {" + "      \"guid\":\""
-            + serviceInstanceGuid + "\"," + "      \"name\":\"" + serviceName + "\"," + "      \"type\":\"managed\","
-            + "      \"created_at\":\"2024-01-01T00:00:00Z\"," + "      \"updated_at\":\"2024-01-01T00:00:00Z\","
-            + "      \"metadata\":{\"labels\":{},\"annotations\":{}}" + "    }" + "  ]" + "}," + "\"pagination\":{\"next\":null}" + "}";
+        return sb.toString();
     }
 }
 

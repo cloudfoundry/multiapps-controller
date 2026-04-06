@@ -25,8 +25,7 @@ public class ServiceInstanceRoutesGetter extends CustomControllerClient {
 
     private List<ServiceRouteBinding> doGetServiceRouteBindings(List<String> routeGuids) {
         return getListOfResourcesInBatches(new ServiceRouteBindingsResponseMapper(),
-                                           SERVICE_ROUTE_BINDINGS_URI_PREFIX,
-                                           ROUTE_GUIDS_PARAM_PREFIX,
+                                           SERVICE_ROUTE_BINDINGS_URI_PREFIX + ROUTE_GUIDS_PARAM_PREFIX,
                                            routeGuids);
     }
 
