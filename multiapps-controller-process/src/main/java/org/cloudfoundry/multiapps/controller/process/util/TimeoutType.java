@@ -34,12 +34,6 @@ public enum TimeoutType {
         Variables.SERVICE_TO_PROCESS),
 
 
-    UPDATE_SERVICE(
-        new TimeoutParameterNames(null, SupportedParameters.UPDATE_SERVICE_TIMEOUT, SupportedParameters.SERVICES_UPDATE_SERVICE_TIMEOUT),
-        Variables.UPDATE_SERVICE_TIMEOUT_PROCESS_VARIABLE,
-        7200,
-        Variables.SERVICE_TO_PROCESS),
-
     BIND_SERVICE(
         new TimeoutParameterNames(null, SupportedParameters.BIND_SERVICE_TIMEOUT, SupportedParameters.SERVICES_BIND_SERVICE_TIMEOUT),
         Variables.BIND_SERVICE_TIMEOUT_PROCESS_VARIABLE,

@@ -188,8 +188,6 @@ public class SupportedParameters {
     public static final String SERVICES_BIND_SERVICE_TIMEOUT = "services-bind-service-timeout";
     public static final String CREATE_SERVICE_KEY_TIMEOUT = "create-service-key-timeout";
     public static final String SERVICES_CREATE_SERVICE_KEY_TIMEOUT = "services-create-service-key-timeout";
-    public static final String UPDATE_SERVICE_TIMEOUT = "update-service-timeout";
-    public static final String SERVICES_UPDATE_SERVICE_TIMEOUT = "services-update-service-timeout";
 
     public static final Set<String> MODULE_PARAMETERS = Set.of(APP_NAME, APPLY_NAMESPACE, BUILDPACK, BUILDPACKS, LIFECYCLE, COMMAND,
                                                                CREATE_SERVICE_BROKER, DEFAULT_APP_NAME, DEFAULT_HOST, DEFAULT_INSTANCES,
@@ -224,8 +222,7 @@ public class SupportedParameters {
                                                                ENABLE_PARALLEL_DEPLOYMENTS, DEPLOY_MODE, BG_DEPENDENCY_AWARE_STOP_ORDER,
                                                                CREATE_SERVICE_TIMEOUT, SERVICES_CREATE_SERVICE_TIMEOUT,
                                                                BIND_SERVICE_TIMEOUT, SERVICES_BIND_SERVICE_TIMEOUT,
-                                                               CREATE_SERVICE_KEY_TIMEOUT, SERVICES_CREATE_SERVICE_KEY_TIMEOUT,
-                                                               UPDATE_SERVICE_TIMEOUT, SERVICES_UPDATE_SERVICE_TIMEOUT);
+                                                               CREATE_SERVICE_KEY_TIMEOUT, SERVICES_CREATE_SERVICE_KEY_TIMEOUT);
 
     public static final Set<String> DEPENDENCY_PARAMETERS = Set.of(BINDING_NAME, ENV_VAR_NAME, VISIBILITY, USE_LIVE_ROUTES,
                                                                    SERVICE_BINDING_CONFIG, DELETE_SERVICE_KEY_AFTER_DEPLOYMENT);

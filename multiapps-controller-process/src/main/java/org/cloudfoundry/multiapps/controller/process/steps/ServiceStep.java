@@ -77,7 +77,7 @@ public abstract class ServiceStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public Duration getTimeout(ProcessContext context) {
-        return calculateTimeout(context, TimeoutType.UPDATE_SERVICE);
+        return calculateTimeout(context, TimeoutType.CREATE_SERVICE);
     }
 
     protected abstract ServiceOperation.Type getOperationType();
