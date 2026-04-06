@@ -192,8 +192,6 @@ public class SupportedParameters {
     public static final String SERVICES_UNBIND_SERVICE_TIMEOUT = "services-unbind-service-timeout";
     public static final String CREATE_SERVICE_KEY_TIMEOUT = "create-service-key-timeout";
     public static final String SERVICES_CREATE_SERVICE_KEY_TIMEOUT = "services-create-service-key-timeout";
-    public static final String DELETE_SERVICE_KEY_TIMEOUT = "delete-service-key-timeout";
-    public static final String SERVICES_DELETE_SERVICE_KEY_TIMEOUT = "services-delete-service-key-timeout";
     public static final String UPDATE_SERVICE_TIMEOUT = "update-service-timeout";
     public static final String SERVICES_UPDATE_SERVICE_TIMEOUT = "services-update-service-timeout";
 
@@ -233,7 +231,6 @@ public class SupportedParameters {
                                                                BIND_SERVICE_TIMEOUT, SERVICES_BIND_SERVICE_TIMEOUT,
                                                                UNBIND_SERVICE_TIMEOUT, SERVICES_UNBIND_SERVICE_TIMEOUT,
                                                                CREATE_SERVICE_KEY_TIMEOUT, SERVICES_CREATE_SERVICE_KEY_TIMEOUT,
-                                                               DELETE_SERVICE_KEY_TIMEOUT, SERVICES_DELETE_SERVICE_KEY_TIMEOUT,
                                                                UPDATE_SERVICE_TIMEOUT, SERVICES_UPDATE_SERVICE_TIMEOUT);
 
     public static final Set<String> DEPENDENCY_PARAMETERS = Set.of(BINDING_NAME, ENV_VAR_NAME, VISIBILITY, USE_LIVE_ROUTES,

@@ -121,9 +121,6 @@ public class TimeoutValueResolver {
             case CREATE_SERVICE_KEY:
                 timeout = service.getCreateServiceKeyTimeout();
                 break;
-            case DELETE_SERVICE_KEY:
-                timeout = service.getDeleteServiceKeyTimeout();
-                break;
             default:
                 break;
         }

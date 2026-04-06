@@ -96,7 +96,6 @@ public class ServicesCloudModelBuilder {
                                                     .bindServiceTimeout(extractTimeoutValue(parameters, "bind-service-timeout"))
                                                     .unbindServiceTimeout(extractTimeoutValue(parameters, "unbind-service-timeout"))
                                                     .createServiceKeyTimeout(extractTimeoutValue(parameters, "create-service-key-timeout"))
-                                                    .deleteServiceKeyTimeout(extractTimeoutValue(parameters, "delete-service-key-timeout"))
                                                     .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource))
                                                     .build();
     }
@@ -135,7 +134,6 @@ public class ServicesCloudModelBuilder {
                                                     .bindServiceTimeout(extractTimeoutValue(parameters, "bind-service-timeout"))
                                                     .unbindServiceTimeout(extractTimeoutValue(parameters, "unbind-service-timeout"))
                                                     .createServiceKeyTimeout(extractTimeoutValue(parameters, "create-service-key-timeout"))
-                                                    .deleteServiceKeyTimeout(extractTimeoutValue(parameters, "delete-service-key-timeout"))
                                                     .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource))
                                                     .build();
     }
@@ -160,7 +158,6 @@ public class ServicesCloudModelBuilder {
                                                     .bindServiceTimeout(extractTimeoutValue(parameters, "bind-service-timeout"))
                                                     .unbindServiceTimeout(extractTimeoutValue(parameters, "unbind-service-timeout"))
                                                     .createServiceKeyTimeout(extractTimeoutValue(parameters, "create-service-key-timeout"))
-                                                    .deleteServiceKeyTimeout(extractTimeoutValue(parameters, "delete-service-key-timeout"))
                                                     .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource))
                                                     .build();
     }

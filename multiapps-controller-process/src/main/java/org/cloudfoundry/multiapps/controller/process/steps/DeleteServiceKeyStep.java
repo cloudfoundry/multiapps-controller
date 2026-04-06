@@ -98,6 +98,6 @@ public class DeleteServiceKeyStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public Duration getTimeout(ProcessContext context) {
-        return calculateTimeout(context, TimeoutType.DELETE_SERVICE_KEY);
+        return calculateTimeout(context, TimeoutType.CREATE_SERVICE_KEY);
     }
 }

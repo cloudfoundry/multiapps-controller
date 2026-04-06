@@ -61,12 +61,6 @@ public enum TimeoutType {
                                                  SupportedParameters.SERVICES_CREATE_SERVICE_KEY_TIMEOUT),
                        Variables.CREATE_SERVICE_KEY_TIMEOUT_PROCESS_VARIABLE,
                        7200,
-                       Variables.SERVICE_TO_PROCESS),
-
-    DELETE_SERVICE_KEY(new TimeoutParameterNames(null, SupportedParameters.DELETE_SERVICE_KEY_TIMEOUT,
-                                                 SupportedParameters.SERVICES_DELETE_SERVICE_KEY_TIMEOUT),
-                       Variables.DELETE_SERVICE_KEY_TIMEOUT_PROCESS_VARIABLE,
-                       7200,
                        Variables.SERVICE_TO_PROCESS);
 
     private final TimeoutParameterNames parameterNames;

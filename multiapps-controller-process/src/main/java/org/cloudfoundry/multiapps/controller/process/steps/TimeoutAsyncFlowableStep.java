@@ -56,7 +56,7 @@ public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {
         return switch (timeoutType) {
             case UPLOAD, STAGE, START, TASK -> getApplicationOperationName(context);
             case BIND_SERVICE, UNBIND_SERVICE -> getBindingOperationName(context, timeoutType);
-            case CREATE_SERVICE, DELETE_SERVICE, UPDATE_SERVICE, CREATE_SERVICE_KEY, DELETE_SERVICE_KEY -> 
+            case CREATE_SERVICE, DELETE_SERVICE, UPDATE_SERVICE, CREATE_SERVICE_KEY -> 
                 getServiceObjectOperationName(context, timeoutType);
         };
     }
@@ -85,7 +85,6 @@ public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {
             case DELETE_SERVICE -> "Service deletion";
             case UPDATE_SERVICE -> "Service update";
             case CREATE_SERVICE_KEY -> "Service key creation";
-            case DELETE_SERVICE_KEY -> "Service key deletion";
             default -> "Service operation";
         };
     }
