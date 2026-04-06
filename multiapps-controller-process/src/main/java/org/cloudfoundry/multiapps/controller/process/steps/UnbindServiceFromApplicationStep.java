@@ -94,6 +94,6 @@ public class UnbindServiceFromApplicationStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public Duration getTimeout(ProcessContext context) {
-        return calculateTimeout(context, TimeoutType.UNBIND_SERVICE);
+        return calculateTimeout(context, TimeoutType.BIND_SERVICE);
     }
 }

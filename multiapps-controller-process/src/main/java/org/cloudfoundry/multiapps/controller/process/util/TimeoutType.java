@@ -51,11 +51,6 @@ public enum TimeoutType {
         7200,
         Variables.SERVICE_TO_UNBIND_BIND),
 
-    UNBIND_SERVICE(
-        new TimeoutParameterNames(null, SupportedParameters.UNBIND_SERVICE_TIMEOUT, SupportedParameters.SERVICES_UNBIND_SERVICE_TIMEOUT),
-        Variables.UNBIND_SERVICE_TIMEOUT_PROCESS_VARIABLE,
-        7200,
-        Variables.SERVICE_TO_UNBIND_BIND),
 
     CREATE_SERVICE_KEY(new TimeoutParameterNames(null, SupportedParameters.CREATE_SERVICE_KEY_TIMEOUT,
                                                  SupportedParameters.SERVICES_CREATE_SERVICE_KEY_TIMEOUT),

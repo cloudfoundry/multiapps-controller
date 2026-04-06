@@ -115,9 +115,6 @@ public class TimeoutValueResolver {
             case BIND_SERVICE:
                 timeout = service.getBindServiceTimeout();
                 break;
-            case UNBIND_SERVICE:
-                timeout = service.getUnbindServiceTimeout();
-                break;
             case CREATE_SERVICE_KEY:
                 timeout = service.getCreateServiceKeyTimeout();
                 break;
@@ -133,8 +130,8 @@ public class TimeoutValueResolver {
     }
 
     private CloudServiceInstanceExtended getServiceFromContext(ProcessContext context, TimeoutType timeoutType) {
-        // For bind/unbind operations, look up service by name from SERVICES_TO_BIND
-        if (timeoutType == TimeoutType.BIND_SERVICE || timeoutType == TimeoutType.UNBIND_SERVICE) {
+        // For bind operations, look up service by name from SERVICES_TO_BIND
+        if (timeoutType == TimeoutType.BIND_SERVICE) {
             String serviceName = context.getVariableIfSet(Variables.SERVICE_TO_UNBIND_BIND);
             if (serviceName != null) {
                 List<CloudServiceInstanceExtended> servicesToBind = context.getVariableIfSet(Variables.SERVICES_TO_BIND);

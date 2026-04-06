@@ -188,8 +188,6 @@ public class SupportedParameters {
     public static final String SERVICES_DELETE_SERVICE_TIMEOUT = "services-delete-service-timeout";
     public static final String BIND_SERVICE_TIMEOUT = "bind-service-timeout";
     public static final String SERVICES_BIND_SERVICE_TIMEOUT = "services-bind-service-timeout";
-    public static final String UNBIND_SERVICE_TIMEOUT = "unbind-service-timeout";
-    public static final String SERVICES_UNBIND_SERVICE_TIMEOUT = "services-unbind-service-timeout";
     public static final String CREATE_SERVICE_KEY_TIMEOUT = "create-service-key-timeout";
     public static final String SERVICES_CREATE_SERVICE_KEY_TIMEOUT = "services-create-service-key-timeout";
     public static final String UPDATE_SERVICE_TIMEOUT = "update-service-timeout";
@@ -229,7 +227,6 @@ public class SupportedParameters {
                                                                CREATE_SERVICE_TIMEOUT, SERVICES_CREATE_SERVICE_TIMEOUT,
                                                                DELETE_SERVICE_TIMEOUT, SERVICES_DELETE_SERVICE_TIMEOUT,
                                                                BIND_SERVICE_TIMEOUT, SERVICES_BIND_SERVICE_TIMEOUT,
-                                                               UNBIND_SERVICE_TIMEOUT, SERVICES_UNBIND_SERVICE_TIMEOUT,
                                                                CREATE_SERVICE_KEY_TIMEOUT, SERVICES_CREATE_SERVICE_KEY_TIMEOUT,
                                                                UPDATE_SERVICE_TIMEOUT, SERVICES_UPDATE_SERVICE_TIMEOUT);
 

@@ -55,7 +55,7 @@ public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {
     private String determineOperationType(ProcessContext context, TimeoutType timeoutType) {
         return switch (timeoutType) {
             case UPLOAD, STAGE, START, TASK -> getApplicationOperationName(context);
-            case BIND_SERVICE, UNBIND_SERVICE -> getBindingOperationName(context, timeoutType);
+            case BIND_SERVICE -> getBindingOperationName(context, timeoutType);
             case CREATE_SERVICE, DELETE_SERVICE, UPDATE_SERVICE, CREATE_SERVICE_KEY -> 
                 getServiceObjectOperationName(context, timeoutType);
         };
@@ -69,8 +69,7 @@ public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {
 
     private String getBindingOperationName(ProcessContext context, TimeoutType timeoutType) {
         String service = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
-        String operationName = timeoutType == TimeoutType.BIND_SERVICE ? "Service binding" : "Service unbinding";
-        return service != null ? operationName + " for " + service : operationName;
+        return service != null ? "Service binding for " + service : "Service binding";
     }
 
     private String getServiceObjectOperationName(ProcessContext context, TimeoutType timeoutType) {
