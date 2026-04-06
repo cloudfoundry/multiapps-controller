@@ -33,11 +33,6 @@ public enum TimeoutType {
         7200,
         Variables.SERVICE_TO_PROCESS),
 
-    DELETE_SERVICE(
-        new TimeoutParameterNames(null, SupportedParameters.DELETE_SERVICE_TIMEOUT, SupportedParameters.SERVICES_DELETE_SERVICE_TIMEOUT),
-        Variables.DELETE_SERVICE_TIMEOUT_PROCESS_VARIABLE,
-        7200,
-        Variables.SERVICE_TO_PROCESS),
 
     UPDATE_SERVICE(
         new TimeoutParameterNames(null, SupportedParameters.UPDATE_SERVICE_TIMEOUT, SupportedParameters.SERVICES_UPDATE_SERVICE_TIMEOUT),

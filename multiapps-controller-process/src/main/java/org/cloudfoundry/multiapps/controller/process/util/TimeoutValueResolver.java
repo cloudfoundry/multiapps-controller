@@ -106,9 +106,6 @@ public class TimeoutValueResolver {
             case CREATE_SERVICE:
                 timeout = service.getCreateServiceTimeout();
                 break;
-            case DELETE_SERVICE:
-                timeout = service.getDeleteServiceTimeout();
-                break;
             case UPDATE_SERVICE:
                 timeout = service.getUpdateServiceTimeout();
                 break;

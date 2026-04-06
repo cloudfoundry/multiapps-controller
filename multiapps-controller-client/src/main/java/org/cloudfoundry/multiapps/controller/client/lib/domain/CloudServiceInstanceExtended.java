@@ -58,8 +58,6 @@ public abstract class CloudServiceInstanceExtended extends CloudServiceInstance 
     @Nullable
     public abstract Duration getCreateServiceTimeout();
 
-    @Nullable
-    public abstract Duration getDeleteServiceTimeout();
 
     @Nullable
     public abstract Duration getUpdateServiceTimeout();

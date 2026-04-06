@@ -83,6 +83,6 @@ public class DeleteServiceStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public Duration getTimeout(ProcessContext context) {
-        return calculateTimeout(context, TimeoutType.DELETE_SERVICE);
+        return calculateTimeout(context, TimeoutType.CREATE_SERVICE);
     }
 }

@@ -184,8 +184,6 @@ public class SupportedParameters {
 
     public static final String CREATE_SERVICE_TIMEOUT = "create-service-timeout";
     public static final String SERVICES_CREATE_SERVICE_TIMEOUT = "services-create-service-timeout";
-    public static final String DELETE_SERVICE_TIMEOUT = "delete-service-timeout";
-    public static final String SERVICES_DELETE_SERVICE_TIMEOUT = "services-delete-service-timeout";
     public static final String BIND_SERVICE_TIMEOUT = "bind-service-timeout";
     public static final String SERVICES_BIND_SERVICE_TIMEOUT = "services-bind-service-timeout";
     public static final String CREATE_SERVICE_KEY_TIMEOUT = "create-service-key-timeout";
@@ -225,7 +223,6 @@ public class SupportedParameters {
                                                                APPS_START_TIMEOUT, APPS_STAGE_TIMEOUT, APPLY_NAMESPACE,
                                                                ENABLE_PARALLEL_DEPLOYMENTS, DEPLOY_MODE, BG_DEPENDENCY_AWARE_STOP_ORDER,
                                                                CREATE_SERVICE_TIMEOUT, SERVICES_CREATE_SERVICE_TIMEOUT,
-                                                               DELETE_SERVICE_TIMEOUT, SERVICES_DELETE_SERVICE_TIMEOUT,
                                                                BIND_SERVICE_TIMEOUT, SERVICES_BIND_SERVICE_TIMEOUT,
                                                                CREATE_SERVICE_KEY_TIMEOUT, SERVICES_CREATE_SERVICE_KEY_TIMEOUT,
                                                                UPDATE_SERVICE_TIMEOUT, SERVICES_UPDATE_SERVICE_TIMEOUT);
