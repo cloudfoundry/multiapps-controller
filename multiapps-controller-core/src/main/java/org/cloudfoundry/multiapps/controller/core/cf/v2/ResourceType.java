@@ -34,7 +34,7 @@ public enum ResourceType {
     }
 
     public static Set<ResourceType> getServiceTypes() {
-        return EnumSet.of(MANAGED_SERVICE, USER_PROVIDED_SERVICE, EXISTING_SERVICE);
+        return EnumSet.of(MANAGED_SERVICE, USER_PROVIDED_SERVICE, EXISTING_SERVICE, CLOUD_LOGGING_SERVICE);
     }
 
     public Set<String> getRequiredParameters() {

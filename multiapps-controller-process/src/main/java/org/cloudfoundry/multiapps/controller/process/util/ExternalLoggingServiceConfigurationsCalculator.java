@@ -1,8 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
@@ -12,6 +10,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactor
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableLoggingConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.model.LogLevel;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -36,53 +35,55 @@ public class ExternalLoggingServiceConfigurationsCalculator {
         String correlationId = context.getVariable(Variables.CORRELATION_ID);
         String spaceId = getTargetSpace(resource, context.getVariable(Variables.SPACE_GUID));
         String orgId = getTargetOrg(resource, context.getVariable(Variables.ORGANIZATION_GUID));
-        Boolean isFailSafe = getIsFailSafeFromConfiguration(resource);
-        List<String> logLevels = getLogLevelsFromConfiguration(resource);
+        LogLevel logLevel = getLogLevelsFromConfiguration(resource);
 
         return ImmutableLoggingConfiguration.copyOf(loggingConfiguration)
                                             .withOperationId(correlationId)
                                             .withTargetSpace(spaceId)
                                             .withTargetOrg(orgId)
-                                            .withLogLevels(logLevels)
-                                            .withIsFailSafe(isFailSafe);
+                                            .withLogLevel(logLevel)
+                                            .withIsFailSafe(resource.isOptional());
     }
 
-    private List<String> getLogLevelsFromConfiguration(Resource resource) {
-        Map<String, Object> configuration = getCloudLoggingConfiguration(resource);
-        if (configuration.containsKey("log-levels")) {
-            return Arrays.stream(getCloudLoggingConfiguration(resource).get("log-levels")
-                                                                       .toString()
-                                                                       .split(", "))
-                         .toList();
+    private LogLevel getLogLevelsFromConfiguration(Resource resource) {
+        LogLevel logLevel = LogLevel.INFO;
+        if (resource.getParameters()
+                    .containsKey(SupportedParameters.LOG_LEVEL)) {
+            String logLevelFromDescriptor = MiscUtil.cast(resource.getParameters()
+                                                                  .get(SupportedParameters.LOG_LEVEL));
+            logLevel = LogLevel.get(logLevelFromDescriptor);
         }
-        return List.of();
-    }
-
-    private Boolean getIsFailSafeFromConfiguration(Resource resource) {
-        Map<String, Object> configuration = getCloudLoggingConfiguration(resource);
-        if (configuration.containsKey("is-fail-safe")) {
-            return MiscUtil.cast(getCloudLoggingConfiguration(resource).get("is-fail-safe"));
-        }
-        return Boolean.FALSE;
-    }
-
-    private Map<String, Object> getCloudLoggingConfiguration(Resource resource) {
-        return MiscUtil.cast(resource.getParameters()
-                                     .get("log-structure"));
+        return logLevel;
     }
 
     private CloudServiceKey getCloudLoggingServiceKey(Resource resource) {
         String correlationId = context.getVariable(Variables.CORRELATION_ID);
-        String serviceInstanceName = (String) resource.getParameters()
-                                                      .get("service-name");
+        String serviceInstanceName = getServiceInstanceName(resource);
+        String serviceKeyName = getServiceKeyName(resource);
         CloudControllerClient client1 = calculateExternalLoggingServiceConfiguration(resource);
-        CloudServiceKey loggingServiceKey = client1.getServiceKey(serviceInstanceName, resource.getName());
+        CloudServiceKey loggingServiceKey = client1.getServiceKey(serviceInstanceName, serviceKeyName);
         if (loggingServiceKey == null) {
             throw new IllegalStateException(
                 MessageFormat.format("No logging service key found for operation {0}, skipping log export", correlationId));
         }
 
         return loggingServiceKey;
+    }
+
+    private String getServiceKeyName(Resource resource) {
+        Map<String, Object> serviceKeys = MiscUtil.cast(resource.getParameters()
+                                                                .get(SupportedParameters.SERVICE_KEYS));
+        return MiscUtil.cast(serviceKeys.get(SupportedParameters.NAME));
+    }
+
+    private String getServiceInstanceName(Resource resource) {
+        if (resource.getParameters()
+                    .containsKey(SupportedParameters.SERVICE_NAME)) {
+            return MiscUtil.cast(resource.getParameters()
+                                         .get(SupportedParameters.SERVICE_NAME));
+        } else {
+            return resource.getName();
+        }
     }
 
     private LoggingConfiguration getCredentialsFromServiceKey(Resource resource) {
@@ -129,16 +130,21 @@ public class ExternalLoggingServiceConfigurationsCalculator {
     }
 
     private String getTargetOrg(Resource resource, String org) {
-        return resource.getParameters()
-                       .get(SupportedParameters.ORGANIZATION_NAME) == null
+        return getDestination(resource).get(SupportedParameters.ORGANIZATION_NAME) == null
             ? org
             : (String) resource.getParameters()
                                .get(SupportedParameters.ORGANIZATION_NAME);
     }
 
     private String getTargetSpace(Resource resource, String space) {
-        return resource.getParameters()
-                       .get(SupportedParameters.SPACE_NAME) == null ? space : (String) resource.getParameters()
-                                                                                               .get(SupportedParameters.SPACE_NAME);
+        return getDestination(resource).get(SupportedParameters.SPACE_NAME) == null
+            ? space
+            : (String) resource.getParameters()
+                               .get(SupportedParameters.SPACE_NAME);
+    }
+
+    private Map<String, Object> getDestination(Resource resource) {
+        return MiscUtil.cast(resource.getParameters()
+                                     .get(SupportedParameters.DESTINATION));
     }
 }

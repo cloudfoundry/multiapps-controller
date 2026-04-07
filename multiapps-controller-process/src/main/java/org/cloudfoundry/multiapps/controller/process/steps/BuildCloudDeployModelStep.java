@@ -71,6 +71,7 @@ import org.springframework.context.annotation.Scope;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 @Named("buildCloudDeployModelStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -451,11 +452,9 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         ExternalLoggingServiceConfigurationsCalculator calculator = new ExternalLoggingServiceConfigurationsCalculator(clientFactory,
                                                                                                                        context,
                                                                                                                        tokenService);
-        LoggingConfiguration loggingConfiguration = calculator.exportOperationLogsToExternalSystem(
-            getLoggingServiceResource(deploymentDescriptor.getResources()));
+        Resource resource = getLoggingServiceResource(deploymentDescriptor.getResources());
+        LoggingConfiguration loggingConfiguration = calculator.exportOperationLogsToExternalSystem(resource);
         context.setVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION, loggingConfiguration);
-
-        getStepLogger().debug("Export of operation logs to external service instance \"{0}\" was successful");
     }
 
     private boolean isCloudLoggingEnabled(DeploymentDescriptor deploymentDescriptor) {
@@ -477,9 +476,13 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     }
 
     private static boolean isCloudLoggingServiceResource(Resource resource) {
-        return resource.getParameters()
-                       .get("export-logs")
-                       .toString()
-                       .equals("true");
+        String resourceType = resource.getType()
+                                      .replace("org.cloudfoundry.", EMPTY);
+        ResourceType resourceType1 = ResourceType.get(resourceType);
+        if (resourceType1 == null) {
+            return false;
+        }
+        return ResourceType.CLOUD_LOGGING_SERVICE.equals(resourceType1);
     }
+
 }
