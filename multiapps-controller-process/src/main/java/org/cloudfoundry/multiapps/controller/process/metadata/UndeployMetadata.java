@@ -56,12 +56,6 @@ public class UndeployMetadata {
                                                                                  .customConverter(new TimeoutParameterConverter(
                                                                                      Variables.BIND_SERVICE_TIMEOUT_PROCESS_VARIABLE))
                                                                                  .build())
-                                         .addParameter(ImmutableParameterMetadata.builder()
-                                                                                 .id(Variables.UNBIND_SERVICE_TIMEOUT_PROCESS_VARIABLE.getName())
-                                                                                 .type(ParameterType.INTEGER)
-                                                                                 .customConverter(new TimeoutParameterConverter(
-                                                                                     Variables.UNBIND_SERVICE_TIMEOUT_PROCESS_VARIABLE))
-                                                                                 .build())
                                          .build();
     }
 }

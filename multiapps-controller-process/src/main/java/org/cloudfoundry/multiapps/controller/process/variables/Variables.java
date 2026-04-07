@@ -965,35 +965,15 @@ public interface Variables {
                                                                                         .name("createServiceTimeoutProcessVariable")
                                                                                         .defaultValue(Duration.ofHours(1))
                                                                                         .build();
-    ;
-    Variable<Duration> DELETE_SERVICE_TIMEOUT_PROCESS_VARIABLE = ImmutableSimpleVariable.<Duration> builder()
-                                                                                        .name("deleteServiceTimeoutProcessVariable")
-                                                                                        .defaultValue(Duration.ofHours(1))
-                                                                                        .build();
-    ;
+
     Variable<Duration> BIND_SERVICE_TIMEOUT_PROCESS_VARIABLE = ImmutableSimpleVariable.<Duration> builder()
                                                                                       .name("bindServiceTimeoutProcessVariable")
                                                                                       .defaultValue(Duration.ofHours(1))
                                                                                       .build();
-    ;
-    Variable<Duration> UNBIND_SERVICE_TIMEOUT_PROCESS_VARIABLE = ImmutableSimpleVariable.<Duration> builder()
-                                                                                        .name("unbindServiceTimeoutProcessVariable")
-                                                                                        .defaultValue(Duration.ofHours(1))
-                                                                                        .build();
-    ;
+
     Variable<Duration> CREATE_SERVICE_KEY_TIMEOUT_PROCESS_VARIABLE = ImmutableSimpleVariable.<Duration> builder()
                                                                                             .name("createServiceKeyTimeoutProcessVariable")
                                                                                             .defaultValue(Duration.ofHours(1))
                                                                                             .build();
-    ;
-    Variable<Duration> DELETE_SERVICE_KEY_TIMEOUT_PROCESS_VARIABLE = ImmutableSimpleVariable.<Duration> builder()
-                                                                                            .name("deleteServiceKeyTimeoutProcessVariable")
-                                                                                            .defaultValue(Duration.ofHours(1))
-                                                                                            .build();
-    ;
-    Variable<Duration> UPDATE_SERVICE_TIMEOUT_PROCESS_VARIABLE = ImmutableSimpleVariable.<Duration> builder()
-                                                                                        .name("updateServiceTimeoutProcessVariable")
-                                                                                        .defaultValue(Duration.ofHours(1))
-                                                                                        .build();
-    ;
+    
 }

@@ -29,10 +29,9 @@ class RollbackMtaMetadataTest extends MetadataBaseTest {
             Variables.APPS_UPLOAD_TIMEOUT_PROCESS_VARIABLE.getName(), Variables.APPS_TASK_EXECUTION_TIMEOUT_PROCESS_VARIABLE.getName(),
             Variables.PROCESS_USER_PROVIDED_SERVICES.getName(), Variables.IS_SECURITY_ENABLED.getName(),
             Variables.DISPOSABLE_USER_PROVIDED_SERVICE_NAME.getName(), Variables.IS_DISPOSABLE_USER_PROVIDED_SERVICE_ENABLED.getName(),
-            Variables.CREATE_SERVICE_TIMEOUT_PROCESS_VARIABLE.getName(), Variables.DELETE_SERVICE_TIMEOUT_PROCESS_VARIABLE.getName(),
-            Variables.UPDATE_SERVICE_TIMEOUT_PROCESS_VARIABLE.getName(), Variables.BIND_SERVICE_TIMEOUT_PROCESS_VARIABLE.getName(),
-            Variables.UNBIND_SERVICE_TIMEOUT_PROCESS_VARIABLE.getName(), Variables.CREATE_SERVICE_KEY_TIMEOUT_PROCESS_VARIABLE.getName(),
-            Variables.DELETE_SERVICE_KEY_TIMEOUT_PROCESS_VARIABLE.getName() };
+            Variables.CREATE_SERVICE_TIMEOUT_PROCESS_VARIABLE.getName(),
+            Variables.BIND_SERVICE_TIMEOUT_PROCESS_VARIABLE.getName(),
+            Variables.CREATE_SERVICE_KEY_TIMEOUT_PROCESS_VARIABLE.getName() };
     }
 
 }
