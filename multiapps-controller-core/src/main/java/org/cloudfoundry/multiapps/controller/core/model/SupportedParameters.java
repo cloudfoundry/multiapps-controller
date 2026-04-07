@@ -157,6 +157,8 @@ public class SupportedParameters {
     public static final String FAIL_ON_SERVICE_UPDATE = "fail-on-service-update";
     public static final String SYSLOG_DRAIN_URL = "syslog-drain-url";
     public static final String SERVICE_GUID = "service-guid";
+    public static final String LOG_LEVEL = "log-level";
+    public static final String DESTINATION = "destination";
 
     // Configuration reference (new syntax):
     public static final String PROVIDER_NID = "provider-nid";

@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.persistence.model;
 
-import java.util.List;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.cloudfoundry.multiapps.common.Nullable;
@@ -34,7 +32,7 @@ public interface LoggingConfiguration {
     String getClientKey();
 
     @Nullable
-    List<String> getLogLevels();
+    LogLevel getLogLevel();
 
     @Nullable
     Boolean isFailSafe();
