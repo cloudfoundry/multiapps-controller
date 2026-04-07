@@ -36,7 +36,6 @@ import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
-import org.cloudfoundry.multiapps.controller.process.util.DeprecatedBuildpackChecker;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.builders.v2.ParametersChainBuilder;
@@ -77,8 +76,6 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     private ModuleToDeployHelper moduleToDeployHelper;
     @Inject
     private ProcessTypeParser processTypeParser;
-    @Inject
-    private DeprecatedBuildpackChecker buildpackChecker;
 
     @Inject
     private TokenService tokenService;
@@ -114,9 +111,6 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         List<Module> modulesCalculatedForDeployment = calculateModulesForDeployment(context, deploymentDescriptor, mtaDescriptorModules,
                                                                                     mtaManifestModulesNames, deployedModuleNames,
                                                                                     mtaModulesForDeployment);
-
-        buildpackChecker.warnForDeprecatedBuildpacks(modulesCalculatedForDeployment, deploymentDescriptor, getStepLogger(),
-                                                     moduleToDeployHelper);
 
         List<String> moduleJsons = modulesCalculatedForDeployment.stream()
                                                                  .map(dynamicSecureSerialization::toJson)
