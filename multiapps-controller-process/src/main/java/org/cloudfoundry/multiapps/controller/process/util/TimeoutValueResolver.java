@@ -101,21 +101,12 @@ public class TimeoutValueResolver {
             return null;
         }
 
-        Duration timeout = null;
-        switch (timeoutType) {
-            case CREATE_SERVICE:
-                timeout = service.getCreateServiceTimeout();
-                break;
-            case BIND_SERVICE:
-                timeout = service.getBindServiceTimeout();
-                break;
-            case CREATE_SERVICE_KEY:
-                timeout = service.getCreateServiceKeyTimeout();
-                break;
-            default:
-                break;
+        TimeoutType.ServiceTimeoutGetter timeoutGetter = timeoutType.getServiceTimeoutGetter();
+        if (timeoutGetter == null) {
+            return null;
         }
 
+        Duration timeout = timeoutGetter.getServiceTimeout(service);
         if (timeout != null) {
             String paramName = timeoutType.getEntityLevelParamName();
             return new TimeoutResolution(timeout, paramName != null ? paramName : "service-level");
