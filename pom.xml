@@ -64,6 +64,7 @@
         <azure-storage-blob.version>12.33.3</azure-storage-blob.version>
         <azure-core-http-okhttp.version>1.13.3</azure-core-http-okhttp.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
+        <wire-runtime.version>6.2.0</wire-runtime.version>
     </properties>
     <modules>
         <module>multiapps-controller-client</module>
@@ -813,6 +814,13 @@
                 <groupId>io.github.resilience4j</groupId>
                 <artifactId>resilience4j-ratelimiter</artifactId>
                 <version>${resilience4j.version}</version>
+            </dependency>
+            <!-- Transitive dependency from org.cloudfoundry:cloudfoundry-client-reactor. Version 3.7.1 has security vulnerabilities and in order to avoid them, an explicit version is required. -->
+            <!-- https://mvnrepository.com/artifact/com.squareup.wire/wire-runtime -->
+            <dependency>
+                <groupId>com.squareup.wire</groupId>
+                <artifactId>wire-runtime</artifactId>
+                <version>${wire-runtime.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-fips -->
             <dependency>
