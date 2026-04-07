@@ -5,6 +5,7 @@ import java.time.Duration;
 
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.TimeoutStepStateManager;
 import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
@@ -41,54 +42,57 @@ public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {
     }
 
     private void logTimeout(ProcessContext context, TimeoutType timeoutType, TimeoutResolution resolvedTimeout) {
-        String operationTypeName = determineOperationType(context, timeoutType);
-        String timeoutParameterName = resolvedTimeout.parameterName();
+        String operationName = resolveOperationName(context, timeoutType);
+        String parameterName = resolvedTimeout.parameterName();
         long timeoutSeconds = resolvedTimeout.timeout().toSeconds();
-        
-        if (timeoutParameterName.equals(DEFAULT_TIMEOUT)) {
-            getStepLogger().info(Messages.OPERATION_TIMEOUT_DEFAULT_VALUE_MESSAGE, operationTypeName, timeoutSeconds);
+
+        if (DEFAULT_TIMEOUT.equals(parameterName)) {
+            logDefaultTimeout(operationName, timeoutSeconds);
         } else {
-            getStepLogger().info(Messages.OPERATION_TIMEOUT_MESSAGE, operationTypeName, timeoutParameterName, timeoutSeconds);
+            logParameterizedTimeout(operationName, parameterName, timeoutSeconds);
         }
     }
 
-    private String determineOperationType(ProcessContext context, TimeoutType timeoutType) {
+    private void logDefaultTimeout(String operationName, long timeoutSeconds) {
+        getStepLogger().info(Messages.OPERATION_TIMEOUT_DEFAULT_VALUE_MESSAGE, operationName, timeoutSeconds);
+    }
+
+    private void logParameterizedTimeout(String operationName, String parameterName, long timeoutSeconds) {
+        getStepLogger().info(Messages.OPERATION_TIMEOUT_MESSAGE, operationName, parameterName, timeoutSeconds);
+    }
+
+    private String resolveOperationName(ProcessContext context, TimeoutType timeoutType) {
         return switch (timeoutType) {
-            case UPLOAD, STAGE, START, TASK -> getApplicationOperationName(context);
-            case BIND_SERVICE -> getBindingOperationName(context, timeoutType);
-            case CREATE_SERVICE, CREATE_SERVICE_KEY -> 
-                getServiceObjectOperationName(context, timeoutType);
+            case UPLOAD, STAGE, START, TASK -> resolveAppOperationName(context);
+            case BIND_SERVICE -> resolveServiceBindingName(context);
+            case CREATE_SERVICE, CREATE_SERVICE_KEY -> resolveServiceOperationName(context, timeoutType);
         };
     }
 
-    private String getApplicationOperationName(ProcessContext context) {
+    private String resolveAppOperationName(ProcessContext context) {
         CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
-        String appName = app != null ? app.getName() : null;
-        return appName != null ? "Application " + appName : "Application";
+        return app != null ? "Application " + app.getName() : "Application";
     }
 
-    private String getBindingOperationName(ProcessContext context, TimeoutType timeoutType) {
+    private String resolveServiceBindingName(ProcessContext context) {
         String service = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
         return service != null ? "Service binding for " + service : "Service binding";
     }
 
-    private String getServiceObjectOperationName(ProcessContext context, TimeoutType timeoutType) {
-        String operationName = getServiceOperationName(timeoutType);
-        String serviceName = getServiceName(context);
-        return serviceName != null ? operationName + " for " + serviceName : operationName;
-    }
-
-    private String getServiceOperationName(TimeoutType timeoutType) {
-        return switch (timeoutType) {
+    private String resolveServiceOperationName(ProcessContext context, TimeoutType timeoutType) {
+        String operationVerb = switch (timeoutType) {
             case CREATE_SERVICE -> "Service creation";
             case CREATE_SERVICE_KEY -> "Service key creation";
             default -> "Service operation";
         };
+        
+        String serviceName = getServiceResourceName(context);
+        return serviceName != null ? operationVerb + " for " + serviceName : operationVerb;
     }
 
-    private String getServiceName(ProcessContext context) {
+    private String getServiceResourceName(ProcessContext context) {
         Object serviceObj = context.getVariable(Variables.SERVICE_TO_PROCESS);
-        if (serviceObj instanceof org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended service) {
+        if (serviceObj instanceof CloudServiceInstanceExtended service) {
             return service.getResourceName();
         }
         return null;
