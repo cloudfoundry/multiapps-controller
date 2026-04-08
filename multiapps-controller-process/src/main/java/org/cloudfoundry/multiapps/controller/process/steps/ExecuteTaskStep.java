@@ -104,6 +104,9 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
         if (appName.endsWith(fromSuffix)) {
             return appName.substring(0, appName.length() - fromSuffix.length()) + toSuffix;
         }
+        if (!appName.endsWith(toSuffix)) {
+            return appName + toSuffix;
+        }
         return appName;
     }
 
