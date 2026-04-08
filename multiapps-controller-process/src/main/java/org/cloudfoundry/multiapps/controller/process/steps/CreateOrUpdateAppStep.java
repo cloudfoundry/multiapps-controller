@@ -14,7 +14,6 @@ import java.util.stream.Stream;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
@@ -148,9 +147,10 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             for (ServiceKeyToInject serviceKeyToInject : app.getServiceKeysToInject()) {
                 var serviceKey = client.getServiceKey(serviceKeyToInject.getServiceName(), serviceKeyToInject.getServiceKeyName());
                 if (serviceKey == null) {
-                    throw new SLException(Messages.SERVICE_KEY_NOT_FOUND, 
-                                        serviceKeyToInject.getServiceKeyName(), 
-                                        serviceKeyToInject.getServiceName());
+                    getStepLogger().warn(Messages.SERVICE_KEY_NOT_FOUND,
+                                         serviceKeyToInject.getServiceKeyName(),
+                                         serviceKeyToInject.getServiceName());
+                    continue;
                 }
                 String serviceKeyCredentials = JsonUtil.toJson(serviceKey.getCredentials(), shouldPrettyPrint.getAsBoolean());
                 serviceKeys.put(serviceKeyToInject.getEnvVarName(), serviceKeyCredentials);
@@ -402,6 +402,5 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         }
 
     }
-
 
 }
