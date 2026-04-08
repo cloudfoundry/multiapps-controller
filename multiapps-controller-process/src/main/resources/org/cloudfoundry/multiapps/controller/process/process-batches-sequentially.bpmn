@@ -45,7 +45,6 @@
         <flowable:in source="updateServiceTimeoutProcessVariable" target="updateServiceTimeoutProcessVariable"></flowable:in>
         <flowable:in source="bindServiceTimeoutProcessVariable" target="bindServiceTimeoutProcessVariable"></flowable:in>
         <flowable:in source="createServiceKeyTimeoutProcessVariable" target="createServiceKeyTimeoutProcessVariable"></flowable:in>
-        <flowable:in source="deleteServiceKeyTimeoutProcessVariable" target="deleteServiceKeyTimeoutProcessVariable"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToCreate" flowable:elementVariable="serviceToProcess">
         <extensionElements></extensionElements>
