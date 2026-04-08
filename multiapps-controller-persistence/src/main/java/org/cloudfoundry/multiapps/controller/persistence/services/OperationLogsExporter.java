@@ -44,7 +44,7 @@ public class OperationLogsExporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationLogsExporter.class);
     private static final long MAX_LIMIT_REQUEST_SIZE_BYTES = 3 * 1024 * 1024 + 512 * 1024; // 3.5MB
     private static final Map<String, WebClient> clientCache = new ConcurrentHashMap<>();
-    private final Pattern MESSAGE_LOG_LEVEL_PATTERN = Pattern.compile("^#[^#\\r\\n]*#[^#\\r\\n]*#([^#\\r\\n]*)#", Pattern.MULTILINE);
+    private static final Pattern MESSAGE_LOG_LEVEL_PATTERN = Pattern.compile("^#[^#\\r\\n]*#[^#\\r\\n]*#([^#\\r\\n]*)#", Pattern.MULTILINE);
     private static final String MESSAGE_SPLITTING_REGEX = "(?m)^#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#(?:\\r?\\n)?";
 
     private final ProcessLogsPersistenceService processLogsPersistenceService;
@@ -175,15 +175,29 @@ public class OperationLogsExporter {
         Map<LogLevel, List<String>> logsMap = new HashMap<>();
 
         for (OperationLogEntry ope : operationLogEntries) {
-            getMessagesToLog(ope.getOperationLog(), logsMap);
-            try {
-                processLogsPersistenceService.updateIsSendToCloudLoggingService(ope.getId(), true);
-            } catch (FileStorageException e) {
-                logErrorOrThrowExceptionBasedOnFailSafe(loggingConfiguration, e.getMessage());
+            if (ope.getOperationLogName()
+                   .equals("OPERATION.log")) {
+
+                getMessagesToLog(ope.getOperationLog(), logsMap);
+                try {
+                    processLogsPersistenceService.updateIsSendToCloudLoggingService(ope.getId(), true);
+                } catch (FileStorageException e) {
+                    logErrorOrThrowExceptionBasedOnFailSafe(loggingConfiguration, e.getMessage());
+                }
             }
         }
+        if (operationLogEntry.getOperationLogName()
+                             .equals("OPERATION.log")) {
+            getMessagesToLog(operationLogEntry.getOperationLog(), logsMap);
+        }
+        for (var list : logsMap.values()) {
+            for (var l : list) {
+                if (l.contains("Executing task \"startDeploySubProcessTask\" of process")) {
+                    System.out.println("");
 
-        getMessagesToLog(operationLogEntry.getOperationLog(), logsMap);
+                }
+            }
+        }
         return logsMap;
     }
 
@@ -191,6 +205,9 @@ public class OperationLogsExporter {
         String[] messages = log.split(MESSAGE_SPLITTING_REGEX);
 
         List<String> logLevels = getLogLevels(log);
+        //        if (logLevels.isEmpty()) {
+        //            return;
+        //        }
 
         int levelIndex = 0;
         for (String message : messages) {
@@ -199,7 +216,7 @@ public class OperationLogsExporter {
             }
 
             String cleanedMessage = extractMessage(message);
-            String level = !logLevels.isEmpty() ? logLevels.get(levelIndex) : "DEBUG";
+            String level = logLevels.get(levelIndex);
 
             logsMap.computeIfAbsent(LogLevel.get(level), key -> new ArrayList<>())
                    .add(cleanedMessage);
