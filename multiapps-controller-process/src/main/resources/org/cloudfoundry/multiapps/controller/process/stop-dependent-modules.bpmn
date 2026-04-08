@@ -38,6 +38,7 @@
     <sequenceFlow id="sid-280D0A60-D996-45AB-B0DB-52F13C37295A" sourceRef="shouldWaitAfterAppStop" targetRef="incrementModuleIndexTask"></sequenceFlow>
     <callActivity id="hooksCallActivity" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution, execution)}" flowable:calledElementType="key" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
       <extensionElements>
+        <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
         <flowable:in source="taskExecutionTimeoutDefault" target="taskExecutionTimeoutDefault"></flowable:in>
         <flowable:in source="appsTaskExecutionTimeout" target="appsTaskExecutionTimeout"></flowable:in>
         <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
