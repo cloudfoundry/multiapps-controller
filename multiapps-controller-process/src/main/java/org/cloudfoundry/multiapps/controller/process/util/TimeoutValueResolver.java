@@ -115,21 +115,19 @@ public class TimeoutValueResolver {
     }
 
     private CloudServiceInstanceExtended getServiceFromContext(ProcessContext context, TimeoutType timeoutType) {
-        // For bind operations, look up service by name from SERVICES_TO_BIND
         if (timeoutType == TimeoutType.BIND_SERVICE) {
             String serviceName = context.getVariableIfSet(Variables.SERVICE_TO_UNBIND_BIND);
             if (serviceName != null) {
                 List<CloudServiceInstanceExtended> servicesToBind = context.getVariableIfSet(Variables.SERVICES_TO_BIND);
                 if (servicesToBind != null) {
                     return servicesToBind.stream()
-                                        .filter(service -> serviceName.equals(service.getName()))
-                                        .findFirst()
-                                        .orElse(null);
+                                         .filter(service -> serviceName.equals(service.getName()))
+                                         .findFirst()
+                                         .orElse(null);
                 }
             }
         }
-        
-        // For other service operations, use SERVICE_TO_PROCESS
+
         return context.getVariableIfSet(Variables.SERVICE_TO_PROCESS);
     }
 

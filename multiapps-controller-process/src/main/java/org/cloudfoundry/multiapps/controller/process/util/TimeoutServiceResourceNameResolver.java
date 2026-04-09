@@ -49,10 +49,10 @@ public class TimeoutServiceResourceNameResolver {
             return findServiceResourceNameByServiceName(context, serviceName);
         }
 
-        // In service-key deletion subprocesses SERVICE_TO_PROCESS might be absent.
         CloudServiceKey serviceKey = context.getVariableIfSet(Variables.SERVICE_KEY_TO_PROCESS);
         if (serviceKey != null && serviceKey.getServiceInstance() != null) {
-            return findServiceResourceNameByServiceName(context, serviceKey.getServiceInstance().getName());
+            return findServiceResourceNameByServiceName(context, serviceKey.getServiceInstance()
+                                                                           .getName());
         }
 
         return null;

@@ -56,13 +56,11 @@ public class CheckServiceBindingOperationStep extends TimeoutAsyncFlowableStep {
             UUID serviceInstanceGuid = controllerClient.getRequiredServiceInstanceGuid(serviceInstanceName);
             return controllerClient.getServiceBindingForApplication(applicationGuid, serviceInstanceGuid);
         } catch (CloudOperationException e) {
-            // Handle 404 Not Found - service instance may have been deleted during rollback/unbind
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
                 getStepLogger().debug(Messages.CANNOT_RETRIEVE_SERVICE_BINDING_FOR_SERVICE_INSTANCE_0_NOT_FOUND,
                                       serviceInstanceName);
                 return null;
             }
-            // Handle other errors - check if service is optional
             List<CloudServiceInstanceExtended> servicesToBind = context.getVariable(Variables.SERVICES_TO_BIND);
             if (StepsUtil.isServiceOptional(servicesToBind, serviceInstanceName)) {
                 getStepLogger().warnWithoutProgressMessage(e, Messages.CANNOT_RETRIEVE_OPTIONAL_SERVICE_BINDING_FOR_SERVICE_INSTANCE_0,
