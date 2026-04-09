@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +46,9 @@ public class OperationLogsExporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationLogsExporter.class);
     private static final long MAX_LIMIT_REQUEST_SIZE_BYTES = 3 * 1024 * 1024 + 512 * 1024; // 3.5MB
     private static final Map<String, WebClient> clientCache = new ConcurrentHashMap<>();
+    private static final Pattern MESSAGE_LOG_DATE_PATTERN = Pattern.compile("^#([^#\\r\\n]*)#", Pattern.MULTILINE);
     private static final Pattern MESSAGE_LOG_LEVEL_PATTERN = Pattern.compile("^#[^#\\r\\n]*#[^#\\r\\n]*#([^#\\r\\n]*)#", Pattern.MULTILINE);
+
     private static final String MESSAGE_SPLITTING_REGEX = "(?m)^#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#(?:\\r?\\n)?";
 
     private final ProcessLogsPersistenceService processLogsPersistenceService;
@@ -76,20 +80,20 @@ public class OperationLogsExporter {
 
     private List<List<ExternalOperationLogEntry>> getExternalOperationLogEntryBatches(LoggingConfiguration loggingConfiguration,
                                                                                       OperationLogEntry operationLogEntry) {
-        Map<LogLevel, List<String>> operationLogs = getLogsFromOperationLogEntry(loggingConfiguration, operationLogEntry);
-        Map<LogLevel, List<String>> filteredOperationLogs = removeLogsWithUnwantedLogLevel(loggingConfiguration, operationLogs);
+        Map<LogLevel, List<LogLogLog>> operationLogs = getLogsFromOperationLogEntry(loggingConfiguration, operationLogEntry);
+        Map<LogLevel, List<LogLogLog>> filteredOperationLogs = removeLogsWithUnwantedLogLevel(loggingConfiguration, operationLogs);
         List<ExternalOperationLogEntry> externalOperationLogEntries = new ArrayList<>();
 
-        for (Map.Entry<LogLevel, List<String>> operationLog : filteredOperationLogs.entrySet()) {
-            for (String log : operationLog.getValue()) {
+        for (Map.Entry<LogLevel, List<LogLogLog>> operationLog : filteredOperationLogs.entrySet()) {
+            for (LogLogLog log : operationLog.getValue()) {
                 externalOperationLogEntries.add(convertToExternalLogEntry(operationLogEntry, log, operationLog.getKey()));
             }
         }
         return getLogEntryBatches(externalOperationLogEntries);
     }
 
-    private Map<LogLevel, List<String>> removeLogsWithUnwantedLogLevel(LoggingConfiguration loggingConfiguration,
-                                                                       Map<LogLevel, List<String>> operationLogs) {
+    private Map<LogLevel, List<LogLogLog>> removeLogsWithUnwantedLogLevel(LoggingConfiguration loggingConfiguration,
+                                                                          Map<LogLevel, List<LogLogLog>> operationLogs) {
         List<LogLevel> allowedLevelsToLog = LogLevel.getLogLevelLoggingType()
                                                     .get(loggingConfiguration.getLogLevel());
 
@@ -169,10 +173,10 @@ public class OperationLogsExporter {
         return batches;
     }
 
-    private Map<LogLevel, List<String>> getLogsFromOperationLogEntry(LoggingConfiguration loggingConfiguration,
-                                                                     OperationLogEntry operationLogEntry) {
+    private Map<LogLevel, List<LogLogLog>> getLogsFromOperationLogEntry(LoggingConfiguration loggingConfiguration,
+                                                                        OperationLogEntry operationLogEntry) {
         List<OperationLogEntry> operationLogEntries = getUnsendProcessLogs(loggingConfiguration);
-        Map<LogLevel, List<String>> logsMap = new HashMap<>();
+        Map<LogLevel, List<LogLogLog>> logsMap = new HashMap<>();
 
         for (OperationLogEntry ope : operationLogEntries) {
             if (ope.getOperationLogName()
@@ -192,7 +196,8 @@ public class OperationLogsExporter {
         }
         for (var list : logsMap.values()) {
             for (var l : list) {
-                if (l.contains("Executing task \"startDeploySubProcessTask\" of process")) {
+                if (l.log()
+                     .contains("Executing task \"startDeploySubProcessTask\" of process")) {
                     System.out.println("");
 
                 }
@@ -201,10 +206,11 @@ public class OperationLogsExporter {
         return logsMap;
     }
 
-    private void getMessagesToLog(String log, Map<LogLevel, List<String>> logsMap) {
+    private void getMessagesToLog(String log, Map<LogLevel, List<LogLogLog>> logsMap) {
         String[] messages = log.split(MESSAGE_SPLITTING_REGEX);
 
         List<String> logLevels = getLogLevels(log);
+        List<LocalDateTime> dateLevels = getLogDate(log);
         //        if (logLevels.isEmpty()) {
         //            return;
         //        }
@@ -217,9 +223,10 @@ public class OperationLogsExporter {
 
             String cleanedMessage = extractMessage(message);
             String level = logLevels.get(levelIndex);
+            LocalDateTime date = dateLevels.get(levelIndex);
 
             logsMap.computeIfAbsent(LogLevel.get(level), key -> new ArrayList<>())
-                   .add(cleanedMessage);
+                   .add(new LogLogLog(cleanedMessage, date));
             levelIndex++;
         }
     }
@@ -230,6 +237,20 @@ public class OperationLogsExporter {
 
         while (matcher.find()) {
             logLevels.add(matcher.group(1));
+        }
+
+        return logLevels;
+    }
+
+    private List<LocalDateTime> getLogDate(String log) {
+        Matcher matcher = MESSAGE_LOG_DATE_PATTERN.matcher(log);
+        List<LocalDateTime> logLevels = new ArrayList<>();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy MM dd HH:mm:ss.SSS");
+
+        while (matcher.find()) {
+            LocalDateTime dateTime = LocalDateTime.parse(matcher.group(1), formatter);
+            logLevels.add(dateTime);
         }
 
         return logLevels;
@@ -292,16 +313,21 @@ public class OperationLogsExporter {
         return new ByteArrayInputStream((credential.getBytes(StandardCharsets.UTF_8)));
     }
 
-    private ExternalOperationLogEntry convertToExternalLogEntry(OperationLogEntry operationLogEntry, String operationLog, LogLevel level) {
+    private ExternalOperationLogEntry convertToExternalLogEntry(OperationLogEntry operationLogEntry, LogLogLog operationLog,
+                                                                LogLevel level) {
         return ImmutableExternalOperationLogEntry.builder()
-                                                 .timestamp(String.valueOf(operationLogEntry.getModified()
-                                                                                            .atOffset(ZoneOffset.UTC)))
-                                                 .message(operationLog)
+                                                 .timestamp(String.valueOf(operationLog.dateTime()
+                                                                                       .atOffset(ZoneOffset.UTC)))
+                                                 .message(operationLog.log())
                                                  .id(UUID.randomUUID()
                                                          .toString())
                                                  .operationLogName(operationLogEntry.getOperationLogName())
                                                  .correlationId(operationLogEntry.getOperationId())
                                                  .level(level.name())
                                                  .build();
+    }
+
+    private record LogLogLog(String log, LocalDateTime dateTime) {
+
     }
 }
