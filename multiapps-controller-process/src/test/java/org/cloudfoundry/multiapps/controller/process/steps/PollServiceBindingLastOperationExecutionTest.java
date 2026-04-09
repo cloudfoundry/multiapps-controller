@@ -50,7 +50,7 @@ class PollServiceBindingLastOperationExecutionTest extends AsyncStepOperationTes
     @MethodSource
     void testPollExecution(CloudServiceBinding serviceBinding, AsyncExecutionState asyncExecutionState) {
         expectedExecutionStatus = asyncExecutionState;
-        initializeParameters(serviceBinding);
+        initializeParameters(List.of(serviceBinding));
         testExecuteOperations();
     }
 
@@ -58,7 +58,7 @@ class PollServiceBindingLastOperationExecutionTest extends AsyncStepOperationTes
     void testFailedExecutionForOptionalService() {
         expectedExecutionStatus = AsyncExecutionState.FINISHED;
         context.setVariable(Variables.SERVICES_TO_BIND, List.of(buildCloudServiceInstance(SERVICE_TO_UNBIND_BIND, true)));
-        initializeParameters(buildCloudServiceBinding("failed"));
+        initializeParameters(List.of(buildCloudServiceBinding("failed")));
         testExecuteOperations();
     }
 
@@ -67,8 +67,8 @@ class PollServiceBindingLastOperationExecutionTest extends AsyncStepOperationTes
         expectedExecutionStatus = AsyncExecutionState.RUNNING;
         CloudServiceBinding serviceBinding = buildCloudServiceBinding("in progress");
         context.setVariable(Variables.SERVICE_BINDING_TO_DELETE, serviceBinding);
-        when(client.getServiceBindingForApplication(any(UUID.class), any(UUID.class))).thenReturn(serviceBinding);
-        initializeParameters(serviceBinding);
+        when(client.getServiceBinding(any(UUID.class))).thenReturn(serviceBinding);
+        initializeParameters(List.of(serviceBinding));
         testExecuteOperations();
     }
 
@@ -77,8 +77,8 @@ class PollServiceBindingLastOperationExecutionTest extends AsyncStepOperationTes
         expectedExecutionStatus = AsyncExecutionState.FINISHED;
         CloudServiceBinding serviceBinding = buildCloudServiceBinding("in progress");
         context.setVariable(Variables.SERVICE_BINDING_TO_DELETE, serviceBinding);
-        initializeParameters(serviceBinding);
-        when(client.getServiceBindingForApplication(any(), any())).thenReturn(null);
+        initializeParameters(List.of(serviceBinding));
+        when(client.getServiceBinding(any(UUID.class))).thenReturn(null);
         testExecuteOperations();
     }
 
@@ -91,6 +91,21 @@ class PollServiceBindingLastOperationExecutionTest extends AsyncStepOperationTes
             Messages.ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1,
             APP_TO_PROCESS_NAME, SERVICE_TO_UNBIND_BIND);
         asyncExecutions.forEach(asyncExecution -> assertEquals(expectedErrorMessage, asyncExecution.getPollingErrorMessage(context)));
+    }
+
+    @Test
+    void testBindingToDeleteSelectedByGuidWhenMultipleExist() {
+        expectedExecutionStatus = AsyncExecutionState.RUNNING;
+        CloudServiceBinding targetBinding = buildCloudServiceBinding("in progress");
+        CloudServiceBinding otherBinding = ImmutableCloudServiceBinding.builder()
+                                                                       .name("other-binding")
+                                                                       .applicationGuid(SERVICE_BINDING_APP_GUID)
+                                                                       .serviceInstanceGuid(SERVICE_BINDING_SERVICE_INSTANCE_GUID)
+                                                                       .serviceBindingOperation(buildServiceBindingOperation("succeeded"))
+                                                                       .metadata(buildCloudMetadata(UUID.randomUUID()))
+                                                                       .build();
+        initializeParameters(List.of(otherBinding, targetBinding));
+        testExecuteOperations();
     }
 
     private static CloudServiceBinding buildCloudServiceBinding(String lastOperationState) {
@@ -128,12 +143,12 @@ class PollServiceBindingLastOperationExecutionTest extends AsyncStepOperationTes
                                      .build();
     }
 
-    private void initializeParameters(CloudServiceBinding serviceBinding) {
+    private void initializeParameters(List<CloudServiceBinding> serviceBindings) {
         context.setVariable(Variables.APP_TO_PROCESS, buildCloudApplication());
         context.setVariable(Variables.SERVICE_TO_UNBIND_BIND, SERVICE_TO_UNBIND_BIND);
         when(client.getApplicationGuid(APP_TO_PROCESS_NAME)).thenReturn(APP_TO_PROCESS_GUID);
         when(client.getRequiredServiceInstanceGuid(SERVICE_TO_UNBIND_BIND)).thenReturn(SERVICE_TO_UNBIND_BIND_GUID);
-        when(client.getServiceBindingForApplication(any(), any())).thenReturn(serviceBinding);
+        when(client.getServiceBindingsForApplication(any(), any())).thenReturn(serviceBindings);
     }
 
     private CloudApplicationExtended buildCloudApplication() {

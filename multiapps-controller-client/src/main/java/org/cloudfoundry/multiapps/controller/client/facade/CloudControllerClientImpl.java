@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.client.facade;
 import java.net.URL;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -364,8 +365,8 @@ public class CloudControllerClientImpl implements CloudControllerClient {
     }
 
     @Override
-    public CloudServiceBinding getServiceBindingForApplication(UUID applicationId, UUID serviceInstanceGuid) {
-        return handleExceptions(() -> delegate.getServiceBindingForApplication(applicationId, serviceInstanceGuid));
+    public List<CloudServiceBinding> getServiceBindingsForApplication(UUID applicationId, UUID serviceInstanceGuid) {
+        return handleExceptions(() -> delegate.getServiceBindingsForApplication(applicationId, serviceInstanceGuid));
     }
 
     @Override
@@ -464,23 +465,23 @@ public class CloudControllerClientImpl implements CloudControllerClient {
     }
 
     @Override
-    public Optional<String> unbindServiceInstance(String applicationName, String serviceInstanceName,
-                                                  ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
+    public List<String> unbindServiceInstance(String applicationName, String serviceInstanceName,
+                                              ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
         try {
             return handleExceptions(() -> delegate.unbindServiceInstance(applicationName, serviceInstanceName));
         } catch (CloudOperationException e) {
             applicationServicesUpdateCallback.onError(e, applicationName, serviceInstanceName);
         }
-        return Optional.empty();
+        return Collections.emptyList();
     }
 
     @Override
-    public Optional<String> unbindServiceInstance(String applicationName, String serviceInstanceName) {
+    public List<String> unbindServiceInstance(String applicationName, String serviceInstanceName) {
         return handleExceptions(() -> delegate.unbindServiceInstance(applicationName, serviceInstanceName));
     }
 
     @Override
-    public Optional<String> unbindServiceInstance(UUID applicationGuid, UUID serviceInstanceGuid) {
+    public List<String> unbindServiceInstance(UUID applicationGuid, UUID serviceInstanceGuid) {
         return handleExceptions(() -> delegate.unbindServiceInstance(applicationGuid, serviceInstanceGuid));
     }
 

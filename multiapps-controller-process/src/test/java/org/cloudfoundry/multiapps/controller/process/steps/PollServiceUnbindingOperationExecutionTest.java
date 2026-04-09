@@ -181,6 +181,48 @@ class PollServiceUnbindingOperationExecutionTest extends AsyncStepOperationTest<
         assertTrue(errorMessage.contains(SERVICE_NAME));
     }
 
+    @Test
+    void testMultipleJobIdsFirstFinishedSecondInProgress() {
+        String secondJobId = UUID.randomUUID().toString();
+        context.setVariable(Variables.SERVICE_UNBINDING_JOB_IDS, List.of(JOB_ID, secondJobId));
+        context.setVariable(Variables.APP_TO_PROCESS, ImmutableCloudApplicationExtended.builder()
+                                                                                       .name(APP_NAME)
+                                                                                       .metadata(ImmutableCloudMetadata.builder()
+                                                                                                                       .guid(UUID.randomUUID())
+                                                                                                                       .build())
+                                                                                       .build());
+        context.setVariable(Variables.SERVICE_TO_UNBIND_BIND, SERVICE_NAME);
+        context.setVariable(Variables.SERVICES_TO_BIND, List.of());
+        when(client.getAsyncJob(JOB_ID)).thenReturn(buildAsyncJobWithState(JobState.COMPLETE));
+        when(client.getAsyncJob(secondJobId)).thenReturn(buildAsyncJobWithState(JobState.PROCESSING));
+        expectedAsyncExecutionState = AsyncExecutionState.RUNNING;
+
+        testExecuteOperations();
+
+        assertEquals(List.of(secondJobId), context.getVariable(Variables.SERVICE_UNBINDING_JOB_IDS));
+    }
+
+    @Test
+    void testMultipleJobIdsAllFinished() {
+        String secondJobId = UUID.randomUUID().toString();
+        context.setVariable(Variables.SERVICE_UNBINDING_JOB_IDS, List.of(JOB_ID, secondJobId));
+        context.setVariable(Variables.APP_TO_PROCESS, ImmutableCloudApplicationExtended.builder()
+                                                                                       .name(APP_NAME)
+                                                                                       .metadata(ImmutableCloudMetadata.builder()
+                                                                                                                       .guid(UUID.randomUUID())
+                                                                                                                       .build())
+                                                                                       .build());
+        context.setVariable(Variables.SERVICE_TO_UNBIND_BIND, SERVICE_NAME);
+        context.setVariable(Variables.SERVICES_TO_BIND, List.of());
+        when(client.getAsyncJob(JOB_ID)).thenReturn(buildAsyncJobWithState(JobState.COMPLETE));
+        when(client.getAsyncJob(secondJobId)).thenReturn(buildAsyncJobWithState(JobState.COMPLETE));
+        expectedAsyncExecutionState = AsyncExecutionState.FINISHED;
+
+        testExecuteOperations();
+
+        assertTrue(context.getVariable(Variables.SERVICE_UNBINDING_JOB_IDS).isEmpty());
+    }
+
     private void prepareContext() {
         context.setVariable(Variables.SERVICE_UNBINDING_JOB_ID, JOB_ID);
         context.setVariable(Variables.APP_TO_PROCESS, ImmutableCloudApplicationExtended.builder()
