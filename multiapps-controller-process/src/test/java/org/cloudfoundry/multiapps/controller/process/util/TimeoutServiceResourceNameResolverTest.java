@@ -40,7 +40,6 @@ class TimeoutServiceResourceNameResolverTest {
     @BeforeEach
     void setUp() {
         try (var closeable = MockitoAnnotations.openMocks(this)) {
-            // Mocks initialized
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -49,7 +48,6 @@ class TimeoutServiceResourceNameResolverTest {
 
     @Test
     void testResolveResourceFromCloudServiceInstanceExtended() {
-        // Arrange
         String serviceName = "test-service";
         String resourceName = "test-resource";
         CloudServiceInstanceExtended service = ImmutableCloudServiceInstanceExtended.builder()
@@ -61,16 +59,13 @@ class TimeoutServiceResourceNameResolverTest {
 
         when(context.getVariableIfSet(Variables.SERVICE_TO_PROCESS)).thenReturn(service);
 
-        // Act
         Resource result = resolver.resolveResource(context, TimeoutType.CREATE_SERVICE, descriptor, logger);
 
-        // Assert
         assertEquals(resourceName, result.getName());
     }
 
     @Test
     void testResolveResourceFromServiceName() {
-        // Arrange
         String serviceName = "test-service";
         String resourceName = "test-resource";
         CloudServiceInstanceExtended service = ImmutableCloudServiceInstanceExtended.builder()
@@ -87,16 +82,13 @@ class TimeoutServiceResourceNameResolverTest {
         when(context.getVariableIfSet(Variables.SERVICE_TO_PROCESS)).thenReturn(service);
         when(context.getVariableIfSet(Variables.SERVICES_TO_CREATE)).thenReturn(servicesToCreate);
 
-        // Act
         Resource result = resolver.resolveResource(context, TimeoutType.CREATE_SERVICE, descriptor, logger);
 
-        // Assert
         assertEquals(resourceName, result.getName());
     }
 
     @Test
     void testResolveResourceFromServicesToBind() {
-        // Arrange
         String serviceName = "test-service";
         String resourceName = "test-resource";
         DeploymentDescriptor descriptor = createDescriptorWithResource(resourceName);
@@ -106,24 +98,20 @@ class TimeoutServiceResourceNameResolverTest {
                                                                .resourceName(resourceName)
                                                                .build());
 
-        // BIND_SERVICE uses SERVICE_TO_UNBIND_BIND as the context variable (String type)
         when(context.getVariableIfSet(Variables.SERVICE_TO_UNBIND_BIND)).thenReturn(serviceName);
         when(context.getVariableIfSet(Variables.SERVICES_TO_BIND)).thenReturn(servicesToBind);
         when(context.getVariableIfSet(Variables.SERVICES_TO_CREATE)).thenReturn(null);
         when(context.getVariableIfSet(Variables.SERVICES_TO_POLL)).thenReturn(null);
         when(context.getVariable(Variables.DEPLOYED_MTA)).thenReturn(null);
 
-        // Act
         Resource result = resolver.resolveResource(context, TimeoutType.BIND_SERVICE, descriptor, logger);
 
-        // Assert
         assertNotNull(result);
         assertEquals(resourceName, result.getName());
     }
 
     @Test
     void testResolveResourceFromServicesToPoll() {
-        // Arrange
         String serviceName = "test-service";
         String resourceName = "test-resource";
 
@@ -134,7 +122,6 @@ class TimeoutServiceResourceNameResolverTest {
                                                                .resourceName(resourceName)
                                                                .build());
 
-        // SERVICE_TO_PROCESS must have name (without resourceName) to trigger lookup in service lists
         CloudServiceInstanceExtended serviceToProcess = ImmutableCloudServiceInstanceExtended.builder()
                                                                                              .name(serviceName)
                                                                                              .build();
@@ -145,17 +132,14 @@ class TimeoutServiceResourceNameResolverTest {
         when(context.getVariableIfSet(Variables.SERVICES_TO_POLL)).thenReturn(servicesToPoll);
         when(context.getVariable(Variables.DEPLOYED_MTA)).thenReturn(null);
 
-        // Act
         Resource result = resolver.resolveResource(context, TimeoutType.CREATE_SERVICE, descriptor, logger);
 
-        // Assert
         assertNotNull(result);
         assertEquals(resourceName, result.getName());
     }
 
     @Test
     void testResolveResourceFromDeployedMta() {
-        // Arrange
         String serviceName = "test-service";
         String resourceName = "test-resource";
 
@@ -172,7 +156,6 @@ class TimeoutServiceResourceNameResolverTest {
                                                                                    .build())
                                                      .build();
 
-        // SERVICE_TO_PROCESS must have name (without resourceName) to trigger lookup in deployed MTA
         CloudServiceInstanceExtended serviceToProcess = ImmutableCloudServiceInstanceExtended.builder()
                                                                                              .name(serviceName)
                                                                                              .build();
@@ -183,17 +166,14 @@ class TimeoutServiceResourceNameResolverTest {
         when(context.getVariableIfSet(Variables.SERVICES_TO_POLL)).thenReturn(null);
         when(context.getVariable(Variables.DEPLOYED_MTA)).thenReturn(deployedMta);
 
-        // Act
         Resource result = resolver.resolveResource(context, TimeoutType.CREATE_SERVICE, descriptor, logger);
 
-        // Assert
         assertNotNull(result);
         assertEquals(resourceName, result.getName());
     }
 
     @Test
     void testResolveResourceFromServiceKeyToProcess() {
-        // Arrange
         String serviceName = "test-service";
         String resourceName = "test-resource";
 
@@ -205,7 +185,6 @@ class TimeoutServiceResourceNameResolverTest {
                                                                  .resourceName(resourceName)
                                                                  .build());
 
-        // CloudServiceKey must have a serviceInstance with name to trigger lookup
         CloudServiceInstanceExtended serviceInstance = ImmutableCloudServiceInstanceExtended.builder()
                                                                                            .name(serviceName)
                                                                                            .build();
@@ -221,17 +200,14 @@ class TimeoutServiceResourceNameResolverTest {
         when(context.getVariableIfSet(Variables.SERVICE_KEY_TO_PROCESS)).thenReturn(serviceKey);
         when(context.getVariable(Variables.DEPLOYED_MTA)).thenReturn(null);
 
-        // Act
         Resource result = resolver.resolveResource(context, TimeoutType.CREATE_SERVICE, descriptor, logger);
 
-        // Assert
         assertNotNull(result);
         assertEquals(resourceName, result.getName());
     }
 
     @Test
     void testResolveResourceReturnsNullWhenResourceNotFound() {
-        // Arrange
         String serviceName = "test-service";
         String resourceName = "non-existent-resource";
 
@@ -243,16 +219,13 @@ class TimeoutServiceResourceNameResolverTest {
 
         when(context.getVariableIfSet(Variables.SERVICE_TO_PROCESS)).thenReturn(service);
 
-        // Act
         Resource result = resolver.resolveResource(context, TimeoutType.CREATE_SERVICE, descriptor, logger);
 
-        // Assert
         assertNull(result);
     }
 
     @Test
     void testResolveResourceReturnsNullWhenResourceNameNotResolved() {
-        // Arrange
         DeploymentDescriptor descriptor = createDescriptorWithResource("test-resource");
 
         when(context.getVariableIfSet(Variables.SERVICE_TO_PROCESS)).thenReturn(null);
@@ -261,16 +234,13 @@ class TimeoutServiceResourceNameResolverTest {
         when(context.getVariableIfSet(Variables.SERVICES_TO_POLL)).thenReturn(null);
         when(context.getVariable(Variables.DEPLOYED_MTA)).thenReturn(null);
 
-        // Act
         Resource result = resolver.resolveResource(context, TimeoutType.CREATE_SERVICE, descriptor, logger);
 
-        // Assert
         assertNull(result);
     }
 
     @Test
     void testResolveResourceWithNullDescriptor() {
-        // Arrange
         CloudServiceInstanceExtended service = ImmutableCloudServiceInstanceExtended.builder()
                                                                                     .name("test-service")
                                                                                     .resourceName("test-resource")
@@ -278,32 +248,26 @@ class TimeoutServiceResourceNameResolverTest {
 
         when(context.getVariableIfSet(Variables.SERVICE_TO_PROCESS)).thenReturn(service);
 
-        // Act
         Resource result = resolver.resolveResource(context, TimeoutType.CREATE_SERVICE, null, logger);
 
-        // Assert
         assertNull(result);
     }
 
     @Test
     void testResolveResourceWithEmptyServicesList() {
-        // Arrange
         DeploymentDescriptor descriptor = createDescriptorWithResource("test-resource");
         List<CloudServiceInstanceExtended> emptyList = new ArrayList<>();
 
         when(context.getVariableIfSet(Variables.SERVICE_TO_PROCESS)).thenReturn(null);
         when(context.getVariableIfSet(Variables.SERVICES_TO_BIND)).thenReturn(emptyList);
 
-        // Act
         Resource result = resolver.resolveResource(context, TimeoutType.CREATE_SERVICE, descriptor, logger);
 
-        // Assert
         assertNull(result);
     }
 
     @Test
     void testResolveResourceWithMultipleServices() {
-        // Arrange
         String targetServiceName = "target-service";
         String resourceName = "target-resource";
         DeploymentDescriptor descriptor = createDescriptorWithResources(
@@ -322,7 +286,6 @@ class TimeoutServiceResourceNameResolverTest {
                                                                  .resourceName(resourceName)
                                                                  .build());
 
-        // SERVICE_TO_PROCESS must have name (without resourceName) to trigger lookup in service lists
         CloudServiceInstanceExtended serviceToProcess = ImmutableCloudServiceInstanceExtended.builder()
                                                                                              .name(targetServiceName)
                                                                                              .build();
@@ -333,15 +296,12 @@ class TimeoutServiceResourceNameResolverTest {
         when(context.getVariableIfSet(Variables.SERVICES_TO_POLL)).thenReturn(null);
         when(context.getVariable(Variables.DEPLOYED_MTA)).thenReturn(null);
 
-        // Act
         Resource result = resolver.resolveResource(context, TimeoutType.CREATE_SERVICE, descriptor, logger);
 
-        // Assert
         assertNotNull(result);
         assertEquals(resourceName, result.getName());
     }
 
-    // Helper methods
     private DeploymentDescriptor createDescriptorWithResource(String resourceName) {
         DeploymentDescriptor descriptor = DeploymentDescriptor.createV3();
         List<Resource> resources = new ArrayList<>();

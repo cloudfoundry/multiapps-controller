@@ -31,7 +31,6 @@ class TimeoutStepStateManagerTest {
     @BeforeEach
     void setUp() {
         try (var closeable = MockitoAnnotations.openMocks(this)) {
-            // Mocks initialized
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -41,64 +40,54 @@ class TimeoutStepStateManagerTest {
 
     @Test
     void testHasTimedOutReturnsFalseWhenWithinTimeout() {
-        // Arrange
         String stepName = "testStep";
         Duration timeout = Duration.ofSeconds(10);
         long now = System.currentTimeMillis();
-        long stepStartTime = now - 5000; // 5 seconds ago
+        long stepStartTime = now - 5000;
 
         when(execution.getVariable(Constants.VAR_STEP_START_TIME + stepName)).thenReturn(stepStartTime);
         when(context.getVariable(Variables.STEP_PHASE)).thenReturn(StepPhase.DONE);
         when(context.getVariable(Variables.MUST_RESET_TIMEOUT)).thenReturn(false);
 
-        // Act
         boolean hasTimedOut = timeoutStepStateManager.hasTimedOut(context, stepName, timeout);
 
-        // Assert
         assertFalse(hasTimedOut);
     }
 
     @Test
     void testHasTimedOutReturnsTrueWhenTimeoutExceeded() {
-        // Arrange
         String stepName = "testStep";
         Duration timeout = Duration.ofSeconds(5);
         long now = System.currentTimeMillis();
-        long stepStartTime = now - 10000; // 10 seconds ago
+        long stepStartTime = now - 10000;
 
         when(execution.getVariable(Constants.VAR_STEP_START_TIME + stepName)).thenReturn(stepStartTime);
         when(context.getVariable(Variables.STEP_PHASE)).thenReturn(StepPhase.DONE);
         when(context.getVariable(Variables.MUST_RESET_TIMEOUT)).thenReturn(false);
 
-        // Act
         boolean hasTimedOut = timeoutStepStateManager.hasTimedOut(context, stepName, timeout);
 
-        // Assert
         assertTrue(hasTimedOut);
     }
 
     @Test
     void testHasTimedOutReturnsFalseAtExactTimeout() {
-        // Arrange
         String stepName = "testStep";
         Duration timeout = Duration.ofSeconds(10);
         long now = System.currentTimeMillis();
-        long stepStartTime = now - 10000; // Exactly 10 seconds ago
+        long stepStartTime = now - 10000;
 
         when(execution.getVariable(Constants.VAR_STEP_START_TIME + stepName)).thenReturn(stepStartTime);
         when(context.getVariable(Variables.STEP_PHASE)).thenReturn(StepPhase.DONE);
         when(context.getVariable(Variables.MUST_RESET_TIMEOUT)).thenReturn(false);
 
-        // Act
         boolean hasTimedOut = timeoutStepStateManager.hasTimedOut(context, stepName, timeout);
 
-        // Assert
         assertTrue(hasTimedOut);
     }
 
     @Test
     void testGetStepStartTimeInitializesTimeWhenNotSet() {
-        // Arrange
         String stepName = "testStep";
         long now = System.currentTimeMillis();
 
@@ -106,10 +95,8 @@ class TimeoutStepStateManagerTest {
         when(context.getVariable(Variables.STEP_PHASE)).thenReturn(StepPhase.DONE);
         when(context.getVariable(Variables.MUST_RESET_TIMEOUT)).thenReturn(false);
 
-        // Act
         long stepStartTime = timeoutStepStateManager.getStepStartTime(context, stepName);
 
-        // Assert
         assertTrue(stepStartTime >= now);
         assertTrue(stepStartTime <= System.currentTimeMillis());
         verify(execution).setVariable(Constants.VAR_STEP_START_TIME + stepName, stepStartTime);
@@ -117,7 +104,6 @@ class TimeoutStepStateManagerTest {
 
     @Test
     void testGetStepStartTimeReturnsExistingTimeWhenInitialized() {
-        // Arrange
         String stepName = "testStep";
         long existingTime = System.currentTimeMillis() - 5000;
 
@@ -125,16 +111,13 @@ class TimeoutStepStateManagerTest {
         when(context.getVariable(Variables.STEP_PHASE)).thenReturn(StepPhase.DONE);
         when(context.getVariable(Variables.MUST_RESET_TIMEOUT)).thenReturn(false);
 
-        // Act
         long stepStartTime = timeoutStepStateManager.getStepStartTime(context, stepName);
 
-        // Assert
         assertEquals(existingTime, stepStartTime);
     }
 
     @Test
     void testGetStepStartTimeResetsTimeoutOnRetry() {
-        // Arrange
         String stepName = "testStep";
         long oldTime = System.currentTimeMillis() - 100000;
         long now = System.currentTimeMillis();
@@ -143,10 +126,8 @@ class TimeoutStepStateManagerTest {
         when(context.getVariable(Variables.STEP_PHASE)).thenReturn(StepPhase.RETRY);
         when(context.getVariable(Variables.MUST_RESET_TIMEOUT)).thenReturn(false);
 
-        // Act
         long stepStartTime = timeoutStepStateManager.getStepStartTime(context, stepName);
 
-        // Assert
         assertTrue(stepStartTime >= now);
         assertTrue(stepStartTime <= System.currentTimeMillis());
         verify(execution).setVariable(Constants.VAR_STEP_START_TIME + stepName, stepStartTime);
@@ -154,7 +135,6 @@ class TimeoutStepStateManagerTest {
 
     @Test
     void testGetStepStartTimeResetsTimeoutWhenMustResetFlagIsSet() {
-        // Arrange
         String stepName = "testStep";
         long oldTime = System.currentTimeMillis() - 100000;
         long now = System.currentTimeMillis();
@@ -163,10 +143,8 @@ class TimeoutStepStateManagerTest {
         when(context.getVariable(Variables.STEP_PHASE)).thenReturn(StepPhase.DONE);
         when(context.getVariable(Variables.MUST_RESET_TIMEOUT)).thenReturn(true);
 
-        // Act
         long stepStartTime = timeoutStepStateManager.getStepStartTime(context, stepName);
 
-        // Assert
         assertTrue(stepStartTime >= now);
         assertTrue(stepStartTime <= System.currentTimeMillis());
         verify(execution).setVariable(Constants.VAR_STEP_START_TIME + stepName, stepStartTime);
@@ -175,7 +153,6 @@ class TimeoutStepStateManagerTest {
 
     @Test
     void testGetStepStartTimeDoesNotResetWhenNotNeeded() {
-        // Arrange
         String stepName = "testStep";
         long existingTime = System.currentTimeMillis() - 5000;
 
@@ -183,16 +160,13 @@ class TimeoutStepStateManagerTest {
         when(context.getVariable(Variables.STEP_PHASE)).thenReturn(StepPhase.DONE);
         when(context.getVariable(Variables.MUST_RESET_TIMEOUT)).thenReturn(false);
 
-        // Act
         long stepStartTime = timeoutStepStateManager.getStepStartTime(context, stepName);
 
-        // Assert
         assertEquals(existingTime, stepStartTime);
     }
 
     @Test
     void testMultipleStepsHaveSeparateTimeoutStates() {
-        // Arrange
         String step1 = "step1";
         String step2 = "step2";
         long time1 = System.currentTimeMillis() - 5000;
@@ -203,50 +177,42 @@ class TimeoutStepStateManagerTest {
         when(context.getVariable(Variables.STEP_PHASE)).thenReturn(StepPhase.DONE);
         when(context.getVariable(Variables.MUST_RESET_TIMEOUT)).thenReturn(false);
 
-        // Act
         long step1StartTime = timeoutStepStateManager.getStepStartTime(context, step1);
         long step2StartTime = timeoutStepStateManager.getStepStartTime(context, step2);
 
-        // Assert
         assertEquals(time1, step1StartTime);
         assertEquals(time2, step2StartTime);
     }
 
     @Test
     void testHasTimedOutWithLargeTimeout() {
-        // Arrange
         String stepName = "testStep";
         Duration timeout = Duration.ofHours(1);
         long now = System.currentTimeMillis();
-        long stepStartTime = now - 60000; // 1 minute ago
+        long stepStartTime = now - 60000;
 
         when(execution.getVariable(Constants.VAR_STEP_START_TIME + stepName)).thenReturn(stepStartTime);
         when(context.getVariable(Variables.STEP_PHASE)).thenReturn(StepPhase.DONE);
         when(context.getVariable(Variables.MUST_RESET_TIMEOUT)).thenReturn(false);
 
-        // Act
         boolean hasTimedOut = timeoutStepStateManager.hasTimedOut(context, stepName, timeout);
 
-        // Assert
         assertFalse(hasTimedOut);
     }
 
     @Test
     void testHasTimedOutWithSmallTimeout() {
-        // Arrange
         String stepName = "testStep";
         Duration timeout = Duration.ofMillis(100);
         long now = System.currentTimeMillis();
-        long stepStartTime = now - 200; // 200ms ago
+        long stepStartTime = now - 200;
 
         when(execution.getVariable(Constants.VAR_STEP_START_TIME + stepName)).thenReturn(stepStartTime);
         when(context.getVariable(Variables.STEP_PHASE)).thenReturn(StepPhase.DONE);
         when(context.getVariable(Variables.MUST_RESET_TIMEOUT)).thenReturn(false);
 
-        // Act
         boolean hasTimedOut = timeoutStepStateManager.hasTimedOut(context, stepName, timeout);
 
-        // Assert
         assertTrue(hasTimedOut);
     }
 
