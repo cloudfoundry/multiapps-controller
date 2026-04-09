@@ -93,10 +93,10 @@ class CustomServiceKeysClientTest extends CustomControllerClientBaseTest {
         String capturedUri = capturedResolvedUris.getFirst();
         assertTrue(capturedUri.startsWith("/v3/service_credential_bindings?type=key&label_selector="),
                    "URI should start with the service keys base path");
-        assertTrue(capturedUri.contains("space_guid=" + SPACE_GUID), "URI should contain the space_guid label selector");
-        assertTrue(capturedUri.contains("&include=service_instance"), "URI should include service_instance");
+        assertTrue(capturedUri.contains("space_guid=" + SPACE_GUID), "URI should contain the space_guid label selector but was: " + capturedUri);
+        assertTrue(capturedUri.contains("&include=service_instance"), "URI should include service_instance but was: " + capturedUri);
         assertTrue(capturedUri.contains("&service_instance_guids=" + guid),
-                   "URI should contain the service instance guid parameter");
+                   "URI should contain the service instance guid parameter but was: " + capturedUri);
     }
 
     @Test

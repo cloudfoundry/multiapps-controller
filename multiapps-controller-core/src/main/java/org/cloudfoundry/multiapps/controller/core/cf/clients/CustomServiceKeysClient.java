@@ -16,6 +16,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.metadata.util.MtaMetadataUt
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaService;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.springframework.web.util.UriComponentsBuilder;
 
 public class CustomServiceKeysClient extends CustomControllerClient {
     private static final String SERVICE_KEYS_RESOURCE_BASE_URI = "/v3/service_credential_bindings";
@@ -88,11 +89,13 @@ public class CustomServiceKeysClient extends CustomControllerClient {
     }
 
     private List<DeployedMtaServiceKey> getServiceKeysByMetadataInternal(String labelSelector, List<String> guids) {
-        String expandedUriPrefix =
-            SERVICE_KEYS_BY_METADATA_SELECTOR_URI + INCLUDE_SERVICE_INSTANCE_RESOURCES_PARAM + SERVICE_INSTANCE_GUIDS_PARAM_PREFIX;
+        String uri = UriComponentsBuilder.fromUriString(
+                                             SERVICE_KEYS_BY_METADATA_SELECTOR_URI + INCLUDE_SERVICE_INSTANCE_RESOURCES_PARAM + SERVICE_INSTANCE_GUIDS_PARAM_PREFIX)
+                                         .buildAndExpand(labelSelector)
+                                         .toString();
         return getListOfResourcesInBatches(new ServiceKeysResponseMapper(),
-                                           expandedUriPrefix,
-                                           guids, labelSelector);
+                                           uri,
+                                           guids);
     }
 
     private List<DeployedMtaService> getManagedServices(List<DeployedMtaService> services) {

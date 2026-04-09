@@ -36,17 +36,17 @@ public abstract class CustomControllerClient {
         this.headerConfiguration = new CloudControllerHeaderConfiguration(configuration.getVersion());
     }
 
-    protected <T> List<T> getListOfResources(ResourcesResponseMapper<T> responseMapper, String uri, Object... urlVariables) {
-        PaginationV3 pagination = addPageOfResources(uri, responseMapper, urlVariables);
+    protected <T> List<T> getListOfResources(ResourcesResponseMapper<T> responseMapper, String uri) {
+        PaginationV3 pagination = addPageOfResources(uri, responseMapper);
         while (!StringUtils.isEmpty(pagination.getNextUri())) {
             pagination = addPageOfResources(pagination.getNextUri(), responseMapper);
         }
         return responseMapper.getMappedResources();
     }
 
-    private PaginationV3 addPageOfResources(String uri, ResourcesResponseMapper<?> responseMapper, Object... urlVariables) {
+    private PaginationV3 addPageOfResources(String uri, ResourcesResponseMapper<?> responseMapper) {
         String responseString = webClient.get()
-                                         .uri(uri, urlVariables)
+                                         .uri(uri)
                                          .headers(httpHeaders -> httpHeaders.addAll(generateRequestHeaders()))
                                          .retrieve()
                                          .bodyToMono(String.class)
@@ -63,41 +63,15 @@ public abstract class CustomControllerClient {
         return result;
     }
 
-    protected <T> List<T> getListOfResourcesInBatches(ResourcesResponseMapper<T> responseMapper, String uriPrefix,
-                                                      List<String> batchValues, Object... urlVariables) {
-        int expandedPrefixLength = calculateExpandedLength(uriPrefix, urlVariables);
-        List<List<String>> batches = splitIntoBatches(batchValues, expandedPrefixLength);
+    protected <T> List<T> getListOfResourcesInBatches(ResourcesResponseMapper<T> responseMapper, String uri,
+                                                      List<String> batchValues) {
+        List<List<String>> batches = splitIntoBatches(batchValues, uri.length());
         return batches.stream()
                       .map(batch ->
-                               getListOfResources(responseMapper, uriPrefix, batch, urlVariables)
+                               getListOfResources(responseMapper, uri, batch)
                       )
                       .flatMap(List::stream)
                       .toList();
-    }
-
-    private int calculateExpandedLength(String uriPrefix, Object[] urlVariables) {
-        if (urlVariables == null || urlVariables.length == 0) {
-            return uriPrefix.length();
-        }
-        int urlVariablesLength = 0;
-        for (Object variable : urlVariables) {
-            urlVariablesLength += String.valueOf(variable)
-                                        .length();
-        }
-        int placeholdersLength = calculatePlaceholdersLength(uriPrefix);
-        return (uriPrefix.length() - placeholdersLength) + urlVariablesLength;
-    }
-
-    private int calculatePlaceholdersLength(String uriPrefix) {
-        int length = 0;
-        int searchFrom = 0;
-        int start;
-        int end;
-        while ((start = uriPrefix.indexOf('{', searchFrom)) >= 0 && (end = uriPrefix.indexOf('}', start)) >= 0) {
-            length += end - start + 1;
-            searchFrom = end + 1;
-        }
-        return length;
     }
 
     protected List<List<String>> splitIntoBatches(List<String> values, int fixedUriLength) {
@@ -126,9 +100,9 @@ public abstract class CustomControllerClient {
     }
 
     private <T> List<T> getListOfResources(ResourcesResponseMapper<T> responseMapper, String uriPrefix,
-                                           List<String> batch, Object... urlVariables) {
+                                           List<String> batch) {
         String uri = uriPrefix + String.join(",", batch);
-        return getListOfResources(responseMapper, uri, urlVariables);
+        return getListOfResources(responseMapper, uri);
     }
 
     public static abstract class ResourcesResponseMapper<T> {
