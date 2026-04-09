@@ -240,7 +240,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
             List<UpdateState> updateStates = getApplicationAttributeUpdaters().stream()
                                                                               .map(updater -> updater.update(existingApp, app))
-                                                                              .collect(Collectors.toList());
+                                                                              .toList();
 
             boolean arePropertiesChanged = updateStates.contains(UpdateState.UPDATED);
 
