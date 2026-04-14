@@ -40,6 +40,11 @@
         <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
         <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
+        <flowable:in source="createServiceTimeoutProcessVariable" target="createServiceTimeoutProcessVariable"></flowable:in>
+        <flowable:in source="deleteServiceTimeoutProcessVariable" target="deleteServiceTimeoutProcessVariable"></flowable:in>
+        <flowable:in source="updateServiceTimeoutProcessVariable" target="updateServiceTimeoutProcessVariable"></flowable:in>
+        <flowable:in source="bindServiceTimeoutProcessVariable" target="bindServiceTimeoutProcessVariable"></flowable:in>
+        <flowable:in source="createServiceKeyTimeoutProcessVariable" target="createServiceKeyTimeoutProcessVariable"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToCreate" flowable:elementVariable="serviceToProcess">
         <extensionElements></extensionElements>
