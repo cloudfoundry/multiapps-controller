@@ -35,7 +35,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.cloudfoundry.multiapps.controller.process.steps.StepsTestUtil.prepareDisablingAutoscaler;
 import static org.cloudfoundry.multiapps.controller.process.steps.StepsTestUtil.testIfEnabledOrDisabledAutoscaler;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -197,17 +196,20 @@ class CreateOrUpdateAppStepTest extends SyncFlowableStepTest<CreateOrUpdateAppSt
     }
 
     @Test
-    void testThrowExceptionWhenSpecifiedServiceKeyNotExist() {
+    void testLogWarningWhenSpecifiedServiceKeyNotExist() {
         CloudApplicationExtended application = buildApplication(null, 0, 0, Collections.emptySet(), Collections.emptyMap());
         Map<String, String> applicationEnv = Map.of("restart-policy", "always");
         ServiceKeyToInject serviceKey = new ServiceKeyToInject(SERVICE_KEY_ENV_NAME, SERVICE_NAME, SERVICE_KEY_NAME);
         application = ImmutableCloudApplicationExtended.copyOf(application)
                                                        .withEnv(applicationEnv)
                                                        .withServiceKeysToInject(serviceKey);
-        when(client.getServiceKeys(SERVICE_NAME)).thenReturn(Collections.emptyList());
+        when(client.getServiceKey(SERVICE_NAME, SERVICE_KEY_NAME)).thenReturn(null);
         context.setVariable(Variables.APP_TO_PROCESS, application);
 
-        assertThrows(SLException.class, () -> step.execute(execution));
+        step.shouldPrettyPrint = () -> false;
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
     }
 
     @Override
