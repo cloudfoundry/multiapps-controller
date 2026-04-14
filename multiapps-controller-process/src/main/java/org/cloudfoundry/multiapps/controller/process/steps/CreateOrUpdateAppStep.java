@@ -146,6 +146,12 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             Map<String, String> serviceKeys = new HashMap<>();
             for (ServiceKeyToInject serviceKeyToInject : app.getServiceKeysToInject()) {
                 var serviceKey = client.getServiceKey(serviceKeyToInject.getServiceName(), serviceKeyToInject.getServiceKeyName());
+                if (serviceKey == null) {
+                    getStepLogger().warn(Messages.SERVICE_KEY_NOT_FOUND,
+                                         serviceKeyToInject.getServiceKeyName(),
+                                         serviceKeyToInject.getServiceName());
+                    continue;
+                }
                 String serviceKeyCredentials = JsonUtil.toJson(serviceKey.getCredentials(), shouldPrettyPrint.getAsBoolean());
                 serviceKeys.put(serviceKeyToInject.getEnvVarName(), serviceKeyCredentials);
             }
@@ -234,7 +240,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
             List<UpdateState> updateStates = getApplicationAttributeUpdaters().stream()
                                                                               .map(updater -> updater.update(existingApp, app))
-                                                                              .collect(Collectors.toList());
+                                                                              .toList();
 
             boolean arePropertiesChanged = updateStates.contains(UpdateState.UPDATED);
 
