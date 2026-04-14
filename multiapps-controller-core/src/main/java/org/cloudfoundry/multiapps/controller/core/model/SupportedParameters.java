@@ -182,6 +182,13 @@ public class SupportedParameters {
     @Deprecated
     public static final String DEPRECATED_CONFIG_MTA_PROVIDES_DEPENDENCY = "mta-provides-dependency";
 
+    public static final String CREATE_SERVICE_TIMEOUT = "create-service-timeout";
+    public static final String SERVICES_CREATE_SERVICE_TIMEOUT = "services-create-service-timeout";
+    public static final String BIND_SERVICE_TIMEOUT = "bind-service-timeout";
+    public static final String SERVICES_BIND_SERVICE_TIMEOUT = "services-bind-service-timeout";
+    public static final String CREATE_SERVICE_KEY_TIMEOUT = "create-service-key-timeout";
+    public static final String SERVICES_CREATE_SERVICE_KEY_TIMEOUT = "services-create-service-key-timeout";
+
     public static final Set<String> MODULE_PARAMETERS = Set.of(APP_NAME, APPLY_NAMESPACE, BUILDPACK, BUILDPACKS, LIFECYCLE, COMMAND,
                                                                CREATE_SERVICE_BROKER, DEFAULT_APP_NAME, DEFAULT_HOST, DEFAULT_INSTANCES,
                                                                DEFAULT_LIVE_APP_NAME, DEFAULT_LIVE_DOMAIN, DEFAULT_LIVE_HOST,
@@ -212,7 +219,10 @@ public class SupportedParameters {
                                                                  FAIL_ON_SERVICE_UPDATE, SERVICE_PROVIDER, SERVICE_VERSION);
     public static final Set<String> GLOBAL_PARAMETERS = Set.of(KEEP_EXISTING_ROUTES, APPS_UPLOAD_TIMEOUT, APPS_TASK_EXECUTION_TIMEOUT,
                                                                APPS_START_TIMEOUT, APPS_STAGE_TIMEOUT, APPLY_NAMESPACE,
-                                                               ENABLE_PARALLEL_DEPLOYMENTS, DEPLOY_MODE, BG_DEPENDENCY_AWARE_STOP_ORDER);
+                                                               ENABLE_PARALLEL_DEPLOYMENTS, DEPLOY_MODE, BG_DEPENDENCY_AWARE_STOP_ORDER,
+                                                               CREATE_SERVICE_TIMEOUT, SERVICES_CREATE_SERVICE_TIMEOUT,
+                                                               BIND_SERVICE_TIMEOUT, SERVICES_BIND_SERVICE_TIMEOUT,
+                                                               CREATE_SERVICE_KEY_TIMEOUT, SERVICES_CREATE_SERVICE_KEY_TIMEOUT);
 
     public static final Set<String> DEPENDENCY_PARAMETERS = Set.of(BINDING_NAME, ENV_VAR_NAME, VISIBILITY, USE_LIVE_ROUTES,
                                                                    SERVICE_BINDING_CONFIG, DELETE_SERVICE_KEY_AFTER_DEPLOYMENT);

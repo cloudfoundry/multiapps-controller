@@ -961,4 +961,19 @@ public interface Variables {
                                                                                            .defaultValue(false)
                                                                                            .build();
 
+    Variable<Duration> CREATE_SERVICE_TIMEOUT_PROCESS_VARIABLE = ImmutableSimpleVariable.<Duration> builder()
+                                                                                        .name("createServiceTimeoutProcessVariable")
+                                                                                        .defaultValue(Duration.ofHours(1))
+                                                                                        .build();
+
+    Variable<Duration> BIND_SERVICE_TIMEOUT_PROCESS_VARIABLE = ImmutableSimpleVariable.<Duration> builder()
+                                                                                      .name("bindServiceTimeoutProcessVariable")
+                                                                                      .defaultValue(Duration.ofHours(1))
+                                                                                      .build();
+
+    Variable<Duration> CREATE_SERVICE_KEY_TIMEOUT_PROCESS_VARIABLE = ImmutableSimpleVariable.<Duration> builder()
+                                                                                            .name("createServiceKeyTimeoutProcessVariable")
+                                                                                            .defaultValue(Duration.ofHours(1))
+                                                                                            .build();
+    
 }

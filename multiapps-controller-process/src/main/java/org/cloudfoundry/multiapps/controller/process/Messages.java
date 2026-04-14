@@ -100,6 +100,7 @@ public class Messages {
     public static final String ERROR_WHILE_DELETING_SERVICE_INSTANCE_METADATA_0 = "Error while deleting service instance metadata \"{0}\"";
     public static final String ERROR_WHILE_DELETING_SERVICE_KEY_0 = "Error while deleting service key \"{0}\"";
     public static final String ERROR_WHILE_CALCULATING_SERVICE_KEYS_FOR_WAITING = "Error while calculating service keys for waiting";
+    public static final String SERVICE_KEY_NOT_FOUND = "Service key \"{0}\" for service \"{1}\" was not found and will be skipped";
     public static final String COULD_NOT_GET_APP_LOGS = "Could not get application recent logs: {0}";
     public static final String ERROR_DURING_INCREMENTAL_INSTANCE_UPDATE_OF_MODULE_0 = "Error during incremental instance update of module \"{0}\"";
     public static final String ERROR_DURING_POLL_OF_INCREMENTAL_INSTANCE_UPDATE_OF_MODULE_0 = "Error during poll of incremental instance update of module \"{0}\"";
@@ -545,6 +546,8 @@ public class Messages {
     public static final String DELETING_ERROR_TYPE_O_FOR_PROCESS_1 = "Deleting error type \"{0}\" for process \"{1}\"";
     public static final String TIMEOUT_MESSAGE = "Application {0} timeout is set by \"{1}\" parameter to {2} seconds";
     public static final String TIMEOUT_DEFAULT_VALUE_MESSAGE = "Application {0} timeout is default one: {1} seconds";
+    public static final String OPERATION_TIMEOUT_MESSAGE = "{0} timeout is set by \"{1}\" parameter to {2} seconds";
+    public static final String OPERATION_TIMEOUT_DEFAULT_VALUE_MESSAGE = "{0} timeout is default one: {1} seconds";
     public static final String PROVIDED_EXTENSION_DESCRIPTORS = "Provided extension descriptors: {0}";
     public static final String CREATED_SUBSCRIPTION = "Created subscription with ID: {0}";
     public static final String UPDATING_SUBSCRIBER_0 = "Updating subscriber: {0} ";
@@ -728,6 +731,7 @@ public class Messages {
     public static final String WILL_ONLY_REMOVE_SERVICE_INSTANCE_METADATA_BECAUSE_THE_SERVICE_TYPE_IS_EXISTING = "Will only remove service instance metadata, because the service type is \"existing\"";
     public static final String DETERMINING_DELETE_ACTIONS_FOR_SERVICE_INSTANCE_0 = "Determining delete actions for service instance \"{0}\"";
     public static final String CANNOT_RETRIEVE_OPTIONAL_SERVICE_BINDING_FOR_SERVICE_INSTANCE_0 = "Cannot retrieve optional service binding for service instance \"{0}\"";
+    public static final String CANNOT_RETRIEVE_SERVICE_BINDING_FOR_SERVICE_INSTANCE_0_NOT_FOUND = "Service instance \"{0}\" was not found; skipping service binding check (service may have been deleted)";
     public static final String SERVICE_KEYS_SCHEDULED_FOR_RECREATION_MODIFICATION_0 = "Service keys scheduled for recreation due to modification: \"{0}\"";
     public static final String SERVICE_KEYS_SCHEDULED_FOR_RECREATION_STATE_0 = "Service keys scheduled for recreation due to state: \"{0}\"";
     public static final String SERVICE_KEYS_SCHEDULED_FOR_CREATION_0 = "Service keys scheduled for creation: \"{0}\"";

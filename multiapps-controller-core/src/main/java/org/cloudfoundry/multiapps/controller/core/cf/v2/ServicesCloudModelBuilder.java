@@ -1,12 +1,14 @@
 package org.cloudfoundry.multiapps.controller.core.cf.v2;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+
 import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceType;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
@@ -88,6 +90,9 @@ public class ServicesCloudModelBuilder {
                                                         commonServiceParameters.failOnServiceParametersUpdateFailure())
                                                     .shouldFailOnPlanUpdateFailure(commonServiceParameters.failOnServicePlanUpdateFailure())
                                                     .shouldFailOnTagsUpdateFailure(commonServiceParameters.failOnServiceTagsUpdateFailure())
+                                                    .createServiceTimeout(extractTimeoutValue(parameters, "create-service-timeout"))
+                                                    .bindServiceTimeout(extractTimeoutValue(parameters, "bind-service-timeout"))
+                                                    .createServiceKeyTimeout(extractTimeoutValue(parameters, "create-service-key-timeout"))
                                                     .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource))
                                                     .build();
     }
@@ -120,11 +125,15 @@ public class ServicesCloudModelBuilder {
                                                         commonServiceParameters.failOnServiceParametersUpdateFailure())
                                                     .shouldFailOnPlanUpdateFailure(commonServiceParameters.failOnServicePlanUpdateFailure())
                                                     .shouldFailOnTagsUpdateFailure(commonServiceParameters.failOnServiceTagsUpdateFailure())
+                                                    .createServiceTimeout(extractTimeoutValue(parameters, "create-service-timeout"))
+                                                    .bindServiceTimeout(extractTimeoutValue(parameters, "bind-service-timeout"))
+                                                    .createServiceKeyTimeout(extractTimeoutValue(parameters, "create-service-key-timeout"))
                                                     .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource))
                                                     .build();
     }
 
     protected CloudServiceInstanceExtended createExistingService(Resource resource, CommonServiceParameters commonServiceParameters) {
+        Map<String, Object> parameters = resource.getParameters();
         return ImmutableCloudServiceInstanceExtended.builder()
                                                     .name(commonServiceParameters.getServiceName())
                                                     .resourceName(resource.getName())
@@ -137,6 +146,9 @@ public class ServicesCloudModelBuilder {
                                                         commonServiceParameters.failOnServiceParametersUpdateFailure())
                                                     .shouldFailOnPlanUpdateFailure(commonServiceParameters.failOnServicePlanUpdateFailure())
                                                     .shouldFailOnTagsUpdateFailure(commonServiceParameters.failOnServiceTagsUpdateFailure())
+                                                    .createServiceTimeout(extractTimeoutValue(parameters, "create-service-timeout"))
+                                                    .bindServiceTimeout(extractTimeoutValue(parameters, "bind-service-timeout"))
+                                                    .createServiceKeyTimeout(extractTimeoutValue(parameters, "create-service-key-timeout"))
                                                     .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource))
                                                     .build();
     }
@@ -213,6 +225,21 @@ public class ServicesCloudModelBuilder {
             return failOnServiceUpdateFailure.get("plan");
         }
 
+    }
+
+    private Duration extractTimeoutValue(Map<String, Object> parameters, String timeoutParameterName) {
+        if (parameters == null) {
+            return null;
+        }
+        Object timeoutValue = parameters.get(timeoutParameterName);
+        if (timeoutValue == null) {
+            return null;
+        }
+        if (timeoutValue instanceof Number) {
+            long seconds = ((Number) timeoutValue).longValue();
+            return seconds > 0 ? Duration.ofSeconds(seconds) : null;
+        }
+        return null;
     }
 
 }
