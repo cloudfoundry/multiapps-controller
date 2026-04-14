@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -17,13 +18,14 @@ import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMa
 import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceProgressReporter;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceRemover;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 @Named("deleteServiceStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeleteServiceStep extends AsyncFlowableStep {
+public class DeleteServiceStep extends TimeoutAsyncFlowableStep {
 
     private final ServiceOperationGetter serviceOperationGetter;
     private final ServiceProgressReporter serviceProgressReporter;
@@ -79,4 +81,8 @@ public class DeleteServiceStep extends AsyncFlowableStep {
         return Collections.singletonList(new PollServiceDeleteOperationsExecution(serviceOperationGetter, serviceProgressReporter));
     }
 
+    @Override
+    public Duration getTimeout(ProcessContext context) {
+        return calculateTimeout(context, TimeoutType.CREATE_SERVICE);
+    }
 }

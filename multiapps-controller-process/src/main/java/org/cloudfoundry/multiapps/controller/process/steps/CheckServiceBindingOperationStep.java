@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,13 +13,15 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredent
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpStatus;
 
 @Named("checkServiceBindingOperationStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CheckServiceBindingOperationStep extends AsyncFlowableStep {
+public class CheckServiceBindingOperationStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) throws Exception {
@@ -53,6 +56,11 @@ public class CheckServiceBindingOperationStep extends AsyncFlowableStep {
             UUID serviceInstanceGuid = controllerClient.getRequiredServiceInstanceGuid(serviceInstanceName);
             return controllerClient.getServiceBindingForApplication(applicationGuid, serviceInstanceGuid);
         } catch (CloudOperationException e) {
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                getStepLogger().debug(Messages.CANNOT_RETRIEVE_SERVICE_BINDING_FOR_SERVICE_INSTANCE_0_NOT_FOUND,
+                                      serviceInstanceName);
+                return null;
+            }
             List<CloudServiceInstanceExtended> servicesToBind = context.getVariable(Variables.SERVICES_TO_BIND);
             if (StepsUtil.isServiceOptional(servicesToBind, serviceInstanceName)) {
                 getStepLogger().warnWithoutProgressMessage(e, Messages.CANNOT_RETRIEVE_OPTIONAL_SERVICE_BINDING_FOR_SERVICE_INSTANCE_0,
@@ -94,5 +102,10 @@ public class CheckServiceBindingOperationStep extends AsyncFlowableStep {
         String serviceInstanceName = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
         return MessageFormat.format(Messages.ERROR_WHILE_CHECKING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1,
                                     app.getName(), serviceInstanceName);
+    }
+
+    @Override
+    public Duration getTimeout(ProcessContext context) {
+        return calculateTimeout(context, TimeoutType.BIND_SERVICE);
     }
 }
