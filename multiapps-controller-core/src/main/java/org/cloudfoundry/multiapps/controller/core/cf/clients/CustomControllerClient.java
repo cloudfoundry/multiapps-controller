@@ -17,6 +17,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 public abstract class CustomControllerClient {
 
+    protected static final int MAX_URI_QUERY_LENGTH = 4000;
+
     private final WebClient webClient;
     private String correlationId = StringUtils.EMPTY;
     private final CloudControllerHeaderConfiguration headerConfiguration;
@@ -34,17 +36,17 @@ public abstract class CustomControllerClient {
         this.headerConfiguration = new CloudControllerHeaderConfiguration(configuration.getVersion());
     }
 
-    protected <T> List<T> getListOfResources(ResourcesResponseMapper<T> responseMapper, String uri, Object... urlVariables) {
-        PaginationV3 pagination = addPageOfResources(uri, responseMapper, urlVariables);
+    protected <T> List<T> getListOfResources(ResourcesResponseMapper<T> responseMapper, String uri) {
+        PaginationV3 pagination = addPageOfResources(uri, responseMapper);
         while (!StringUtils.isEmpty(pagination.getNextUri())) {
             pagination = addPageOfResources(pagination.getNextUri(), responseMapper);
         }
         return responseMapper.getMappedResources();
     }
 
-    private PaginationV3 addPageOfResources(String uri, ResourcesResponseMapper<?> responseMapper, Object... urlVariables) {
+    private PaginationV3 addPageOfResources(String uri, ResourcesResponseMapper<?> responseMapper) {
         String responseString = webClient.get()
-                                         .uri(uri, urlVariables)
+                                         .uri(uri)
                                          .headers(httpHeaders -> httpHeaders.addAll(generateRequestHeaders()))
                                          .retrieve()
                                          .bodyToMono(String.class)
@@ -59,6 +61,48 @@ public abstract class CustomControllerClient {
         headerConfiguration.generateHeaders(correlationId)
                            .forEach(result::add);
         return result;
+    }
+
+    protected <T> List<T> getListOfResourcesInBatches(ResourcesResponseMapper<T> responseMapper, String uri,
+                                                      List<String> batchValues) {
+        List<List<String>> batches = splitIntoBatches(batchValues, uri.length());
+        return batches.stream()
+                      .map(batch ->
+                               getListOfResources(responseMapper, uri, batch)
+                      )
+                      .flatMap(List::stream)
+                      .toList();
+    }
+
+    protected List<List<String>> splitIntoBatches(List<String> values, int fixedUriLength) {
+        int maxBatchLength = Math.max(1, MAX_URI_QUERY_LENGTH - fixedUriLength);
+        List<List<String>> batches = new ArrayList<>();
+        List<String> currentBatch = new ArrayList<>();
+        int currentLength = 0;
+
+        for (String value : values) {
+            // Account for the comma separator between values
+            int addedLength = currentBatch.isEmpty() ? value.length() : value.length() + 1;
+            if (!currentBatch.isEmpty() && currentLength + addedLength > maxBatchLength) {
+                batches.add(currentBatch);
+                currentBatch = new ArrayList<>();
+                currentLength = 0;
+                addedLength = value.length();
+            }
+            currentBatch.add(value);
+            currentLength += addedLength;
+        }
+
+        if (!currentBatch.isEmpty()) {
+            batches.add(currentBatch);
+        }
+        return batches;
+    }
+
+    private <T> List<T> getListOfResources(ResourcesResponseMapper<T> responseMapper, String uriPrefix,
+                                           List<String> batch) {
+        String uri = uriPrefix + String.join(",", batch);
+        return getListOfResources(responseMapper, uri);
     }
 
     public static abstract class ResourcesResponseMapper<T> {
