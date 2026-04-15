@@ -1,14 +1,12 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-
 import io.netty.handler.timeout.TimeoutException;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.StepPhaseRetryException;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerException;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudServiceBrokerException;
@@ -34,6 +32,9 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 public abstract class SyncFlowableStep implements JavaDelegate {
 
@@ -80,7 +81,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
             getStepHelper().preExecuteStep(context, stepPhase);
             stepPhase = executeStep(context);
             if (stepPhase == StepPhase.RETRY) {
-                throw new SLException("A step of the process has failed. Retrying it may solve the issue.");
+                throw new StepPhaseRetryException(Messages.STEP_OF_THE_PROCESS_HAS_FAILED);
             }
         } catch (Exception e) {
             stepPhase = StepPhase.RETRY;
@@ -114,6 +115,10 @@ public abstract class SyncFlowableStep implements JavaDelegate {
     }
 
     private void handleException(ProcessContext context, Exception e) {
+        if (e instanceof StepPhaseRetryException) {
+            getStepLogger().info(Messages.DOWNLOAD_APP_LOGS_FOR_MORE_INFO);
+            throw (StepPhaseRetryException) e;
+        }
         try {
             StepPhase stepPhase = context.getVariable(Variables.STEP_PHASE);
             if (stepPhase == StepPhase.POLL) {
