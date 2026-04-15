@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.function.LongSupplier;
 
 import jakarta.inject.Inject;
@@ -13,6 +14,7 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.model.ApplicationColor;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhaseProcessType;
+import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
@@ -26,6 +28,10 @@ import org.springframework.context.annotation.Scope;
 public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
 
     protected LongSupplier currentTimeSupplier = System::currentTimeMillis;
+
+    private static final String PHASE_KEY = "phase";
+    private static final String TARGET_APP_KEY = "target-app";
+    private static final String APPLICATION_PHASE_SUBSTRING = ".application.";
 
     @Inject
     private CloudControllerClientFactory clientFactory;
@@ -49,23 +55,37 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
 
     private String resolveTargetAppName(ProcessContext context, CloudApplicationExtended app) {
         Hook hook = context.getVariable(Variables.HOOK_FOR_EXECUTION);
-        if (hook == null || hook.getPhaseConfigs().isEmpty()) {
+        if (hook == null) {
+            return app.getName();
+        }
+
+        List<Map<String, String>> phasesConfig = getPhasesConfig(hook);
+        if (phasesConfig.isEmpty()) {
             return app.getName();
         }
 
         String currentPhase = buildCurrentPhaseString(context, hook);
-        String targetApp = hook.getPhaseConfigs()
-                               .stream()
-                               .filter(config -> currentPhase.equals(config.get("phase")))
-                               .map(config -> config.get("target-app"))
-                               .findFirst()
-                               .orElse(null);
+        String targetApp = phasesConfig.stream()
+                                       .filter(config -> currentPhase.equals(config.get(PHASE_KEY)))
+                                       .map(config -> config.get(TARGET_APP_KEY))
+                                       .findFirst()
+                                       .orElse(null);
 
         if (targetApp == null) {
             return app.getName();
         }
 
         return resolveAppNameForTarget(context, app, targetApp);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Map<String, String>> getPhasesConfig(Hook hook) {
+        Object value = hook.getParameters()
+                           .get(SupportedParameters.PHASES_CONFIG);
+        if (value instanceof List) {
+            return (List<Map<String, String>>) value;
+        }
+        return List.of();
     }
 
     private String buildCurrentPhaseString(ProcessContext context, Hook hook) {
@@ -76,7 +96,7 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
                    .findFirst()
                    .orElseGet(() -> hook.getPhases()
                                         .stream()
-                                        .filter(p -> p.contains(".application."))
+                                        .filter(p -> p.contains(APPLICATION_PHASE_SUBSTRING))
                                         .findFirst()
                                         .orElse(""));
     }
@@ -89,10 +109,12 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
             return app.getName();
         }
 
-        if (HookPhaseProcessType.HookProcessPhase.IDLE.getType().equals(targetApp)) {
+        if (HookPhaseProcessType.HookProcessPhase.IDLE.getType()
+                                                      .equals(targetApp)) {
             return swapColorSuffix(app.getName(), liveColor, idleColor);
         }
-        if (HookPhaseProcessType.HookProcessPhase.LIVE.getType().equals(targetApp)) {
+        if (HookPhaseProcessType.HookProcessPhase.LIVE.getType()
+                                                      .equals(targetApp)) {
             return swapColorSuffix(app.getName(), idleColor, liveColor);
         }
         return app.getName();

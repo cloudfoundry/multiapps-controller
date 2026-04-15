@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -8,7 +9,9 @@ import java.util.Set;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
+import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaDescriptorMerger;
 import org.cloudfoundry.multiapps.controller.persistence.dto.BackupDescriptor;
 import org.cloudfoundry.multiapps.controller.persistence.dto.ImmutableBackupDescriptor;
@@ -20,6 +23,8 @@ import org.cloudfoundry.multiapps.controller.process.util.UnsupportedParameterFi
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.ExtensionDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Hook;
+import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.Platform;
 import org.cloudfoundry.multiapps.mta.resolvers.ReferenceContainer;
 import org.cloudfoundry.multiapps.mta.resolvers.ReferencesFinder;
@@ -59,11 +64,37 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
                                                                                                                            .toList());
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
 
+        validatePhasesConfig(context, descriptor);
         warnForUnsupportedParameters(descriptor);
 
         backupDeploymentDescriptor(context, descriptor);
         getStepLogger().debug(Messages.DESCRIPTORS_MERGED);
         return StepPhase.DONE;
+    }
+
+    private void validatePhasesConfig(ProcessContext context, DeploymentDescriptor descriptor) {
+        if (context.getVariable(Variables.MTA_MAJOR_SCHEMA_VERSION) < 3) {
+            return;
+        }
+        descriptor.getModules()
+                  .stream()
+                  .flatMap(module -> module.getHooks().stream())
+                  .forEach(this::validateNoDuplicatePhases);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void validateNoDuplicatePhases(Hook hook) {
+        Object value = hook.getParameters().get(SupportedParameters.PHASES_CONFIG);
+        if (!(value instanceof List)) {
+            return;
+        }
+        Set<String> seen = new HashSet<>();
+        for (Map<String, String> entry : (List<Map<String, String>>) value) {
+            String phase = entry.get("phase");
+            if (phase != null && !seen.add(phase)) {
+                throw new SLException(MessageFormat.format(Messages.DUPLICATE_PHASE_IN_PHASES_CONFIG, phase, hook.getName()));
+            }
+        }
     }
 
     private void warnForUnsupportedParameters(DeploymentDescriptor descriptor) {

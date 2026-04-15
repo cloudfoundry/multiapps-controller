@@ -149,6 +149,7 @@ public class Messages {
     public static final String ERROR_PREPARING_TO_EXECUTE_TASKS_ON_APP = "Error preparing to execute tasks on application \"{0}\"";
     public static final String ERROR_PREPARING_TO_RESTART_SERVICE_BROKER_SUBSCRIBERS = "Error preparing to restart service broker subscribers";
     public static final String ERROR_EXECUTING_TASK_0_ON_APP_1 = "Execution of task \"{0}\" on application \"{1}\" failed.";
+    public static final String DUPLICATE_PHASE_IN_PHASES_CONFIG = "Duplicate phase \"{0}\" in \"phases-config\" of hook \"{1}\". Only one target-app per phase is supported.";
     public static final String ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY = "Error detecting components to undeploy";
     public static final String ERROR_DELETING_IDLE_ROUTES = "Error deleting idle routes";
     public static final String ERROR_CREATING_SERVICE_BROKERS = "Error creating service brokers";
