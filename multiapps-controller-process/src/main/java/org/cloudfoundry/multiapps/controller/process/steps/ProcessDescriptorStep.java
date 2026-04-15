@@ -17,11 +17,16 @@ import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParamet
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableMtaDescriptorPropertiesResolverContext;
 import org.cloudfoundry.multiapps.controller.core.model.MtaDescriptorPropertiesResolverContext;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
+import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
+import org.cloudfoundry.multiapps.controller.process.steps.StepPhase;
+import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
+import org.cloudfoundry.multiapps.controller.process.steps.SyncFlowableStep;
 import org.cloudfoundry.multiapps.controller.process.util.NamespaceGlobalParameters;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -35,11 +40,13 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
 
     private ConfigurationEntryService configurationEntryService;
     private ModuleToDeployHelper moduleToDeployHelper;
+    private ApplicationConfiguration applicationConfiguration;
 
     @Inject
-    public ProcessDescriptorStep(ConfigurationEntryService configurationEntryService, ModuleToDeployHelper moduleToDeployHelper) {
+    public ProcessDescriptorStep(ConfigurationEntryService configurationEntryService, ModuleToDeployHelper moduleToDeployHelper, ApplicationConfiguration applicationConfiguration) {
         this.configurationEntryService = configurationEntryService;
         this.moduleToDeployHelper = moduleToDeployHelper;
+        this.applicationConfiguration = applicationConfiguration;
     }
 
     @Override
@@ -47,8 +54,8 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.RESOLVING_DESCRIPTOR_PROPERTIES);
 
         DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
-        MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(context, descriptor);
 
+        MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(context, descriptor);
         descriptor = resolver.resolve(descriptor);
 
         DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
@@ -122,7 +129,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
                                                                   applyNamespaceAppRoutesProcessVariable)
                                                               .shouldReserveTemporaryRoute(setIdleRoutes)
                                                               .configurationEntryService(configurationEntryService)
-                                                              .applicationConfiguration(configuration)
+                                                              .applicationConfiguration(applicationConfiguration)
                                                               .build();
     }
 

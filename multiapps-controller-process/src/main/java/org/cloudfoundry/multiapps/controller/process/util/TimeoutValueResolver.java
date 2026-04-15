@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
@@ -22,6 +21,7 @@ public class TimeoutValueResolver {
     private final TimeoutServiceResourceNameResolver timeoutServiceResourceNameResolver = new TimeoutServiceResourceNameResolver();
 
     private final List<TimeoutSource> defaultTimeoutSources = List.of(this::resolveProcessVariableTimeout,
+                                                                      this::extractTimeoutFromModuleDescriptorParameters,
                                                                       this::extractTimeoutFromAppAttributes,
                                                                       this::extractTimeoutFromResourceParameters,
                                                                       this::extractTimeoutFromDescriptorParameters);
@@ -52,9 +52,47 @@ public class TimeoutValueResolver {
     }
 
     private TimeoutResolution resolveProcessVariableTimeout(ProcessContext context, TimeoutType timeoutType) {
-        return Optional.ofNullable(context.getVariableIfSet(timeoutType.getProcessVariable()))
-                       .map(timeout -> new TimeoutResolution(timeout, timeoutType.getGlobalLevelParamName()))
-                       .orElse(null);
+        Duration processVariable = context.getVariableIfSet(timeoutType.getProcessVariable());
+
+        // If no process variable is set, return null
+        if (processVariable == null) {
+            return null;
+        }
+
+        // If we're in module context (APP_TO_PROCESS is set) for a module-scoped timeout,
+        // check if the process variable differs from module-level descriptor value.
+        // If different, it likely came from CLI and should take precedence.
+        if (timeoutType.isModuleScoped() && context.getVariableIfSet(Variables.APP_TO_PROCESS) != null) {
+            String moduleLevelParamName = timeoutType.getModuleLevelParamName();
+            if (moduleLevelParamName != null) {
+                DeploymentDescriptor descriptor = getDeploymentDescriptor(context);
+                if (descriptor != null) {
+                    CloudApplicationExtended appToProcess = context.getVariableIfSet(Variables.APP_TO_PROCESS);
+                    if (appToProcess != null) {
+                        String appName = appToProcess.getName();
+                        var module = descriptor.getModules()
+                                               .stream()
+                                               .filter(m -> appName.equals(m.getName()))
+                                               .findFirst()
+                                               .orElse(null);
+                        if (module != null) {
+                            Object moduleTimeout = getParameter(module.getParameters(), moduleLevelParamName);
+                            // If module-level timeout exists and equals process variable, skip to extract with correct param name
+                            if (moduleTimeout != null) {
+                                Duration moduleDuration = toDuration(moduleTimeout, moduleLevelParamName, timeoutType.getMaxAllowedValue());
+                                if (moduleDuration != null && moduleDuration.equals(processVariable)) {
+                                    // Process variable matches module-level, so skip to get correct parameter name
+                                    return null;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Process variable is either CLI-sourced or doesn't match module-level, use it with global-level param name
+        return new TimeoutResolution(processVariable, timeoutType.getGlobalLevelParamName());
     }
 
     private TimeoutResolution resolveDefaultTimeout(TimeoutType timeoutType) {
@@ -73,6 +111,47 @@ public class TimeoutValueResolver {
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app, app.getEnv());
         Object timeout = appAttributes.get(moduleLevelParamName, Number.class);
         return resolveTimeoutIfValid(timeout, moduleLevelParamName, timeoutType);
+    }
+
+    private TimeoutResolution extractTimeoutFromModuleDescriptorParameters(ProcessContext context, TimeoutType timeoutType) {
+        String moduleLevelParamName = timeoutType.getModuleLevelParamName();
+        if (moduleLevelParamName == null) {
+            return null;
+        }
+        DeploymentDescriptor descriptor = getDeploymentDescriptor(context);
+        if (descriptor == null) {
+            return null;
+        }
+        // Try to find the module in context first
+        CloudApplicationExtended appToProcess = context.getVariableIfSet(Variables.APP_TO_PROCESS);
+        if (appToProcess != null) {
+            String appName = appToProcess.getName();
+            var module = descriptor.getModules()
+                                   .stream()
+                                   .filter(m -> appName.equals(m.getName()))
+                                   .findFirst()
+                                   .orElse(null);
+            if (module != null) {
+                Object timeout = getParameter(module.getParameters(), moduleLevelParamName);
+                if (timeout != null) {
+                    TimeoutResolution resolution = resolveTimeoutIfValid(timeout, moduleLevelParamName, timeoutType);
+                    if (resolution != null) {
+                        return resolution;
+                    }
+                }
+            }
+        }
+        // If APP_TO_PROCESS is not set or module not found (during global timeout extraction), look for the first module with the parameter
+        for (var module : descriptor.getModules()) {
+            Object timeout = getParameter(module.getParameters(), moduleLevelParamName);
+            if (timeout != null) {
+                TimeoutResolution resolution = resolveTimeoutIfValid(timeout, moduleLevelParamName, timeoutType);
+                if (resolution != null) {
+                    return resolution;
+                }
+            }
+        }
+        return null;
     }
 
     private TimeoutResolution extractTimeoutFromResourceParameters(ProcessContext context, TimeoutType timeoutType) {
