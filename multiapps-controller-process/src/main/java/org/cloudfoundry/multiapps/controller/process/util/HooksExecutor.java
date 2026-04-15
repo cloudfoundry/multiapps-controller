@@ -50,6 +50,11 @@ public class HooksExecutor {
                                                                                                       moduleToDeploy.getName());
         updateExecutedHooksForModule(alreadyExecutedHooksForModule, hooksWithPhases.getHookPhases(), hooksWithPhases.getHooks());
         context.setVariable(Variables.HOOKS_FOR_EXECUTION, hooksWithPhases.getHooks());
+        context.setVariable(Variables.HOOK_EXECUTION_PHASE, hooksWithPhases.getHookPhases()
+                                                                            .stream()
+                                                                            .findFirst()
+                                                                            .map(HookPhase::getValue)
+                                                                            .orElse(null));
         return hooksWithPhases.getHooks();
     }
 
