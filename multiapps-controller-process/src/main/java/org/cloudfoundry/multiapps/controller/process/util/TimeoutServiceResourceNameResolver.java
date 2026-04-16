@@ -12,6 +12,9 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 
+import jakarta.inject.Named;
+
+@Named
 public class TimeoutServiceResourceNameResolver {
 
     public Resource resolveResource(ProcessContext context, TimeoutType timeoutType, DeploymentDescriptor descriptor, StepLogger logger) {
