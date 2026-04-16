@@ -17,12 +17,12 @@ public class TimeoutServiceResourceNameResolver {
     public Resource resolveResource(ProcessContext context, TimeoutType timeoutType, DeploymentDescriptor descriptor, StepLogger logger) {
         String resourceName = resolveResourceName(context, timeoutType, logger);
         if (resourceName == null) {
-            logger.warn("Could not resolve service resource name for timeout type {0}", timeoutType);
+            logger.debug("Could not resolve service resource name for timeout type {0}", timeoutType);
             return null;
         }
         Resource resource = findResourceByName(descriptor, resourceName);
         if (resource == null) {
-            logger.warn("Could not find resource {0} in deployment descriptor for timeout type {1}", resourceName, timeoutType);
+            logger.debug("Could not find resource {0} in deployment descriptor for timeout type {1}", resourceName, timeoutType);
         }
         return resource;
     }
@@ -35,7 +35,7 @@ public class TimeoutServiceResourceNameResolver {
 
         Object value = context.getVariableIfSet(serviceContextVariable);
         if (value == null) {
-            logger.warn("Service context variable {0} is missing for timeout type {1}", serviceContextVariable.getName(), timeoutType);
+            logger.debug("Service context variable {0} is missing for timeout type {1}", serviceContextVariable.getName(), timeoutType);
         }
 
         if (value instanceof CloudServiceInstanceExtended service) {

@@ -54,11 +54,11 @@ public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {
     }
 
     private void logDefaultTimeout(String operationName, long timeoutSeconds) {
-        getStepLogger().info(Messages.OPERATION_TIMEOUT_DEFAULT_VALUE_MESSAGE, operationName, timeoutSeconds);
+        getStepLogger().debug(Messages.OPERATION_TIMEOUT_DEFAULT_VALUE_MESSAGE, operationName, timeoutSeconds);
     }
 
     private void logParameterizedTimeout(String operationName, String parameterName, long timeoutSeconds) {
-        getStepLogger().info(Messages.OPERATION_TIMEOUT_MESSAGE, operationName, parameterName, timeoutSeconds);
+        getStepLogger().debug(Messages.OPERATION_TIMEOUT_MESSAGE, operationName, parameterName, timeoutSeconds);
     }
 
     private String resolveOperationName(ProcessContext context, TimeoutType timeoutType) {

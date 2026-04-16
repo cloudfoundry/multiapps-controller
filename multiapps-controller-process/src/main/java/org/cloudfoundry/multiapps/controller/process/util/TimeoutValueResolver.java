@@ -28,8 +28,8 @@ public class TimeoutValueResolver {
 
     private final List<TimeoutSource> serviceTimeoutSources = List.of(this::extractTimeoutFromServiceObject,
                                                                       this::extractTimeoutFromResourceParameters,
-                                                                      this::resolveProcessVariableTimeout,
-                                                                      this::extractTimeoutFromDescriptorParameters);
+                                                                      this::extractTimeoutFromDescriptorParameters,
+                                                                      this::resolveProcessVariableTimeout);
 
     @FunctionalInterface
     private interface TimeoutSource {
@@ -163,7 +163,7 @@ public class TimeoutValueResolver {
         Resource resource = timeoutServiceResourceNameResolver.resolveResource(context, timeoutType, descriptor, this.logger);
         if (resource == null) {
             if (timeoutType.isServiceScoped()) {
-                logger.warn(
+                logger.debug(
                     "Could not resolve descriptor resource for timeout type {0}; resource-level timeout parameter {1} cannot be applied",
                     timeoutType,
                     paramName);
@@ -215,7 +215,7 @@ public class TimeoutValueResolver {
         DeploymentDescriptor descriptor = getDeploymentDescriptor(context);
         if (descriptor == null) {
             if (timeoutType.isServiceScoped()) {
-                logger.warn("Deployment descriptor is missing; global timeout parameter {0} cannot be applied for timeout type {1}",
+                logger.debug("Deployment descriptor is missing; global timeout parameter {0} cannot be applied for timeout type {1}",
                             paramName,
                             timeoutType);
             }
@@ -296,7 +296,7 @@ public class TimeoutValueResolver {
         }
 
         if (effectiveLogger != null) {
-            effectiveLogger.warn("No deployment descriptor found in context variables: {0}, {1}, {2}",
+            effectiveLogger.debug("No deployment descriptor found in context variables: {0}, {1}, {2}",
                                  Variables.DEPLOYMENT_DESCRIPTOR.getName(),
                                  Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS.getName(),
                                  Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR.getName());
