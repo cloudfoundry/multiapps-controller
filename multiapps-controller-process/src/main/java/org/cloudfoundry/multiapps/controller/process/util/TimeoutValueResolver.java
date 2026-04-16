@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -14,7 +13,6 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInsta
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
-import org.cloudfoundry.multiapps.controller.process.variables.Variable;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
@@ -25,11 +23,6 @@ public class TimeoutValueResolver {
 
     private static final String DEFAULT_TIMEOUT = "default";
     private static final String SERVICE_LEVEL = "service-level";
-
-    private static final List<Variable<DeploymentDescriptor>> DESCRIPTOR_VARIABLES = List.of(
-        Variables.DEPLOYMENT_DESCRIPTOR,
-        Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS,
-        Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
 
     private final TimeoutServiceResourceNameResolver timeoutServiceResourceNameResolver;
 
@@ -66,7 +59,7 @@ public class TimeoutValueResolver {
                 return resolution;
             }
         }
-        return resolveDefaultTimeout(timeoutType);
+        return new TimeoutResolution(timeoutType.getProcessVariable().getDefaultValue(), DEFAULT_TIMEOUT);
     }
 
     private TimeoutResolution resolveProcessVariableTimeout(ProcessContext context, TimeoutType timeoutType, StepLogger logger) {
@@ -81,8 +74,8 @@ public class TimeoutValueResolver {
     }
 
     private boolean isProcessVariableDerivedFromModuleParameter(ProcessContext context, TimeoutType timeoutType, Duration processVariable) {
-        String moduleLevelParamName = timeoutType.getModuleLevelParamName();
-        if (moduleLevelParamName == null) {
+        String paramName = timeoutType.getModuleLevelParamName();
+        if (paramName == null) {
             return false;
         }
         CloudApplicationExtended app = context.getVariableIfSet(Variables.APP_TO_PROCESS);
@@ -93,32 +86,24 @@ public class TimeoutValueResolver {
         if (module == null) {
             return false;
         }
-        Duration moduleDuration = toDuration(getParameter(module.getParameters(), moduleLevelParamName),
-                                             moduleLevelParamName, timeoutType.getMaxAllowedValue());
+        Duration moduleDuration = toDuration(getParameter(module.getParameters(), paramName), paramName, timeoutType.getMaxAllowedValue());
         return processVariable.equals(moduleDuration);
-    }
-
-    private TimeoutResolution resolveDefaultTimeout(TimeoutType timeoutType) {
-        Duration defaultDuration = timeoutType.getProcessVariable()
-                                              .getDefaultValue();
-        return new TimeoutResolution(defaultDuration, DEFAULT_TIMEOUT);
     }
 
     private TimeoutResolution extractTimeoutFromAppAttributes(ProcessContext context, TimeoutType timeoutType, StepLogger logger) {
         CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
-        String moduleLevelParamName = timeoutType.getModuleLevelParamName();
-        if (app == null || moduleLevelParamName == null) {
+        String paramName = timeoutType.getModuleLevelParamName();
+        if (app == null || paramName == null) {
             return null;
         }
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app, app.getEnv());
-        Object timeout = appAttributes.get(moduleLevelParamName, Number.class);
-        return toResolution(timeout, moduleLevelParamName, timeoutType);
+        return toResolution(appAttributes.get(paramName, Number.class), paramName, timeoutType);
     }
 
     private TimeoutResolution extractTimeoutFromModuleDescriptorParameters(ProcessContext context, TimeoutType timeoutType,
                                                                            StepLogger logger) {
-        String moduleLevelParamName = timeoutType.getModuleLevelParamName();
-        if (moduleLevelParamName == null) {
+        String paramName = timeoutType.getModuleLevelParamName();
+        if (paramName == null) {
             return null;
         }
         DeploymentDescriptor descriptor = getDeploymentDescriptor(context);
@@ -126,18 +111,13 @@ public class TimeoutValueResolver {
             return null;
         }
         CloudApplicationExtended appToProcess = context.getVariableIfSet(Variables.APP_TO_PROCESS);
-        if (appToProcess != null) {
-            Module matchingModule = findModuleByAppName(descriptor, appToProcess.getName());
-            if (matchingModule != null) {
-                TimeoutResolution resolution = resolveModuleTimeout(matchingModule, moduleLevelParamName, timeoutType);
-                if (resolution != null) {
-                    return resolution;
-                }
-            }
+        Module matchingModule = appToProcess != null ? findModuleByAppName(descriptor, appToProcess.getName()) : null;
+        if (matchingModule != null) {
+            return resolveModuleTimeout(matchingModule, paramName, timeoutType);
         }
         return descriptor.getModules()
                          .stream()
-                         .map(module -> resolveModuleTimeout(module, moduleLevelParamName, timeoutType))
+                         .map(module -> resolveModuleTimeout(module, paramName, timeoutType))
                          .filter(Objects::nonNull)
                          .findFirst()
                          .orElse(null);
@@ -157,9 +137,8 @@ public class TimeoutValueResolver {
         Resource resource = timeoutServiceResourceNameResolver.resolveResource(context, timeoutType, descriptor, logger);
         if (resource == null) {
             if (timeoutType.isServiceScoped()) {
-                logger.debug(
-                    "Could not resolve descriptor resource for timeout type {0}; resource-level timeout parameter {1} cannot be applied",
-                    timeoutType, paramName);
+                logger.debug("Could not resolve descriptor resource for timeout type {0}; parameter {1} cannot be applied",
+                             timeoutType, paramName);
             }
             return null;
         }
@@ -167,12 +146,20 @@ public class TimeoutValueResolver {
     }
 
     private TimeoutResolution extractTimeoutFromServiceObject(ProcessContext context, TimeoutType timeoutType, StepLogger logger) {
-        return Optional.ofNullable(resolveServiceInstance(context, timeoutType))
-                       .flatMap(service -> Optional.ofNullable(timeoutType.getServiceTimeoutGetter())
-                                                   .map(getter -> getter.getServiceTimeout(service)))
-                       .map(timeout -> new TimeoutResolution(timeout, Optional.ofNullable(timeoutType.getEntityLevelParamName())
-                                                                              .orElse(SERVICE_LEVEL)))
-                       .orElse(null);
+        CloudServiceInstanceExtended service = resolveServiceInstance(context, timeoutType);
+        if (service == null) {
+            return null;
+        }
+        TimeoutType.ServiceTimeoutGetter getter = timeoutType.getServiceTimeoutGetter();
+        if (getter == null) {
+            return null;
+        }
+        Duration timeout = getter.getServiceTimeout(service);
+        if (timeout == null) {
+            return null;
+        }
+        String paramName = timeoutType.getEntityLevelParamName();
+        return new TimeoutResolution(timeout, paramName != null ? paramName : SERVICE_LEVEL);
     }
 
     private CloudServiceInstanceExtended resolveServiceInstance(ProcessContext context, TimeoutType timeoutType) {
@@ -199,8 +186,7 @@ public class TimeoutValueResolver {
         DeploymentDescriptor descriptor = getDeploymentDescriptor(context);
         if (descriptor == null) {
             if (timeoutType.isServiceScoped()) {
-                logger.debug("Deployment descriptor is missing; global timeout parameter {0} cannot be applied for timeout type {1}",
-                             paramName, timeoutType);
+                logger.debug("Deployment descriptor is missing; global parameter {0} cannot be applied for {1}", paramName, timeoutType);
             }
             return null;
         }
@@ -221,13 +207,11 @@ public class TimeoutValueResolver {
             return null;
         }
         if (!(timeout instanceof Number number)) {
-            throw new ContentException(Messages.PARAMETER_0_MUST_BE_POSITIVE_WITH_MAX_VALUE_1,
-                                       timeoutParameterName, maxAllowedValue);
+            throw new ContentException(Messages.PARAMETER_0_MUST_BE_POSITIVE_WITH_MAX_VALUE_1, timeoutParameterName, maxAllowedValue);
         }
         int value = number.intValue();
         if (value < 0 || value > maxAllowedValue) {
-            throw new ContentException(Messages.PARAMETER_0_MUST_BE_POSITIVE_WITH_MAX_VALUE_1,
-                                       timeoutParameterName, maxAllowedValue);
+            throw new ContentException(Messages.PARAMETER_0_MUST_BE_POSITIVE_WITH_MAX_VALUE_1, timeoutParameterName, maxAllowedValue);
         }
         return Duration.ofSeconds(value);
     }
@@ -248,19 +232,22 @@ public class TimeoutValueResolver {
     }
 
     public DeploymentDescriptor getDeploymentDescriptor(ProcessContext context, StepLogger stepLogger) {
-        return DESCRIPTOR_VARIABLES.stream()
-                                   .map(context::getVariable)
-                                   .filter(Objects::nonNull)
-                                   .findFirst()
-                                   .orElseGet(() -> {
-                                       if (stepLogger != null) {
-                                           stepLogger.debug("No deployment descriptor found in context variables: {0}, {1}, {2}",
-                                                            Variables.DEPLOYMENT_DESCRIPTOR.getName(),
-                                                            Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS.getName(),
-                                                            Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR.getName());
-                                       }
-                                       return null;
-                                   });
+        DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
+        if (descriptor != null) {
+            return descriptor;
+        }
+        descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
+        if (descriptor != null) {
+            return descriptor;
+        }
+        descriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
+        if (descriptor != null) {
+            return descriptor;
+        }
+        if (stepLogger != null) {
+            stepLogger.debug("No deployment descriptor found in context");
+        }
+        return null;
     }
 
     private DeploymentDescriptor getDeploymentDescriptor(ProcessContext context) {
