@@ -51,7 +51,7 @@ public class LazyArchiveInputStream extends InputStream {
             currentInputStream = openBufferedInputStream(archiveFileEntries.get(partIndex.incrementAndGet()));
             c = currentInputStream.read();
         } else if (c == -1) {
-            LOGGER.info(MessageFormat.format(Messages.REACHED_THE_END_OF_THE_INPUTSTREAM, partIndex));
+            LOGGER.info(MessageFormat.format(Messages.REACHED_THE_END_OF_THE_INPUT_STREAM, partIndex));
         }
         if (c >= 0) {
             totalBytesRead.incrementAndGet();
@@ -71,7 +71,7 @@ public class LazyArchiveInputStream extends InputStream {
             currentInputStream = openBufferedInputStream(archiveFileEntries.get(partIndex.incrementAndGet()));
             bytesRead = currentInputStream.read(b, off, len);
         } else if (bytesRead == -1) {
-            LOGGER.info(MessageFormat.format(Messages.REACHED_THE_END_OF_THE_INPUTSTREAM, partIndex));
+            LOGGER.info(MessageFormat.format(Messages.REACHED_THE_END_OF_THE_INPUT_STREAM, partIndex));
         }
         if (bytesRead > 0) {
             totalBytesRead.addAndGet(bytesRead);
