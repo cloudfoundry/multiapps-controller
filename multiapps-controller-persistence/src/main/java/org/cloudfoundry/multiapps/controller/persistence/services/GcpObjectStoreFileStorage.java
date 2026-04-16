@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -105,6 +106,24 @@ public class GcpObjectStoreFileStorage implements FileStorage {
                                                    .collect(Collectors.toSet());
         return fileEntries.stream()
                           .filter(fileEntry -> !existingFiles.contains(fileEntry.getId()))
+                          .toList();
+    }
+
+    @Override
+    public List<FileEntry> getExistingFileEntries(List<FileEntry> fileEntries) {
+        if (fileEntries.isEmpty()) {
+            return List.of();
+        }
+        List<BlobId> blobIds = fileEntries.stream()
+                                          .map(fileEntry -> BlobId.of(bucketName, fileEntry.getId()))
+                                          .toList();
+        List<Blob> blobs = storage.get(blobIds);
+        Set<String> existingBlobNames = blobs.stream()
+                                             .filter(Objects::nonNull)
+                                             .map(Blob::getName)
+                                             .collect(Collectors.toSet());
+        return fileEntries.stream()
+                          .filter(fileEntry -> existingBlobNames.contains(fileEntry.getId()))
                           .toList();
     }
 
