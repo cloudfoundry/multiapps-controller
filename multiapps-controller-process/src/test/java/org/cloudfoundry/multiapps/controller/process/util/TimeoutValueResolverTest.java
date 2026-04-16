@@ -26,9 +26,6 @@ class TimeoutValueResolverTest {
     private ProcessContext context;
 
     @Mock
-    private StepLogger stepLogger;
-
-    @Mock
     private TimeoutServiceResourceNameResolver timeoutServiceResourceNameResolver;
 
     @BeforeEach
