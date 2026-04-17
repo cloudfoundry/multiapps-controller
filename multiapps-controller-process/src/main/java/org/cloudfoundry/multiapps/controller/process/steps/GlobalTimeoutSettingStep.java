@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.util.TimeoutValueResolver;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -40,18 +41,15 @@ public class GlobalTimeoutSettingStep extends SyncFlowableStep {
         try {
             TimeoutValueResolver.TimeoutResolution resolution =
                 timeoutValueResolver.resolveTimeout(context, timeoutType, getStepLogger());
-
-            if (resolution != null && resolution.timeout() != null) {
-                context.setVariable(timeoutType.getProcessVariable(), resolution.timeout());
-                getStepLogger().debug("Timeout {0} = {1}s (from {2})",
-                                      timeoutType.getProcessVariable()
-                                                 .getName(),
-                                      resolution.timeout()
-                                                .toSeconds(),
-                                      resolution.parameterName());
-                return true;
-            }
-        } catch (Exception e) {
+            context.setVariable(timeoutType.getProcessVariable(), resolution.timeout());
+            getStepLogger().debug("Timeout {0} = {1}s (from {2})",
+                                  timeoutType.getProcessVariable()
+                                             .getName(),
+                                  resolution.timeout()
+                                            .toSeconds(),
+                                  resolution.parameterName());
+            return true;
+        } catch (ContentException e) {
             getStepLogger().warn("Failed to resolve timeout for {0}: {1}", timeoutType, e.getMessage());
         }
         return false;

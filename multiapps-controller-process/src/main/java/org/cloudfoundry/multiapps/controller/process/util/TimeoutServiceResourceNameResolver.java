@@ -41,19 +41,23 @@ public class TimeoutServiceResourceNameResolver {
             return null;
         }
         Object value = context.getVariableIfSet(serviceContextVariable);
-        if (value instanceof CloudServiceInstanceExtended service) {
-            if (service.getResourceName() != null) {
-                return service.getResourceName();
-            }
-            return findServiceResourceNameByServiceName(context, service.getName());
+        if (value instanceof CloudServiceInstanceExtended service && service.getResourceName() != null) {
+            return service.getResourceName();
         }
-        if (value instanceof String serviceName) {
-            return findServiceResourceNameByServiceName(context, serviceName);
+        String serviceName = extractServiceName(value, context);
+        return serviceName != null ? findServiceResourceNameByServiceName(context, serviceName) : null;
+    }
+
+    private String extractServiceName(Object contextValue, ProcessContext context) {
+        if (contextValue instanceof CloudServiceInstanceExtended service) {
+            return service.getName();
+        }
+        if (contextValue instanceof String serviceName) {
+            return serviceName;
         }
         CloudServiceKey serviceKey = context.getVariableIfSet(Variables.SERVICE_KEY_TO_PROCESS);
         if (serviceKey != null && serviceKey.getServiceInstance() != null) {
-            return findServiceResourceNameByServiceName(context, serviceKey.getServiceInstance()
-                                                                           .getName());
+            return serviceKey.getServiceInstance().getName();
         }
         return null;
     }
@@ -70,9 +74,6 @@ public class TimeoutServiceResourceNameResolver {
     }
 
     private String findServiceResourceNameByServiceName(ProcessContext context, String serviceName) {
-        if (serviceName == null) {
-            return null;
-        }
         String resourceName = SERVICE_LIST_VARIABLES.stream()
                                                     .map(context::getVariableIfSet)
                                                     .filter(Objects::nonNull)
