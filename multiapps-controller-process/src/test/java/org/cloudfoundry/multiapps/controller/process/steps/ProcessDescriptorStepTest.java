@@ -43,7 +43,7 @@ class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescriptorSt
     private class ProcessDescriptorStepMock extends ProcessDescriptorStep {
 
         public ProcessDescriptorStepMock(ModuleToDeployHelper moduleToDeployHelper) {
-            super(null, moduleToDeployHelper);
+            super(null, moduleToDeployHelper, null);
         }
 
         @Override

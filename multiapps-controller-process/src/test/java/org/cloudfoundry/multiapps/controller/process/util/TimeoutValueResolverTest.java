@@ -5,6 +5,7 @@ import java.time.Duration;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
+import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,9 @@ class TimeoutValueResolverTest {
 
     @Mock
     private ProcessContext context;
+
+    @Mock
+    private StepLogger stepLogger;
 
     @Mock
     private TimeoutServiceResourceNameResolver timeoutServiceResourceNameResolver;

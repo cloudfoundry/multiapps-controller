@@ -21,7 +21,7 @@ public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {
     private final TimeoutStepStateManager timeoutStepStateManager = new TimeoutStepStateManager();
 
     @Inject
-    private TimeoutValueResolver timeoutValueResolver;
+    protected TimeoutValueResolver timeoutValueResolver;
 
     @Override
     public StepPhase executeStep(ProcessContext context) throws Exception {
