@@ -5,7 +5,6 @@ import java.time.Duration;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
-import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,11 +32,8 @@ class TimeoutValueResolverTest {
     private TimeoutServiceResourceNameResolver timeoutServiceResourceNameResolver;
 
     @BeforeEach
-    void setUp() {
-        try (var closeable = MockitoAnnotations.openMocks(this)) {
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this).close();
         timeoutValueResolver = new TimeoutValueResolver(timeoutServiceResourceNameResolver);
     }
 
