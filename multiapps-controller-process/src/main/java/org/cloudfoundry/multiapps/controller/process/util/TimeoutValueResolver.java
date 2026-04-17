@@ -137,7 +137,7 @@ public class TimeoutValueResolver {
         Resource resource = timeoutServiceResourceNameResolver.resolveResource(context, timeoutType, descriptor, logger);
         if (resource == null) {
             if (timeoutType.isServiceScoped()) {
-                logger.debug("Could not resolve descriptor resource for timeout type {0}; parameter {1} cannot be applied",
+                logger.debug(Messages.COULD_NOT_RESOLVE_DESCRIPTOR_RESOURCE_FOR_TIMEOUT_TYPE_0_PARAMETER_1,
                              timeoutType, paramName);
             }
             return null;
@@ -182,7 +182,7 @@ public class TimeoutValueResolver {
         DeploymentDescriptor descriptor = getDeploymentDescriptor(context);
         if (descriptor == null) {
             if (timeoutType.isServiceScoped()) {
-                logger.debug("Deployment descriptor is missing; global parameter {0} cannot be applied for {1}", paramName, timeoutType);
+                logger.debug(Messages.DEPLOYMENT_DESCRIPTOR_MISSING_GLOBAL_PARAMETER_0_NOT_APPLIED_FOR_1, paramName, timeoutType);
             }
             return null;
         }
@@ -241,7 +241,7 @@ public class TimeoutValueResolver {
             return descriptor;
         }
         if (stepLogger != null) {
-            stepLogger.debug("No deployment descriptor found in context");
+            stepLogger.debug(Messages.NO_DEPLOYMENT_DESCRIPTOR_FOUND_IN_CONTEXT);
         }
         return null;
     }

@@ -822,6 +822,18 @@ public class Messages {
     public static final String INVALID_BOOLEAN_VALUE = "Invalid boolean value: must be 'true' or 'false'";
     public static final String DISABLE_AUTOSCALER_LABEL_CONTENT = "Disabled_by_MTA_operation_{0}";
 
+    public static final String COULD_NOT_RESOLVE_SERVICE_RESOURCE_NAME_FOR_TIMEOUT_TYPE_0 = "Could not resolve service resource name for timeout type {0}";
+    public static final String COULD_NOT_FIND_RESOURCE_0_IN_DESCRIPTOR_FOR_TIMEOUT_TYPE_1 = "Could not find resource {0} in deployment descriptor for timeout type {1}";
+    public static final String EXTRACTING_ALL_TIMEOUT_PARAMETERS_FROM_DESCRIPTOR = "Extracting all timeout parameters from descriptor";
+    public static final String NO_DESCRIPTOR_FOUND_USING_DEFAULT_TIMEOUTS = "No descriptor found; sub-processes will use default timeouts";
+    public static final String SUCCESSFULLY_EXTRACTED_0_TIMEOUT_PARAMETERS = "Successfully extracted {0} timeout parameters from descriptor";
+    public static final String TIMEOUT_0_EQUALS_1_SECONDS_FROM_2 = "Timeout {0} = {1}s (from {2})";
+    public static final String FAILED_TO_RESOLVE_TIMEOUT_FOR_0_1 = "Failed to resolve timeout for {0}: {1}";
+    public static final String ERROR_EXTRACTING_GLOBAL_TIMEOUTS_FROM_DESCRIPTOR = "Error while extracting global timeouts from deployment descriptor";
+    public static final String COULD_NOT_RESOLVE_DESCRIPTOR_RESOURCE_FOR_TIMEOUT_TYPE_0_PARAMETER_1 = "Could not resolve descriptor resource for timeout type {0}; parameter {1} cannot be applied";
+    public static final String DEPLOYMENT_DESCRIPTOR_MISSING_GLOBAL_PARAMETER_0_NOT_APPLIED_FOR_1 = "Deployment descriptor is missing; global parameter {0} cannot be applied for {1}";
+    public static final String NO_DEPLOYMENT_DESCRIPTOR_FOUND_IN_CONTEXT = "No deployment descriptor found in context";
+
     protected Messages() {
     }
 }

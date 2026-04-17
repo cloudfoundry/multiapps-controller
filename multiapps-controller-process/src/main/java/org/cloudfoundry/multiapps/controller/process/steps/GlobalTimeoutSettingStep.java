@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.util.TimeoutValueResolver;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -18,11 +19,11 @@ public class GlobalTimeoutSettingStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
-        getStepLogger().debug("Extracting all timeout parameters from descriptor");
+        getStepLogger().debug(Messages.EXTRACTING_ALL_TIMEOUT_PARAMETERS_FROM_DESCRIPTOR);
 
         DeploymentDescriptor descriptor = timeoutValueResolver.getDeploymentDescriptor(context, getStepLogger());
         if (descriptor == null) {
-            getStepLogger().debug("No descriptor found; sub-processes will use default timeouts");
+            getStepLogger().debug(Messages.NO_DESCRIPTOR_FOUND_USING_DEFAULT_TIMEOUTS);
             return StepPhase.DONE;
         }
 
@@ -33,7 +34,7 @@ public class GlobalTimeoutSettingStep extends SyncFlowableStep {
             }
         }
 
-        getStepLogger().info("Successfully extracted {0} timeout parameters from descriptor", successCount);
+        getStepLogger().info(Messages.SUCCESSFULLY_EXTRACTED_0_TIMEOUT_PARAMETERS, successCount);
         return StepPhase.DONE;
     }
 
@@ -42,7 +43,7 @@ public class GlobalTimeoutSettingStep extends SyncFlowableStep {
             TimeoutValueResolver.TimeoutResolution resolution =
                 timeoutValueResolver.resolveTimeout(context, timeoutType, getStepLogger());
             context.setVariable(timeoutType.getProcessVariable(), resolution.timeout());
-            getStepLogger().debug("Timeout {0} = {1}s (from {2})",
+            getStepLogger().debug(Messages.TIMEOUT_0_EQUALS_1_SECONDS_FROM_2,
                                   timeoutType.getProcessVariable()
                                              .getName(),
                                   resolution.timeout()
@@ -50,14 +51,14 @@ public class GlobalTimeoutSettingStep extends SyncFlowableStep {
                                   resolution.parameterName());
             return true;
         } catch (ContentException e) {
-            getStepLogger().warn("Failed to resolve timeout for {0}: {1}", timeoutType, e.getMessage());
+            getStepLogger().warn(Messages.FAILED_TO_RESOLVE_TIMEOUT_FOR_0_1, timeoutType, e.getMessage());
         }
         return false;
     }
 
     @Override
     protected String getStepErrorMessage(ProcessContext context) {
-        return "Error while extracting global timeouts from deployment descriptor";
+        return Messages.ERROR_EXTRACTING_GLOBAL_TIMEOUTS_FROM_DESCRIPTOR;
     }
 }
 

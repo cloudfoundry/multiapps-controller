@@ -8,6 +8,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKe
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaService;
+import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variable;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -25,12 +26,12 @@ public class TimeoutServiceResourceNameResolver {
     public Resource resolveResource(ProcessContext context, TimeoutType timeoutType, DeploymentDescriptor descriptor, StepLogger logger) {
         String resourceName = resolveResourceName(context, timeoutType);
         if (resourceName == null) {
-            logger.debug("Could not resolve service resource name for timeout type {0}", timeoutType);
+            logger.debug(Messages.COULD_NOT_RESOLVE_SERVICE_RESOURCE_NAME_FOR_TIMEOUT_TYPE_0, timeoutType);
             return null;
         }
         Resource resource = findResourceByName(descriptor, resourceName);
         if (resource == null) {
-            logger.debug("Could not find resource {0} in deployment descriptor for timeout type {1}", resourceName, timeoutType);
+            logger.debug(Messages.COULD_NOT_FIND_RESOURCE_0_IN_DESCRIPTOR_FOR_TIMEOUT_TYPE_1, resourceName, timeoutType);
         }
         return resource;
     }
