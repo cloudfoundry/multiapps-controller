@@ -11,8 +11,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.azure.core.http.HttpClient;
-import com.azure.core.http.okhttp.OkHttpAsyncHttpClientBuilder;
 import com.azure.core.http.policy.ExponentialBackoffOptions;
 import com.azure.core.http.policy.RetryOptions;
 import com.azure.storage.blob.BlobClient;
@@ -40,12 +38,10 @@ public class AzureObjectStoreFileStorage extends ObjectStoreFileStorage {
     private static final long MAX_SINGLE_UPLOAD_SIZE = 15L * 1024 * 1024; // 10MB
     private static final long BLOCK_SIZE = 15L * 1024 * 1024; // 10MB
     private static final int MAX_CONCURRENCY = 30;
-    private final HttpClient httpClient;
     private final BlobContainerClient containerClient;
 
     public AzureObjectStoreFileStorage(Map<String, Object> credentials) {
         this.containerClient = createContainerClient(credentials);
-        this.httpClient = new OkHttpAsyncHttpClientBuilder().build();
     }
 
     @Override
@@ -160,7 +156,6 @@ public class AzureObjectStoreFileStorage extends ObjectStoreFileStorage {
     protected BlobContainerClient createContainerClient(Map<String, Object> credentials) {
         BlobServiceClient serviceClient = new BlobServiceClientBuilder().endpoint(getContainerUriEndpoint(credentials))
                                                                         .retryOptions(createRetryOptions())
-                                                                        .httpClient(httpClient)
                                                                         .sasToken((String) credentials.get(SAS_TOKEN))
                                                                         .buildClient();
 
