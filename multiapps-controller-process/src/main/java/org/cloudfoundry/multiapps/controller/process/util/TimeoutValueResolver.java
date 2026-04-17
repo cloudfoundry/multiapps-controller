@@ -163,13 +163,9 @@ public class TimeoutValueResolver {
     }
 
     private CloudServiceInstanceExtended resolveServiceInstance(ProcessContext context, TimeoutType timeoutType) {
-        if (timeoutType == TimeoutType.BIND_SERVICE) {
-            return resolveBindServiceInstance(context);
+        if (timeoutType != TimeoutType.BIND_SERVICE) {
+            return context.getVariableIfSet(Variables.SERVICE_TO_PROCESS);
         }
-        return context.getVariableIfSet(Variables.SERVICE_TO_PROCESS);
-    }
-
-    private CloudServiceInstanceExtended resolveBindServiceInstance(ProcessContext context) {
         String serviceName = context.getVariableIfSet(Variables.SERVICE_TO_UNBIND_BIND);
         List<CloudServiceInstanceExtended> servicesToBind = context.getVariableIfSet(Variables.SERVICES_TO_BIND);
         if (serviceName == null || servicesToBind == null) {
