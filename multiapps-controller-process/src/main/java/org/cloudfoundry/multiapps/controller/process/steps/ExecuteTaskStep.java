@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 import java.util.function.LongSupplier;
 
 import jakarta.inject.Inject;
@@ -12,14 +11,10 @@ import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudTask;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
-import org.cloudfoundry.multiapps.controller.core.model.ApplicationColor;
-import org.cloudfoundry.multiapps.controller.core.model.HookPhaseProcessType;
-import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.cloudfoundry.multiapps.mta.model.Hook;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -28,10 +23,6 @@ import org.springframework.context.annotation.Scope;
 public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
 
     protected LongSupplier currentTimeSupplier = System::currentTimeMillis;
-
-    private static final String PHASE_KEY = "phase";
-    private static final String TARGET_APP_KEY = "target-app";
-    private static final String APPLICATION_PHASE_SUBSTRING = ".application.";
 
     @Inject
     private CloudControllerClientFactory clientFactory;
@@ -44,92 +35,11 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
         CloudTask taskToExecute = StepsUtil.getTask(context);
         CloudControllerClient client = context.getControllerClient();
 
-        String appName = resolveTargetAppName(context, app);
-
-        getStepLogger().info(Messages.EXECUTING_TASK_ON_APP, taskToExecute.getName(), appName);
-        CloudTask startedTask = client.runTask(appName, taskToExecute);
+        getStepLogger().info(Messages.EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName());
+        CloudTask startedTask = client.runTask(app.getName(), taskToExecute);
         context.setVariable(Variables.STARTED_TASK, startedTask);
         context.setVariable(Variables.START_TIME, currentTimeSupplier.getAsLong());
         return StepPhase.POLL;
-    }
-
-    private String resolveTargetAppName(ProcessContext context, CloudApplicationExtended app) {
-        Hook hook = context.getVariable(Variables.HOOK_FOR_EXECUTION);
-        if (hook == null) {
-            return app.getName();
-        }
-
-        List<Map<String, String>> phasesConfig = getPhasesConfig(hook);
-        if (phasesConfig.isEmpty()) {
-            return app.getName();
-        }
-
-        String currentPhase = buildCurrentPhaseString(context, hook);
-        String targetApp = phasesConfig.stream()
-                                       .filter(config -> currentPhase.equals(config.get(PHASE_KEY)))
-                                       .map(config -> config.get(TARGET_APP_KEY))
-                                       .findFirst()
-                                       .orElse(null);
-
-        if (targetApp == null) {
-            return app.getName();
-        }
-
-        return resolveAppNameForTarget(context, app, targetApp);
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<Map<String, String>> getPhasesConfig(Hook hook) {
-        Object phasesConfigValue = hook.getParameters()
-                                       .get(SupportedParameters.PHASES_CONFIG);
-        if (phasesConfigValue instanceof List) {
-            return (List<Map<String, String>>) phasesConfigValue;
-        }
-        return List.of();
-    }
-
-    private String buildCurrentPhaseString(ProcessContext context, Hook hook) {
-        String hookExecutionPhase = context.getVariable(Variables.HOOK_EXECUTION_PHASE);
-        return hook.getPhases()
-                   .stream()
-                   .filter(p -> p.equals(hookExecutionPhase))
-                   .findFirst()
-                   .orElseGet(() -> hook.getPhases()
-                                        .stream()
-                                        .filter(p -> p.contains(APPLICATION_PHASE_SUBSTRING))
-                                        .findFirst()
-                                        .orElse(""));
-    }
-
-    private String resolveAppNameForTarget(ProcessContext context, CloudApplicationExtended app, String targetApp) {
-        ApplicationColor idleColor = context.getVariable(Variables.IDLE_MTA_COLOR);
-        ApplicationColor liveColor = context.getVariable(Variables.LIVE_MTA_COLOR);
-
-        if (idleColor == null || liveColor == null) {
-            return app.getName();
-        }
-
-        if (HookPhaseProcessType.HookProcessPhase.IDLE.getType()
-                                                      .equals(targetApp)) {
-            return swapColorSuffix(app.getName(), liveColor, idleColor);
-        }
-        if (HookPhaseProcessType.HookProcessPhase.LIVE.getType()
-                                                      .equals(targetApp)) {
-            return swapColorSuffix(app.getName(), idleColor, liveColor);
-        }
-        return app.getName();
-    }
-
-    private String swapColorSuffix(String appName, ApplicationColor fromColor, ApplicationColor toColor) {
-        String fromSuffix = fromColor.asSuffix();
-        String toSuffix = toColor.asSuffix();
-        if (appName.endsWith(fromSuffix)) {
-            return appName.substring(0, appName.length() - fromSuffix.length()) + toSuffix;
-        }
-        if (!appName.endsWith(toSuffix)) {
-            return appName + toSuffix;
-        }
-        return appName;
     }
 
     @Override
