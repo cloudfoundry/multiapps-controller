@@ -35,6 +35,9 @@ import org.springframework.context.annotation.Scope;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class MergeDescriptorsStep extends SyncFlowableStep {
 
+    private static final int HOOKS_MIN_SCHEMA_VERSION = 3;
+    private static final String PHASES_CONFIG_PHASE_KEY = "phase";
+
     @Inject
     private DescriptorBackupService descriptorBackupService;
 
@@ -73,25 +76,26 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
     }
 
     private void validatePhasesConfig(ProcessContext context, DeploymentDescriptor descriptor) {
-        if (context.getVariable(Variables.MTA_MAJOR_SCHEMA_VERSION) < 3) {
+        if (context.getVariable(Variables.MTA_MAJOR_SCHEMA_VERSION) < HOOKS_MIN_SCHEMA_VERSION) {
             return;
         }
         descriptor.getModules()
                   .stream()
                   .flatMap(module -> module.getHooks().stream())
-                  .forEach(this::validateNoDuplicatePhases);
+                  .forEach(this::validateHookHasNoDuplicatePhaseConfigs);
     }
 
     @SuppressWarnings("unchecked")
-    private void validateNoDuplicatePhases(Hook hook) {
-        Object value = hook.getParameters().get(SupportedParameters.PHASES_CONFIG);
-        if (!(value instanceof List)) {
+    private void validateHookHasNoDuplicatePhaseConfigs(Hook hook) {
+        Object phasesConfigValue = hook.getParameters().get(SupportedParameters.PHASES_CONFIG);
+        if (!(phasesConfigValue instanceof List)) {
             return;
         }
-        Set<String> seen = new HashSet<>();
-        for (Map<String, String> entry : (List<Map<String, String>>) value) {
-            String phase = entry.get("phase");
-            if (phase != null && !seen.add(phase)) {
+        List<Map<String, String>> phasesConfig = (List<Map<String, String>>) phasesConfigValue;
+        Set<String> seenPhases = new HashSet<>();
+        for (Map<String, String> phaseConfig : phasesConfig) {
+            String phase = phaseConfig.get(PHASES_CONFIG_PHASE_KEY);
+            if (phase != null && !seenPhases.add(phase)) {
                 throw new SLException(MessageFormat.format(Messages.DUPLICATE_PHASE_IN_PHASES_CONFIG, phase, hook.getName()));
             }
         }

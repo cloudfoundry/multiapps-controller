@@ -80,10 +80,10 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
 
     @SuppressWarnings("unchecked")
     private List<Map<String, String>> getPhasesConfig(Hook hook) {
-        Object value = hook.getParameters()
-                           .get(SupportedParameters.PHASES_CONFIG);
-        if (value instanceof List) {
-            return (List<Map<String, String>>) value;
+        Object phasesConfigValue = hook.getParameters()
+                                       .get(SupportedParameters.PHASES_CONFIG);
+        if (phasesConfigValue instanceof List) {
+            return (List<Map<String, String>>) phasesConfigValue;
         }
         return List.of();
     }
