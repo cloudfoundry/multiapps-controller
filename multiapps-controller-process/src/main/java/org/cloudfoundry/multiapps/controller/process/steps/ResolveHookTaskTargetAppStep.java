@@ -7,6 +7,7 @@ import java.util.Map;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.model.ApplicationColor;
+import org.cloudfoundry.multiapps.controller.core.model.BlueGreenApplicationNameSuffix;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhaseProcessType;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -88,7 +89,7 @@ public class ResolveHookTaskTargetAppStep extends SyncFlowableStep {
         ApplicationColor liveColor = context.getVariable(Variables.LIVE_MTA_COLOR);
 
         if (idleColor == null || liveColor == null) {
-            return app.getName();
+            return resolveAppNameWithLiveIdleSuffix(app.getName(), targetApp);
         }
 
         if (HookPhaseProcessType.HookProcessPhase.IDLE.getType().equals(targetApp)) {
@@ -98,6 +99,29 @@ public class ResolveHookTaskTargetAppStep extends SyncFlowableStep {
             return swapColorSuffix(app.getName(), idleColor, liveColor);
         }
         return app.getName();
+    }
+
+    private String resolveAppNameWithLiveIdleSuffix(String appName, String targetApp) {
+        String liveSuffix = BlueGreenApplicationNameSuffix.LIVE.asSuffix();
+        String idleSuffix = BlueGreenApplicationNameSuffix.IDLE.asSuffix();
+
+        if (HookPhaseProcessType.HookProcessPhase.IDLE.getType().equals(targetApp)) {
+            if (appName.endsWith(liveSuffix)) {
+                return appName.substring(0, appName.length() - liveSuffix.length());
+            }
+            if (!appName.endsWith(idleSuffix)) {
+                return appName + idleSuffix;
+            }
+        }
+        if (HookPhaseProcessType.HookProcessPhase.LIVE.getType().equals(targetApp)) {
+            if (appName.endsWith(idleSuffix)) {
+                return appName.substring(0, appName.length() - idleSuffix.length());
+            }
+            if (!appName.endsWith(liveSuffix)) {
+                return appName + liveSuffix;
+            }
+        }
+        return appName;
     }
 
     private String swapColorSuffix(String appName, ApplicationColor fromColor, ApplicationColor toColor) {
