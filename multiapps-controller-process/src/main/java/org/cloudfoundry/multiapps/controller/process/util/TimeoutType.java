@@ -12,11 +12,13 @@ public enum TimeoutType {
            Variables.APPS_UPLOAD_TIMEOUT_PROCESS_VARIABLE,
            10800,
            null,
+           null,
            null),
 
     STAGE(new TimeoutParameterNames(SupportedParameters.STAGE_TIMEOUT, null, SupportedParameters.APPS_STAGE_TIMEOUT),
           Variables.APPS_STAGE_TIMEOUT_PROCESS_VARIABLE,
           10800,
+          null,
           null,
           null),
 
@@ -24,11 +26,13 @@ public enum TimeoutType {
           Variables.APPS_START_TIMEOUT_PROCESS_VARIABLE,
           10800,
           null,
+          null,
           null),
 
     TASK(new TimeoutParameterNames(SupportedParameters.TASK_EXECUTION_TIMEOUT, null, SupportedParameters.APPS_TASK_EXECUTION_TIMEOUT),
          Variables.APPS_TASK_EXECUTION_TIMEOUT_PROCESS_VARIABLE,
          86400,
+         null,
          null,
          null),
 
@@ -37,7 +41,8 @@ public enum TimeoutType {
         Variables.CREATE_SERVICE_TIMEOUT_PROCESS_VARIABLE,
         7200,
         Variables.SERVICE_TO_PROCESS,
-        CloudServiceInstanceExtended::getCreateServiceTimeout),
+        CloudServiceInstanceExtended::getCreateServiceTimeout,
+        Variables.CREATE_SERVICE_TIMEOUT_FROM_CLI),
 
 
     BIND_SERVICE(
@@ -45,7 +50,8 @@ public enum TimeoutType {
         Variables.BIND_SERVICE_TIMEOUT_PROCESS_VARIABLE,
         7200,
         Variables.SERVICE_TO_UNBIND_BIND,
-        CloudServiceInstanceExtended::getBindServiceTimeout),
+        CloudServiceInstanceExtended::getBindServiceTimeout,
+        Variables.BIND_SERVICE_TIMEOUT_FROM_CLI),
 
 
     CREATE_SERVICE_KEY(new TimeoutParameterNames(null, SupportedParameters.CREATE_SERVICE_KEY_TIMEOUT,
@@ -53,7 +59,8 @@ public enum TimeoutType {
                        Variables.CREATE_SERVICE_KEY_TIMEOUT_PROCESS_VARIABLE,
                        7200,
                        Variables.SERVICE_TO_PROCESS,
-                       CloudServiceInstanceExtended::getCreateServiceKeyTimeout);
+                       CloudServiceInstanceExtended::getCreateServiceKeyTimeout,
+                       Variables.CREATE_SERVICE_KEY_TIMEOUT_FROM_CLI);
 
     @FunctionalInterface
     public interface ServiceTimeoutGetter {
@@ -65,17 +72,20 @@ public enum TimeoutType {
     private final Integer maxAllowedValue;
     private final Variable<?> serviceContextVariable;
     private final ServiceTimeoutGetter serviceTimeoutGetter;
+    private final Variable<Boolean> cliProvidedFlag;
 
     TimeoutType(TimeoutParameterNames parameterNames,
                 Variable<Duration> processVariable,
                 Integer maxAllowedValue,
                 Variable<?> serviceContextVariable,
-                ServiceTimeoutGetter serviceTimeoutGetter) {
+                ServiceTimeoutGetter serviceTimeoutGetter,
+                Variable<Boolean> cliProvidedFlag) {
         this.parameterNames = parameterNames;
         this.processVariable = processVariable;
         this.maxAllowedValue = maxAllowedValue;
         this.serviceContextVariable = serviceContextVariable;
         this.serviceTimeoutGetter = serviceTimeoutGetter;
+        this.cliProvidedFlag = cliProvidedFlag;
     }
 
     public String getModuleLevelParamName() {
@@ -104,6 +114,10 @@ public enum TimeoutType {
 
     public ServiceTimeoutGetter getServiceTimeoutGetter() {
         return serviceTimeoutGetter;
+    }
+
+    public Variable<Boolean> getCliProvidedFlag() {
+        return cliProvidedFlag;
     }
 
     public TimeoutScope getTimeoutScope() {

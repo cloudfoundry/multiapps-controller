@@ -13,6 +13,7 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInsta
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
+import org.cloudfoundry.multiapps.controller.process.variables.Variable;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
@@ -42,6 +43,7 @@ public class TimeoutValueResolver {
         this::extractTimeoutFromDescriptorParameters);
 
     private final List<TimeoutSource> serviceTimeoutSources = List.of(
+        this::resolveCliProvidedServiceTimeout,
         this::extractTimeoutFromServiceObject,
         this::extractTimeoutFromResourceParameters,
         this::extractTimeoutFromDescriptorParameters,
@@ -59,7 +61,8 @@ public class TimeoutValueResolver {
                 return resolution;
             }
         }
-        return new TimeoutResolution(timeoutType.getProcessVariable().getDefaultValue(), DEFAULT_TIMEOUT);
+        return new TimeoutResolution(timeoutType.getProcessVariable()
+                                                .getDefaultValue(), DEFAULT_TIMEOUT);
     }
 
     private TimeoutResolution resolveProcessVariableTimeout(ProcessContext context, TimeoutType timeoutType, StepLogger logger) {
@@ -68,6 +71,22 @@ public class TimeoutValueResolver {
             return null;
         }
         if (timeoutType.isModuleScoped() && isProcessVariableDerivedFromModuleParameter(context, timeoutType, processVariable)) {
+            return null;
+        }
+        return new TimeoutResolution(processVariable, timeoutType.getGlobalLevelParamName());
+    }
+
+    private TimeoutResolution resolveCliProvidedServiceTimeout(ProcessContext context, TimeoutType timeoutType, StepLogger logger) {
+        Variable<Boolean> cliFlag = timeoutType.getCliProvidedFlag();
+        if (cliFlag == null) {
+            return null;
+        }
+        Boolean isCliProvided = context.getVariableIfSet(cliFlag);
+        if (!Boolean.TRUE.equals(isCliProvided)) {
+            return null;
+        }
+        Duration processVariable = context.getVariableIfSet(timeoutType.getProcessVariable());
+        if (processVariable == null) {
             return null;
         }
         return new TimeoutResolution(processVariable, timeoutType.getGlobalLevelParamName());
