@@ -175,7 +175,7 @@
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
         <flowable:in source="mtaId" target="mtaId"></flowable:in>
         <flowable:in source="servicesBindServiceTimeout" target="servicesBindServiceTimeout"></flowable:in>
-        <flowable:in source="bindServiceTimeoutFromCli" target="bindServiceTimeoutFromCli"></flowable:in>
+        <flowable:in source="bindServiceTimeoutFromOperationParams" target="bindServiceTimeoutFromOperationParams"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToUnbindBind" flowable:elementVariable="serviceToUnbindBind"></multiInstanceLoopCharacteristics>
     </callActivity>
@@ -212,7 +212,7 @@
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
         <flowable:in source="mtaId" target="mtaId"></flowable:in>
         <flowable:in source="servicesBindServiceTimeout" target="servicesBindServiceTimeout"></flowable:in>
-        <flowable:in source="bindServiceTimeoutFromCli" target="bindServiceTimeoutFromCli"></flowable:in>
+        <flowable:in source="bindServiceTimeoutFromOperationParams" target="bindServiceTimeoutFromOperationParams"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="true" flowable:collection="servicesToUnbindBind" flowable:elementVariable="serviceToUnbindBind"></multiInstanceLoopCharacteristics>
     </callActivity>

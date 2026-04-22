@@ -43,39 +43,42 @@ public class GlobalTimeoutSettingStep extends SyncFlowableStep {
 
     private boolean setTimeoutIfResolved(ProcessContext context, TimeoutType timeoutType) {
         try {
-            // For service-scoped timeouts, check if CLI already provided a value.
-            // The CLI flag is set in OperationsApiServiceImpl.addServiceTimeoutCliFlags()
-            // when the API call includes a timeout parameter.
-            if (timeoutType.isServiceScoped()) {
-                Variable<Boolean> cliFlag = timeoutType.getCliProvidedFlag();
-                if (cliFlag != null) {
-                    Boolean isCliProvided = context.getVariableIfSet(cliFlag);
-                    if (Boolean.TRUE.equals(isCliProvided)) {
-                        // CLI value takes priority - don't overwrite
-                        Duration cliValue = context.getVariableIfSet(timeoutType.getProcessVariable());
-                        getStepLogger().debug(Messages.TIMEOUT_0_EQUALS_1_SECONDS_FROM_2,
-                                              timeoutType.getProcessVariable().getName(),
-                                              cliValue != null ? cliValue.toSeconds() : "null",
-                                              timeoutType.getGlobalLevelParamName());
-                        return true;
-                    }
-                }
+            if (isAlreadySetFromOperationParams(context, timeoutType)) {
+                logExistingOperationParamsTimeout(context, timeoutType);
+                return true;
             }
-            
-            TimeoutValueResolver.TimeoutResolution resolution =
-                timeoutValueResolver.resolveTimeout(context, timeoutType, getStepLogger());
-            context.setVariable(timeoutType.getProcessVariable(), resolution.timeout());
-            getStepLogger().debug(Messages.TIMEOUT_0_EQUALS_1_SECONDS_FROM_2,
-                                  timeoutType.getProcessVariable()
-                                             .getName(),
-                                  resolution.timeout()
-                                            .toSeconds(),
-                                  resolution.parameterName());
-            return true;
+            return resolveAndSetTimeout(context, timeoutType);
         } catch (ContentException e) {
             getStepLogger().warn(Messages.FAILED_TO_RESOLVE_TIMEOUT_FOR_0_1, timeoutType, e.getMessage());
+            return false;
         }
-        return false;
+    }
+
+    private boolean isAlreadySetFromOperationParams(ProcessContext context, TimeoutType timeoutType) {
+        if (!timeoutType.isServiceScoped()) {
+            return false;
+        }
+        Variable<Boolean> operationParamsFlag = timeoutType.getOperationParamsFlag();
+        return operationParamsFlag != null && Boolean.TRUE.equals(context.getVariableIfSet(operationParamsFlag));
+    }
+
+    private void logExistingOperationParamsTimeout(ProcessContext context, TimeoutType timeoutType) {
+        Duration timeout = context.getVariableIfSet(timeoutType.getProcessVariable());
+        String timeoutSeconds = timeout != null ? String.valueOf(timeout.toSeconds()) : "null";
+        getStepLogger().debug(Messages.TIMEOUT_0_EQUALS_1_SECONDS_FROM_2,
+                              timeoutType.getProcessVariable().getName(),
+                              timeoutSeconds,
+                              timeoutType.getGlobalLevelParamName());
+    }
+
+    private boolean resolveAndSetTimeout(ProcessContext context, TimeoutType timeoutType) {
+        TimeoutValueResolver.TimeoutResolution resolution = timeoutValueResolver.resolveTimeout(context, timeoutType, getStepLogger());
+        context.setVariable(timeoutType.getProcessVariable(), resolution.timeout());
+        getStepLogger().debug(Messages.TIMEOUT_0_EQUALS_1_SECONDS_FROM_2,
+                              timeoutType.getProcessVariable().getName(),
+                              resolution.timeout().toSeconds(),
+                              resolution.parameterName());
+        return true;
     }
 
     @Override

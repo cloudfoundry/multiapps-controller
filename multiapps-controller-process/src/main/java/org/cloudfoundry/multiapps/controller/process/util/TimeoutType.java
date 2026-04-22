@@ -42,7 +42,7 @@ public enum TimeoutType {
         7200,
         Variables.SERVICE_TO_PROCESS,
         CloudServiceInstanceExtended::getCreateServiceTimeout,
-        Variables.CREATE_SERVICE_TIMEOUT_FROM_CLI),
+        Variables.CREATE_SERVICE_TIMEOUT_FROM_OPERATION_PARAMS),
 
 
     BIND_SERVICE(
@@ -51,7 +51,7 @@ public enum TimeoutType {
         7200,
         Variables.SERVICE_TO_UNBIND_BIND,
         CloudServiceInstanceExtended::getBindServiceTimeout,
-        Variables.BIND_SERVICE_TIMEOUT_FROM_CLI),
+        Variables.BIND_SERVICE_TIMEOUT_FROM_OPERATION_PARAMS),
 
 
     CREATE_SERVICE_KEY(new TimeoutParameterNames(null, SupportedParameters.CREATE_SERVICE_KEY_TIMEOUT,
@@ -60,7 +60,7 @@ public enum TimeoutType {
                        7200,
                        Variables.SERVICE_TO_PROCESS,
                        CloudServiceInstanceExtended::getCreateServiceKeyTimeout,
-                       Variables.CREATE_SERVICE_KEY_TIMEOUT_FROM_CLI);
+                       Variables.CREATE_SERVICE_KEY_TIMEOUT_FROM_OPERATION_PARAMS);
 
     @FunctionalInterface
     public interface ServiceTimeoutGetter {
@@ -72,20 +72,20 @@ public enum TimeoutType {
     private final Integer maxAllowedValue;
     private final Variable<?> serviceContextVariable;
     private final ServiceTimeoutGetter serviceTimeoutGetter;
-    private final Variable<Boolean> cliProvidedFlag;
+    private final Variable<Boolean> operationParamsFlag;
 
     TimeoutType(TimeoutParameterNames parameterNames,
                 Variable<Duration> processVariable,
                 Integer maxAllowedValue,
                 Variable<?> serviceContextVariable,
                 ServiceTimeoutGetter serviceTimeoutGetter,
-                Variable<Boolean> cliProvidedFlag) {
+                Variable<Boolean> operationParamsFlag) {
         this.parameterNames = parameterNames;
         this.processVariable = processVariable;
         this.maxAllowedValue = maxAllowedValue;
         this.serviceContextVariable = serviceContextVariable;
         this.serviceTimeoutGetter = serviceTimeoutGetter;
-        this.cliProvidedFlag = cliProvidedFlag;
+        this.operationParamsFlag = operationParamsFlag;
     }
 
     public String getModuleLevelParamName() {
@@ -116,8 +116,8 @@ public enum TimeoutType {
         return serviceTimeoutGetter;
     }
 
-    public Variable<Boolean> getCliProvidedFlag() {
-        return cliProvidedFlag;
+    public Variable<Boolean> getOperationParamsFlag() {
+        return operationParamsFlag;
     }
 
     public TimeoutScope getTimeoutScope() {

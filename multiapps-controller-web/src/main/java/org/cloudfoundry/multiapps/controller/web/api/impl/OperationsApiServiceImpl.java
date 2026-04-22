@@ -53,6 +53,7 @@ import org.cloudfoundry.multiapps.controller.process.flowable.ProcessAction;
 import org.cloudfoundry.multiapps.controller.process.flowable.ProcessActionRegistry;
 import org.cloudfoundry.multiapps.controller.process.metadata.ProcessTypeToOperationMetadataMapper;
 import org.cloudfoundry.multiapps.controller.process.util.OperationsHelper;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
@@ -282,24 +283,19 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         Map<String, Object> originalParameters = operation.getParameters();
         Map<String, Object> filteredParameters = filterUnnecessaryParameters(predefinedParameters, originalParameters);
         filteredParameters.putAll(ParameterConversion.toFlowableVariables(predefinedParameters, filteredParameters));
-        // Set CLI flags for service timeouts when explicitly provided
-        addServiceTimeoutCliFlags(originalParameters, filteredParameters);
+        addServiceTimeoutOperationParamsFlags(originalParameters, filteredParameters);
         return ImmutableOperation.copyOf(operation)
                                  .withParameters(filteredParameters);
     }
 
-    private void addServiceTimeoutCliFlags(Map<String, Object> originalParameters, Map<String, Object> targetParameters) {
-        // When a service timeout is explicitly provided via CLI/API, set the corresponding flag
-        // so that GlobalTimeoutSettingStep knows not to overwrite it with descriptor values
-        if (originalParameters.containsKey(Variables.CREATE_SERVICE_TIMEOUT_PROCESS_VARIABLE.getName())) {
-            targetParameters.put(Variables.CREATE_SERVICE_TIMEOUT_FROM_CLI.getName(), true);
-        }
-        if (originalParameters.containsKey(Variables.BIND_SERVICE_TIMEOUT_PROCESS_VARIABLE.getName())) {
-            targetParameters.put(Variables.BIND_SERVICE_TIMEOUT_FROM_CLI.getName(), true);
-        }
-        if (originalParameters.containsKey(Variables.CREATE_SERVICE_KEY_TIMEOUT_PROCESS_VARIABLE.getName())) {
-            targetParameters.put(Variables.CREATE_SERVICE_KEY_TIMEOUT_FROM_CLI.getName(), true);
-        }
+    private void addServiceTimeoutOperationParamsFlags(Map<String, Object> originalParameters, Map<String, Object> targetParameters) {
+        Arrays.stream(TimeoutType.values())
+              .filter(TimeoutType::isServiceScoped)
+              .filter(type -> type.getOperationParamsFlag() != null)
+              .filter(type -> originalParameters.containsKey(type.getProcessVariable()
+                                                                 .getName()))
+              .forEach(type -> targetParameters.put(type.getOperationParamsFlag()
+                                                        .getName(), true));
     }
 
     private Map<String, Object> filterUnnecessaryParameters(Set<ParameterMetadata> predefinedParameters, Map<String, Object> parameters) {

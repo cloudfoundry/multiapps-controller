@@ -49,9 +49,9 @@
         <flowable:in source="updateServiceTimeoutProcessVariable" target="updateServiceTimeoutProcessVariable"></flowable:in>
         <flowable:in source="servicesBindServiceTimeout" target="servicesBindServiceTimeout"></flowable:in>
         <flowable:in source="servicesCreateServiceKeyTimeout" target="servicesCreateServiceKeyTimeout"></flowable:in>
-        <flowable:in source="createServiceTimeoutFromCli" target="createServiceTimeoutFromCli"></flowable:in>
-        <flowable:in source="bindServiceTimeoutFromCli" target="bindServiceTimeoutFromCli"></flowable:in>
-        <flowable:in source="createServiceKeyTimeoutFromCli" target="createServiceKeyTimeoutFromCli"></flowable:in>
+        <flowable:in source="createServiceTimeoutFromOperationParams" target="createServiceTimeoutFromOperationParams"></flowable:in>
+        <flowable:in source="bindServiceTimeoutFromOperationParams" target="bindServiceTimeoutFromOperationParams"></flowable:in>
+        <flowable:in source="createServiceKeyTimeoutFromOperationParams" target="createServiceKeyTimeoutFromOperationParams"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToCreate" flowable:elementVariable="serviceToProcess">
         <extensionElements></extensionElements>

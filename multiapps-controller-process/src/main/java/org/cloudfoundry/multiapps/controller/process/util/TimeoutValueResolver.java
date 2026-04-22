@@ -43,7 +43,7 @@ public class TimeoutValueResolver {
         this::extractTimeoutFromDescriptorParameters);
 
     private final List<TimeoutSource> serviceTimeoutSources = List.of(
-        this::resolveCliProvidedServiceTimeout,
+        this::resolveOperationParamsServiceTimeout,
         this::extractTimeoutFromServiceObject,
         this::extractTimeoutFromResourceParameters,
         this::extractTimeoutFromDescriptorParameters,
@@ -76,13 +76,13 @@ public class TimeoutValueResolver {
         return new TimeoutResolution(processVariable, timeoutType.getGlobalLevelParamName());
     }
 
-    private TimeoutResolution resolveCliProvidedServiceTimeout(ProcessContext context, TimeoutType timeoutType, StepLogger logger) {
-        Variable<Boolean> cliFlag = timeoutType.getCliProvidedFlag();
-        if (cliFlag == null) {
+    private TimeoutResolution resolveOperationParamsServiceTimeout(ProcessContext context, TimeoutType timeoutType, StepLogger logger) {
+        Variable<Boolean> operationParamsFlag = timeoutType.getOperationParamsFlag();
+        if (operationParamsFlag == null) {
             return null;
         }
-        Boolean isCliProvided = context.getVariableIfSet(cliFlag);
-        if (!Boolean.TRUE.equals(isCliProvided)) {
+        Boolean isFromOperationParams = context.getVariableIfSet(operationParamsFlag);
+        if (!Boolean.TRUE.equals(isFromOperationParams)) {
             return null;
         }
         Duration processVariable = context.getVariableIfSet(timeoutType.getProcessVariable());
