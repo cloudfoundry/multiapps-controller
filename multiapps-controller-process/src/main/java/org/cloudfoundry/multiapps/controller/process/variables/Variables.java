@@ -580,9 +580,10 @@ public interface Variables {
                                                                               .type(Variable.typeReference(Hook.class))
                                                                               .defaultValue(Collections.emptyList())
                                                                               .build();
-    Variable<String> HOOK_EXECUTION_PHASE = ImmutableSimpleVariable.<String> builder()
-                                                                    .name("hookExecutionPhase")
-                                                                    .build();
+    Variable<List<String>> HOOK_EXECUTION_PHASES = ImmutableSimpleVariable.<List<String>> builder()
+                                                                         .name("hookExecutionPhases")
+                                                                         .defaultValue(Collections.emptyList())
+                                                                         .build();
     Variable<List<Module>> MODULES_TO_DEPLOY = ImmutableJsonBinaryListVariable.<Module> builder()
                                                                               .name("modulesToDeploy")
                                                                               .type(Variable.typeReference(Module.class))

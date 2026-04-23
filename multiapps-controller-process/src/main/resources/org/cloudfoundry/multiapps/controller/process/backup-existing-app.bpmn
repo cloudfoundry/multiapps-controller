@@ -26,7 +26,7 @@
       <flowable:in source="mtaId" target="mtaId"></flowable:in>
       <flowable:in source="subprocessPhase" target="subprocessPhase"></flowable:in>
       <flowable:in source="phase" target="phase"></flowable:in>
-      <flowable:in source="hookExecutionPhase" target="hookExecutionPhase"></flowable:in>
+      <flowable:in source="hookExecutionPhases" target="hookExecutionPhases"></flowable:in>
         <flowable:in source="idleMtaColor" target="idleMtaColor"></flowable:in>
       <flowable:in source="liveMtaColor" target="liveMtaColor"></flowable:in>
     </extensionElements>

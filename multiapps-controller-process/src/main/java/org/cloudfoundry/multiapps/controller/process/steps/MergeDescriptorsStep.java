@@ -1,7 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -9,22 +8,19 @@ import java.util.Set;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
-import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaDescriptorMerger;
 import org.cloudfoundry.multiapps.controller.persistence.dto.BackupDescriptor;
 import org.cloudfoundry.multiapps.controller.persistence.dto.ImmutableBackupDescriptor;
 import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.security.SecretParametersCollector;
+import org.cloudfoundry.multiapps.controller.process.util.HookPhasesConfigValidator;
 import org.cloudfoundry.multiapps.controller.process.util.NamespaceGlobalParameters;
 import org.cloudfoundry.multiapps.controller.process.util.UnsupportedParameterFinder;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.ExtensionDescriptor;
-import org.cloudfoundry.multiapps.mta.model.Hook;
-import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.Platform;
 import org.cloudfoundry.multiapps.mta.resolvers.ReferenceContainer;
 import org.cloudfoundry.multiapps.mta.resolvers.ReferencesFinder;
@@ -36,7 +32,6 @@ import org.springframework.context.annotation.Scope;
 public class MergeDescriptorsStep extends SyncFlowableStep {
 
     private static final int HOOKS_MIN_SCHEMA_VERSION = 3;
-    private static final String PHASES_CONFIG_PHASE_KEY = "phase";
 
     @Inject
     private DescriptorBackupService descriptorBackupService;
@@ -67,38 +62,14 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
                                                                                                                            .toList());
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
 
-        validatePhasesConfig(context, descriptor);
+        if (context.getVariable(Variables.MTA_MAJOR_SCHEMA_VERSION) >= HOOKS_MIN_SCHEMA_VERSION) {
+            new HookPhasesConfigValidator().validate(descriptor);
+        }
         warnForUnsupportedParameters(descriptor);
 
         backupDeploymentDescriptor(context, descriptor);
         getStepLogger().debug(Messages.DESCRIPTORS_MERGED);
         return StepPhase.DONE;
-    }
-
-    private void validatePhasesConfig(ProcessContext context, DeploymentDescriptor descriptor) {
-        if (context.getVariable(Variables.MTA_MAJOR_SCHEMA_VERSION) < HOOKS_MIN_SCHEMA_VERSION) {
-            return;
-        }
-        descriptor.getModules()
-                  .stream()
-                  .flatMap(module -> module.getHooks().stream())
-                  .forEach(this::validateHookHasNoDuplicatePhaseConfigs);
-    }
-
-    @SuppressWarnings("unchecked")
-    private void validateHookHasNoDuplicatePhaseConfigs(Hook hook) {
-        Object phasesConfigValue = hook.getParameters().get(SupportedParameters.PHASES_CONFIG);
-        if (!(phasesConfigValue instanceof List)) {
-            return;
-        }
-        List<Map<String, String>> phasesConfig = (List<Map<String, String>>) phasesConfigValue;
-        Set<String> seenPhases = new HashSet<>();
-        for (Map<String, String> phaseConfig : phasesConfig) {
-            String phase = phaseConfig.get(PHASES_CONFIG_PHASE_KEY);
-            if (phase != null && !seenPhases.add(phase)) {
-                throw new SLException(MessageFormat.format(Messages.DUPLICATE_PHASE_IN_PHASES_CONFIG, phase, hook.getName()));
-            }
-        }
     }
 
     private void warnForUnsupportedParameters(DeploymentDescriptor descriptor) {

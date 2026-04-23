@@ -6,12 +6,16 @@ import java.util.Map;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.model.ApplicationColor;
+import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
+import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMta;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.ImmutableMtaMetadata;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.Hook;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ResolveHookTaskTargetAppStepTest extends SyncFlowableStepTest<ResolveHookTaskTargetAppStep> {
 
@@ -29,6 +33,12 @@ class ResolveHookTaskTargetAppStepTest extends SyncFlowableStepTest<ResolveHookT
     private static final String APP_NAME_BLUE = "my-app-blue";
     private static final String APP_NAME_LIVE = "my-app-live";
     private static final String APP_NAME_IDLE = "my-app-idle";
+
+    private static final DeployedMta EXISTING_MTA = ImmutableDeployedMta.builder()
+                                                                       .metadata(ImmutableMtaMetadata.builder()
+                                                                                                     .id("test-mta")
+                                                                                                     .build())
+                                                                       .build();
 
     @Override
     protected ResolveHookTaskTargetAppStep createStep() {
@@ -62,7 +72,7 @@ class ResolveHookTaskTargetAppStepTest extends SyncFlowableStepTest<ResolveHookT
     @Test
     void appNameUnchangedWhenNoPhasesConfigMatchesCurrentPhase() {
         context.setVariable(Variables.APP_TO_PROCESS, buildApp(APP_NAME_LIVE));
-        context.setVariable(Variables.HOOK_EXECUTION_PHASE, BEFORE_STOP_LIVE);
+        context.setVariable(Variables.HOOK_EXECUTION_PHASES, List.of(BEFORE_STOP_LIVE));
         context.setVariable(Variables.HOOK_FOR_EXECUTION, buildHookWithPhasesConfig(
             List.of(BEFORE_STOP_LIVE),
             List.of(Map.of(PHASE_KEY, BEFORE_START_IDLE, TARGET_APP_KEY, TARGET_IDLE))
@@ -80,7 +90,7 @@ class ResolveHookTaskTargetAppStepTest extends SyncFlowableStepTest<ResolveHookT
         context.setVariable(Variables.APP_TO_PROCESS, buildApp(APP_NAME_GREEN));
         context.setVariable(Variables.IDLE_MTA_COLOR, ApplicationColor.BLUE);
         context.setVariable(Variables.LIVE_MTA_COLOR, ApplicationColor.GREEN);
-        context.setVariable(Variables.HOOK_EXECUTION_PHASE, BEFORE_STOP_LIVE);
+        context.setVariable(Variables.HOOK_EXECUTION_PHASES, List.of(BEFORE_STOP_LIVE));
         context.setVariable(Variables.HOOK_FOR_EXECUTION, buildHookWithPhasesConfig(
             List.of(BEFORE_STOP_LIVE),
             List.of(Map.of(PHASE_KEY, BEFORE_STOP_LIVE, TARGET_APP_KEY, TARGET_IDLE))
@@ -98,7 +108,8 @@ class ResolveHookTaskTargetAppStepTest extends SyncFlowableStepTest<ResolveHookT
         context.setVariable(Variables.APP_TO_PROCESS, buildApp(APP_NAME_BLUE));
         context.setVariable(Variables.IDLE_MTA_COLOR, ApplicationColor.BLUE);
         context.setVariable(Variables.LIVE_MTA_COLOR, ApplicationColor.GREEN);
-        context.setVariable(Variables.HOOK_EXECUTION_PHASE, BEFORE_START_IDLE);
+        context.setVariable(Variables.DEPLOYED_MTA, EXISTING_MTA);
+        context.setVariable(Variables.HOOK_EXECUTION_PHASES, List.of(BEFORE_START_IDLE));
         context.setVariable(Variables.HOOK_FOR_EXECUTION, buildHookWithPhasesConfig(
             List.of(BEFORE_START_IDLE),
             List.of(Map.of(PHASE_KEY, BEFORE_START_IDLE, TARGET_APP_KEY, TARGET_LIVE))
@@ -116,7 +127,7 @@ class ResolveHookTaskTargetAppStepTest extends SyncFlowableStepTest<ResolveHookT
         context.setVariable(Variables.APP_TO_PROCESS, buildApp(APP_BASE_NAME));
         context.setVariable(Variables.IDLE_MTA_COLOR, ApplicationColor.BLUE);
         context.setVariable(Variables.LIVE_MTA_COLOR, ApplicationColor.GREEN);
-        context.setVariable(Variables.HOOK_EXECUTION_PHASE, BEFORE_STOP_LIVE);
+        context.setVariable(Variables.HOOK_EXECUTION_PHASES, List.of(BEFORE_STOP_LIVE));
         context.setVariable(Variables.HOOK_FOR_EXECUTION, buildHookWithPhasesConfig(
             List.of(BEFORE_STOP_LIVE),
             List.of(Map.of(PHASE_KEY, BEFORE_STOP_LIVE, TARGET_APP_KEY, TARGET_IDLE))
@@ -130,9 +141,9 @@ class ResolveHookTaskTargetAppStepTest extends SyncFlowableStepTest<ResolveHookT
     }
 
     @Test
-    void strategyBgDeploy_targetIdle_appHasLiveSuffix_stripsLiveSuffix() {
+    void strategyBgDeploy_targetIdle_appHasLiveSuffix_resolvesToIdleApp() {
         context.setVariable(Variables.APP_TO_PROCESS, buildApp(APP_NAME_LIVE));
-        context.setVariable(Variables.HOOK_EXECUTION_PHASE, BEFORE_STOP_LIVE);
+        context.setVariable(Variables.HOOK_EXECUTION_PHASES, List.of(BEFORE_STOP_LIVE));
         context.setVariable(Variables.HOOK_FOR_EXECUTION, buildHookWithPhasesConfig(
             List.of(BEFORE_STOP_LIVE),
             List.of(Map.of(PHASE_KEY, BEFORE_STOP_LIVE, TARGET_APP_KEY, TARGET_IDLE))
@@ -141,14 +152,14 @@ class ResolveHookTaskTargetAppStepTest extends SyncFlowableStepTest<ResolveHookT
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
-        assertEquals(APP_BASE_NAME, context.getVariable(Variables.APP_TO_PROCESS)
+        assertEquals(APP_NAME_IDLE, context.getVariable(Variables.APP_TO_PROCESS)
                                            .getName());
     }
 
     @Test
     void strategyBgDeploy_targetIdle_appHasNoSuffix_appendsIdleSuffix() {
         context.setVariable(Variables.APP_TO_PROCESS, buildApp(APP_BASE_NAME));
-        context.setVariable(Variables.HOOK_EXECUTION_PHASE, BEFORE_STOP_LIVE);
+        context.setVariable(Variables.HOOK_EXECUTION_PHASES, List.of(BEFORE_STOP_LIVE));
         context.setVariable(Variables.HOOK_FOR_EXECUTION, buildHookWithPhasesConfig(
             List.of(BEFORE_STOP_LIVE),
             List.of(Map.of(PHASE_KEY, BEFORE_STOP_LIVE, TARGET_APP_KEY, TARGET_IDLE))
@@ -164,7 +175,7 @@ class ResolveHookTaskTargetAppStepTest extends SyncFlowableStepTest<ResolveHookT
     @Test
     void strategyBgDeploy_targetIdle_appAlreadyHasIdleSuffix_unchanged() {
         context.setVariable(Variables.APP_TO_PROCESS, buildApp(APP_NAME_IDLE));
-        context.setVariable(Variables.HOOK_EXECUTION_PHASE, BEFORE_STOP_LIVE);
+        context.setVariable(Variables.HOOK_EXECUTION_PHASES, List.of(BEFORE_STOP_LIVE));
         context.setVariable(Variables.HOOK_FOR_EXECUTION, buildHookWithPhasesConfig(
             List.of(BEFORE_STOP_LIVE),
             List.of(Map.of(PHASE_KEY, BEFORE_STOP_LIVE, TARGET_APP_KEY, TARGET_IDLE))
@@ -178,9 +189,10 @@ class ResolveHookTaskTargetAppStepTest extends SyncFlowableStepTest<ResolveHookT
     }
 
     @Test
-    void strategyBgDeploy_targetLive_appHasIdleSuffix_stripsIdleSuffix() {
+    void strategyBgDeploy_targetLive_appHasIdleSuffix_resolvesToLiveApp() {
         context.setVariable(Variables.APP_TO_PROCESS, buildApp(APP_NAME_IDLE));
-        context.setVariable(Variables.HOOK_EXECUTION_PHASE, BEFORE_START_IDLE);
+        context.setVariable(Variables.DEPLOYED_MTA, EXISTING_MTA);
+        context.setVariable(Variables.HOOK_EXECUTION_PHASES, List.of(BEFORE_START_IDLE));
         context.setVariable(Variables.HOOK_FOR_EXECUTION, buildHookWithPhasesConfig(
             List.of(BEFORE_START_IDLE),
             List.of(Map.of(PHASE_KEY, BEFORE_START_IDLE, TARGET_APP_KEY, TARGET_LIVE))
@@ -189,14 +201,15 @@ class ResolveHookTaskTargetAppStepTest extends SyncFlowableStepTest<ResolveHookT
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
-        assertEquals(APP_BASE_NAME, context.getVariable(Variables.APP_TO_PROCESS)
+        assertEquals(APP_NAME_LIVE, context.getVariable(Variables.APP_TO_PROCESS)
                                            .getName());
     }
 
     @Test
     void strategyBgDeploy_targetLive_appAlreadyHasLiveSuffix_unchanged() {
         context.setVariable(Variables.APP_TO_PROCESS, buildApp(APP_NAME_LIVE));
-        context.setVariable(Variables.HOOK_EXECUTION_PHASE, BEFORE_START_IDLE);
+        context.setVariable(Variables.DEPLOYED_MTA, EXISTING_MTA);
+        context.setVariable(Variables.HOOK_EXECUTION_PHASES, List.of(BEFORE_START_IDLE));
         context.setVariable(Variables.HOOK_FOR_EXECUTION, buildHookWithPhasesConfig(
             List.of(BEFORE_START_IDLE),
             List.of(Map.of(PHASE_KEY, BEFORE_START_IDLE, TARGET_APP_KEY, TARGET_LIVE))
@@ -212,7 +225,8 @@ class ResolveHookTaskTargetAppStepTest extends SyncFlowableStepTest<ResolveHookT
     @Test
     void strategyBgDeploy_targetLive_appHasNoSuffix_appendsLiveSuffix() {
         context.setVariable(Variables.APP_TO_PROCESS, buildApp(APP_BASE_NAME));
-        context.setVariable(Variables.HOOK_EXECUTION_PHASE, BEFORE_START_IDLE);
+        context.setVariable(Variables.DEPLOYED_MTA, EXISTING_MTA);
+        context.setVariable(Variables.HOOK_EXECUTION_PHASES, List.of(BEFORE_START_IDLE));
         context.setVariable(Variables.HOOK_FOR_EXECUTION, buildHookWithPhasesConfig(
             List.of(BEFORE_START_IDLE),
             List.of(Map.of(PHASE_KEY, BEFORE_START_IDLE, TARGET_APP_KEY, TARGET_LIVE))
@@ -223,6 +237,21 @@ class ResolveHookTaskTargetAppStepTest extends SyncFlowableStepTest<ResolveHookT
         assertStepFinishedSuccessfully();
         assertEquals(APP_NAME_LIVE, context.getVariable(Variables.APP_TO_PROCESS)
                                            .getName());
+    }
+
+    @Test
+    void initialDeploy_targetLive_skipsTask() {
+        context.setVariable(Variables.APP_TO_PROCESS, buildApp(APP_NAME_IDLE));
+        context.setVariable(Variables.HOOK_EXECUTION_PHASES, List.of(BEFORE_START_IDLE));
+        context.setVariable(Variables.HOOK_FOR_EXECUTION, buildHookWithPhasesConfig(
+            List.of(BEFORE_START_IDLE),
+            List.of(Map.of(PHASE_KEY, BEFORE_START_IDLE, TARGET_APP_KEY, TARGET_LIVE))
+        ));
+
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
+        assertTrue(context.getVariable(Variables.TASKS_TO_EXECUTE).isEmpty());
     }
 
     private CloudApplicationExtended buildApp(String name) {

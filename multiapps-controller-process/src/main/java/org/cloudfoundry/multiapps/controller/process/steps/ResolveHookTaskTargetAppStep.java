@@ -22,14 +22,16 @@ public class ResolveHookTaskTargetAppStep extends SyncFlowableStep {
 
     private static final String PHASE_KEY = "phase";
     private static final String TARGET_APP_KEY = "target-app";
-    private static final String APPLICATION_PHASE_SUBSTRING = ".application.";
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
         CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
-        Hook hook = context.getVariable(Variables.HOOK_FOR_EXECUTION);
 
-        String resolvedAppName = resolveTargetAppName(context, app, hook);
+        String resolvedAppName = resolveTargetAppName(context, app);
+        if (resolvedAppName == null) {
+            context.setVariable(Variables.TASKS_TO_EXECUTE, List.of());
+            return StepPhase.DONE;
+        }
         if (!resolvedAppName.equals(app.getName())) {
             context.setVariable(Variables.APP_TO_PROCESS, buildAppWithName(app, resolvedAppName));
         }
@@ -37,7 +39,8 @@ public class ResolveHookTaskTargetAppStep extends SyncFlowableStep {
         return StepPhase.DONE;
     }
 
-    private String resolveTargetAppName(ProcessContext context, CloudApplicationExtended app, Hook hook) {
+    private String resolveTargetAppName(ProcessContext context, CloudApplicationExtended app) {
+        Hook hook = context.getVariable(Variables.HOOK_FOR_EXECUTION);
         if (hook == null) {
             return app.getName();
         }
@@ -72,68 +75,46 @@ public class ResolveHookTaskTargetAppStep extends SyncFlowableStep {
     }
 
     private String buildCurrentPhaseString(ProcessContext context, Hook hook) {
-        String hookExecutionPhase = context.getVariable(Variables.HOOK_EXECUTION_PHASE);
+        List<String> hookExecutionPhases = context.getVariable(Variables.HOOK_EXECUTION_PHASES);
         return hook.getPhases()
                    .stream()
-                   .filter(p -> p.equals(hookExecutionPhase))
+                   .filter(hookExecutionPhases::contains)
                    .findFirst()
-                   .orElseGet(() -> hook.getPhases()
-                                        .stream()
-                                        .filter(p -> p.contains(APPLICATION_PHASE_SUBSTRING))
-                                        .findFirst()
-                                        .orElse(""));
+                   .orElse("");
     }
 
     private String resolveAppNameForTarget(ProcessContext context, CloudApplicationExtended app, String targetApp) {
-        ApplicationColor idleColor = context.getVariable(Variables.IDLE_MTA_COLOR);
-        ApplicationColor liveColor = context.getVariable(Variables.LIVE_MTA_COLOR);
-
-        if (idleColor == null || liveColor == null) {
-            return resolveAppNameWithLiveIdleSuffix(app.getName(), targetApp);
+        if (HookPhaseProcessType.HookProcessPhase.LIVE.getType()
+                                                      .equals(targetApp)) {
+            if (isInitialDeploy(context)) {
+                getStepLogger().warn(Messages.SKIPPING_HOOK_TASK_NO_LIVE_APP, app.getName());
+                return null;
+            }
+            ApplicationColor liveColor = context.getVariable(Variables.LIVE_MTA_COLOR);
+            String suffix = liveColor != null ? liveColor.asSuffix() : BlueGreenApplicationNameSuffix.LIVE.asSuffix();
+            return BlueGreenApplicationNameSuffix.removeSuffix(app.getName()) + suffix;
         }
-
-        if (HookPhaseProcessType.HookProcessPhase.IDLE.getType().equals(targetApp)) {
-            return swapColorSuffix(app.getName(), liveColor, idleColor);
-        }
-        if (HookPhaseProcessType.HookProcessPhase.LIVE.getType().equals(targetApp)) {
-            return swapColorSuffix(app.getName(), idleColor, liveColor);
+        if (HookPhaseProcessType.HookProcessPhase.IDLE.getType()
+                                                      .equals(targetApp)) {
+            String baseName = BlueGreenApplicationNameSuffix.removeSuffix(app.getName());
+            ApplicationColor idleColor = context.getVariable(Variables.IDLE_MTA_COLOR);
+            if (idleColor != null) {
+                return baseName + idleColor.asSuffix();
+            }
+            if (isAfterRenamePhase(context)) {
+                return baseName;
+            }
+            return baseName + BlueGreenApplicationNameSuffix.IDLE.asSuffix();
         }
         return app.getName();
     }
 
-    private String resolveAppNameWithLiveIdleSuffix(String appName, String targetApp) {
-        String liveSuffix = BlueGreenApplicationNameSuffix.LIVE.asSuffix();
-        String idleSuffix = BlueGreenApplicationNameSuffix.IDLE.asSuffix();
-
-        if (HookPhaseProcessType.HookProcessPhase.IDLE.getType().equals(targetApp)) {
-            if (appName.endsWith(liveSuffix)) {
-                return appName.substring(0, appName.length() - liveSuffix.length());
-            }
-            if (!appName.endsWith(idleSuffix)) {
-                return appName + idleSuffix;
-            }
-        }
-        if (HookPhaseProcessType.HookProcessPhase.LIVE.getType().equals(targetApp)) {
-            if (appName.endsWith(idleSuffix)) {
-                return appName.substring(0, appName.length() - idleSuffix.length());
-            }
-            if (!appName.endsWith(liveSuffix)) {
-                return appName + liveSuffix;
-            }
-        }
-        return appName;
+    private boolean isAfterRenamePhase(ProcessContext context) {
+        return context.getVariable(Variables.PHASE) != null;
     }
 
-    private String swapColorSuffix(String appName, ApplicationColor fromColor, ApplicationColor toColor) {
-        String fromSuffix = fromColor.asSuffix();
-        String toSuffix = toColor.asSuffix();
-        if (appName.endsWith(fromSuffix)) {
-            return appName.substring(0, appName.length() - fromSuffix.length()) + toSuffix;
-        }
-        if (!appName.endsWith(toSuffix)) {
-            return appName + toSuffix;
-        }
-        return appName;
+    private boolean isInitialDeploy(ProcessContext context) {
+        return context.getVariable(Variables.DEPLOYED_MTA) == null;
     }
 
     private CloudApplicationExtended buildAppWithName(CloudApplicationExtended app, String resolvedAppName) {
@@ -144,7 +125,8 @@ public class ResolveHookTaskTargetAppStep extends SyncFlowableStep {
     @Override
     protected String getStepErrorMessage(ProcessContext context) {
         return MessageFormat.format(Messages.ERROR_EXECUTING_HOOK,
-                                    context.getVariable(Variables.HOOK_FOR_EXECUTION).getName());
+                                    context.getVariable(Variables.HOOK_FOR_EXECUTION)
+                                           .getName());
     }
 
 }
