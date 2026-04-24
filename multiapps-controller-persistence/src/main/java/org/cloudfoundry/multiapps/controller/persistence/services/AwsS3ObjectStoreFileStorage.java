@@ -40,8 +40,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.BiPredicate;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
@@ -114,6 +119,29 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
                           .collect(Collectors.toList());
     }
 
+    private List<String> listAllObjectKeys() {
+        List<String> keys = new ArrayList<>();
+        forEachPage(page -> page.contents()
+                                .stream()
+                                .map(S3Object::key)
+                                .forEach(keys::add));
+        return keys;
+    }
+
+    private void forEachPage(Consumer<ListObjectsV2Response> pageConsumer) {
+        ListObjectsV2Request request = ListObjectsV2Request.builder()
+                                                           .bucket(bucketName)
+                                                           .build();
+        ListObjectsV2Response response;
+        do {
+            response = s3Client.listObjectsV2(request);
+            pageConsumer.accept(response);
+            request = request.toBuilder()
+                             .continuationToken(response.nextContinuationToken())
+                             .build();
+        } while (Boolean.TRUE.equals(response.isTruncated()));
+    }
+
     @Override
     protected boolean existsInObjectStore(FileEntry fileEntry) {
         try {
@@ -135,7 +163,6 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
                                                  .build());
     }
 
-    // TODO: refactor these methods to get the response with metadata as well
     @Override
     public void deleteFilesBySpaceIds(List<String> spaceIds) {
         deleteByFilterAndCount((key, metadata) -> ObjectStoreFilter.filterBySpaceIds(metadata, spaceIds));
@@ -149,6 +176,57 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
     @Override
     public int deleteFilesModifiedBefore(LocalDateTime modificationTime) {
         return deleteByFilterAndCount((key, metadata) -> ObjectStoreFilter.filterByModificationTime(metadata, key, modificationTime));
+    }
+
+    private int deleteByFilterAndCount(BiPredicate<String, Map<String, String>> predicate) {
+        List<String> toDelete = new ArrayList<>();
+        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            forEachPage(page -> toDelete.addAll(collectMatchingKeys(page, predicate, executor)));
+        }
+        batchDelete(toDelete);
+        return toDelete.size();
+    }
+
+    private List<String> collectMatchingKeys(ListObjectsV2Response page, BiPredicate<String, Map<String, String>> predicate,
+                                             ExecutorService executor) {
+        return page.contents()
+                   .stream()
+                   .map(obj -> CompletableFuture.supplyAsync(() -> fetchMetadataAndFilter(obj.key(), predicate), executor))
+                   .toList()
+                   .stream()
+                   .map(CompletableFuture::join)
+                   .filter(Objects::nonNull)
+                   .toList();
+    }
+
+    private String fetchMetadataAndFilter(String key, BiPredicate<String, Map<String, String>> predicate) {
+        try {
+            HeadObjectResponse response = s3Client.headObject(HeadObjectRequest.builder()
+                                                                               .bucket(bucketName)
+                                                                               .key(key)
+                                                                               .build());
+            Map<String, String> metadata = response.metadata() != null ? response.metadata() : Map.of();
+            return predicate.test(key, metadata) ? key : null;
+        } catch (NoSuchKeyException e) {
+            return null;
+        }
+    }
+
+    private void batchDelete(List<String> keys) {
+        for (int i = 0; i < keys.size(); i += DELETE_BATCH_SIZE) {
+            List<ObjectIdentifier> identifiers = keys.subList(i, Math.min(i + DELETE_BATCH_SIZE, keys.size()))
+                                                     .stream()
+                                                     .map(k -> ObjectIdentifier.builder()
+                                                                               .key(k)
+                                                                               .build())
+                                                     .toList();
+            s3Client.deleteObjects(DeleteObjectsRequest.builder()
+                                                       .bucket(bucketName)
+                                                       .delete(Delete.builder()
+                                                                     .objects(identifiers)
+                                                                     .build())
+                                                       .build());
+        }
     }
 
     @Override
@@ -167,32 +245,21 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
     }
 
     @Override
-    public <T> T processArchiveEntryContent(FileContentToProcess fileContentToProcess, FileContentProcessor<T> fileContentProcessor)
-        throws FileStorageException {
-        String id = fileContentToProcess.getGuid();
-        String space = fileContentToProcess.getSpaceGuid();
-        GetObjectRequest request = GetObjectRequest.builder()
-                                                   .bucket(bucketName)
-                                                   .key(id)
-                                                   .range("bytes=" + fileContentToProcess.getStartOffset() + "-"
-                                                              + fileContentToProcess.getEndOffset())
-                                                   .build();
-        try (ResponseInputStream<GetObjectResponse> stream = getObjectStream(request, id, space)) {
-            return fileContentProcessor.process(stream);
-        } catch (FileStorageException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new FileStorageException(e);
-        }
-    }
-
-    @Override
     public InputStream openInputStream(String space, String id) throws FileStorageException {
         GetObjectRequest request = GetObjectRequest.builder()
                                                    .bucket(bucketName)
                                                    .key(id)
                                                    .build();
         return getObjectStream(request, id, space);
+    }
+
+    private ResponseInputStream<GetObjectResponse> getObjectStream(GetObjectRequest request, String id,
+                                                                   String space) throws FileStorageException {
+        try {
+            return s3Client.getObject(request);
+        } catch (NoSuchKeyException e) {
+            throw new FileStorageException(MessageFormat.format(Messages.FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST, id, space));
+        }
     }
 
     @Override
@@ -216,78 +283,28 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
     }
 
     @Override
+    public <T> T processArchiveEntryContent(FileContentToProcess fileContentToProcess, FileContentProcessor<T> fileContentProcessor)
+        throws FileStorageException {
+        String id = fileContentToProcess.getGuid();
+        String space = fileContentToProcess.getSpaceGuid();
+        GetObjectRequest request = GetObjectRequest.builder()
+                                                   .bucket(bucketName)
+                                                   .key(id)
+                                                   .range("bytes=" + fileContentToProcess.getStartOffset() + "-"
+                                                              + fileContentToProcess.getEndOffset())
+                                                   .build();
+        try (ResponseInputStream<GetObjectResponse> stream = getObjectStream(request, id, space)) {
+            return fileContentProcessor.process(stream);
+        } catch (FileStorageException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new FileStorageException(e);
+        }
+    }
+
+    @Override
     public void destroy() {
         super.destroy();
         s3Client.close();
-    }
-
-    private ResponseInputStream<GetObjectResponse> getObjectStream(GetObjectRequest request, String id,
-                                                                   String space) throws FileStorageException {
-        try {
-            return s3Client.getObject(request);
-        } catch (NoSuchKeyException e) {
-            throw new FileStorageException(MessageFormat.format(Messages.FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST, id, space));
-        }
-    }
-
-    private List<String> listAllObjectKeys() {
-        List<String> keys = new ArrayList<>();
-        ListObjectsV2Request request = ListObjectsV2Request.builder()
-                                                           .bucket(bucketName)
-                                                           .build();
-        ListObjectsV2Response response;
-        do {
-            response = s3Client.listObjectsV2(request);
-            for (S3Object obj : response.contents()) {
-                keys.add(obj.key());
-            }
-            request = request.toBuilder()
-                             .continuationToken(response.nextContinuationToken())
-                             .build();
-        } while (Boolean.TRUE.equals(response.isTruncated()));
-        return keys;
-    }
-
-    private int deleteByFilterAndCount(BiPredicate<String, Map<String, String>> predicate) {
-        List<String> allKeys = listAllObjectKeys();
-        List<String> toDelete = new ArrayList<>();
-        for (String key : allKeys) {
-            Map<String, String> metadata = fetchMetadata(key);
-            if (predicate.test(key, metadata)) {
-                toDelete.add(key);
-            }
-        }
-        batchDelete(toDelete);
-        return toDelete.size();
-    }
-
-    private Map<String, String> fetchMetadata(String key) {
-        try {
-            HeadObjectResponse response = s3Client.headObject(HeadObjectRequest.builder()
-                                                                               .bucket(bucketName)
-                                                                               .key(key)
-                                                                               .build());
-            Map<String, String> metadata = response.metadata();
-            return metadata != null ? metadata : Map.of();
-        } catch (NoSuchKeyException e) {
-            return Map.of();
-        }
-    }
-
-    private void batchDelete(List<String> keys) {
-        for (int i = 0; i < keys.size(); i += DELETE_BATCH_SIZE) {
-            List<ObjectIdentifier> identifiers = keys.subList(i, Math.min(i + DELETE_BATCH_SIZE, keys.size()))
-                                                     .stream()
-                                                     .map(k -> ObjectIdentifier.builder()
-                                                                               .key(k)
-                                                                               .build())
-                                                     .toList();
-            s3Client.deleteObjects(DeleteObjectsRequest.builder()
-                                                       .bucket(bucketName)
-                                                       .delete(Delete.builder()
-                                                                     .objects(identifiers)
-                                                                     .build())
-                                                       .build());
-        }
     }
 }
