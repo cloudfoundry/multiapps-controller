@@ -14,7 +14,6 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredent
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceKeyPollingFactory;
-import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -98,6 +97,6 @@ public class DeleteServiceKeyStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public Duration getTimeout(ProcessContext context) {
-        return calculateTimeout(context, TimeoutType.CREATE_SERVICE_KEY);
+        return Duration.ofMinutes(5);
     }
 }

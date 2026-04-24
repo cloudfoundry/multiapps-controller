@@ -18,7 +18,6 @@ import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMa
 import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceProgressReporter;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceRemover;
-import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -83,6 +82,6 @@ public class DeleteServiceStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public Duration getTimeout(ProcessContext context) {
-        return calculateTimeout(context, TimeoutType.CREATE_SERVICE);
+        return Duration.ofMinutes(10);
     }
 }
