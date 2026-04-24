@@ -46,10 +46,11 @@
         <immutables.version>2.12.1</immutables.version>
         <micrometer.version>1.16.4</micrometer.version>
         <aliyun-sdk-oss.version>3.18.5</aliyun-sdk-oss.version>
+        <aws.sdk.version>2.42.34</aws.sdk.version>
         <!-- auto-service hasn't had a new release since 12.06.2023 - should check for alternatives in the future -->
         <auto-service.version>1.1.1</auto-service.version>
         <commons-codec.version>1.21.0</commons-codec.version>
-        <multiapps.version>2.48.0</multiapps.version>
+        <multiapps.version>2.49.0-SNAPSHOT</multiapps.version>
         <java-cfenv.version>4.0.0</java-cfenv.version>
         <jaxb-api.version>4.0.5</jaxb-api.version>
         <jaxb-core.version>4.0.7</jaxb-core.version>
@@ -800,6 +801,18 @@
                 <groupId>com.google.auto.service</groupId>
                 <artifactId>auto-service-annotations</artifactId>
                 <version>${auto-service.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/software.amazon.awssdk/s3 -->
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>s3</artifactId>
+                <version>${aws.sdk.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/software.amazon.awssdk/url-connection-client -->
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>url-connection-client</artifactId>
+                <version>${aws.sdk.version}</version>
             </dependency>
             <!-- Transitive dependency from aliyun-sdk-oss. It is not included by default and fails during runtime with ClassNotFoundException. 
              In order to enable alicloud objectstore implementation, we need to maintain it manually. -->

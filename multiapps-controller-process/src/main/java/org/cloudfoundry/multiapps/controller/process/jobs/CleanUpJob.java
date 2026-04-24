@@ -5,7 +5,9 @@ import static java.text.MessageFormat.format;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
@@ -31,7 +33,7 @@ public class CleanUpJob {
     List<Cleaner> cleaners;
     private final SafeExecutor safeExecutor = new SafeExecutor(CleanUpJob::log);
 
-    @Scheduled(cron = "#{@applicationConfiguration.getCronExpressionForOldData()}")
+    @Scheduled(fixedDelay = 3, timeUnit = TimeUnit.HOURS)
     public void execute() {
         if (configuration.getApplicationInstanceIndex() != SELECTED_INSTANCE_FOR_CLEAN_UP) {
             return;

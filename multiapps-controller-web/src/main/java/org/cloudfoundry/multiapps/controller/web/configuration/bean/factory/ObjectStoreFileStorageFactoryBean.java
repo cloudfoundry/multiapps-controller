@@ -1,21 +1,11 @@
 package org.cloudfoundry.multiapps.controller.web.configuration.bean.factory;
 
-import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.google.common.base.Joiner;
 import io.pivotal.cfenv.core.CfService;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
+import org.cloudfoundry.multiapps.controller.persistence.services.AwsS3ObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.AzureObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.GcpObjectStoreFileStorage;
@@ -32,6 +22,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorage>, InitializingBean {
 
@@ -58,7 +58,11 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
 
     private FileStorage createObjectStoreFileStorage() {
         List<ObjectStoreServiceInfo> providersServiceInfo = getProvidersServiceInfo();
+        LOGGER.info("Object store providers detected: {}", providersServiceInfo.stream()
+                                                                               .map(ObjectStoreServiceInfo::getProvider)
+                                                                               .collect(java.util.stream.Collectors.joining(", ")));
         if (providersServiceInfo.isEmpty()) {
+            LOGGER.warn("No object store providers detected from credentials. Service name: {}", serviceName);
             return null;
         }
         Map<String, Exception> exceptions = new HashMap<>();
@@ -111,6 +115,10 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
     private Optional<FileStorage> tryToCreateObjectStore(ObjectStoreServiceInfo objectStoreServiceInfo,
                                                          Map<String, Exception> exceptions) {
         try {
+            LOGGER.info("Attempting to create object store client with provider: {}, container: {}, region: {}, host: {}, endpoint: {}",
+                        objectStoreServiceInfo.getProvider(), objectStoreServiceInfo.getContainer(),
+                        objectStoreServiceInfo.getRegion(), objectStoreServiceInfo.getHost(),
+                        objectStoreServiceInfo.getEndpoint());
             FileStorage fileStorage = getFileStorageBasedOnProvider(objectStoreServiceInfo);
             fileStorage.testConnection();
             LOGGER.info(MessageFormat.format(Messages.OBJECT_STORE_WITH_PROVIDER_0_CREATED, objectStoreServiceInfo.getProvider()));
@@ -125,6 +133,7 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
         return switch (objectStoreServiceInfo.getProvider()) {
             case Constants.GOOGLE_CLOUD_STORAGE -> createGcpFileStorage(objectStoreServiceInfo);
             case Constants.AZUREBLOB -> createAzureFileStorage(objectStoreServiceInfo);
+            case Constants.AWS_S_3 -> createAwsS3FileStorage(objectStoreServiceInfo);
             default -> {
                 BlobStoreContext context = getBlobStoreContext(objectStoreServiceInfo);
                 yield createFileStorage(objectStoreServiceInfo, context);
@@ -213,6 +222,15 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
 
     protected JCloudsObjectStoreFileStorage createFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo, BlobStoreContext context) {
         return new JCloudsObjectStoreFileStorage(context.getBlobStore(), objectStoreServiceInfo.getContainer());
+    }
+
+    protected AwsS3ObjectStoreFileStorage createAwsS3FileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
+        Map<String, Object> credentials = Map.of("access_key_id", objectStoreServiceInfo.getIdentity(),
+                                                  "secret_access_key", objectStoreServiceInfo.getCredential(),
+                                                  "bucket", objectStoreServiceInfo.getContainer(),
+                                                  "host", objectStoreServiceInfo.getHost(),
+                                                  "region", objectStoreServiceInfo.getRegion());
+        return new AwsS3ObjectStoreFileStorage(credentials);
     }
 
     protected GcpObjectStoreFileStorage createGcpFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {

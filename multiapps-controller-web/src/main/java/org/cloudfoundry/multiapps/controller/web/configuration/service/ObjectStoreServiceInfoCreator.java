@@ -1,15 +1,14 @@
 package org.cloudfoundry.multiapps.controller.web.configuration.service;
 
+import org.cloudfoundry.multiapps.controller.web.Constants;
+
 import java.util.List;
 import java.util.Map;
-
-import org.cloudfoundry.multiapps.controller.web.Constants;
 
 public class ObjectStoreServiceInfoCreator {
 
     public List<ObjectStoreServiceInfo> getAllProvidersServiceInfo(Map<String, Object> credentials) {
-        return List.of(createServiceInfoForAws(credentials), createServiceInfoForAliCloud(credentials),
-                       createServiceInfoForCcee(credentials), createServiceInfoForAzure(credentials), createServiceInfoForGcp(credentials));
+        return List.of(createServiceInfoForAws(credentials));
     }
 
     private ObjectStoreServiceInfo createServiceInfoForAws(Map<String, Object> credentials) {
@@ -17,12 +16,14 @@ public class ObjectStoreServiceInfoCreator {
         String secretAccessKey = (String) credentials.get(Constants.SECRET_ACCESS_KEY);
         String bucket = (String) credentials.get(Constants.BUCKET);
         String host = (String) credentials.get(Constants.HOST);
+        String region = (String) credentials.get(Constants.REGION);
         return ImmutableObjectStoreServiceInfo.builder()
                                               .provider(Constants.AWS_S_3)
                                               .identity(accessKeyId)
                                               .credential(secretAccessKey)
                                               .container(bucket)
                                               .host(host)
+                                              .region(region)
                                               .build();
     }
 

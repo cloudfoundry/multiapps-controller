@@ -24,7 +24,10 @@ class ObjectStoreServiceInfoCreatorTest {
     private static final String BUCKET_VALUE = "bucket_value";
     private static final String REGION_VALUE = "region_value";
     private static final String ENDPOINT_VALUE = "endpoint_value";
-    private static final Map<String, Object> CREDENTIALS = Map.of("test", "test1");
+    private static final String SAS_TOKEN_VALUE = "sas_token_value";
+    private static final String BASE64_PRIVATE_KEY_VALUE = "base64EncodedPrivateKeyDataValue";
+    private static final Map<String, Object> AZURE_CREDENTIALS = Map.of(Constants.SAS_TOKEN, SAS_TOKEN_VALUE);
+    private static final Map<String, Object> GCP_CREDENTIALS = Map.of(Constants.BASE_64_ENCODED_PRIVATE_KEY_DATA, BASE64_PRIVATE_KEY_VALUE);
 
     private ObjectStoreServiceInfoCreator objectStoreServiceInfoCreator;
 
@@ -36,8 +39,8 @@ class ObjectStoreServiceInfoCreatorTest {
     static Stream<Arguments> testDifferentProviders() {
         return Stream.of(Arguments.of(buildCfService(buildAliCloudCredentials()), buildAliCloudObjectStoreServiceInfo()),
                          Arguments.of(buildCfService(buildAwsCredentials()), buildAwsObjectStoreServiceInfo()),
-                         Arguments.of(buildCfService(buildSdkCredentials()), buildAzureObjectStoreServiceInfo()),
-                         Arguments.of(buildCfService(buildSdkCredentials()), buildGcpObjectStoreServiceInfo()));
+                         Arguments.of(buildCfService(AZURE_CREDENTIALS), buildAzureObjectStoreServiceInfo()),
+                         Arguments.of(buildCfService(GCP_CREDENTIALS), buildGcpObjectStoreServiceInfo()));
     }
 
     @ParameterizedTest
@@ -95,21 +98,17 @@ class ObjectStoreServiceInfoCreatorTest {
                                               .build();
     }
 
-    private static Map<String, Object> buildSdkCredentials() {
-        return CREDENTIALS;
-    }
-
     private static ObjectStoreServiceInfo buildAzureObjectStoreServiceInfo() {
         return ImmutableObjectStoreServiceInfo.builder()
                                               .provider(Constants.AZUREBLOB)
-                                              .credentials(CREDENTIALS)
+                                              .credentials(AZURE_CREDENTIALS)
                                               .build();
     }
 
     private static ObjectStoreServiceInfo buildGcpObjectStoreServiceInfo() {
         return ImmutableObjectStoreServiceInfo.builder()
                                               .provider(Constants.GOOGLE_CLOUD_STORAGE)
-                                              .credentials(CREDENTIALS)
+                                              .credentials(GCP_CREDENTIALS)
                                               .build();
     }
 
