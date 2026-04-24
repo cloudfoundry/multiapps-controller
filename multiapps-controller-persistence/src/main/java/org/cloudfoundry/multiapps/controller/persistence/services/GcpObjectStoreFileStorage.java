@@ -37,11 +37,9 @@ public class GcpObjectStoreFileStorage implements FileStorage {
 
     private final String bucketName;
     private final Storage storage;
-    private static final String BASE_64_ENCODED_PRIVATE_KEY_DATA = "base64EncodedPrivateKeyData";
-    private static final String BUCKET = "bucket";
 
     public GcpObjectStoreFileStorage(Map<String, Object> credentials) {
-        this.bucketName = (String) credentials.get(BUCKET);
+        this.bucketName = (String) credentials.get(CredentialKeys.BUCKET);
         this.storage = createObjectStoreStorage(credentials);
     }
 
@@ -63,11 +61,11 @@ public class GcpObjectStoreFileStorage implements FileStorage {
     }
 
     private Credentials getGcpCredentialsSupplier(Map<String, Object> credentials) {
-        if (!credentials.containsKey(BASE_64_ENCODED_PRIVATE_KEY_DATA)) {
+        if (!credentials.containsKey(CredentialKeys.BASE_64_ENCODED_PRIVATE_KEY_DATA)) {
             return null;
         }
         byte[] decodedKey = Base64.getDecoder()
-                                  .decode((String) credentials.get(BASE_64_ENCODED_PRIVATE_KEY_DATA));
+                                  .decode((String) credentials.get(CredentialKeys.BASE_64_ENCODED_PRIVATE_KEY_DATA));
         try {
             return GoogleCredentials.fromStream(new ByteArrayInputStream(decodedKey));
         } catch (IOException e) {
@@ -265,5 +263,10 @@ public class GcpObjectStoreFileStorage implements FileStorage {
         } catch (IOException | StorageException e) {
             throw new FileStorageException(e);
         }
+    }
+
+    private static final class CredentialKeys {
+        static final String BASE_64_ENCODED_PRIVATE_KEY_DATA = "base64EncodedPrivateKeyData";
+        static final String BUCKET = "bucket";
     }
 }

@@ -53,29 +53,24 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AwsS3ObjectStoreFileStorage.class);
     private static final int DELETE_BATCH_SIZE = 1000;
-    private static final String ACCESS_KEY_ID = "access_key_id";
-    private static final String SECRET_ACCESS_KEY = "secret_access_key";
-    private static final String BUCKET = "bucket";
-    private static final String HOST = "host";
-    private static final String REGION = "region";
 
     private final S3Client s3Client;
     private final String bucketName;
 
     public AwsS3ObjectStoreFileStorage(Map<String, Object> credentials) {
-        this.bucketName = (String) credentials.get(BUCKET);
+        this.bucketName = (String) credentials.get(CredentialKeys.BUCKET);
         this.s3Client = createS3Client(credentials);
     }
 
     protected S3Client createS3Client(Map<String, Object> credentials) {
-        AwsBasicCredentials awsCredentials = AwsBasicCredentials.create((String) credentials.get(ACCESS_KEY_ID),
-                                                                        (String) credentials.get(SECRET_ACCESS_KEY));
+        AwsBasicCredentials awsCredentials = AwsBasicCredentials.create((String) credentials.get(CredentialKeys.ACCESS_KEY_ID),
+                                                                        (String) credentials.get(CredentialKeys.SECRET_ACCESS_KEY));
         S3ClientBuilder builder = S3Client.builder()
                                           .credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
                                           .overrideConfiguration(buildClientOverrideConfig())
                                           .httpClientBuilder(UrlConnectionHttpClient.builder());
-        builder.endpointOverride(URI.create("https://" + credentials.get(HOST)));
-        builder.region(software.amazon.awssdk.regions.Region.of((String) credentials.get(REGION)));
+        builder.endpointOverride(URI.create("https://" + credentials.get(CredentialKeys.HOST)));
+        builder.region(software.amazon.awssdk.regions.Region.of((String) credentials.get(CredentialKeys.REGION)));
         return builder.build();
     }
 
@@ -88,6 +83,8 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
                                                                    .build();
         return ClientOverrideConfiguration.builder()
                                           .retryStrategy(retryStrategy)
+                                          .apiCallTimeout(ObjectStoreConstants.AWS_OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES)
+                                          .apiCallAttemptTimeout(ObjectStoreConstants.AWS_OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES)
                                           .build();
     }
 
@@ -306,5 +303,13 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
     public void destroy() {
         super.destroy();
         s3Client.close();
+    }
+
+    private static final class CredentialKeys {
+        static final String ACCESS_KEY_ID = "access_key_id";
+        static final String SECRET_ACCESS_KEY = "secret_access_key";
+        static final String BUCKET = "bucket";
+        static final String HOST = "host";
+        static final String REGION = "region";
     }
 }

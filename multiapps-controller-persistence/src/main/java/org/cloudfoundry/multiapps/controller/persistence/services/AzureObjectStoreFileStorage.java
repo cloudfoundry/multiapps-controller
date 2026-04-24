@@ -34,9 +34,6 @@ import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreMapper;
 
 public class AzureObjectStoreFileStorage extends ObjectStoreFileStorage {
 
-    private static final String SAS_TOKEN = "sas_token";
-    private static final String CONTAINER_NAME = "container_name";
-    private static final String CONTAINER_URI = "container_uri";
     private static final long MAX_SINGLE_UPLOAD_SIZE = 15L * 1024 * 1024; // 10MB
     private static final long BLOCK_SIZE = 15L * 1024 * 1024; // 10MB
     private static final int MAX_CONCURRENCY = 30;
@@ -161,18 +158,18 @@ public class AzureObjectStoreFileStorage extends ObjectStoreFileStorage {
         BlobServiceClient serviceClient = new BlobServiceClientBuilder().endpoint(getContainerUriEndpoint(credentials))
                                                                         .retryOptions(createRetryOptions())
                                                                         .httpClient(httpClient)
-                                                                        .sasToken((String) credentials.get(SAS_TOKEN))
+                                                                        .sasToken((String) credentials.get(CredentialKeys.SAS_TOKEN))
                                                                         .buildClient();
 
-        return serviceClient.getBlobContainerClient((String) credentials.get(CONTAINER_NAME));
+        return serviceClient.getBlobContainerClient((String) credentials.get(CredentialKeys.CONTAINER_NAME));
     }
 
     public String getContainerUriEndpoint(Map<String, Object> credentials) {
-        if (!credentials.containsKey(CONTAINER_URI)) {
+        if (!credentials.containsKey(CredentialKeys.CONTAINER_URI)) {
             throw new IllegalStateException(Messages.MISSING_CONTAINER_URI_IN_THE_CREDENTIALS);
         }
         try {
-            URL containerUri = new URL((String) credentials.get(CONTAINER_URI));
+            URL containerUri = new URL((String) credentials.get(CredentialKeys.CONTAINER_URI));
             return new URL(containerUri.getProtocol(), containerUri.getHost(), containerUri.getPort(), "").toString();
         } catch (MalformedURLException e) {
             throw new IllegalStateException(Messages.CANNOT_PARSE_CONTAINER_URI_OF_OBJECT_STORE, e);
@@ -224,5 +221,11 @@ public class AzureObjectStoreFileStorage extends ObjectStoreFileStorage {
                               .stream()
                               .map(BlobItem::getName)
                               .collect(Collectors.toSet());
+    }
+
+    private static final class CredentialKeys {
+        static final String SAS_TOKEN = "sas_token";
+        static final String CONTAINER_NAME = "container_name";
+        static final String CONTAINER_URI = "container_uri";
     }
 }
