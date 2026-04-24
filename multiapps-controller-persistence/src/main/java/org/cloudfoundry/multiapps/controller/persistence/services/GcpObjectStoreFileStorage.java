@@ -1,19 +1,5 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.channels.Channels;
-import java.text.MessageFormat;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -51,11 +37,9 @@ public class GcpObjectStoreFileStorage implements FileStorage {
 
     private final String bucketName;
     private final Storage storage;
-    private static final String BASE_64_ENCODED_PRIVATE_KEY_DATA = "base64EncodedPrivateKeyData";
-    private static final String BUCKET = "bucket";
 
     public GcpObjectStoreFileStorage(Map<String, Object> credentials) {
-        this.bucketName = (String) credentials.get(BUCKET);
+        this.bucketName = (String) credentials.get(CredentialKeys.BUCKET);
         this.storage = createObjectStoreStorage(credentials);
     }
 
@@ -77,11 +61,11 @@ public class GcpObjectStoreFileStorage implements FileStorage {
     }
 
     private Credentials getGcpCredentialsSupplier(Map<String, Object> credentials) {
-        if (!credentials.containsKey(BASE_64_ENCODED_PRIVATE_KEY_DATA)) {
+        if (!credentials.containsKey(CredentialKeys.BASE_64_ENCODED_PRIVATE_KEY_DATA)) {
             return null;
         }
         byte[] decodedKey = Base64.getDecoder()
-                                  .decode((String) credentials.get(BASE_64_ENCODED_PRIVATE_KEY_DATA));
+                                  .decode((String) credentials.get(CredentialKeys.BASE_64_ENCODED_PRIVATE_KEY_DATA));
         try {
             return GoogleCredentials.fromStream(new ByteArrayInputStream(decodedKey));
         } catch (IOException e) {
@@ -279,5 +263,10 @@ public class GcpObjectStoreFileStorage implements FileStorage {
         } catch (IOException | StorageException e) {
             throw new FileStorageException(e);
         }
+    }
+
+    private static final class CredentialKeys {
+        static final String BASE_64_ENCODED_PRIVATE_KEY_DATA = "base64EncodedPrivateKeyData";
+        static final String BUCKET = "bucket";
     }
 }

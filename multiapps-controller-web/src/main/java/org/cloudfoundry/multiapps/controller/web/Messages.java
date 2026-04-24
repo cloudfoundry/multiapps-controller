@@ -18,7 +18,7 @@ public final class Messages {
     public static final String ERROR_FROM_REMOTE_MTAR_ENDPOINT_FOR_JOB_WITH_ID = "Error from remote MTAR endpoint {0} with status code {1}, message: {2}. Job id: {3}";
     public static final String MTAR_ENDPOINT_NOT_SECURE_FOR_JOB_WITH_ID = "Remote MTAR endpoint is not a secure connection. HTTPS required. Job id: {0}";
     public static final String REQUEST_0_1_FAILED_WITH_2 = "Request \"{0} {1}\" failed with \"{2}\"";
-    public static final String ERROR_OCCURRED_WHILE_DELETING_JOB_ENTRY = "Error occurred while deleting job entry";
+    public static final String ERROR_OCCURRED_WHILE_DELETING_JOB_ENTRY = "Error occurred while deleting job entry with id: {0}";
     public static final String CANNOT_CREATE_OBJECT_STORE_CLIENT_WITH_PROVIDER_0 = "Cannot create Object Store client with provider: {0}";
     public static final String NO_VALID_OBJECT_STORE_CONFIGURATION_FOUND = "No valid Object Store configuration found!";
     public static final String MISSING_PROPERTIES_FOR_CREATING_THE_SPECIFIC_PROVIDER = "Missing properties for creating the specific provider!";
@@ -53,11 +53,15 @@ public final class Messages {
     public static final String UNSUPPORTED_TOKEN_TYPE = "Unsupported token type: \"{0}\".";
     public static final String CLEARING_FLOWABLE_LOCK_OWNER_THREW_AN_EXCEPTION_0 = "Clearing Flowable lock owner on JVM shutdown threw an exception: {0}";
     public static final String FETCHING_FILE_FAILED = "Fetching file {0} in space {1} failed with: {2}";
-    public static final String ASYNC_UPLOAD_JOB_FAILED = "Async upload job {0} failed with: {1}";
+    public static final String ASYNC_UPLOAD_JOB_FAILED = "Async upload job {0} for file \"{1}\" failed with: {2}";
+    public static final String ASYNC_UPLOAD_JOB_ERROR = "{0} Async upload job id: {1}";
 
     // WARN log messages
 
     public static final String NO_OBJECTSTORE_PROVIDER_FOUND_FOR_0 = "No ObjectStore provider found for {0}!";
+    public static final String NO_OBJECT_STORE_PROVIDERS_DETECTED_FOR_SERVICE_0 = "No object store providers detected from credentials. Service name: {0}";
+    public static final String FILE_UPLOAD_ATTEMPT_FAILED = "Upload attempt {0}/{1} failed. Retrying in {2} ms. Cause: {3}";
+    public static final String FILE_UPLOAD_ALL_ATTEMPTS_EXHAUSTED = "All {0} upload attempts exhausted. Last error: {1}";
 
     // INFO log messages
     public static final String ALM_SERVICE_ENV_INITIALIZED = "Deploy service environment initialized";
@@ -68,8 +72,11 @@ public final class Messages {
     public static final String OBJECTSTORE_FOR_BINARIES_STORAGE = "Objectstore will be used for binaries storage";
     public static final String CLEARING_LOCK_OWNER = "Clearing lock owner {0}...";
     public static final String CLEARED_LOCK_OWNER = "Cleared lock owner {0}";
+    public static final String OBJECT_STORE_PROVIDERS_DETECTED_0 = "Object store providers detected: {0}";
+    public static final String ATTEMPTING_TO_CREATE_OBJECT_STORE_CLIENT = "Attempting to create object store client with provider: {0}, container: {1}, region: {2}, host: {3}, endpoint: {4}";
     public static final String OBJECT_STORE_WITH_PROVIDER_0_CREATED = "Object store with provider: {0} created";
-    public static final String JOB_WITH_ID_WAS_NOT_UPDATED_WITHIN_SECONDS = "Job with ID: {} was not updated within: {} seconds";
+    public static final String JOB_WITH_ID_WAS_NOT_UPDATED_WITHIN_SECONDS_ON_START_0_1 = "startUploadFromUrl: Job with ID: {0} was not updated within: {1} seconds, clearing and re-triggering";
+    public static final String JOB_WITH_ID_WAS_NOT_UPDATED_WITHIN_SECONDS_ON_GET_0_1 = "getUploadFromUrlJob: Job with ID: {0} was not updated within: {1} seconds, returning error";
     public static final String CLEARING_OLD_ENTRY = "Clearing old entry with id: {0}";
     public static final String STARTED_OPERATION_0_BY_USER_1_AND_ORIGIN_OF_2 = "Started operation \"{0}\" by user \"{1}\" and origin of \"{2}\".";
 
@@ -85,6 +92,7 @@ public final class Messages {
     public static final String ASYNC_UPLOAD_JOB_FINISHED = "Async upload job {} finished";
     public static final String UPLOADING_MTAR_STREAM_FROM_REMOTE_ENDPOINT_WITH_JOB_ID = "Uploading MTAR stream from remote endpoint: {}. Job id: {}";
     public static final String CALLING_REMOTE_MTAR_ENDPOINT_FOR_JOB_WITH_ID = "Calling remote MTAR endpoint {}. Job id: {}";
+    public static final String ASYNC_UPLOAD_JOB_MONITOR_UPDATE_0_1_2_3 = "Job {0} monitor update - state: {1}, bytesRead: {2}, updatedAt: {3}";
 
     private Messages() {
     }

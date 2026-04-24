@@ -1,5 +1,15 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.MessageFormat;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
@@ -18,17 +28,6 @@ import org.jclouds.io.Payload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.MessageFormat;
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class JCloudsObjectStoreFileStorage extends ObjectStoreFileStorage {
 
@@ -66,6 +65,7 @@ public class JCloudsObjectStoreFileStorage extends ObjectStoreFileStorage {
     }
 
     @Override
+    @Deprecated
     public List<FileEntry> getFileEntriesWithoutContent(List<FileEntry> fileEntries) {
         Set<String> existingFiles = getAllEntries(new ListContainerOptions()).stream()
                                                                              .map(StorageMetadata::getName)
