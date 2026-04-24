@@ -731,7 +731,7 @@ public class Messages {
     public static final String WILL_ONLY_REMOVE_SERVICE_INSTANCE_METADATA_BECAUSE_THE_SERVICE_TYPE_IS_EXISTING = "Will only remove service instance metadata, because the service type is \"existing\"";
     public static final String DETERMINING_DELETE_ACTIONS_FOR_SERVICE_INSTANCE_0 = "Determining delete actions for service instance \"{0}\"";
     public static final String CANNOT_RETRIEVE_OPTIONAL_SERVICE_BINDING_FOR_SERVICE_INSTANCE_0 = "Cannot retrieve optional service binding for service instance \"{0}\"";
-    public static final String CANNOT_RETRIEVE_SERVICE_BINDING_FOR_SERVICE_INSTANCE_0_NOT_FOUND = "Service instance \"{0}\" was not found; skipping service binding check (service may have been deleted)";
+    public static final String CANNOT_RETRIEVE_SERVICE_BINDING_FOR_SERVICE_INSTANCE_0_NOT_FOUND = "Service instance \"{0}\" was not found; skipping service binding check.";
     public static final String SERVICE_KEYS_SCHEDULED_FOR_RECREATION_MODIFICATION_0 = "Service keys scheduled for recreation due to modification: \"{0}\"";
     public static final String SERVICE_KEYS_SCHEDULED_FOR_RECREATION_STATE_0 = "Service keys scheduled for recreation due to state: \"{0}\"";
     public static final String SERVICE_KEYS_SCHEDULED_FOR_CREATION_0 = "Service keys scheduled for creation: \"{0}\"";
