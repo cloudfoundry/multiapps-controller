@@ -63,7 +63,14 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires spring.beans;
     requires spring.context;
     requires spring.core;
-
+    requires software.amazon.awssdk.services.s3;
+    requires software.amazon.awssdk.core;
+    requires software.amazon.awssdk.regions;
+    requires software.amazon.awssdk.auth;
+    requires software.amazon.awssdk.http;
+    requires software.amazon.awssdk.http.urlconnection;
+    requires software.amazon.awssdk.retries;
+    requires software.amazon.awssdk.retries.api;
     requires static java.compiler;
     requires static org.immutables.value;
 }

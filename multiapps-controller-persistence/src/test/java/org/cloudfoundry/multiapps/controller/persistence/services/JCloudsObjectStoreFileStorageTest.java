@@ -1,5 +1,21 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import jakarta.xml.bind.DatatypeConverter;
 import org.cloudfoundry.multiapps.common.util.DigestHelper;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
@@ -12,23 +28,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -49,6 +48,7 @@ class JCloudsObjectStoreFileStorageTest {
     protected static final String SECOND_FILE_TEST_LOCATION = "src/test/resources/pexels-photo-463467.jpeg";
     protected static final String DIGEST_METHOD = "MD5";
     protected static final String CONTAINER = "container4e";
+    private static final LocalDateTime FAR_FUTURE = LocalDateTime.of(9999, Month.JANUARY, 1, 0, 0);
 
     protected String spaceId;
     protected String namespace;
@@ -342,7 +342,7 @@ class JCloudsObjectStoreFileStorageTest {
                                          .toString())
                                  .space(spaceId)
                                  .size(BigInteger.valueOf(content.length))
-                                 .modified(LocalDateTime.now())
+                                 .modified(FAR_FUTURE)
                                  .name(entryName)
                                  .build();
     }
@@ -362,7 +362,7 @@ class JCloudsObjectStoreFileStorageTest {
         return ImmutableFileEntry.builder()
                                  .from(fileEntry)
                                  .size(bigInteger)
-                                 .modified(date != null ? date : LocalDateTime.now())
+                                 .modified(date != null ? date : FAR_FUTURE)
                                  .name(path.getFileName()
                                            .toString())
                                  .build();

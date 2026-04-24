@@ -48,6 +48,7 @@ public final class Messages {
     public static final String APPLICATION_SHUTDOWN_WITH_APPLICATION_INSTANCE_ID_ALREADY_EXIST = "Application shutdown application instance ID \"{0}\" already exist";
     public static final String SECRET_TOKEN_WITH_ID_NOT_EXIST = "Secret token with ID \"{0}\" does not exist";
     public static final String DATABASE_HEALTH_CHECK_FAILED = "Database health check failed";
+    public static final String UPLOAD_OF_FILE_WITH_NAMESPACE_FAILED = "Upload of file: \"{0}\" with namespace: \"{1}\" failed";
 
     // ERROR log messages:
     public static final String UPLOAD_STREAM_FAILED_TO_CLOSE = "Cannot close file upload stream";
@@ -79,6 +80,8 @@ public final class Messages {
     public static final String RETRIEVED_SECRET_TOKEN_WITH_ID_0_FOR_PROCESS_WITH_ID_1 = "Retrieved secret token with id \"{0}\" for process with id \"{1}\"";
     public static final String DELETED_0_SECRET_TOKENS_FOR_PROCESS_WITH_ID_1 = "Deleted \"{0}\" secret tokens for process with id \"{1}\"";
     public static final String DELETED_0_SECRET_TOKENS_WITH_EXPIRATION_DATE_1 = "Deleted secret tokens \"{0}\" with an expiration date \"{1}\"";
+    public static final String FAILED_TO_DELETE_FILE_0_IN_OBJECT_STORE_REASON_1 = "Failed to delete file \"{0}\" in object store. Reason: {1}";
+    public static final String S3_UPLOAD_FAILED_FILE_0_SIZE_1 = "S3 upload failed for file \"{0}\" (size={1}). Root cause chain: {2}";
 
     protected Messages() {
     }

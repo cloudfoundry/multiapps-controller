@@ -1,9 +1,13 @@
 package org.cloudfoundry.multiapps.controller.api.v1;
 
 import java.util.List;
-
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
 import jakarta.inject.Inject;
-
 import org.cloudfoundry.multiapps.controller.api.Constants.Endpoints;
 import org.cloudfoundry.multiapps.controller.api.Constants.HttpResponses;
 import org.cloudfoundry.multiapps.controller.api.Constants.PathVariables;
@@ -24,13 +28,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.Authorization;
-
 @Api
 @RestController
 @RequestMapping(Resources.FILES)
@@ -49,8 +46,8 @@ public class FilesApi {
         @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
         @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<List<FileMetadata>>
-           getFiles(@ApiParam(value = "GUID of space with mtas") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                    @ApiParam(value = "Filter mtas by namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace) {
+    getFiles(@ApiParam(value = "GUID of space with mtas") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+             @ApiParam(value = "Filter mtas by namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace) {
         return delegate.getFiles(spaceGuid, namespace);
     }
 
@@ -67,9 +64,9 @@ public class FilesApi {
         @ApiResponse(code = 415, message = HttpResponses.UNSUPPORTED_MEDIA_TYPE),
         @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<FileMetadata>
-           uploadFile(MultipartHttpServletRequest request,
-                      @ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                      @ApiParam(value = "file namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace) {
+    uploadFile(MultipartHttpServletRequest request,
+               @ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+               @ApiParam(value = "file namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace) {
         return delegate.uploadFile(request, spaceGuid, namespace);
     }
 
@@ -85,9 +82,9 @@ public class FilesApi {
         @ApiResponse(code = 413, message = HttpResponses.REQUEST_ENTITY_TOO_LARGE),
         @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<Void>
-           startUploadFromUrl(@ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                              @ApiParam(value = "file namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace,
-                              @ApiParam(value = "URL reference to a remote file") @RequestBody FileUrl fileUrl) {
+    startUploadFromUrl(@ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+                       @ApiParam(value = "file namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace,
+                       @ApiParam(value = "URL reference to a remote file") @RequestBody FileUrl fileUrl) {
         return delegate.startUploadFromUrl(spaceGuid, namespace, fileUrl);
     }
 
@@ -103,9 +100,9 @@ public class FilesApi {
         @ApiResponse(code = 404, message = HttpResponses.NOT_FOUND),
         @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<AsyncUploadResult>
-           getUploadFromUrlJob(@ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                               @ApiParam(value = "file namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace,
-                               @ApiParam(value = "ID of the upload job") @PathVariable(PathVariables.JOB_ID) String jobId) {
+    getUploadFromUrlJob(@ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+                        @ApiParam(value = "file namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace,
+                        @ApiParam(value = "ID of the upload job") @PathVariable(PathVariables.JOB_ID) String jobId) {
         return delegate.getUploadFromUrlJob(spaceGuid, namespace, jobId);
     }
 

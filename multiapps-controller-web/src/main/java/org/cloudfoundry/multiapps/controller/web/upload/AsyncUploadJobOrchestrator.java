@@ -6,7 +6,9 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -20,8 +22,6 @@ import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.api.model.UserCredentials;
-import org.cloudfoundry.multiapps.controller.client.util.CheckedSupplier;
-import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
@@ -37,6 +37,7 @@ import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.upload.client.DeployFromUrlRemoteClient;
 import org.cloudfoundry.multiapps.controller.web.upload.client.FileFromUrlData;
 import org.cloudfoundry.multiapps.controller.web.upload.exception.RejectedAsyncUploadJobException;
+import org.cloudfoundry.multiapps.controller.web.upload.resilience.FileUploadResilientOperationExecutor;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
 import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
 import org.cloudfoundry.multiapps.mta.handlers.DescriptorParserFacade;
@@ -54,8 +55,6 @@ public class AsyncUploadJobOrchestrator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AsyncUploadJobOrchestrator.class);
 
-    private final ResilientOperationExecutor resilientOperationExecutor = getResilientOperationExecutor();
-
     private final ExecutorService asyncFileUploadExecutor;
     private final ExecutorService deployFromUrlExecutor;
     private final ApplicationConfiguration applicationConfiguration;
@@ -63,12 +62,14 @@ public class AsyncUploadJobOrchestrator {
     private final FileService fileService;
     private final DescriptorParserFacadeFactory descriptorParserFactory;
     private final DeployFromUrlRemoteClient deployFromUrlRemoteClient;
+    private final FileUploadResilientOperationExecutor fileUploadResilientOperationExecutor;
 
     @Inject
     public AsyncUploadJobOrchestrator(ExecutorService asyncFileUploadExecutor, ExecutorService deployFromUrlExecutor,
                                       ApplicationConfiguration applicationConfiguration, AsyncUploadJobService asyncUploadJobService,
                                       FileService fileService, DescriptorParserFacadeFactory descriptorParserFactory,
-                                      DeployFromUrlRemoteClient deployFromUrlRemoteClient) {
+                                      DeployFromUrlRemoteClient deployFromUrlRemoteClient,
+                                      FileUploadResilientOperationExecutor fileUploadResilientOperationExecutor) {
         this.asyncFileUploadExecutor = asyncFileUploadExecutor;
         this.deployFromUrlExecutor = deployFromUrlExecutor;
         this.applicationConfiguration = applicationConfiguration;
@@ -76,6 +77,7 @@ public class AsyncUploadJobOrchestrator {
         this.fileService = fileService;
         this.descriptorParserFactory = descriptorParserFactory;
         this.deployFromUrlRemoteClient = deployFromUrlRemoteClient;
+        this.fileUploadResilientOperationExecutor = fileUploadResilientOperationExecutor;
     }
 
     public AsyncUploadJobEntry executeUploadFromUrl(String spaceGuid, String namespace, String urlWithoutUserInfo, String decodedUrl,
@@ -96,27 +98,27 @@ public class AsyncUploadJobOrchestrator {
                                            .id(UUID.randomUUID()
                                                    .toString())
                                            .user(SecurityContextUtil.getUsername())
-                                           .addedAt(LocalDateTime.now())
+                                           .addedAt(LocalDateTime.now(ZoneOffset.UTC))
                                            .spaceGuid(spaceGuid)
                                            .namespace(namespace)
                                            .instanceIndex(applicationConfiguration.getApplicationInstanceIndex())
                                            .url(url)
                                            .state(AsyncUploadJobEntry.State.INITIAL)
-                                           .updatedAt(LocalDateTime.now())
+                                           .updatedAt(LocalDateTime.now(ZoneOffset.UTC))
                                            .bytesRead(0L)
                                            .build();
     }
 
     private void deployFromUrl(AsyncUploadJobEntry jobEntry, String fileUrl, UserCredentials userCredentials) {
         LOGGER.info(Messages.STARTING_DOWNLOAD_OF_MTAR_WITH_JOB_ID, LogSanitizer.sanitize(jobEntry.getUrl()), jobEntry.getId());
-        var startTime = LocalDateTime.now();
+        var startTime = LocalDateTime.now(ZoneOffset.UTC);
         Lock lock = new ReentrantLock();
         AtomicLong counterRef = new AtomicLong();
         try {
             var updatedJobEntry = asyncUploadJobService.update(jobEntry, ImmutableAsyncUploadJobEntry.copyOf(jobEntry)
                                                                                                      .withState(
                                                                                                          AsyncUploadJobEntry.State.RUNNING)
-                                                                                                     .withUpdatedAt(LocalDateTime.now())
+                                                                                                     .withUpdatedAt(LocalDateTime.now(ZoneOffset.UTC))
                                                                                                      .withStartedAt(startTime));
             startAsyncUploadFromUrlUpload(ImmutableUploadFromUrlContext.builder()
                                                                        .jobEntry(updatedJobEntry)
@@ -130,7 +132,8 @@ public class AsyncUploadJobOrchestrator {
                                                    .singleResult();
             monitorAsyncUploadJob(updatedJobEntry, lock, counterRef);
         } catch (Exception e) {
-            LOGGER.error(MessageFormat.format(Messages.ASYNC_UPLOAD_JOB_FAILED, jobEntry.getId(), e.getMessage()), e);
+            LOGGER.error(MessageFormat.format(Messages.ASYNC_UPLOAD_JOB_FAILED, jobEntry.getId(),
+                                              extractFileName(jobEntry.getUrl()), e.getMessage()), e);
             updateFailedAsyncUploadJob(jobEntry, e, lock);
         }
     }
@@ -140,7 +143,11 @@ public class AsyncUploadJobOrchestrator {
             try {
                 startSyncUploadFromUrlUpload(uploadFromUrlContext, lock);
             } catch (Exception e) {
-                LOGGER.error(e.getMessage(), e);
+                LOGGER.error(MessageFormat.format(Messages.ASYNC_UPLOAD_JOB_FAILED, uploadFromUrlContext.getJobEntry()
+                                                                                                        .getId(),
+                                                  extractFileName(uploadFromUrlContext.getJobEntry()
+                                                                                      .getUrl()),
+                                                  e.getMessage()), e);
                 updateFailedAsyncUploadJob(uploadFromUrlContext.getJobEntry(), e, lock);
                 throw new SLException(e, e.getMessage());
             }
@@ -148,12 +155,13 @@ public class AsyncUploadJobOrchestrator {
     }
 
     private void startSyncUploadFromUrlUpload(UploadFromUrlContext uploadFromUrlContext, Lock lock) throws Exception {
-        FileEntry fileEntry = resilientOperationExecutor.execute(
-            (CheckedSupplier<FileEntry>) () -> doUploadMtarFromUrl(uploadFromUrlContext, lock));
+        FileEntry fileEntry = fileUploadResilientOperationExecutor.execute(() -> doUploadMtarFromUrl(uploadFromUrlContext, lock));
         LOGGER.trace(Messages.UPLOADED_MTAR_FROM_REMOTE_ENDPOINT_AND_JOB_ID, uploadFromUrlContext.getJobEntry()
                                                                                                  .getUrl(),
                      uploadFromUrlContext.getJobEntry()
-                                         .getId(), ChronoUnit.MILLIS.between(uploadFromUrlContext.getStartTime(), LocalDateTime.now()));
+                                         .getId(),
+                     ChronoUnit.MILLIS.between(uploadFromUrlContext.getStartTime()
+                                                                   .toInstant(ZoneOffset.UTC), Instant.now()));
         var descriptor = fileService.processFileContent(uploadFromUrlContext.getJobEntry()
                                                                             .getSpaceGuid(), fileEntry.getId(),
                                                         this::extractDeploymentDescriptor);
@@ -169,8 +177,8 @@ public class AsyncUploadJobOrchestrator {
                                                                                     .withFileId(fileEntry.getId())
                                                                                     .withMtaId(descriptor.getId())
                                                                                     .withSchemaVersion(descriptor.getSchemaVersion())
-                                                                                    .withUpdatedAt(LocalDateTime.now())
-                                                                                    .withFinishedAt(LocalDateTime.now())
+                                                                                    .withUpdatedAt(LocalDateTime.now(ZoneOffset.UTC))
+                                                                                    .withFinishedAt(LocalDateTime.now(ZoneOffset.UTC))
                                                                                     .withBytesRead(uploadFromUrlContext.getCounterRef()
                                                                                                                        .get())
                                                                                     .withState(AsyncUploadJobEntry.State.FINISHED));
@@ -212,7 +220,7 @@ public class AsyncUploadJobOrchestrator {
                                                                                      .getId())
                                                                            .singleResult();
             asyncUploadJobService.update(asyncUploadJobEntry, ImmutableAsyncUploadJobEntry.copyOf(asyncUploadJobEntry)
-                                                                                          .withUpdatedAt(LocalDateTime.now())
+                                                                                          .withUpdatedAt(LocalDateTime.now(ZoneOffset.UTC))
                                                                                           .withBytesRead(0L));
         } finally {
             lock.unlock();
@@ -245,10 +253,13 @@ public class AsyncUploadJobOrchestrator {
                 updatedJobEntry = asyncUploadJobService.update(updatedJobEntry, ImmutableAsyncUploadJobEntry.copyOf(updatedJobEntry)
                                                                                                             .withBytesRead(counterRef.get())
                                                                                                             .withUpdatedAt(
-                                                                                                                LocalDateTime.now()));
+                                                                                                                LocalDateTime.now(ZoneOffset.UTC)));
             } finally {
                 lock.unlock();
             }
+            LOGGER.info(MessageFormat.format(Messages.ASYNC_UPLOAD_JOB_MONITOR_UPDATE_0_1_2_3, updatedJobEntry.getId(),
+                                             updatedJobEntry.getState(), updatedJobEntry.getBytesRead(),
+                                             updatedJobEntry.getUpdatedAt()));
             waitBetweenUpdates();
         }
     }
@@ -264,17 +275,16 @@ public class AsyncUploadJobOrchestrator {
                                                    .id(jobEntry.getId())
                                                    .singleResult();
             asyncUploadJobService.update(failedEntry, ImmutableAsyncUploadJobEntry.copyOf(failedEntry)
-                                                                                  .withUpdatedAt(LocalDateTime.now())
-                                                                                  .withFinishedAt(LocalDateTime.now())
-                                                                                  .withError(e.getMessage())
+                                                                                  .withUpdatedAt(LocalDateTime.now(ZoneOffset.UTC))
+                                                                                  .withFinishedAt(LocalDateTime.now(ZoneOffset.UTC))
+                                                                                  .withError(
+                                                                                      MessageFormat.format(Messages.ASYNC_UPLOAD_JOB_ERROR,
+                                                                                                           e.getMessage(),
+                                                                                                           jobEntry.getId()))
                                                                                   .withState(AsyncUploadJobEntry.State.ERROR));
         } finally {
             lock.unlock();
         }
-    }
-
-    protected ResilientOperationExecutor getResilientOperationExecutor() {
-        return new ResilientOperationExecutor();
     }
 
 }

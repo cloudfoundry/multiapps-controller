@@ -5,12 +5,11 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.UserCredentials;
-import org.cloudfoundry.multiapps.controller.client.util.CheckedSupplier;
-import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry;
@@ -22,6 +21,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.AsyncUploadJob
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.web.upload.client.DeployFromUrlRemoteClient;
 import org.cloudfoundry.multiapps.controller.web.upload.client.FileFromUrlData;
+import org.cloudfoundry.multiapps.controller.web.upload.resilience.FileUploadResilientOperationExecutor;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
 import org.cloudfoundry.multiapps.mta.handlers.DescriptorParserFacade;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -40,6 +40,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class AsyncUploadJobOrchestratorTest {
+
+    private static final LocalDateTime JOB_TIMESTAMP = LocalDateTime.of(2025, Month.JANUARY, 1, 0, 0);
 
     private static final String SPACE_GUID = "space-123";
     private static final String NAMESPACE = "test-namespace";
@@ -119,7 +121,8 @@ class AsyncUploadJobOrchestratorTest {
             asyncUploadJobService,
             fileService,
             descriptorParserFactory,
-            deployFromUrlRemoteClient
+            deployFromUrlRemoteClient,
+            noRetryExecutor()
         );
 
         when(applicationConfiguration.getApplicationInstanceIndex()).thenReturn(0);
@@ -139,12 +142,12 @@ class AsyncUploadJobOrchestratorTest {
         AsyncUploadJobEntry initialEntry = createInitialJobEntry();
         AsyncUploadJobEntry runningEntry = ImmutableAsyncUploadJobEntry.copyOf(initialEntry)
                                                                        .withState(AsyncUploadJobEntry.State.RUNNING)
-                                                                       .withStartedAt(LocalDateTime.now());
+                                                                       .withStartedAt(JOB_TIMESTAMP);
         AsyncUploadJobEntry finishedEntry = ImmutableAsyncUploadJobEntry.copyOf(runningEntry)
                                                                         .withState(AsyncUploadJobEntry.State.FINISHED)
                                                                         .withFileId(FILE_ID)
                                                                         .withMtaId(MTA_ID)
-                                                                        .withFinishedAt(LocalDateTime.now());
+                                                                        .withFinishedAt(JOB_TIMESTAMP);
 
         FileEntry fileEntry = createFileEntry();
 
@@ -188,7 +191,7 @@ class AsyncUploadJobOrchestratorTest {
         AsyncUploadJobEntry initialEntry = createInitialJobEntry();
         AsyncUploadJobEntry runningEntry = ImmutableAsyncUploadJobEntry.copyOf(initialEntry)
                                                                        .withState(AsyncUploadJobEntry.State.RUNNING)
-                                                                       .withStartedAt(LocalDateTime.now());
+                                                                       .withStartedAt(JOB_TIMESTAMP);
         AsyncUploadJobEntry errorEntry = ImmutableAsyncUploadJobEntry.copyOf(runningEntry)
                                                                      .withState(AsyncUploadJobEntry.State.ERROR);
 
@@ -219,7 +222,7 @@ class AsyncUploadJobOrchestratorTest {
         AsyncUploadJobEntry initialEntry = createInitialJobEntry();
         AsyncUploadJobEntry runningEntry = ImmutableAsyncUploadJobEntry.copyOf(initialEntry)
                                                                        .withState(AsyncUploadJobEntry.State.RUNNING)
-                                                                       .withStartedAt(LocalDateTime.now());
+                                                                       .withStartedAt(JOB_TIMESTAMP);
         AsyncUploadJobEntry errorEntry = ImmutableAsyncUploadJobEntry.copyOf(runningEntry)
                                                                      .withState(AsyncUploadJobEntry.State.ERROR);
 
@@ -252,7 +255,7 @@ class AsyncUploadJobOrchestratorTest {
         AsyncUploadJobEntry initialEntry = createInitialJobEntry();
         AsyncUploadJobEntry runningEntry = ImmutableAsyncUploadJobEntry.copyOf(initialEntry)
                                                                        .withState(AsyncUploadJobEntry.State.RUNNING)
-                                                                       .withStartedAt(LocalDateTime.now());
+                                                                       .withStartedAt(JOB_TIMESTAMP);
         AsyncUploadJobEntry errorEntry = ImmutableAsyncUploadJobEntry.copyOf(runningEntry)
                                                                      .withState(AsyncUploadJobEntry.State.ERROR);
 
@@ -288,19 +291,19 @@ class AsyncUploadJobOrchestratorTest {
         AsyncUploadJobEntry initialEntry = createInitialJobEntry();
         AsyncUploadJobEntry runningEntry1 = ImmutableAsyncUploadJobEntry.copyOf(initialEntry)
                                                                         .withState(AsyncUploadJobEntry.State.RUNNING)
-                                                                        .withStartedAt(LocalDateTime.now())
+                                                                        .withStartedAt(JOB_TIMESTAMP)
                                                                         .withBytesRead(100L);
         AsyncUploadJobEntry runningEntry2 = ImmutableAsyncUploadJobEntry.copyOf(runningEntry1)
                                                                         .withBytesRead(500L)
-                                                                        .withUpdatedAt(LocalDateTime.now());
+                                                                        .withUpdatedAt(JOB_TIMESTAMP);
         AsyncUploadJobEntry runningEntry3 = ImmutableAsyncUploadJobEntry.copyOf(runningEntry2)
                                                                         .withBytesRead(800L)
-                                                                        .withUpdatedAt(LocalDateTime.now());
+                                                                        .withUpdatedAt(JOB_TIMESTAMP);
         AsyncUploadJobEntry finishedEntry = ImmutableAsyncUploadJobEntry.copyOf(runningEntry3)
                                                                         .withState(AsyncUploadJobEntry.State.FINISHED)
                                                                         .withFileId(FILE_ID)
                                                                         .withMtaId(MTA_ID)
-                                                                        .withFinishedAt(LocalDateTime.now());
+                                                                        .withFinishedAt(JOB_TIMESTAMP);
 
         FileEntry fileEntry = createFileEntry();
 
@@ -339,7 +342,7 @@ class AsyncUploadJobOrchestratorTest {
         AsyncUploadJobEntry initialEntry = createInitialJobEntry();
         AsyncUploadJobEntry runningEntry = ImmutableAsyncUploadJobEntry.copyOf(initialEntry)
                                                                        .withState(AsyncUploadJobEntry.State.RUNNING)
-                                                                       .withStartedAt(LocalDateTime.now());
+                                                                       .withStartedAt(JOB_TIMESTAMP);
 
         when(asyncUploadJobService.add(any(AsyncUploadJobEntry.class))).thenReturn(initialEntry);
         when(asyncUploadJobService.update(any(AsyncUploadJobEntry.class), any(AsyncUploadJobEntry.class)))
@@ -401,13 +404,13 @@ class AsyncUploadJobOrchestratorTest {
         return ImmutableAsyncUploadJobEntry.builder()
                                            .id(JOB_ID)
                                            .user(USERNAME)
-                                           .addedAt(LocalDateTime.now())
+                                           .addedAt(JOB_TIMESTAMP)
                                            .spaceGuid(SPACE_GUID)
                                            .namespace(NAMESPACE)
                                            .instanceIndex(0)
                                            .url(FILE_URL)
                                            .state(AsyncUploadJobEntry.State.INITIAL)
-                                           .updatedAt(LocalDateTime.now())
+                                           .updatedAt(JOB_TIMESTAMP)
                                            .bytesRead(0L)
                                            .build();
     }
@@ -428,30 +431,31 @@ class AsyncUploadJobOrchestratorTest {
         when(deployFromUrlRemoteClient.downloadFileFromUrl(any())).thenReturn(fileFromUrlData);
     }
 
+    private static FileUploadResilientOperationExecutor noRetryExecutor() {
+        return new FileUploadResilientOperationExecutor(cause -> false) {
+            @Override
+            protected void sleep(long millis) {
+                // intentionally empty — tests must not block on retry back-off delays
+            }
+        };
+    }
+
     private static class TestableAsyncUploadJobOrchestrator extends AsyncUploadJobOrchestrator {
 
         public TestableAsyncUploadJobOrchestrator(ExecutorService asyncFileUploadExecutor, ExecutorService deployFromUrlExecutor,
                                                   ApplicationConfiguration applicationConfiguration,
                                                   AsyncUploadJobService asyncUploadJobService,
                                                   FileService fileService, DescriptorParserFacadeFactory descriptorParserFactory,
-                                                  DeployFromUrlRemoteClient deployFromUrlRemoteClient) {
+                                                  DeployFromUrlRemoteClient deployFromUrlRemoteClient,
+                                                  FileUploadResilientOperationExecutor fileUploadResilientOperationExecutor) {
             super(asyncFileUploadExecutor, deployFromUrlExecutor, applicationConfiguration,
-                  asyncUploadJobService, fileService, descriptorParserFactory, deployFromUrlRemoteClient);
+                  asyncUploadJobService, fileService, descriptorParserFactory, deployFromUrlRemoteClient,
+                  fileUploadResilientOperationExecutor);
         }
 
         @Override
         protected void waitBetweenUpdates() {
-            // do nothing
-        }
-
-        @Override
-        protected ResilientOperationExecutor getResilientOperationExecutor() {
-            return new ResilientOperationExecutor() {
-                @Override
-                public <T> T execute(CheckedSupplier<T> operation) throws Exception {
-                    return operation.get();
-                }
-            };
+            // intentionally empty — tests must not sleep between polling iterations
         }
     }
 }

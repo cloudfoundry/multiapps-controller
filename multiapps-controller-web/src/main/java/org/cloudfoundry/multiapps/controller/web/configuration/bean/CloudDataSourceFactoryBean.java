@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.web.configuration.bean.factory;
+package org.cloudfoundry.multiapps.controller.web.configuration.bean;
 
 import javax.sql.DataSource;
 

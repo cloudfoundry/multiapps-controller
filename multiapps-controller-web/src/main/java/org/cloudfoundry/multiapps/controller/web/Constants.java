@@ -33,11 +33,8 @@ public class Constants {
     public static final String REGION = "region";
     public static final String ENDPOINT = "endpoint";
     public static final String ENDPOINT_URL = "endpoint-url";
-    public static final String ACCOUNT_NAME = "account_name";
     public static final String SAS_TOKEN = "sas_token";
-    public static final String CONTAINER_NAME = "container_name";
     public static final String CONTAINER_NAME_WITH_DASH = "container-name";
-    public static final String CONTAINER_URI = "container_uri";
     public static final String BASE_64_ENCODED_PRIVATE_KEY_DATA = "base64EncodedPrivateKeyData";
     public static final String HOST = "host";
 

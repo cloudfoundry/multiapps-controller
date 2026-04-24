@@ -1,5 +1,17 @@
 package org.cloudfoundry.multiapps.controller.web.api.impl;
 
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.text.MessageFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+import java.util.Base64;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,17 +49,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
-
-import java.io.BufferedInputStream;
-import java.io.InputStream;
-import java.math.BigInteger;
-import java.text.MessageFormat;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Base64;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.stream.Collectors;
 
 @Named
 public class FilesApiServiceImpl implements FilesApiService {
@@ -105,12 +106,12 @@ public class FilesApiServiceImpl implements FilesApiService {
         LOGGER.trace(Messages.RECEIVED_UPLOAD_REQUEST, ServletUtil.decodeUri(request));
         var multipartFile = getFileFromRequest(request);
         try (InputStream in = new BufferedInputStream(multipartFile.getInputStream(), INPUT_STREAM_BUFFER_SIZE)) {
-            var startTime = LocalDateTime.now();
+            var startTime = Instant.now();
             FileEntry fileEntry = fileStorageThreadPool.submit(createUploadFileTask(spaceGuid, namespace, multipartFile, in))
                                                        .get();
             FileMetadata file = parseFileEntry(fileEntry);
             filesApiServiceAuditLog.logUploadFile(SecurityContextUtil.getUsername(), spaceGuid, file);
-            var endTime = LocalDateTime.now();
+            var endTime = Instant.now();
             LOGGER.trace(Messages.UPLOADED_FILE, file.getId(), LogSanitizer.sanitize(file.getName()), file.getSize(), file.getSpace(),
                          file.getDigest(), file.getDigestAlgorithm(), ChronoUnit.MILLIS.between(startTime, endTime));
             return ResponseEntity.status(HttpStatus.CREATED)
@@ -134,6 +135,9 @@ public class FilesApiServiceImpl implements FilesApiService {
             return triggerUploadFromUrl(spaceGuid, namespace, urlWithoutUserInfo, decodedUrl, fileUrl.getUserCredentials());
         }
         if (hasJobStuck(existingJob)) {
+            LOGGER.warn(MessageFormat.format(Messages.JOB_WITH_ID_WAS_NOT_UPDATED_WITHIN_SECONDS_ON_START_0_1, existingJob.getId(),
+                                             UPDATE_JOB_TIMEOUT));
+            LOGGER.warn(existingJob.buildStaleDetailsLogMessage());
             deleteAsyncJobEntry(existingJob);
             return triggerUploadFromUrl(spaceGuid, namespace, urlWithoutUserInfo, decodedUrl, fileUrl.getUserCredentials());
         }
@@ -145,7 +149,7 @@ public class FilesApiServiceImpl implements FilesApiService {
 
     private boolean hasJobStuck(AsyncUploadJobEntry existingJob) {
         return existingJob.getUpdatedAt()
-                          .isBefore(LocalDateTime.now()
+                          .isBefore(LocalDateTime.now(ZoneOffset.UTC)
                                                  .minusSeconds(UPDATE_JOB_TIMEOUT));
     }
 
@@ -167,7 +171,9 @@ public class FilesApiServiceImpl implements FilesApiService {
     private ResponseEntity<AsyncUploadResult> getAsyncUploadResult(AsyncUploadJobEntry job) {
         if (job.getState() == State.RUNNING || job.getState() == State.INITIAL) {
             if (hasJobStuck(job)) {
-                LOGGER.info(Messages.JOB_WITH_ID_WAS_NOT_UPDATED_WITHIN_SECONDS, job.getId(), UPDATE_JOB_TIMEOUT);
+                LOGGER.warn(MessageFormat.format(Messages.JOB_WITH_ID_WAS_NOT_UPDATED_WITHIN_SECONDS_ON_GET_0_1, job.getId(),
+                                                 UPDATE_JOB_TIMEOUT));
+                LOGGER.warn(job.buildStaleDetailsLogMessage());
                 return ResponseEntity.ok(
                     createErrorResult(MessageFormat.format(Messages.JOB_NOT_UPDATED_FOR_0_SECONDS, UPDATE_JOB_TIMEOUT),
                                       AsyncUploadResult.ClientAction.RETRY_UPLOAD));
@@ -257,7 +263,7 @@ public class FilesApiServiceImpl implements FilesApiService {
                             .id(entry.getId())
                             .delete();
         } catch (Exception e) {
-            LOGGER.error(Messages.ERROR_OCCURRED_WHILE_DELETING_JOB_ENTRY, e);
+            LOGGER.error(MessageFormat.format(Messages.ERROR_OCCURRED_WHILE_DELETING_JOB_ENTRY, entry.getId()), e);
         }
     }
 

@@ -9,7 +9,7 @@ import org.cloudfoundry.multiapps.controller.persistence.dialects.DataSourceDial
 import org.cloudfoundry.multiapps.controller.persistence.dialects.DefaultDataSourceDialect;
 import org.cloudfoundry.multiapps.controller.persistence.util.DataSourceFactory;
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
-import org.cloudfoundry.multiapps.controller.web.configuration.bean.factory.CloudDataSourceFactoryBean;
+import org.cloudfoundry.multiapps.controller.web.configuration.bean.CloudDataSourceFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
