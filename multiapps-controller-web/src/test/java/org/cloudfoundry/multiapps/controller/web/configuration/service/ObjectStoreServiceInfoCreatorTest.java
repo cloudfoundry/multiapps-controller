@@ -1,5 +1,7 @@
 package org.cloudfoundry.multiapps.controller.web.configuration.service;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +26,10 @@ class ObjectStoreServiceInfoCreatorTest {
     private static final String BUCKET_VALUE = "bucket_value";
     private static final String REGION_VALUE = "region_value";
     private static final String ENDPOINT_VALUE = "endpoint_value";
-    private static final Map<String, Object> CREDENTIALS = Map.of("test", "test1");
+    private static final String ACCOUNT_NAME_VALUE = "account_name_value";
+    private static final String SAS_TOKEN_VALUE = "sas_token_value";
+    private static final String CONTAINER_NAME_VALUE = "container_name_value";
+    private static final String CONTAINER_URI_VALUE = "https://container.com:8080";
 
     private ObjectStoreServiceInfoCreator objectStoreServiceInfoCreator;
 
@@ -33,11 +38,10 @@ class ObjectStoreServiceInfoCreatorTest {
         objectStoreServiceInfoCreator = new ObjectStoreServiceInfoCreatorMock();
     }
 
-    static Stream<Arguments> testDifferentProviders() {
+    static Stream<Arguments> testDifferentProviders() throws MalformedURLException {
         return Stream.of(Arguments.of(buildCfService(buildAliCloudCredentials()), buildAliCloudObjectStoreServiceInfo()),
                          Arguments.of(buildCfService(buildAwsCredentials()), buildAwsObjectStoreServiceInfo()),
-                         Arguments.of(buildCfService(buildSdkCredentials()), buildAzureObjectStoreServiceInfo()),
-                         Arguments.of(buildCfService(buildSdkCredentials()), buildGcpObjectStoreServiceInfo()));
+                         Arguments.of(buildCfService(buildAzureCredentials()), buildAzureObjectStoreServiceInfo()));
     }
 
     @ParameterizedTest
@@ -95,21 +99,22 @@ class ObjectStoreServiceInfoCreatorTest {
                                               .build();
     }
 
-    private static Map<String, Object> buildSdkCredentials() {
-        return CREDENTIALS;
+    private static Map<String, Object> buildAzureCredentials() {
+        Map<String, Object> credentials = new HashMap<>();
+        credentials.put(Constants.ACCOUNT_NAME, ACCOUNT_NAME_VALUE);
+        credentials.put(Constants.SAS_TOKEN, SAS_TOKEN_VALUE);
+        credentials.put(Constants.CONTAINER_NAME, CONTAINER_NAME_VALUE);
+        credentials.put(Constants.CONTAINER_URI, CONTAINER_URI_VALUE);
+        return credentials;
     }
 
-    private static ObjectStoreServiceInfo buildAzureObjectStoreServiceInfo() {
+    private static ObjectStoreServiceInfo buildAzureObjectStoreServiceInfo() throws MalformedURLException {
         return ImmutableObjectStoreServiceInfo.builder()
                                               .provider(Constants.AZUREBLOB)
-                                              .credentials(CREDENTIALS)
-                                              .build();
-    }
-
-    private static ObjectStoreServiceInfo buildGcpObjectStoreServiceInfo() {
-        return ImmutableObjectStoreServiceInfo.builder()
-                                              .provider(Constants.GOOGLE_CLOUD_STORAGE)
-                                              .credentials(CREDENTIALS)
+                                              .identity(ACCOUNT_NAME_VALUE)
+                                              .credential(SAS_TOKEN_VALUE)
+                                              .endpoint(new URL("https", "container.com", 8080, "").toString())
+                                              .container(CONTAINER_NAME_VALUE)
                                               .build();
     }
 
