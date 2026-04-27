@@ -37,7 +37,7 @@ public class GlobalTimeoutSettingStep extends SyncFlowableStep {
             }
         }
 
-        getStepLogger().info(Messages.SUCCESSFULLY_EXTRACTED_0_TIMEOUT_PARAMETERS, successCount);
+        getStepLogger().debug(Messages.SUCCESSFULLY_EXTRACTED_0_TIMEOUT_PARAMETERS, successCount);
         return StepPhase.DONE;
     }
 
@@ -66,7 +66,8 @@ public class GlobalTimeoutSettingStep extends SyncFlowableStep {
         Duration timeout = context.getVariableIfSet(timeoutType.getProcessVariable());
         String timeoutSeconds = timeout != null ? String.valueOf(timeout.toSeconds()) : "null";
         getStepLogger().debug(Messages.TIMEOUT_0_EQUALS_1_SECONDS_FROM_2,
-                              timeoutType.getProcessVariable().getName(),
+                              timeoutType.getProcessVariable()
+                                         .getName(),
                               timeoutSeconds,
                               timeoutType.getGlobalLevelParamName());
     }
@@ -75,8 +76,10 @@ public class GlobalTimeoutSettingStep extends SyncFlowableStep {
         TimeoutValueResolver.TimeoutResolution resolution = timeoutValueResolver.resolveTimeout(context, timeoutType, getStepLogger());
         context.setVariable(timeoutType.getProcessVariable(), resolution.timeout());
         getStepLogger().debug(Messages.TIMEOUT_0_EQUALS_1_SECONDS_FROM_2,
-                              timeoutType.getProcessVariable().getName(),
-                              resolution.timeout().toSeconds(),
+                              timeoutType.getProcessVariable()
+                                         .getName(),
+                              resolution.timeout()
+                                        .toSeconds(),
                               resolution.parameterName());
         return true;
     }
