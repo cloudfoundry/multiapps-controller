@@ -25,6 +25,7 @@ public final class Messages {
     public static final String MISSING_PROPERTIES_FOR_CREATING_THE_SPECIFIC_PROVIDER = "Missing properties for creating the specific provider!";
     public static final String DEPLOY_FROM_URL_WRONG_CREDENTIALS_FOR_JOB_WITH_ID = "Credentials to {0} are wrong. Make sure that they are correct. Job id: {1}";
     public static final String JOB_NOT_UPDATED_FOR_0_SECONDS = "Job not updated for {0} seconds";
+
     public static final String FAILED_TO_CREATE_BLOB_STORE_CONTEXT = "Failed to create BlobStoreContext";
 
     // Audit log messages
@@ -56,8 +57,6 @@ public final class Messages {
     public static final String ASYNC_UPLOAD_JOB_FAILED = "Async upload job {0} failed with: {1}";
 
     // WARN log messages
-
-    public static final String NO_OBJECTSTORE_PROVIDER_FOUND_FOR_0 = "No ObjectStore provider found for {0}!";
 
     // INFO log messages
     public static final String ALM_SERVICE_ENV_INITIALIZED = "Deploy service environment initialized";
