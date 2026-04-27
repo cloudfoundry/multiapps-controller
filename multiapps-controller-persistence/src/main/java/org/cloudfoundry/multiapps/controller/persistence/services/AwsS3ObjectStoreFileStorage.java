@@ -21,6 +21,7 @@ import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsResponse;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
@@ -30,6 +31,7 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Error;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
 import java.io.InputStream;
@@ -47,7 +49,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
 
@@ -74,7 +75,7 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
         return builder.build();
     }
 
-    private ClientOverrideConfiguration buildClientOverrideConfig() {
+    protected ClientOverrideConfiguration buildClientOverrideConfig() {
         StandardRetryStrategy retryStrategy = StandardRetryStrategy.builder()
                                                                    .maxAttempts(ObjectStoreConstants.OBJECT_STORE_MAX_ATTEMPTS_CONFIG)
                                                                    .backoffStrategy(BackoffStrategy.exponentialDelayHalfJitter(
@@ -84,7 +85,7 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
         return ClientOverrideConfiguration.builder()
                                           .retryStrategy(retryStrategy)
                                           .apiCallTimeout(ObjectStoreConstants.AWS_OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES)
-                                          .apiCallAttemptTimeout(ObjectStoreConstants.AWS_OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES)
+                                          .apiCallAttemptTimeout(ObjectStoreConstants.OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES)
                                           .build();
     }
 
@@ -113,7 +114,7 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
         Set<String> existingKeys = new HashSet<>(listAllObjectKeys());
         return fileEntries.stream()
                           .filter(fileEntry -> !existingKeys.contains(fileEntry.getId()))
-                          .collect(Collectors.toList());
+                          .toList();
     }
 
     private List<String> listAllObjectKeys() {
@@ -217,12 +218,16 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
                                                                                .key(k)
                                                                                .build())
                                                      .toList();
-            s3Client.deleteObjects(DeleteObjectsRequest.builder()
-                                                       .bucket(bucketName)
-                                                       .delete(Delete.builder()
-                                                                     .objects(identifiers)
-                                                                     .build())
-                                                       .build());
+            DeleteObjectsResponse response = s3Client.deleteObjects(DeleteObjectsRequest.builder()
+                                                                                        .bucket(bucketName)
+                                                                                        .delete(Delete.builder()
+                                                                                                      .objects(identifiers)
+                                                                                                      .build())
+                                                                                        .build());
+            for (S3Error error : response.errors()) {
+                LOGGER.warn(MessageFormat.format(Messages.FAILED_TO_DELETE_FILE_0_IN_OBJECT_STORE_REASON_1, error.key(),
+                                                 error.message()));
+            }
         }
     }
 
@@ -234,8 +239,6 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
                                                    .build();
         try (ResponseInputStream<GetObjectResponse> stream = getObjectStream(request, id, space)) {
             return fileContentProcessor.process(stream);
-        } catch (FileStorageException e) {
-            throw e;
         } catch (Exception e) {
             throw new FileStorageException(e);
         }
@@ -272,11 +275,7 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
         if (fileIds.isEmpty()) {
             return;
         }
-        Set<String> fileIdSet = new HashSet<>(fileIds);
-        List<String> toDelete = listAllObjectKeys().stream()
-                                                   .filter(fileIdSet::contains)
-                                                   .collect(Collectors.toList());
-        batchDelete(toDelete);
+        batchDelete(fileIds);
     }
 
     @Override
@@ -292,8 +291,6 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
                                                    .build();
         try (ResponseInputStream<GetObjectResponse> stream = getObjectStream(request, id, space)) {
             return fileContentProcessor.process(stream);
-        } catch (FileStorageException e) {
-            throw e;
         } catch (Exception e) {
             throw new FileStorageException(e);
         }

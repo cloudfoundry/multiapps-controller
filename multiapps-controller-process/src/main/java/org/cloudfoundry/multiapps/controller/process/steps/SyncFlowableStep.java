@@ -74,11 +74,12 @@ public abstract class SyncFlowableStep implements JavaDelegate {
 
     private void executeInternal(DelegateExecution execution) {
         initializeStepLogger(execution);
-        ProcessContext context = createProcessContext(execution);
+        ProcessContext context = createBaseProcessContext(execution);
         StepPhase stepPhase = getInitialStepPhase(context);
         try {
-            getStepHelper().failStepIfProcessIsAborted(context);
             getStepHelper().preExecuteStep(context, stepPhase);
+            context = createProcessContext(execution);
+            getStepHelper().failStepIfProcessIsAborted(context);
             stepPhase = executeStep(context);
             if (stepPhase == StepPhase.RETRY) {
                 throw new StepPhaseRetryException(Messages.STEP_OF_THE_PROCESS_HAS_FAILED);
@@ -90,6 +91,10 @@ public abstract class SyncFlowableStep implements JavaDelegate {
             context.setVariable(Variables.STEP_PHASE, stepPhase);
             postExecuteStep(context, stepPhase);
         }
+    }
+
+    private ProcessContext createBaseProcessContext(DelegateExecution execution) {
+        return new ProcessContext(execution, stepLogger, clientProvider);
     }
 
     protected StepPhase getInitialStepPhase(ProcessContext context) {

@@ -79,6 +79,7 @@ public final class Messages {
     public static final String RETRIEVED_SECRET_TOKEN_WITH_ID_0_FOR_PROCESS_WITH_ID_1 = "Retrieved secret token with id \"{0}\" for process with id \"{1}\"";
     public static final String DELETED_0_SECRET_TOKENS_FOR_PROCESS_WITH_ID_1 = "Deleted \"{0}\" secret tokens for process with id \"{1}\"";
     public static final String DELETED_0_SECRET_TOKENS_WITH_EXPIRATION_DATE_1 = "Deleted secret tokens \"{0}\" with an expiration date \"{1}\"";
+    public static final String FAILED_TO_DELETE_FILE_0_IN_OBJECT_STORE_REASON_1 = "Failed to delete file \"{0}\" in object store. Reason: {1}";
 
     protected Messages() {
     }
