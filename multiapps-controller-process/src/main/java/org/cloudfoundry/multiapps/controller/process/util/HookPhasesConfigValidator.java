@@ -7,20 +7,37 @@ import java.util.Map;
 import java.util.Set;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Hook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HookPhasesConfigValidator {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(HookPhasesConfigValidator.class);
     private static final String PHASE_KEY = "phase";
 
     public void validate(DeploymentDescriptor descriptor) {
         descriptor.getModules()
                   .stream()
                   .flatMap(module -> module.getHooks().stream())
-                  .forEach(this::validateHookHasNoDuplicatePhaseConfigs);
+                  .forEach(hook -> {
+                      warnIfDeprecatedPhaseUsed(hook);
+                      validateHookHasNoDuplicatePhaseConfigs(hook);
+                  });
+    }
+
+    private void warnIfDeprecatedPhaseUsed(Hook hook) {
+        boolean usesDeprecatedPhase = hook.getPhases()
+                                          .stream()
+                                          .anyMatch(phase -> HookPhase.BLUE_GREEN_APPLICATION_BEFORE_UNMAP_ROUTES_IDLE.getValue()
+                                                                                                                      .equals(phase));
+        if (usesDeprecatedPhase) {
+            LOGGER.warn(Messages.HOOK_PHASE_BLUE_GREEN_BEFORE_UNMAP_ROUTES_IDLE_USED, hook.getName());
+        }
     }
 
     @SuppressWarnings("unchecked")

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.model.ApplicationColor;
 import org.cloudfoundry.multiapps.controller.core.model.BlueGreenApplicationNameSuffix;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhaseProcessType;
@@ -118,8 +119,8 @@ public class ResolveHookTaskTargetAppStep extends SyncFlowableStep {
     }
 
     private CloudApplicationExtended buildAppWithName(CloudApplicationExtended app, String resolvedAppName) {
-        return org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended.copyOf(app)
-                                                                                                        .withName(resolvedAppName);
+        return ImmutableCloudApplicationExtended.copyOf(app)
+                                                .withName(resolvedAppName);
     }
 
     @Override

@@ -215,6 +215,7 @@ public class Messages {
     public static final String CANNOT_RETRIEVE_PARAMETERS_OF_BINDING_BETWEEN_APPLICATION_0_AND_SERVICE_INSTANCE_1 = "Cannot retrieve parameters of binding between application \"{0}\" and service instance \"{1}\"";
     public static final String CANNOT_RETRIEVE_PARAMETERS_OF_BINDING_BETWEEN_APPLICATION_0_AND_SERVICE_INSTANCE_1_FIX = "Cannot retrieve parameters of binding between application \"{0}\" and service instance \"{1}\". Got 502.";
     public static final String CANNOT_RETRIEVE_INSTANCE_OF_SERVICE = "Cannot retrieve service instance of service \"{0}\"";
+    public static final String HOOK_PHASE_BLUE_GREEN_BEFORE_UNMAP_ROUTES_IDLE_USED = "Hook \"{0}\" uses deprecated phase \"blue-green.application.before-unmap-routes.idle\" which is unreachable and will be removed in a future version";
     public static final String COULD_NOT_DELETE_PROVIDED_DEPENDENCY = "Could not delete published provided dependency \"{0}\" from configuration registry";
     public static final String COULD_NOT_DELETE_SERVICE = "Could not delete service \"{0}\", as it does not exist";
     public static final String COULD_NOT_DELETE_SUBSCRIPTION = "Could not delete subscription for application \"{0}\" and resource \"{1}\"";
