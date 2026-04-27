@@ -9,10 +9,10 @@ import java.util.stream.Stream;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
+import org.cloudfoundry.multiapps.controller.core.util.DurationUtil;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -184,17 +184,7 @@ public class TimeoutValueResolver {
     }
 
     protected Duration toDuration(Object timeout, String timeoutParameterName, Integer maxAllowedValue) {
-        if (timeout == null) {
-            return null;
-        }
-        if (!(timeout instanceof Number number)) {
-            throw new ContentException(Messages.PARAMETER_0_MUST_BE_POSITIVE_WITH_MAX_VALUE_1, timeoutParameterName, maxAllowedValue);
-        }
-        int value = number.intValue();
-        if (value < 0 || value > maxAllowedValue) {
-            throw new ContentException(Messages.PARAMETER_0_MUST_BE_POSITIVE_WITH_MAX_VALUE_1, timeoutParameterName, maxAllowedValue);
-        }
-        return Duration.ofSeconds(value);
+        return DurationUtil.parseDuration(timeout, timeoutParameterName, maxAllowedValue);
     }
 
     private Optional<Module> findModuleByAppName(DeploymentDescriptor descriptor, String appName) {

@@ -291,6 +291,7 @@ public final class Messages {
     public static final String API_INFO_AUDIT_LOG_CONFIG = "Api info";
     public static final String IGNORING_NAMESPACE_PARAMETERS = "Ignoring parameter \"{0}\" , as the MTA is not deployed with namespace!";
     public static final String NAMESPACE_PARSING_ERROR_MESSAGE = "Cannot parse \"{0}\" flag - expected a boolean format.";
+    public static final String PARAMETER_0_MUST_BE_POSITIVE_WITH_MAX_VALUE_1 = "Parameter \"{0}\" must be positive integer value up to {1}!";
 
     private Messages() {
     }

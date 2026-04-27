@@ -16,6 +16,7 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudSer
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
+import org.cloudfoundry.multiapps.controller.core.util.DurationUtil;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.core.util.SpecialResourceTypesRequiredParametersUtil;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -231,15 +232,8 @@ public class ServicesCloudModelBuilder {
         if (parameters == null) {
             return null;
         }
-        Object timeoutValue = parameters.get(timeoutParameterName);
-        if (timeoutValue == null) {
-            return null;
-        }
-        if (timeoutValue instanceof Number) {
-            long seconds = ((Number) timeoutValue).longValue();
-            return seconds > 0 ? Duration.ofSeconds(seconds) : null;
-        }
-        return null;
+        return DurationUtil.parseDurationSafely(parameters.get(timeoutParameterName))
+                           .orElse(null);
     }
 
 }
