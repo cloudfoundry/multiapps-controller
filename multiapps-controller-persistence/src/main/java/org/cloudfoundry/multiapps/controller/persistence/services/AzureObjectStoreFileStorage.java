@@ -36,9 +36,9 @@ public class AzureObjectStoreFileStorage extends ObjectStoreFileStorage {
     private static final String SAS_TOKEN = "sas_token";
     private static final String CONTAINER_NAME = "container_name";
     private static final String CONTAINER_URI = "container_uri";
-    private static final long MAX_SINGLE_UPLOAD_SIZE = 10L * 1024 * 1024; // 10MB
-    private static final long BLOCK_SIZE = 10L * 1024 * 1024; // 10MB
-    private static final int MAX_CONCURRENCY = 10;
+    private static final long MAX_SINGLE_UPLOAD_SIZE = 50L * 1024 * 1024; // 50MB
+    private static final long BLOCK_SIZE = 50L * 1024 * 1024; // 50MB
+    private static final int MAX_CONCURRENCY = 25;
     private final HttpClient httpClient;
     private final BlobContainerClient containerClient;
 
