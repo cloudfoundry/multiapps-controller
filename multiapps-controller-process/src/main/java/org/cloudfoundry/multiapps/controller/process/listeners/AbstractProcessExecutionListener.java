@@ -4,6 +4,7 @@ import jakarta.inject.Inject;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
@@ -32,6 +33,7 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     private final FlowableFacade flowableFacade;
     protected final ApplicationConfiguration configuration;
     private final ProcessLoggerPersister processLoggerPersister;
+    private final OperationLogsExporter operationLogsExporter;
 
     private StepLogger stepLogger;
 
@@ -39,7 +41,7 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     protected AbstractProcessExecutionListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
                                                ProcessLoggerProvider processLoggerProvider, ProcessLoggerPersister processLoggerPersister,
                                                HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
-                                               ApplicationConfiguration configuration) {
+                                               ApplicationConfiguration configuration, OperationLogsExporter operationLogsExporter) {
         this.progressMessageService = progressMessageService;
         this.stepLoggerFactory = stepLoggerFactory;
         this.processLoggerProvider = processLoggerProvider;
@@ -47,6 +49,7 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
         this.historicOperationEventService = historicOperationEventService;
         this.flowableFacade = flowableFacade;
         this.configuration = configuration;
+        this.operationLogsExporter = operationLogsExporter;
     }
 
     @Override
@@ -56,8 +59,8 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
             this.stepLogger = createStepLogger(execution);
             notifyInternal(execution);
         } catch (Exception e) {
-            logException(e, Messages.EXECUTION_OF_PROCESS_LISTENER_HAS_FAILED);
-            throw new SLException(e, Messages.EXECUTION_OF_PROCESS_LISTENER_HAS_FAILED);
+            logException(e, Messages.EXECUTION_OF_PROCESS_LISTENER_HAS_FAILED + e.getMessage());
+            throw new SLException(e, Messages.EXECUTION_OF_PROCESS_LISTENER_HAS_FAILED + e.getMessage());
         } finally {
             processLoggerPersister.persistLogs(ProcessLoggerPersisterUtil.createProcessLoggerPersisterConfiguration(execution));
         }
@@ -108,7 +111,7 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     }
 
     private StepLogger createStepLogger(DelegateExecution execution) {
-        return stepLoggerFactory.create(execution, progressMessageService, processLoggerProvider, getLogger());
+        return stepLoggerFactory.create(execution, progressMessageService, processLoggerProvider, getLogger(), operationLogsExporter);
     }
 
     protected boolean isRootProcess(DelegateExecution execution) {
@@ -119,6 +122,10 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
 
     protected void setVariableInParentProcess(DelegateExecution execution, String variableName, Object value) {
         flowableFacade.setVariableInParentProcess(execution, variableName, value);
+    }
+
+    protected void setVariableInParentProcessXSA(DelegateExecution execution, String variableName, Object value) {
+        flowableFacade.setVariableInParentProcessXSA(execution, variableName, value);
     }
 
     protected abstract void notifyInternal(DelegateExecution execution) throws Exception;

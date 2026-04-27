@@ -4,6 +4,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
@@ -21,14 +22,15 @@ public class LeaveTestingPhaseListener extends AbstractProcessExecutionListener 
     protected LeaveTestingPhaseListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
                                         ProcessLoggerProvider processLoggerProvider, ProcessLoggerPersister processLoggerPersister,
                                         HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
-                                        ApplicationConfiguration configuration) {
+                                        ApplicationConfiguration configuration, OperationLogsExporter operationLogsExporter) {
         super(progressMessageService,
               stepLoggerFactory,
               processLoggerProvider,
               processLoggerPersister,
               historicOperationEventService,
               flowableFacade,
-              configuration);
+              configuration,
+              operationLogsExporter);
     }
 
     @Override

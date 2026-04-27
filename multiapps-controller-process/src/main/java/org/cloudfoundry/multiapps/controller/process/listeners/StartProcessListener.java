@@ -23,6 +23,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoric
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
@@ -62,14 +63,16 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
                                 HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
                                 ApplicationConfiguration configuration, ProcessTypeParser processTypeParser,
                                 OperationService operationService, ProcessTypeToOperationMetadataMapper operationMetadataMapper,
-                                DynatracePublisher dynatracePublisher, FileService fileService) {
+                                DynatracePublisher dynatracePublisher, FileService fileService,
+                                OperationLogsExporter operationLogsExporter) {
         super(progressMessageService,
               stepLoggerFactory,
               processLoggerProvider,
               processLoggerPersister,
               historicOperationEventService,
               flowableFacade,
-              configuration);
+              configuration,
+              operationLogsExporter);
         this.processTypeParser = processTypeParser;
         this.operationService = operationService;
         this.operationMetadataMapper = operationMetadataMapper;

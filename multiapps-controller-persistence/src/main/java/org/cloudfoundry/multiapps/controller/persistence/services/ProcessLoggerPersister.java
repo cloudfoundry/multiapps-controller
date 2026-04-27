@@ -12,6 +12,7 @@ import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableOperationLogEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProcessLoggerPersisterConfiguration;
+import org.springframework.scheduling.annotation.Async;
 
 @Named("processLoggerPersister")
 public class ProcessLoggerPersister {
@@ -29,7 +30,7 @@ public class ProcessLoggerPersister {
         this.operationLogsExporter = operationLogsExporter;
     }
 
-    //    @Async("asyncExecutor")
+    @Async("asyncExecutor")
     public void persistLogs(ProcessLoggerPersisterConfiguration processLoggerPersisterConfiguration) {
 
         List<ProcessLogger> processLoggers = processLoggerProvider.getExistingLoggers(processLoggerPersisterConfiguration.correlationId(),
@@ -52,11 +53,11 @@ public class ProcessLoggerPersister {
                                                                             .withIsSendToCloudLoggingService(false)
                                                                             .withModified(LocalDateTime.now());
 
-            OperationLogEntry operationLogEntry2 = operationLogsExporter.sendLogsToCloudLoggingService(
-                processLoggerPersisterConfiguration.loggingConfiguration(), operationLogEntry);
-            if (operationLogEntry2 != null) {
-                operationLogEntry = operationLogEntry2;
-            }
+            //            operationLogsExporter.sendLogsToCloudLoggingService(processLoggerPersisterConfiguration.loggingConfiguration(),
+            //                                                                operationLogEntry);
+            //            if (operationLogEntry2 != null) {
+            //                operationLogEntry = operationLogEntry2;
+            //            }
 
             processLogsPersistenceService.persistLog(operationLogEntry);
         }

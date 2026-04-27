@@ -980,4 +980,9 @@ public interface Variables {
                                                                     .name("isLogCacheCleared")
                                                                     .defaultValue(false)
                                                                     .build();
+
+    Variable<String> PARENT_PROCESS_INSTANCE_ID = ImmutableSimpleVariable.<String> builder()
+                                                                         .name("parentProcessInstanceId")
+                                                                         .defaultValue("")
+                                                                         .build();
 }

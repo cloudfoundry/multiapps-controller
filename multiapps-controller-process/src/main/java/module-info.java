@@ -68,5 +68,6 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires reactor.netty.core;
     requires reactor.netty.http;
     requires org.cloudfoundry.multiapps.controller.shutdown.client;
+    requires com.google.errorprone.annotations;
 
 }

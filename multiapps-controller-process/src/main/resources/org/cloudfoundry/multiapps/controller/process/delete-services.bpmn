@@ -38,7 +38,7 @@
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
         <flowable:in source="mtaId" target="mtaId"></flowable:in>
         <flowable:in source="isLogCacheCleared" target="isLogCacheCleared"></flowable:in>
-        <flowable:in source="externalLoggingServiceWebClient" target="externalLoggingServiceWebClient"></flowable:in>
+        <flowable:in source="externalLoggingServiceConfigurations" target="externalLoggingServiceConfigurations"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="cloudServiceBindingsToDelete" flowable:elementVariable="serviceBindingToDelete">
         <extensionElements>
@@ -72,7 +72,7 @@
             <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
             <flowable:in source="mtaId" target="mtaId"></flowable:in>
             <flowable:in source="isLogCacheCleared" target="isLogCacheCleared"></flowable:in>
-            <flowable:in source="externalLoggingServiceWebClient" target="externalLoggingServiceWebClient"></flowable:in>
+            <flowable:in source="externalLoggingServiceConfigurations" target="externalLoggingServiceConfigurations"></flowable:in>
         </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="cloudServiceKeysToDelete" flowable:elementVariable="serviceKeyToProcess">
         <extensionElements></extensionElements>

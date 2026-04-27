@@ -57,6 +57,18 @@ public class OperationLogsExporter {
         this.processLogsPersistenceService = processLogsPersistenceService;
     }
 
+    public void sendLogsToCloudLoggingService(LoggingConfiguration loggingConfiguration, String message) {
+        List<List<ExternalOperationLogEntry>> externalOperationLogEntryBatches = getExternalOperationLogEntryBatches(loggingConfiguration,
+                                                                                                                     message);
+
+        WebClient cloudLogginServiceWebClient = getCloudLogginServiceWebClient(loggingConfiguration);
+        if (cloudLogginServiceWebClient == null) {
+            return;
+        }
+
+        sendLogsToCloudLoggingService(externalOperationLogEntryBatches, cloudLogginServiceWebClient, loggingConfiguration);
+    }
+
     public OperationLogEntry sendLogsToCloudLoggingService(LoggingConfiguration loggingConfiguration, OperationLogEntry operationLogEntry) {
         if (loggingConfiguration == null) {
             return null;
@@ -79,8 +91,23 @@ public class OperationLogsExporter {
     }
 
     private List<List<ExternalOperationLogEntry>> getExternalOperationLogEntryBatches(LoggingConfiguration loggingConfiguration,
+                                                                                      String message) {
+        Map<LogLevel, List<LogLogLog>> operationLogs = getLogsFromOperationLogEntry(message);
+        Map<LogLevel, List<LogLogLog>> filteredOperationLogs = removeLogsWithUnwantedLogLevel(loggingConfiguration, operationLogs);
+        List<ExternalOperationLogEntry> externalOperationLogEntries = new ArrayList<>();
+        String logName = message.substring(message.indexOf("."), message.indexOf("#", message.indexOf(".") + 1));
+
+        for (Map.Entry<LogLevel, List<LogLogLog>> operationLog : filteredOperationLogs.entrySet()) {
+            for (LogLogLog log : operationLog.getValue()) {
+                externalOperationLogEntries.add(convertToExternalLogEntry(loggingConfiguration, log, operationLog.getKey(), logName));
+            }
+        }
+        return getLogEntryBatches(externalOperationLogEntries);
+    }
+
+    private List<List<ExternalOperationLogEntry>> getExternalOperationLogEntryBatches(LoggingConfiguration loggingConfiguration,
                                                                                       OperationLogEntry operationLogEntry) {
-        Map<LogLevel, List<LogLogLog>> operationLogs = getLogsFromOperationLogEntry(loggingConfiguration, operationLogEntry);
+        Map<LogLevel, List<LogLogLog>> operationLogs = getLogsFromOperationLogEntry(operationLogEntry.getOperationLog());
         Map<LogLevel, List<LogLogLog>> filteredOperationLogs = removeLogsWithUnwantedLogLevel(loggingConfiguration, operationLogs);
         List<ExternalOperationLogEntry> externalOperationLogEntries = new ArrayList<>();
 
@@ -173,36 +200,9 @@ public class OperationLogsExporter {
         return batches;
     }
 
-    private Map<LogLevel, List<LogLogLog>> getLogsFromOperationLogEntry(LoggingConfiguration loggingConfiguration,
-                                                                        OperationLogEntry operationLogEntry) {
-        List<OperationLogEntry> operationLogEntries = getUnsendProcessLogs(loggingConfiguration);
+    private Map<LogLevel, List<LogLogLog>> getLogsFromOperationLogEntry(String message) {
         Map<LogLevel, List<LogLogLog>> logsMap = new HashMap<>();
-
-        for (OperationLogEntry ope : operationLogEntries) {
-            if (ope.getOperationLogName()
-                   .equals("OPERATION.log")) {
-
-                getMessagesToLog(ope.getOperationLog(), logsMap);
-                try {
-                    processLogsPersistenceService.updateIsSendToCloudLoggingService(ope.getId(), true);
-                } catch (FileStorageException e) {
-                    logErrorOrThrowExceptionBasedOnFailSafe(loggingConfiguration, e.getMessage());
-                }
-            }
-        }
-        if (operationLogEntry.getOperationLogName()
-                             .equals("OPERATION.log")) {
-            getMessagesToLog(operationLogEntry.getOperationLog(), logsMap);
-        }
-        for (var list : logsMap.values()) {
-            for (var l : list) {
-                if (l.log()
-                     .contains("Executing task \"startDeploySubProcessTask\" of process")) {
-                    System.out.println("");
-
-                }
-            }
-        }
+        getMessagesToLog(message, logsMap);
         return logsMap;
     }
 
@@ -211,9 +211,9 @@ public class OperationLogsExporter {
 
         List<String> logLevels = getLogLevels(log);
         List<LocalDateTime> dateLevels = getLogDate(log);
-        //        if (logLevels.isEmpty()) {
-        //            return;
-        //        }
+        if (logLevels.isEmpty()) {
+            return;
+        }
 
         int levelIndex = 0;
         for (String message : messages) {
@@ -262,7 +262,7 @@ public class OperationLogsExporter {
         return trimmed.substring(0, trimmed.length() - 1);
     }
 
-    private List<OperationLogEntry> getUnsendProcessLogs(LoggingConfiguration loggingConfiguration) {
+    public List<OperationLogEntry> getUnsendProcessLogs(LoggingConfiguration loggingConfiguration) {
         try {
             return processLogsPersistenceService.listOperationLogsBySpaceAndOperationIdAndIsSendToCloudLoggingService(
                 loggingConfiguration.getTargetSpace(), loggingConfiguration.getOperationId());
@@ -323,6 +323,20 @@ public class OperationLogsExporter {
                                                          .toString())
                                                  .operationLogName(operationLogEntry.getOperationLogName())
                                                  .correlationId(operationLogEntry.getOperationId())
+                                                 .level(level.name())
+                                                 .build();
+    }
+
+    private ExternalOperationLogEntry convertToExternalLogEntry(LoggingConfiguration loggingConfiguration, LogLogLog operationLog,
+                                                                LogLevel level, String logName) {
+        return ImmutableExternalOperationLogEntry.builder()
+                                                 .timestamp(String.valueOf(operationLog.dateTime()
+                                                                                       .atOffset(ZoneOffset.UTC)))
+                                                 .message(operationLog.log())
+                                                 .id(UUID.randomUUID()
+                                                         .toString())
+                                                 .operationLogName(logName)
+                                                 .correlationId(loggingConfiguration.getOperationId())
                                                  .level(level.name())
                                                  .build();
     }

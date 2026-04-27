@@ -70,7 +70,8 @@ class ManageAppServiceBindingEndListenerTest {
                                                                                     historicOperationEventService,
                                                                                     flowableFacade,
                                                                                     configuration,
-                                                                                    processTypeParser);
+                                                                                    processTypeParser,
+                                                                                    operationLogsExporter);
     }
 
     // @formatter:off

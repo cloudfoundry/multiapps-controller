@@ -6,6 +6,7 @@ import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
@@ -28,14 +29,16 @@ public class EnterTestingPhaseListener extends AbstractProcessExecutionListener 
     protected EnterTestingPhaseListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
                                         ProcessLoggerProvider processLoggerProvider, ProcessLoggerPersister processLoggerPersister,
                                         HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
-                                        ApplicationConfiguration configuration, OperationService operationService) {
+                                        ApplicationConfiguration configuration, OperationService operationService,
+                                        OperationLogsExporter operationLogsExporter) {
         super(progressMessageService,
               stepLoggerFactory,
               processLoggerProvider,
               processLoggerPersister,
               historicOperationEventService,
               flowableFacade,
-              configuration);
+              configuration,
+              operationLogsExporter);
         this.operationService = operationService;
     }
 

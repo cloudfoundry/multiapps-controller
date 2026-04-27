@@ -1,5 +1,8 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+
 import io.netty.handler.timeout.TimeoutException;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -33,9 +36,6 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
 
 public abstract class SyncFlowableStep implements JavaDelegate {
 
@@ -212,7 +212,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
     }
 
     protected void initializeStepLogger(DelegateExecution execution) {
-        stepLogger = stepLoggerFactory.create(execution, progressMessageService, processLoggerProvider, logger);
+        stepLogger = stepLoggerFactory.create(execution, progressMessageService, processLoggerProvider, logger, operationLogsExporter);
     }
 
     protected Exception getWithProperMessage(Exception e) {

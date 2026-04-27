@@ -117,7 +117,8 @@ class StartProcessListenerTest {
                                             operationService,
                                             operationMetadataMapper,
                                             dynatracePublisher,
-                                            fileService);
+                                            fileService,
+                                            operationLogsExporter);
     }
 
     @ParameterizedTest
@@ -135,7 +136,7 @@ class StartProcessListenerTest {
 
     private void prepare() {
         prepareContext();
-        Mockito.when(stepLoggerFactory.create(any(), any(), any(), any()))
+        Mockito.when(stepLoggerFactory.create(any(), any(), any(), any(), any()))
                .thenReturn(stepLogger);
         Mockito.when(operationService.createQuery())
                .thenReturn(operationQuery);

@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.flowable;
 
-import static java.text.MessageFormat.format;
-
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -12,9 +10,9 @@ import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 import org.flowable.common.engine.api.FlowableOptimisticLockingException;
@@ -31,6 +29,8 @@ import org.flowable.variable.api.persistence.entity.VariableInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.DependsOn;
+
+import static java.text.MessageFormat.format;
 
 @Named
 @DependsOn("processEngine")
@@ -299,4 +299,9 @@ public class FlowableFacade {
                      .setVariable(parentProcessId, variableName, value);
     }
 
+    public void setVariableInParentProcessXSA(DelegateExecution execution, String variableName, Object value) {
+        String parentProcessId = VariableHandling.get(execution, Variables.PARENT_PROCESS_INSTANCE_ID);
+        processEngine.getRuntimeService()
+                     .setVariable(parentProcessId, variableName, value);
+    }
 }

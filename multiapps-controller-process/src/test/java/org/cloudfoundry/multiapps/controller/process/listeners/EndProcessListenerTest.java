@@ -65,7 +65,8 @@ class EndProcessListenerTest {
                                                                        configuration,
                                                                        eventHandler,
                                                                        dynatracePublisher,
-                                                                       processTypeParser);
+                                                                       processTypeParser,
+                                                                       operationLogsExporter);
         // set the process as root process
         VariableHandling.set(execution, Variables.CORRELATION_ID, execution.getProcessInstanceId());
         VariableHandling.set(execution, Variables.SPACE_GUID, SPACE_ID);

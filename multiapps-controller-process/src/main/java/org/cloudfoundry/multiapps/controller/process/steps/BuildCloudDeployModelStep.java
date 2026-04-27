@@ -45,11 +45,8 @@ import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureS
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
-import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
-import org.cloudfoundry.multiapps.controller.process.util.DeprecatedBuildpackChecker;
-import org.cloudfoundry.multiapps.controller.process.util.ExternalLoggingServiceConfigurationsCalculator;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.builders.v2.ParametersChainBuilder;
@@ -70,7 +67,6 @@ import org.springframework.context.annotation.Scope;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 @Named("buildCloudDeployModelStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -95,7 +91,6 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.BUILDING_CLOUD_MODEL);
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
-        setExternalLoggingServiceConfigurationIfRequired(context, deploymentDescriptor);
         // Get module sets:
         DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
         List<DeployedMtaApplication> deployedApplications = (deployedMta != null) ? deployedMta.getApplications() : Collections.emptyList();
@@ -436,47 +431,6 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
     protected CustomServiceKeysClient getCustomServiceKeysClient(CloudCredentials credentials, String correlationId) {
         return new CustomServiceKeysClient(configuration, webClientFactory, credentials, correlationId);
-    }
-
-    protected void setExternalLoggingServiceConfigurationIfRequired(ProcessContext context,
-                                                                    DeploymentDescriptor deploymentDescriptor) {
-        if (!isCloudLoggingEnabled(deploymentDescriptor)) {
-            return;
-        }
-        ExternalLoggingServiceConfigurationsCalculator calculator = new ExternalLoggingServiceConfigurationsCalculator(clientFactory,
-                                                                                                                       context,
-                                                                                                                       tokenService);
-        Resource resource = getLoggingServiceResource(deploymentDescriptor.getResources());
-        LoggingConfiguration loggingConfiguration = calculator.exportOperationLogsToExternalSystem(resource);
-        context.setVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION, loggingConfiguration);
-    }
-
-    private boolean isCloudLoggingEnabled(DeploymentDescriptor deploymentDescriptor) {
-        if (deploymentDescriptor.getResources()
-                                .isEmpty()) {
-            return false;
-        }
-
-        return deploymentDescriptor.getResources()
-                                   .stream()
-                                   .anyMatch(BuildCloudDeployModelStep::isCloudLoggingServiceResource);
-    }
-
-    private Resource getLoggingServiceResource(List<Resource> resources) {
-        return resources.stream()
-                        .filter(BuildCloudDeployModelStep::isCloudLoggingServiceResource)
-                        .findFirst()
-                        .get();
-    }
-
-    private static boolean isCloudLoggingServiceResource(Resource resource) {
-        String resourceType = resource.getType()
-                                      .replace("org.cloudfoundry.", EMPTY);
-        ResourceType resourceType1 = ResourceType.get(resourceType);
-        if (resourceType1 == null) {
-            return false;
-        }
-        return ResourceType.CLOUD_LOGGING_SERVICE.equals(resourceType1);
     }
 
 }

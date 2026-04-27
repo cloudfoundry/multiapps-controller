@@ -21,6 +21,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvid
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersistenceService;
@@ -109,6 +110,8 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     protected final ProcessLoggerProvider processLoggerProvider = Mockito.spy(ProcessLoggerProvider.class);
     @Mock
     protected ProcessHelper processHelper;
+    @Mock
+    protected OperationLogsExporter operationLogsExporter;
 
     protected ProcessContext context;
     @InjectMocks
@@ -121,9 +124,9 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
         MockitoAnnotations.openMocks(this)
                           .close();
         this.stepLogger = Mockito.spy(
-            new StepLogger(execution, progressMessageService, processLoggerProvider, LOGGER));
+            new StepLogger(execution, progressMessageService, processLoggerProvider, LOGGER, operationLogsExporter));
         this.context = step.createProcessContext(execution);
-        when(stepLoggerFactory.create(any(), any(), any(), any())).thenReturn(stepLogger);
+        when(stepLoggerFactory.create(any(), any(), any(), any(), any())).thenReturn(stepLogger);
         context.setVariable(Variables.SPACE_NAME, SPACE_NAME);
         context.setVariable(Variables.SPACE_GUID, SPACE_GUID);
         context.setVariable(Variables.USER, USER_NAME);

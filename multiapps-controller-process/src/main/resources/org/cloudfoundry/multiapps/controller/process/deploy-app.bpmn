@@ -94,7 +94,7 @@
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
         <flowable:in source="mtaId" target="mtaId"></flowable:in>
         <flowable:in source="isLogCacheCleared" target="isLogCacheCleared"></flowable:in>
-        <flowable:in source="externalLoggingServiceWebClient" target="externalLoggingServiceWebClient"></flowable:in>
+        <flowable:in source="externalLoggingServiceConfigurations" target="externalLoggingServiceConfigurations"></flowable:in>
       </extensionElements>
     </callActivity>
     <callActivity id="hooksCallActivity" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution, execution)}" flowable:calledElementType="key" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">

@@ -6,6 +6,7 @@ import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
@@ -34,14 +35,16 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
                               ProcessLoggerProvider processLoggerProvider, ProcessLoggerPersister processLoggerPersister,
                               HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
                               ApplicationConfiguration configuration, OperationInFinalStateHandler eventHandler,
-                              DynatracePublisher dynatracePublisher, ProcessTypeParser processTypeParser) {
+                              DynatracePublisher dynatracePublisher, ProcessTypeParser processTypeParser,
+                              OperationLogsExporter operationLogsExporter) {
         super(progressMessageService,
               stepLoggerFactory,
               processLoggerProvider,
               processLoggerPersister,
               historicOperationEventService,
               flowableFacade,
-              configuration);
+              configuration,
+              operationLogsExporter);
         this.eventHandler = eventHandler;
         this.dynatracePublisher = dynatracePublisher;
         this.processTypeParser = processTypeParser;
@@ -52,6 +55,16 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
         if (isRootProcess(execution)) {
             eventHandler.handle(execution, processTypeParser.getProcessType(execution, false), Operation.State.FINISHED);
             publishDynatraceEvent(execution, processTypeParser.getProcessType(execution, false));
+        } else {
+            if (VariableHandling.get(execution, Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION) != null) {
+                setVariableInParentProcessXSA(execution,
+                                              Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION.getName(),
+                                              Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION.getSerializer()
+                                                                                              .serialize(
+                                                                                                  VariableHandling.get(
+                                                                                                      execution,
+                                                                                                      Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION)));
+            }
         }
     }
 
