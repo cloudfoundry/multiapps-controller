@@ -8,7 +8,6 @@ import java.util.Set;
 import io.pivotal.cfenv.core.CfCredentials;
 import io.pivotal.cfenv.core.CfService;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-import org.cloudfoundry.multiapps.controller.persistence.services.AzureObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.GcpObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.JCloudsObjectStoreFileStorage;
@@ -28,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.doThrow;
@@ -56,9 +54,6 @@ class ObjectStoreFileStorageFactoryBeanTest {
     @Mock
     private GcpObjectStoreFileStorage gcpObjectStoreFileStorage;
 
-    @Mock
-    private AzureObjectStoreFileStorage azureObjectStoreFileStorage;
-
     @BeforeEach
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
@@ -84,7 +79,7 @@ class ObjectStoreFileStorageFactoryBeanTest {
     }
 
     @Test
-    void testObjectStoreCreationWhenEnvIsValidForAws() {
+    void testObjectStoreCreationWhenEnvIsValid() {
         mockCfService();
         when(applicationConfiguration.getObjectStoreClientType()).thenReturn(Constants.AWS);
         ObjectStoreFileStorageFactoryBean spy = spy(objectStoreFileStorageFactoryBean);
@@ -97,41 +92,6 @@ class ObjectStoreFileStorageFactoryBeanTest {
             .createObjectStoreFromFirstReachableProvider(anyMap(), anyList());
         verify(jCloudsObjectStoreFileStorage, times(1))
             .testConnection();
-        assertTrue(createdObjectStoreFileStorage instanceof JCloudsObjectStoreFileStorage);
-    }
-
-    @Test
-    void testObjectStoreCreationWhenEnvIsValidForAzure() {
-        mockCfService();
-        when(applicationConfiguration.getObjectStoreClientType()).thenReturn(Constants.AZURE);
-        ObjectStoreFileStorageFactoryBean spy = spy(objectStoreFileStorageFactoryBean);
-
-        spy.afterPropertiesSet();
-        FileStorage createdObjectStoreFileStorage = spy.getObject();
-
-        assertNotNull(createdObjectStoreFileStorage);
-        verify(spy, never())
-            .createObjectStoreFromFirstReachableProvider(anyMap(), anyList());
-        verify(azureObjectStoreFileStorage, times(1))
-            .testConnection();
-        assertTrue(createdObjectStoreFileStorage instanceof AzureObjectStoreFileStorage);
-    }
-
-    @Test
-    void testObjectStoreCreationWhenEnvIsValid() {
-        mockCfService();
-        when(applicationConfiguration.getObjectStoreClientType()).thenReturn(Constants.GCP);
-        ObjectStoreFileStorageFactoryBean spy = spy(objectStoreFileStorageFactoryBean);
-
-        spy.afterPropertiesSet();
-        FileStorage createdObjectStoreFileStorage = spy.getObject();
-
-        assertNotNull(createdObjectStoreFileStorage);
-        verify(spy, never())
-            .createObjectStoreFromFirstReachableProvider(anyMap(), anyList());
-        verify(gcpObjectStoreFileStorage, times(1))
-            .testConnection();
-        assertTrue(createdObjectStoreFileStorage instanceof GcpObjectStoreFileStorage);
     }
 
     @Test
@@ -167,8 +127,6 @@ class ObjectStoreFileStorageFactoryBeanTest {
                                                                         .testConnection();
         doThrow(new IllegalStateException("Cannot create object store")).when(gcpObjectStoreFileStorage)
                                                                         .testConnection();
-        doThrow(new IllegalStateException("Cannot create object store")).when(azureObjectStoreFileStorage)
-                                                                        .testConnection();
         Exception exception = assertThrows(IllegalStateException.class, () -> objectStoreFileStorageFactoryBean.afterPropertiesSet());
         assertEquals(Messages.NO_VALID_OBJECT_STORE_CONFIGURATION_FOUND, exception.getMessage());
     }
@@ -202,13 +160,8 @@ class ObjectStoreFileStorageFactoryBeanTest {
         }
 
         @Override
-        protected GcpObjectStoreFileStorage createGcpFileStorage(ObjectStoreServiceInfo credentials) {
+        protected GcpObjectStoreFileStorage createGcpFileStorage() {
             return ObjectStoreFileStorageFactoryBeanTest.this.gcpObjectStoreFileStorage;
-        }
-
-        @Override
-        protected AzureObjectStoreFileStorage createAzureFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
-            return ObjectStoreFileStorageFactoryBeanTest.this.azureObjectStoreFileStorage;
         }
 
         @Override

@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.cloudfoundry.multiapps</groupId>
     <artifactId>multiapps-controller-parent</artifactId>
-    <version>2.45.0-SNAPSHOT</version>
+    <version>2.44.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>MultiApps Controller Parent</name>
     <description>Multi-Target Application (MTA) deployment service for Cloud Foundry</description>
@@ -15,56 +15,52 @@
         <sonar.organization>cloudfoundry</sonar.organization>
         <sonar.coverage.jacoco.xmlReportPaths>../multiapps-controller-coverage/target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
-        <junit.version>6.0.3</junit.version>
-        <mockito.version>5.23.0</mockito.version>
+        <junit.version>6.0.2</junit.version>
+        <mockito.version>5.21.0</mockito.version>
         <h2.version>2.4.240</h2.version>
         <servlet-api.version>6.1.0</servlet-api.version>
-        <log4j.version>2.25.4</log4j.version>
+        <log4j.version>2.25.3</log4j.version>
         <slf4j.version>2.0.17</slf4j.version>
         <commons-io.version>2.21.0</commons-io.version>
         <commons-collections4.version>4.5.0</commons-collections4.version>
-        <snakeyaml.version>2.6</snakeyaml.version>
+        <snakeyaml.version>2.5</snakeyaml.version>
         <httpclient.version>5.6</httpclient.version>
-        <httpcore.version>5.4.2</httpcore.version>
+        <httpcore.version>5.4</httpcore.version>
         <eclipselink.version>4.0.9</eclipselink.version>
         <flowable.version>7.2.0</flowable.version>
-        <spring.version>6.2.17</spring.version>
-        <spring-security.version>6.5.9</spring-security.version>
+        <spring.version>6.2.16</spring.version>
+        <spring-security.version>6.5.7</spring-security.version>
         <hikari.version>7.0.2</hikari.version>
         <jackson-annotations.version>2.21</jackson-annotations.version>
-        <jackson.version>3.1.1</jackson.version>
-        <fasterxml.jackson.version>2.21.2</fasterxml.jackson.version>
+        <jackson.version>3.0.4</jackson.version>
         <liquibase.version>4.33.0</liquibase.version>
         <liquibase-slf4j.version>5.1.0</liquibase-slf4j.version>
         <cloudfoundry-client.version>5.16.0.RELEASE</cloudfoundry-client.version>
         <!--reactor netty 1.3.x uses direct memory leading to OOM errors-->
-        <reactor-netty.version>1.2.16</reactor-netty.version>
+        <reactor-netty.version>1.2.15</reactor-netty.version>
         <swagger.version>1.6.16</swagger.version>
         <jclouds.version>2.7.0</jclouds.version>
         <guava.version>33.5.0-jre</guava.version>
-        <resilience4j.version>2.4.0</resilience4j.version>
+        <resilience4j.version>2.3.0</resilience4j.version>
         <immutables.version>2.12.1</immutables.version>
-        <micrometer.version>1.16.4</micrometer.version>
+        <micrometer.version>1.16.3</micrometer.version>
         <aliyun-sdk-oss.version>3.18.5</aliyun-sdk-oss.version>
         <!-- auto-service hasn't had a new release since 12.06.2023 - should check for alternatives in the future -->
         <auto-service.version>1.1.1</auto-service.version>
         <commons-codec.version>1.21.0</commons-codec.version>
-        <multiapps.version>2.48.0</multiapps.version>
-        <java-cfenv.version>4.0.0</java-cfenv.version>
+        <multiapps.version>2.45.0</multiapps.version>
+        <java-cfenv.version>3.5.1</java-cfenv.version>
         <jaxb-api.version>4.0.5</jaxb-api.version>
-        <jaxb-core.version>4.0.7</jaxb-core.version>
+        <jaxb-core.version>4.0.6</jaxb-core.version>
         <jakarta.inject-api.version>2.0.1</jakarta.inject-api.version>
         <jakarta.annotation-api.version>3.0.0</jakarta.annotation-api.version>
         <bouncycastle.version>2.1.10</bouncycastle.version>
         <apache.compress.version>1.28.0</apache.compress.version>
-        <tika-core.version>3.3.0</tika-core.version>
-        <commons-logging.version>1.3.6</commons-logging.version>
-        <google-cloud.version>2.64.1</google-cloud.version>
-        <google-cloud-nio.version>0.128.14</google-cloud-nio.version>
-        <azure-storage-blob.version>12.33.3</azure-storage-blob.version>
-        <azure-core-http-okhttp.version>1.13.3</azure-core-http-okhttp.version>
+        <tika-core.version>3.2.3</tika-core.version>
+        <commons-logging.version>1.3.5</commons-logging.version>
+        <google-cloud.version>2.62.1</google-cloud.version>
+        <google-cloud-nio.version>0.128.11</google-cloud-nio.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
-        <wire-runtime.version>6.2.0</wire-runtime.version>
     </properties>
     <modules>
         <module>multiapps-controller-client</module>
@@ -307,16 +303,6 @@
                 <version>${google-cloud-nio.version}</version>
                 <scope>test</scope>
             </dependency>
-            <dependency>
-                <groupId>com.azure</groupId>
-                <artifactId>azure-storage-blob</artifactId>
-                <version>${azure-storage-blob.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.azure</groupId>
-                <artifactId>azure-core-http-okhttp</artifactId>
-                <version>${azure-core-http-okhttp.version}</version>
-            </dependency>
             <!-- https://mvnrepository.com/artifact/org.immutables/value -->
             <dependency>
                 <groupId>org.immutables</groupId>
@@ -494,7 +480,7 @@
                 <artifactId>commons-collections4</artifactId>
                 <version>${commons-collections4.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents.core5/httpcore5 -->
+            <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore -->
             <dependency>
                 <groupId>org.apache.httpcomponents.core5</groupId>
                 <artifactId>httpcore5</artifactId>
@@ -710,18 +696,6 @@
                 <artifactId>jackson-annotations</artifactId>
                 <version>${jackson-annotations.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-                <version>${fasterxml.jackson.version}</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${fasterxml.jackson.version}</version>
-            </dependency>
             <!-- https://mvnrepository.com/artifact/tools.jackson.core/jackson-core -->
             <dependency>
                 <groupId>tools.jackson.core</groupId>
@@ -814,13 +788,6 @@
                 <groupId>io.github.resilience4j</groupId>
                 <artifactId>resilience4j-ratelimiter</artifactId>
                 <version>${resilience4j.version}</version>
-            </dependency>
-            <!-- Transitive dependency from org.cloudfoundry:cloudfoundry-client-reactor. Version 3.7.1 has security vulnerabilities and in order to avoid them, an explicit version is required. -->
-            <!-- https://mvnrepository.com/artifact/com.squareup.wire/wire-runtime -->
-            <dependency>
-                <groupId>com.squareup.wire</groupId>
-                <artifactId>wire-runtime</artifactId>
-                <version>${wire-runtime.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-fips -->
             <dependency>
