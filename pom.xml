@@ -29,7 +29,7 @@
         <eclipselink.version>4.0.9</eclipselink.version>
         <flowable.version>7.2.0</flowable.version>
         <spring.version>6.2.17</spring.version>
-        <spring-security.version>6.5.9</spring-security.version>
+        <spring-security.version>6.5.10</spring-security.version>
         <hikari.version>7.0.2</hikari.version>
         <jackson-annotations.version>2.21</jackson-annotations.version>
         <jackson.version>3.1.1</jackson.version>
