@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
@@ -11,7 +9,9 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudSer
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 
-class PollServiceUnbindingLastOperationExecutionTest extends AsyncStepOperationTest<UnbindServiceFromApplicationStep> {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class PollServiceUnbindingsLastOperationExecutionTest extends AsyncStepOperationTest<UnbindServiceFromApplicationStep> {
 
     private static final String APP_TO_PROCESS_NAME = "test-app";
     private static final String SERVICE_TO_UNBIND_BIND = "test-service-instance";
@@ -45,7 +45,7 @@ class PollServiceUnbindingLastOperationExecutionTest extends AsyncStepOperationT
 
     @Override
     protected List<AsyncExecution> getAsyncOperations(ProcessContext wrapper) {
-        return List.of(new PollServiceUnbindingLastOperationExecution());
+        return List.of(new PollServiceUnbindingsLastOperationExecution());
     }
 
     @Override

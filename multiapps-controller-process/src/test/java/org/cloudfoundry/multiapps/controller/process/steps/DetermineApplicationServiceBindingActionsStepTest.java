@@ -35,6 +35,7 @@ class DetermineApplicationServiceBindingActionsStepTest extends SyncFlowableStep
 
     private static final String APP_NAME = "test_application";
     private static final String SERVICE_INSTANCE_NAME = "test_service";
+    private static final UUID SERVICE_INSTANCE_GUID = UUID.randomUUID();
 
     @Mock
     private ServiceBindingParametersGetter serviceBindingParametersGetter;
@@ -140,6 +141,13 @@ class DetermineApplicationServiceBindingActionsStepTest extends SyncFlowableStep
                                            .build();
     }
 
+    private CloudServiceBinding buildExistingBinding(UUID appGuid) {
+        return ImmutableCloudServiceBinding.builder()
+                                           .applicationGuid(appGuid)
+                                           .serviceInstanceGuid(SERVICE_INSTANCE_GUID)
+                                           .build();
+    }
+
     private CloudApplicationExtended buildCloudApplicationExtended(boolean servicePartFromMta, boolean keepExistingBinding) {
         CloudApplicationExtended.AttributeUpdateStrategy attributeUpdateStrategy = ImmutableCloudApplicationExtended.ImmutableAttributeUpdateStrategy.builder()
                                                                                                                                                      .shouldKeepExistingServiceBindings(
@@ -162,6 +170,7 @@ class DetermineApplicationServiceBindingActionsStepTest extends SyncFlowableStep
 
     private void prepareClient(CloudApplicationExtended application, boolean serviceBindingExist) {
         when(client.getApplication(APP_NAME)).thenReturn(application);
+        when(client.getRequiredServiceInstanceGuid(SERVICE_INSTANCE_NAME)).thenReturn(SERVICE_INSTANCE_GUID);
         if (serviceBindingExist) {
             when(appServicesGetter.getServiceInstanceNamesBoundToApp(application.getGuid())).thenReturn(List.of(SERVICE_INSTANCE_NAME));
         }
@@ -171,6 +180,8 @@ class DetermineApplicationServiceBindingActionsStepTest extends SyncFlowableStep
                                                        Map<String, Object> existingServiceBindingParameters) throws FileStorageException {
         when(serviceBindingParametersGetter.getServiceBindingParametersFromMta(any(), any())).thenReturn(mtaBindingParameters);
         when(serviceBindingParametersGetter.getServiceBindingParametersFromExistingInstance(any(), any())).thenReturn(
+            existingServiceBindingParameters);
+        when(serviceBindingParametersGetter.getServiceBindingParametersFromExistingInstance(any(), any(), any())).thenReturn(
             existingServiceBindingParameters);
     }
 

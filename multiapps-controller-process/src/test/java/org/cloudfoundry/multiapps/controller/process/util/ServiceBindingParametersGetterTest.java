@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
@@ -21,7 +22,6 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableBindingD
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
@@ -74,15 +74,12 @@ class ServiceBindingParametersGetterTest {
     @Mock
     private CloudControllerClient client;
 
-    @Mock
-    private FileService fileService;
-
     private ServiceBindingParametersGetter serviceBindingParametersGetter;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        serviceBindingParametersGetter = new ServiceBindingParametersGetter(context, archiveEntryExtractor, 0, fileService);
+        serviceBindingParametersGetter = new ServiceBindingParametersGetter(context, archiveEntryExtractor, 0);
 
     }
 
@@ -145,7 +142,7 @@ class ServiceBindingParametersGetterTest {
         prepareContext(serviceInstance);
         prepareClient(null, false);
 
-        assertThrows(CloudOperationException.class,
+        assertThrows(SLException.class,
                      () -> serviceBindingParametersGetter.getServiceBindingParametersFromExistingInstance(application, SERVICE_NAME));
     }
 
@@ -245,10 +242,10 @@ class ServiceBindingParametersGetterTest {
                                                                                                                                ServiceCredentialBindingOperation.State.SUCCEEDED)
                                                                                                                            .build())
                                                                              .build();
-            when(client.getServiceBindingForApplication(RANDOM_GUID, RANDOM_GUID)).thenReturn(serviceBinding);
+            when(client.getServiceBindingsForApplication(RANDOM_GUID, RANDOM_GUID)).thenReturn(List.of(serviceBinding));
             return;
         }
-        when(client.getServiceBindingForApplication(RANDOM_GUID, RANDOM_GUID)).thenThrow(new CloudOperationException(HttpStatus.NOT_FOUND));
+        when(client.getServiceBindingsForApplication(RANDOM_GUID, RANDOM_GUID)).thenReturn(List.of());
     }
 
 }

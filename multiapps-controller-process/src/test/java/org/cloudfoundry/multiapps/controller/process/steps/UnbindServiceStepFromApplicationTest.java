@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.cloudfoundry.multiapps.common.SLException;
@@ -46,7 +45,7 @@ class UnbindServiceStepFromApplicationTest extends SyncFlowableStepTest<UnbindSe
     void testAsyncUnbindService() {
         prepareContext();
         when(client.unbindServiceInstance(eq(APPLICATION_NAME), eq(SERVICE_NAME),
-                                          any(ApplicationServicesUpdateCallback.class))).thenReturn(Optional.of(JOB_ID));
+                                          any(ApplicationServicesUpdateCallback.class))).thenReturn(List.of(JOB_ID));
         step.execute(execution);
         assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
         verify(client).unbindServiceInstance(eq(APPLICATION_NAME), eq(SERVICE_NAME), any(ApplicationServicesUpdateCallback.class));
@@ -55,6 +54,8 @@ class UnbindServiceStepFromApplicationTest extends SyncFlowableStepTest<UnbindSe
     @Test
     void testSyncUnbindService() {
         prepareContext();
+        when(client.unbindServiceInstance(eq(APPLICATION_NAME), eq(SERVICE_NAME),
+                                          any(ApplicationServicesUpdateCallback.class))).thenReturn(List.of());
         step.execute(execution);
         assertStepFinishedSuccessfully();
         verify(client).unbindServiceInstance(eq(APPLICATION_NAME), eq(SERVICE_NAME), any(ApplicationServicesUpdateCallback.class));
@@ -66,12 +67,23 @@ class UnbindServiceStepFromApplicationTest extends SyncFlowableStepTest<UnbindSe
         when(client.unbindServiceInstance(eq(APPLICATION_NAME), eq(SERVICE_NAME),
                                           any(ApplicationServicesUpdateCallback.class))).then(answer -> {
             context.setVariable(Variables.USE_LAST_OPERATION_FOR_SERVICE_BINDING_DELETION, true);
-            return Optional.empty();
+            return List.of();
         });
         step.execute(execution);
         assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
         verify(client).unbindServiceInstance(eq(APPLICATION_NAME), eq(SERVICE_NAME), any(ApplicationServicesUpdateCallback.class));
         assertTrue(context.getVariable(Variables.USE_LAST_OPERATION_FOR_SERVICE_BINDING_DELETION));
+    }
+
+    @Test
+    void testAsyncUnbindServiceWithMultipleBindings() {
+        prepareContext();
+        String secondJobId = "456";
+        when(client.unbindServiceInstance(eq(APPLICATION_NAME), eq(SERVICE_NAME),
+                                          any(ApplicationServicesUpdateCallback.class))).thenReturn(List.of(JOB_ID, secondJobId));
+        step.execute(execution);
+        assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
+        assertEquals(List.of(JOB_ID, secondJobId), context.getVariable(Variables.SERVICE_UNBINDING_JOB_IDS));
     }
 
     @Test
@@ -132,7 +144,7 @@ class UnbindServiceStepFromApplicationTest extends SyncFlowableStepTest<UnbindSe
     void testDoNotThrowExceptionWhenDeletionIsInProgressByApplicationCallback() {
         ProcessContext customProcessContext = new ProcessContext(execution, stepLogger, clientProvider);
         CloudServiceBinding serviceBinding = buildCloudServiceBinding();
-        when(client.getServiceBindingForApplication(any(), any())).thenReturn(serviceBinding);
+        when(client.getServiceBindingsForApplication(any(), any())).thenReturn(List.of(serviceBinding));
         assertDoesNotThrow(() -> handleErrorInApplicationCallback(customProcessContext, HttpStatus.UNPROCESSABLE_ENTITY));
         assertTrue(customProcessContext.getVariable(Variables.USE_LAST_OPERATION_FOR_SERVICE_BINDING_DELETION));
     }

@@ -430,9 +430,9 @@ public interface CloudControllerClient {
      *
      * @param applicationId the GUID of the application
      * @param serviceInstanceGuid the GUID of the service instance
-     * @return the binding
+     * @return the bindings
      */
-    CloudServiceBinding getServiceBindingForApplication(UUID applicationId, UUID serviceInstanceGuid);
+    List<CloudServiceBinding> getServiceBindingsForApplication(UUID applicationId, UUID serviceInstanceGuid);
 
     /**
      * Get all service instance parameters.
@@ -561,28 +561,28 @@ public interface CloudControllerClient {
      * @param applicationName the application name
      * @param serviceInstanceName the service instance name
      * @param applicationServicesUpdateCallback callback used for error handling
-     * @return job id for async polling if present
+     * @return List job ids for async polling if present
      */
-    Optional<String> unbindServiceInstance(String applicationName, String serviceInstanceName,
-                                           ApplicationServicesUpdateCallback applicationServicesUpdateCallback);
+    List<String> unbindServiceInstance(String applicationName, String serviceInstanceName,
+                                       ApplicationServicesUpdateCallback applicationServicesUpdateCallback);
 
     /**
      * Un-associate (unprovision) a service from an application.
      *
      * @param applicationName the application name
      * @param serviceInstanceName the service instance name
-     * @return job id for async polling if present
+     * @return List of job ids for async polling if present
      */
-    Optional<String> unbindServiceInstance(String applicationName, String serviceInstanceName);
+    List<String> unbindServiceInstance(String applicationName, String serviceInstanceName);
 
     /**
      * Un-associate (unprovision) a service from an application.
      *
      * @param applicationGuid the application guid
      * @param serviceInstanceGuid the service instance guid
-     * @return job id for async polling if present
+     * @return List of job ids for async polling if present
      */
-    Optional<String> unbindServiceInstance(UUID applicationGuid, UUID serviceInstanceGuid);
+    List<String> unbindServiceInstance(UUID applicationGuid, UUID serviceInstanceGuid);
 
     /**
      * Update application disk quota.
