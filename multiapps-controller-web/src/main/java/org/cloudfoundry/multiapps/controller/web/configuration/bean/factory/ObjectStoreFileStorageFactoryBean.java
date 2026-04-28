@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,8 +37,6 @@ import java.util.stream.Stream;
 public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorage>, InitializingBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ObjectStoreFileStorageFactoryBean.class);
-    private static final Set<String> CUSTOM_REGIONS = Set.of("eu-south-1");
-    private static final String JCLOUDS_REGIONS = "jclouds.regions";
 
     private final String serviceName;
     private final EnvironmentServicesFinder environmentServicesFinder;
@@ -58,11 +57,11 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
 
     private FileStorage createObjectStoreFileStorage() {
         List<ObjectStoreServiceInfo> providersServiceInfo = getProvidersServiceInfo();
-        LOGGER.info("Object store providers detected: {}", providersServiceInfo.stream()
-                                                                               .map(ObjectStoreServiceInfo::getProvider)
-                                                                               .collect(java.util.stream.Collectors.joining(", ")));
+        LOGGER.info(Messages.OBJECT_STORE_PROVIDERS_DETECTED, providersServiceInfo.stream()
+                                                                                  .map(ObjectStoreServiceInfo::getProvider)
+                                                                                  .collect(Collectors.joining(", ")));
         if (providersServiceInfo.isEmpty()) {
-            LOGGER.warn("No object store providers detected from credentials. Service name: {}", serviceName);
+            LOGGER.warn(Messages.NO_OBJECT_STORE_PROVIDERS_DETECTED, serviceName);
             return null;
         }
         Map<String, Exception> exceptions = new HashMap<>();
@@ -70,15 +69,34 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
         if (!isObjectStoreEnvValid(objectStoreProviderName)) {
             return createObjectStoreFromFirstReachableProvider(exceptions, providersServiceInfo);
         }
-
         Optional<FileStorage> optionalFileStorage = createObjectStoreBasedOnProvider(objectStoreProviderName, providersServiceInfo,
                                                                                      exceptions);
-
         if (optionalFileStorage.isPresent()) {
             return optionalFileStorage.get();
         }
-
         throw buildNoValidObjectStoreException(exceptions);
+    }
+
+    public List<ObjectStoreServiceInfo> getProvidersServiceInfo() {
+        Map<String, Object> credentials = getServiceCredentials();
+        if (credentials.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return new ObjectStoreServiceInfoCreator().getAllProvidersServiceInfo(credentials);
+    }
+
+    private Map<String, Object> getServiceCredentials() {
+        CfService service = environmentServicesFinder.findService(serviceName);
+        if (service == null) {
+            return Map.of();
+        }
+        return service.getCredentials()
+                      .getMap();
+    }
+
+    private boolean isObjectStoreEnvValid(String objectStoreProviderName) {
+        return objectStoreProviderName != null && !objectStoreProviderName.isEmpty() && Constants.ENV_TO_OS_PROVIDER.containsKey(
+            objectStoreProviderName);
     }
 
     public FileStorage createObjectStoreFromFirstReachableProvider(Map<String, Exception> exceptions,
@@ -92,33 +110,19 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
         throw buildNoValidObjectStoreException(exceptions);
     }
 
-    private Optional<FileStorage> createObjectStoreBasedOnProvider(String objectStoreProviderName,
-                                                                   List<ObjectStoreServiceInfo> providersServiceInfo,
-                                                                   Map<String, Exception> exceptions) {
-        Optional<ObjectStoreServiceInfo> objectStoreServiceInfoOptional = getAppropriateProvider(objectStoreProviderName,
-                                                                                                 providersServiceInfo);
-        if (objectStoreServiceInfoOptional.isEmpty()) {
-            LOGGER.warn(MessageFormat.format(Messages.NO_OBJECTSTORE_PROVIDER_FOUND_FOR_0, objectStoreProviderName));
-            return Optional.empty();
-        }
-        return tryToCreateObjectStore(objectStoreServiceInfoOptional.get(), exceptions);
-    }
-
-    private Optional<ObjectStoreServiceInfo> getAppropriateProvider(String objectStoreProviderName,
-                                                                    List<ObjectStoreServiceInfo> providersServiceInfo) {
-        String appropriateProvider = Constants.ENV_TO_OS_PROVIDER.get(objectStoreProviderName);
-        return providersServiceInfo.stream()
-                                   .filter(provider -> appropriateProvider.equals(provider.getProvider()))
-                                   .findFirst();
-    }
-
     private Optional<FileStorage> tryToCreateObjectStore(ObjectStoreServiceInfo objectStoreServiceInfo,
                                                          Map<String, Exception> exceptions) {
         try {
-            LOGGER.info("Attempting to create object store client with provider: {}, container: {}, region: {}, host: {}, endpoint: {}",
-                        objectStoreServiceInfo.getProvider(), objectStoreServiceInfo.getContainer(),
-                        objectStoreServiceInfo.getRegion(), objectStoreServiceInfo.getHost(),
-                        objectStoreServiceInfo.getEndpoint());
+            LOGGER.info(Messages.ATTEMPTING_TO_CREATE_OBJECT_STORE_CLIENT,
+                        objectStoreServiceInfo.getProvider(),
+                        objectStoreServiceInfo.getCredentials()
+                                              .get(Constants.BUCKET),
+                        objectStoreServiceInfo.getCredentials()
+                                              .get(Constants.REGION),
+                        objectStoreServiceInfo.getCredentials()
+                                              .get(Constants.HOST),
+                        objectStoreServiceInfo.getCredentials()
+                                              .get(Constants.ENDPOINT));
             FileStorage fileStorage = getFileStorageBasedOnProvider(objectStoreServiceInfo);
             fileStorage.testConnection();
             LOGGER.info(MessageFormat.format(Messages.OBJECT_STORE_WITH_PROVIDER_0_CREATED, objectStoreServiceInfo.getProvider()));
@@ -141,33 +145,16 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
         };
     }
 
-    private boolean isObjectStoreEnvValid(String objectStoreProviderName) {
-        return objectStoreProviderName != null && !objectStoreProviderName.isEmpty() && Constants.ENV_TO_OS_PROVIDER.containsKey(
-            objectStoreProviderName);
+    protected GcpObjectStoreFileStorage createGcpFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
+        return new GcpObjectStoreFileStorage(objectStoreServiceInfo.getCredentials());
     }
 
-    private IllegalStateException buildNoValidObjectStoreException(Map<String, Exception> exceptions) {
-        exceptions.forEach((provider, exception) -> LOGGER.error(
-            MessageFormat.format(Messages.CANNOT_CREATE_OBJECT_STORE_CLIENT_WITH_PROVIDER_0, provider),
-            exception));
-        return new IllegalStateException(Messages.NO_VALID_OBJECT_STORE_CONFIGURATION_FOUND);
+    protected AzureObjectStoreFileStorage createAzureFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
+        return new AzureObjectStoreFileStorage(objectStoreServiceInfo.getCredentials());
     }
 
-    public List<ObjectStoreServiceInfo> getProvidersServiceInfo() {
-        Map<String, Object> credentials = getServiceCredentials();
-        if (credentials.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return new ObjectStoreServiceInfoCreator().getAllProvidersServiceInfo(credentials);
-    }
-
-    private Map<String, Object> getServiceCredentials() {
-        CfService service = environmentServicesFinder.findService(serviceName);
-        if (service == null) {
-            return Map.of();
-        }
-        return service.getCredentials()
-                      .getMap();
+    protected AwsS3ObjectStoreFileStorage createAwsS3FileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
+        return new AwsS3ObjectStoreFileStorage(objectStoreServiceInfo.getCredentials());
     }
 
     private BlobStoreContext getBlobStoreContext(ObjectStoreServiceInfo serviceInfo) {
@@ -175,70 +162,78 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<FileStorag
         applyCredentials(serviceInfo, contextBuilder);
         addCustomRegions(contextBuilder);
         resolveContextEndpoint(serviceInfo, contextBuilder);
-
         BlobStoreContext context = contextBuilder.buildView(BlobStoreContext.class);
         if (context == null) {
             throw new IllegalStateException(Messages.FAILED_TO_CREATE_BLOB_STORE_CONTEXT);
         }
-
         return context;
+    }
+
+    private void applyCredentials(ObjectStoreServiceInfo serviceInfo, ContextBuilder contextBuilder) {
+        Map<String, Object> credentials = serviceInfo.getCredentials();
+        String identity = (String) credentials.get(Constants.ACCESS_KEY_ID);
+        String credential = (String) credentials.get(Constants.SECRET_ACCESS_KEY);
+        if (StringUtils.isBlank(identity) || StringUtils.isBlank(credential)) {
+            throw new IllegalArgumentException(Messages.MISSING_PROPERTIES_FOR_CREATING_THE_SPECIFIC_PROVIDER);
+        }
+        contextBuilder.credentials(identity, credential);
     }
 
     private void addCustomRegions(ContextBuilder contextBuilder) {
         Properties properties = new Properties();
-        Set<String> mergedRegions = Stream.of(CUSTOM_REGIONS, Region.DEFAULT_REGIONS, applicationConfiguration.getObjectStoreRegions())
+        Set<String> mergedRegions = Stream.of(Constants.OBJECT_STORE_CUSTOM_REGIONS, Region.DEFAULT_REGIONS,
+                                              applicationConfiguration.getObjectStoreRegions())
                                           .flatMap(Set::stream)
                                           .collect(Collectors.toSet());
-        properties.setProperty(JCLOUDS_REGIONS, Joiner.on(',')
-                                                      .join(mergedRegions));
-
+        properties.setProperty(Constants.OBJECT_STORE_JCLOUDS_REGIONS, Joiner.on(',')
+                                                                             .join(mergedRegions));
         contextBuilder.overrides(properties);
     }
 
-    private void applyCredentials(ObjectStoreServiceInfo serviceInfo, ContextBuilder contextBuilder) {
-        if (serviceInfo.getCredentialsSupplier() != null) {
-            contextBuilder.credentialsSupplier(serviceInfo.getCredentialsSupplier());
-        } else {
-            String identity = serviceInfo.getIdentity();
-            String credential = serviceInfo.getCredential();
-
-            if (StringUtils.isBlank(identity) || StringUtils.isBlank(credential)) {
-                throw new IllegalArgumentException(Messages.MISSING_PROPERTIES_FOR_CREATING_THE_SPECIFIC_PROVIDER);
-            }
-
-            contextBuilder.credentials(identity, credential);
-        }
-    }
-
     private void resolveContextEndpoint(ObjectStoreServiceInfo serviceInfo, ContextBuilder contextBuilder) {
-        if (StringUtils.isNotEmpty(serviceInfo.getEndpoint())) {
-            contextBuilder.endpoint(serviceInfo.getEndpoint());
+        Map<String, Object> credentials = serviceInfo.getCredentials();
+        String endpoint = (String) credentials.get(Constants.ENDPOINT);
+        String host = (String) credentials.get(Constants.HOST);
+        if (StringUtils.isNotEmpty(endpoint)) {
+            contextBuilder.endpoint(endpoint);
             return;
         }
-        if (StringUtils.isNotEmpty(serviceInfo.getHost())) {
-            contextBuilder.endpoint(UriUtil.HTTPS_PROTOCOL + UriUtil.DEFAULT_SCHEME_SEPARATOR + serviceInfo.getHost());
+        if (StringUtils.isNotEmpty(host)) {
+            contextBuilder.endpoint(UriUtil.HTTPS_PROTOCOL + UriUtil.DEFAULT_SCHEME_SEPARATOR + host);
         }
     }
 
     protected JCloudsObjectStoreFileStorage createFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo, BlobStoreContext context) {
-        return new JCloudsObjectStoreFileStorage(context.getBlobStore(), objectStoreServiceInfo.getContainer());
+        return new JCloudsObjectStoreFileStorage(context.getBlobStore(),
+                                                 (String) objectStoreServiceInfo.getCredentials()
+                                                                                .get(Constants.BUCKET));
     }
 
-    protected AwsS3ObjectStoreFileStorage createAwsS3FileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
-        Map<String, Object> credentials = Map.of("access_key_id", objectStoreServiceInfo.getIdentity(),
-                                                  "secret_access_key", objectStoreServiceInfo.getCredential(),
-                                                  "bucket", objectStoreServiceInfo.getContainer(),
-                                                  "host", objectStoreServiceInfo.getHost(),
-                                                  "region", objectStoreServiceInfo.getRegion());
-        return new AwsS3ObjectStoreFileStorage(credentials);
+    private Optional<FileStorage> createObjectStoreBasedOnProvider(String objectStoreProviderName,
+                                                                   List<ObjectStoreServiceInfo> providersServiceInfo,
+                                                                   Map<String, Exception> exceptions) {
+        Optional<ObjectStoreServiceInfo> objectStoreServiceInfoOptional = getAppropriateProvider(objectStoreProviderName,
+                                                                                                 providersServiceInfo);
+        if (objectStoreServiceInfoOptional.isEmpty()) {
+            LOGGER.warn(MessageFormat.format(Messages.NO_OBJECTSTORE_PROVIDER_FOUND_FOR_0, objectStoreProviderName));
+            return Optional.empty();
+        }
+        return tryToCreateObjectStore(objectStoreServiceInfoOptional.get(), exceptions);
     }
 
-    protected GcpObjectStoreFileStorage createGcpFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
-        return new GcpObjectStoreFileStorage(objectStoreServiceInfo.getCredentials());
+    private Optional<ObjectStoreServiceInfo> getAppropriateProvider(String objectStoreProviderName,
+                                                                    List<ObjectStoreServiceInfo> providersServiceInfo) {
+        String appropriateProvider = Constants.ENV_TO_OS_PROVIDER.get(objectStoreProviderName);
+        return providersServiceInfo.stream()
+                                   .filter(provider -> appropriateProvider.equals(provider.getProvider()))
+                                   .findFirst();
     }
 
-    protected AzureObjectStoreFileStorage createAzureFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
-        return new AzureObjectStoreFileStorage(objectStoreServiceInfo.getCredentials());
+    private IllegalStateException buildNoValidObjectStoreException(Map<String, Exception> exceptions) {
+        exceptions.forEach((provider, exception) -> LOGGER.error(
+            MessageFormat.format(Messages.CANNOT_CREATE_OBJECT_STORE_CLIENT_WITH_PROVIDER_0, provider),
+            exception));
+        return new IllegalStateException(Messages.NO_VALID_OBJECT_STORE_CONFIGURATION_FOUND);
     }
 
     @Override

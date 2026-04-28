@@ -39,6 +39,7 @@ class ObjectStoreServiceInfoCreatorTest {
     static Stream<Arguments> testDifferentProviders() {
         return Stream.of(Arguments.of(buildCfService(buildAliCloudCredentials()), buildAliCloudObjectStoreServiceInfo()),
                          Arguments.of(buildCfService(buildAwsCredentials()), buildAwsObjectStoreServiceInfo()),
+                         Arguments.of(buildCfService(buildCceeCredentials()), buildCceeObjectStoreServiceInfo()),
                          Arguments.of(buildCfService(AZURE_CREDENTIALS), buildAzureObjectStoreServiceInfo()),
                          Arguments.of(buildCfService(GCP_CREDENTIALS), buildGcpObjectStoreServiceInfo()));
     }
@@ -73,11 +74,7 @@ class ObjectStoreServiceInfoCreatorTest {
     private static ObjectStoreServiceInfo buildAliCloudObjectStoreServiceInfo() {
         return ImmutableObjectStoreServiceInfo.builder()
                                               .provider(Constants.ALIYUN_OSS)
-                                              .identity(ACCESS_KEY_ID_VALUE)
-                                              .credential(SECRET_ACCESS_KEY_VALUE)
-                                              .container(BUCKET_VALUE)
-                                              .endpoint(ENDPOINT_VALUE)
-                                              .region(REGION_VALUE)
+                                              .credentials(buildAliCloudCredentials())
                                               .build();
     }
 
@@ -92,9 +89,27 @@ class ObjectStoreServiceInfoCreatorTest {
     private static ObjectStoreServiceInfo buildAwsObjectStoreServiceInfo() {
         return ImmutableObjectStoreServiceInfo.builder()
                                               .provider(Constants.AWS_S_3)
-                                              .identity(ACCESS_KEY_ID_VALUE)
-                                              .credential(SECRET_ACCESS_KEY_VALUE)
-                                              .container(BUCKET_VALUE)
+                                              .credentials(buildAwsCredentials())
+                                              .build();
+    }
+
+    private static Map<String, Object> buildCceeCredentials() {
+        Map<String, Object> credentials = new HashMap<>();
+        credentials.put(Constants.ACCESS_KEY_ID, ACCESS_KEY_ID_VALUE);
+        credentials.put(Constants.SECRET_ACCESS_KEY, SECRET_ACCESS_KEY_VALUE);
+        credentials.put(Constants.CONTAINER_NAME_WITH_DASH, BUCKET_VALUE);
+        credentials.put(Constants.ENDPOINT_URL, ENDPOINT_VALUE);
+        credentials.put(Constants.REGION, REGION_VALUE);
+        return credentials;
+    }
+
+    private static ObjectStoreServiceInfo buildCceeObjectStoreServiceInfo() {
+        Map<String, Object> expectedCredentials = new HashMap<>(buildCceeCredentials());
+        expectedCredentials.put(Constants.BUCKET, BUCKET_VALUE);
+        expectedCredentials.put(Constants.ENDPOINT, ENDPOINT_VALUE);
+        return ImmutableObjectStoreServiceInfo.builder()
+                                              .provider(Constants.AWS_S_3)
+                                              .credentials(expectedCredentials)
                                               .build();
     }
 

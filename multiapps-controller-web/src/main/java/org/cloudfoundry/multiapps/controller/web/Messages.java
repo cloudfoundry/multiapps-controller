@@ -58,6 +58,7 @@ public final class Messages {
     // WARN log messages
 
     public static final String NO_OBJECTSTORE_PROVIDER_FOUND_FOR_0 = "No ObjectStore provider found for {0}!";
+    public static final String NO_OBJECT_STORE_PROVIDERS_DETECTED = "No object store providers detected from credentials. Service name: {}";
 
     // INFO log messages
     public static final String ALM_SERVICE_ENV_INITIALIZED = "Deploy service environment initialized";
@@ -68,6 +69,8 @@ public final class Messages {
     public static final String OBJECTSTORE_FOR_BINARIES_STORAGE = "Objectstore will be used for binaries storage";
     public static final String CLEARING_LOCK_OWNER = "Clearing lock owner {0}...";
     public static final String CLEARED_LOCK_OWNER = "Cleared lock owner {0}";
+    public static final String OBJECT_STORE_PROVIDERS_DETECTED = "Object store providers detected: {}";
+    public static final String ATTEMPTING_TO_CREATE_OBJECT_STORE_CLIENT = "Attempting to create object store client with provider: {}, container: {}, region: {}, host: {}, endpoint: {}";
     public static final String OBJECT_STORE_WITH_PROVIDER_0_CREATED = "Object store with provider: {0} created";
     public static final String JOB_WITH_ID_WAS_NOT_UPDATED_WITHIN_SECONDS = "Job with ID: {} was not updated within: {} seconds";
     public static final String CLEARING_OLD_ENTRY = "Clearing old entry with id: {0}";
