@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -14,7 +15,7 @@ import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
-public class PollServiceBindingLastOperationExecution implements AsyncExecution {
+public class PollServiceBindingsLastOperationExecution implements AsyncExecution {
 
     @Override
     public AsyncExecutionState execute(ProcessContext context) {
@@ -59,7 +60,7 @@ public class PollServiceBindingLastOperationExecution implements AsyncExecution 
     }
 
     protected AsyncExecutionState checkServiceBindingOperationState(List<CloudServiceBinding> serviceBindings, ProcessContext context) {
-        CloudServiceBinding failedServiceBinding = null;
+        List<CloudServiceBinding> failedServiceBindings = new ArrayList<>();
         boolean hasInProgressBindings = false;
         StepLogger stepLogger = context.getStepLogger();
 
@@ -68,7 +69,7 @@ public class PollServiceBindingLastOperationExecution implements AsyncExecution 
             stepLogger.debug(MessageFormat.format(Messages.SERVICE_BINDING_OPERATION_WITH_TYPE_IS_IN_STATE, serviceBinding.getGuid(),
                                                   lastOperation.getType(), lastOperation.getState()));
             if (lastOperation.getState() == ServiceCredentialBindingOperation.State.FAILED) {
-                failedServiceBinding = serviceBinding;
+                failedServiceBindings.add(serviceBinding);
             }
             if (lastOperation.getState() == ServiceCredentialBindingOperation.State.IN_PROGRESS
                 || lastOperation.getState() == ServiceCredentialBindingOperation.State.INITIAL) {
@@ -76,8 +77,8 @@ public class PollServiceBindingLastOperationExecution implements AsyncExecution 
             }
         }
 
-        if (failedServiceBinding != null) {
-            return completePollingOfFailedOperation(failedServiceBinding, context);
+        if (!failedServiceBindings.isEmpty()) {
+            return completePollingOfFailedOperation(failedServiceBindings, context);
         }
         if (hasInProgressBindings) {
             return AsyncExecutionState.RUNNING;
@@ -85,7 +86,8 @@ public class PollServiceBindingLastOperationExecution implements AsyncExecution 
         return AsyncExecutionState.FINISHED;
     }
 
-    protected AsyncExecutionState completePollingOfFailedOperation(CloudServiceBinding serviceBinding, ProcessContext context) {
+    protected AsyncExecutionState completePollingOfFailedOperation(List<CloudServiceBinding> failedServiceBindings,
+                                                                   ProcessContext context) {
         List<CloudServiceInstanceExtended> servicesToBind = context.getVariable(Variables.SERVICES_TO_BIND);
         CloudApplication app = context.getVariable(Variables.APP_TO_PROCESS);
         String serviceInstanceName = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
@@ -95,10 +97,25 @@ public class PollServiceBindingLastOperationExecution implements AsyncExecution 
                          app.getName());
             return AsyncExecutionState.FINISHED;
         }
+        if (failedServiceBindings.size() == 1) {
+            CloudServiceBinding serviceBinding = failedServiceBindings.get(0);
+            context.getStepLogger()
+                   .error(Messages.ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATION_BETWEEN_APP_AND_SERVICE, app.getName(),
+                          serviceInstanceName,
+                          serviceBinding.getServiceBindingOperation()
+                                        .getDescription());
+            return AsyncExecutionState.ERROR;
+        }
         context.getStepLogger()
-               .error(Messages.ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATION_BETWEEN_APP_AND_SERVICE, app.getName(), serviceInstanceName,
-                      serviceBinding.getServiceBindingOperation()
-                                    .getDescription());
+               .error(Messages.ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATION_BETWEEN_APP_AND_SERVICE_CHECK_OPERATION_LOGS, app.getName(),
+                      serviceInstanceName);
+        for (CloudServiceBinding serviceBinding : failedServiceBindings) {
+            context.getStepLogger()
+                   .errorWithoutProgressMessage(Messages.ERROR_WHILE_POLLING_SERVICE_BINDING_GUID,
+                                                serviceBinding.getGuid(),
+                                                serviceBinding.getServiceBindingOperation()
+                                                              .getDescription());
+        }
         return AsyncExecutionState.ERROR;
     }
 

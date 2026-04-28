@@ -25,7 +25,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class PollServiceUnbindingOperationExecutionTest extends AsyncStepOperationTest<UnbindServiceFromApplicationStep> {
+class PollServiceUnbindingsOperationExecutionTest extends AsyncStepOperationTest<UnbindServiceFromApplicationStep> {
 
     private static final UUID JOB_GUID = UUID.fromString("00000000-0000-0000-0000-000000000123");
     private static final String JOB_ID = JOB_GUID.toString();
@@ -315,7 +315,7 @@ class PollServiceUnbindingOperationExecutionTest extends AsyncStepOperationTest<
 
     @Override
     protected List<AsyncExecution> getAsyncOperations(ProcessContext wrapper) {
-        return List.of(new PollServiceUnbindingOperationExecution());
+        return List.of(new PollServiceUnbindingsOperationExecution());
     }
 
     @Override

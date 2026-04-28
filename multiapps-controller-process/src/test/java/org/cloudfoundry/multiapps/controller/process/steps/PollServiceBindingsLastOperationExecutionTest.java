@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-class PollServiceBindingLastOperationExecutionTest extends AsyncStepOperationTest<BindServiceToApplicationStep> {
+class PollServiceBindingsLastOperationExecutionTest extends AsyncStepOperationTest<BindServiceToApplicationStep> {
 
     private static final UUID SERVICE_BINDING_APP_GUID = UUID.randomUUID();
     private static final UUID SERVICE_BINDING_SERVICE_INSTANCE_GUID = UUID.randomUUID();
@@ -159,7 +159,7 @@ class PollServiceBindingLastOperationExecutionTest extends AsyncStepOperationTes
 
     @Override
     protected List<AsyncExecution> getAsyncOperations(ProcessContext wrapper) {
-        return List.of(new PollServiceBindingLastOperationExecution());
+        return List.of(new PollServiceBindingsLastOperationExecution());
     }
 
     @Override

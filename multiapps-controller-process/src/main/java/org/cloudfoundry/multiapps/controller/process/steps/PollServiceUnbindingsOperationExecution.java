@@ -5,12 +5,12 @@ import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
-public class PollServiceUnbindingOperationExecution extends PollServiceBindingUnbindingOperationBaseExecution {
+public class PollServiceUnbindingsOperationExecution extends PollServiceBindingUnbindingOperationBaseExecution {
 
     @Override
     public AsyncExecutionState execute(ProcessContext context) {
         List<String> jobIds = context.getVariable(Variables.SERVICE_UNBINDING_JOB_IDS);
-        if (jobIds.isEmpty()) {
+        if (jobIds.isEmpty() && context.getVariable(Variables.SERVICE_UNBINDING_JOB_ID) != null) {
             return super.execute(context);
         }
         List<String> remainingJobIds = new ArrayList<>(jobIds);

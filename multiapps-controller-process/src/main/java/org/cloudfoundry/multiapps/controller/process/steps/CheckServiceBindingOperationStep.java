@@ -94,7 +94,7 @@ public class CheckServiceBindingOperationStep extends AsyncFlowableStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
-        return List.of(new PollServiceBindingLastOperationFailSafeExecution());
+        return List.of(new PollServiceBindingsLastOperationFailSafeExecution());
     }
 
     @Override

@@ -2049,21 +2049,17 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
 
     private List<String> doDeleteServiceBindings(List<UUID> guids) {
         List<String> jobIds = new ArrayList<>();
-        List<RuntimeException> errors = new ArrayList<>();
+        List<AbstractCloudFoundryException> errors = new ArrayList<>();
         for (UUID guid : guids) {
-            handleServiceBindingDeletion(guid, jobIds, errors);
+            try {
+                Optional.ofNullable(deleteSingleServiceBinding(guid))
+                        .ifPresent(jobIds::add);
+            } catch (AbstractCloudFoundryException e) {
+                errors.add(e);
+            }
         }
         throwOnErrors(errors);
         return jobIds;
-    }
-
-    private void handleServiceBindingDeletion(UUID guid, List<String> jobIds, List<RuntimeException> errors) {
-        try {
-            Optional.ofNullable(deleteSingleServiceBinding(guid))
-                    .ifPresent(jobIds::add);
-        } catch (RuntimeException e) {
-            errors.add(e);
-        }
     }
 
     private String deleteSingleServiceBinding(UUID guid) {
@@ -2074,7 +2070,7 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
                        .block();
     }
 
-    private void throwOnErrors(List<RuntimeException> errors) {
+    private void throwOnErrors(List<AbstractCloudFoundryException> errors) {
         if (errors.isEmpty()) {
             return;
         }

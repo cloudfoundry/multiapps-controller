@@ -136,13 +136,14 @@ public class ServiceBindingParametersGetter {
                                                                                UUID serviceInstanceGuid) {
         CloudControllerClient client = context.getControllerClient();
         List<CloudServiceBinding> serviceBindings = client.getServiceBindingsForApplication(application.getGuid(), serviceInstanceGuid);
-        CloudServiceBinding serviceBinding = selectNewestBinding(serviceBindings);
-        if (serviceBinding == null) {
+        Optional<CloudServiceBinding> serviceBindingOptional = selectNewestBinding(serviceBindings);
+        if (serviceBindingOptional.isEmpty()) {
             throw new SLException(Messages.SERVICE_INSTANCE_0_NOT_BOUND_TO_APP_1, serviceName, application.getName());
         }
 
         try {
-            return client.getServiceBindingParameters(serviceBinding.getGuid());
+            return client.getServiceBindingParameters(serviceBindingOptional.get()
+                                                                            .getGuid());
         } catch (CloudOperationException e) {
             if (HttpStatus.NOT_IMPLEMENTED == e.getStatusCode() || HttpStatus.BAD_REQUEST == e.getStatusCode()) {
                 // ignore 501 and 400 error codes from service brokers
@@ -163,13 +164,15 @@ public class ServiceBindingParametersGetter {
         }
     }
 
-    private CloudServiceBinding selectNewestBinding(List<CloudServiceBinding> bindings) {
+    private Optional<CloudServiceBinding> selectNewestBinding(List<CloudServiceBinding> bindings) {
         return bindings.stream()
                        .filter(binding -> binding.getServiceBindingOperation()
                                                  .getState() == ServiceCredentialBindingOperation.State.SUCCEEDED)
                        .max(Comparator.comparing(binding -> binding.getMetadata()
                                                                    .getCreatedAt()))
-                       .orElseGet(() -> bindings.isEmpty() ? null : bindings.get(0));
+                       .or(() -> bindings.stream()
+                                         .max(Comparator.comparing(binding -> binding.getMetadata()
+                                                                                     .getCreatedAt())));
     }
 
 }

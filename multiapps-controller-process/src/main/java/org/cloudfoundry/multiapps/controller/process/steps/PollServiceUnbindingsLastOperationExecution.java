@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
 
-public class PollServiceUnbindingLastOperationExecution extends PollServiceBindingLastOperationExecution {
+public class PollServiceUnbindingsLastOperationExecution extends PollServiceBindingsLastOperationExecution {
 
     @Override
     protected AsyncExecutionState checkServiceBindingOperationState(List<CloudServiceBinding> serviceBindings, ProcessContext context) {
