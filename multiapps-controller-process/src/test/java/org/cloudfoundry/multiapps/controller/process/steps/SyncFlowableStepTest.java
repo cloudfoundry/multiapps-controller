@@ -31,7 +31,6 @@ import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenS
 import org.cloudfoundry.multiapps.controller.process.util.MockDelegateExecution;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessHelper;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
-import org.cloudfoundry.multiapps.controller.process.util.TimeoutServiceResourceNameResolver;
 import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.util.TimeoutValueResolver;
 import org.cloudfoundry.multiapps.controller.process.variables.Variable;
@@ -111,7 +110,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     protected final ProcessLoggerProvider processLoggerProvider = Mockito.spy(ProcessLoggerProvider.class);
     @Mock
     protected ProcessHelper processHelper;
-    protected TimeoutValueResolver timeoutValueResolver = new TimeoutValueResolver(new TimeoutServiceResourceNameResolver());
+    protected TimeoutValueResolver timeoutValueResolver = new TimeoutValueResolver();
 
     protected ProcessContext context;
     @InjectMocks

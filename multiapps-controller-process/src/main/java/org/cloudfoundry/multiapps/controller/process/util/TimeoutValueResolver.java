@@ -7,7 +7,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
@@ -18,15 +17,12 @@ import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
-import org.cloudfoundry.multiapps.mta.model.Resource;
 
 @Named
 public class TimeoutValueResolver {
 
     private static final String DEFAULT_TIMEOUT = "default";
     private static final String SERVICE_LEVEL = "service-level";
-
-    private final TimeoutServiceResourceNameResolver timeoutServiceResourceNameResolver;
 
     @FunctionalInterface
     private interface TimeoutSource {
@@ -40,20 +36,13 @@ public class TimeoutValueResolver {
         this::resolveProcessVariableTimeout,
         this::extractTimeoutFromModuleDescriptorParameters,
         this::extractTimeoutFromAppAttributes,
-        this::extractTimeoutFromResourceParameters,
         this::extractTimeoutFromDescriptorParameters);
 
     private final List<TimeoutSource> serviceTimeoutSources = List.of(
         this::resolveOperationParamsServiceTimeout,
         this::extractTimeoutFromServiceObject,
-        this::extractTimeoutFromResourceParameters,
         this::extractTimeoutFromDescriptorParameters,
         this::resolveProcessVariableTimeout);
-
-    @Inject
-    public TimeoutValueResolver(TimeoutServiceResourceNameResolver timeoutServiceResourceNameResolver) {
-        this.timeoutServiceResourceNameResolver = timeoutServiceResourceNameResolver;
-    }
 
     public TimeoutResolution resolveTimeout(ProcessContext context, TimeoutType timeoutType, StepLogger logger) {
         return getTimeoutSources(timeoutType).stream()
@@ -89,13 +78,32 @@ public class TimeoutValueResolver {
                        .orElse(false);
     }
 
-    private Optional<TimeoutResolution> resolveOperationParamsServiceTimeout(ProcessContext context, TimeoutType timeoutType, StepLogger logger) {
+    private Optional<TimeoutResolution> resolveOperationParamsServiceTimeout(ProcessContext context, TimeoutType timeoutType,
+                                                                             StepLogger logger) {
         var operationParamsFlag = timeoutType.getOperationParamsFlag();
         if (operationParamsFlag == null || !Boolean.TRUE.equals(context.getVariableIfSet(operationParamsFlag))) {
             return Optional.empty();
         }
         return Optional.ofNullable(context.getVariableIfSet(timeoutType.getProcessVariable()))
                        .map(pv -> new TimeoutResolution(pv, timeoutType.getGlobalLevelParamName()));
+    }
+
+    private Optional<TimeoutResolution> extractTimeoutFromModuleDescriptorParameters(ProcessContext context, TimeoutType timeoutType,
+                                                                                     StepLogger logger) {
+        String paramName = timeoutType.getModuleLevelParamName();
+        DeploymentDescriptor descriptor = getDeploymentDescriptor(context);
+        if (paramName == null || descriptor == null) {
+            return Optional.empty();
+        }
+        String appName = Optional.ofNullable(context.getVariableIfSet(Variables.APP_TO_PROCESS))
+                                 .map(CloudApplicationExtended::getName)
+                                 .orElse(null);
+
+        return findModuleByAppName(descriptor, appName)
+            .or(() -> descriptor.getModules()
+                                .stream()
+                                .findFirst())
+            .flatMap(module -> toResolution(getParameter(module.getParameters(), paramName), paramName, timeoutType));
     }
 
     private Optional<TimeoutResolution> extractTimeoutFromAppAttributes(ProcessContext context, TimeoutType timeoutType, StepLogger logger) {
@@ -109,39 +117,10 @@ public class TimeoutValueResolver {
                        .flatMap(value -> toResolution(value, paramName, timeoutType));
     }
 
-    private Optional<TimeoutResolution> extractTimeoutFromModuleDescriptorParameters(ProcessContext context, TimeoutType timeoutType,
-                                                                                      StepLogger logger) {
-        String paramName = timeoutType.getModuleLevelParamName();
-        DeploymentDescriptor descriptor = getDeploymentDescriptor(context);
-        if (paramName == null || descriptor == null) {
-            return Optional.empty();
-        }
-        String appName = Optional.ofNullable(context.getVariableIfSet(Variables.APP_TO_PROCESS))
-                                 .map(CloudApplicationExtended::getName)
-                                 .orElse(null);
-
-        return findModuleByAppName(descriptor, appName)
-            .or(() -> descriptor.getModules().stream().findFirst())
-            .flatMap(module -> toResolution(getParameter(module.getParameters(), paramName), paramName, timeoutType));
-    }
-
-    private Optional<TimeoutResolution> extractTimeoutFromResourceParameters(ProcessContext context, TimeoutType timeoutType, StepLogger logger) {
-        String paramName = timeoutType.getEntityLevelParamName();
-        if (paramName == null) {
-            return Optional.empty();
-        }
-        Resource resource = timeoutServiceResourceNameResolver.resolveResource(context, timeoutType, getDeploymentDescriptor(context), logger);
-        if (resource == null) {
-            if (timeoutType.isServiceScoped()) {
-                logger.debug(Messages.COULD_NOT_RESOLVE_DESCRIPTOR_RESOURCE_FOR_TIMEOUT_TYPE_0_PARAMETER_1, timeoutType, paramName);
-            }
-            return Optional.empty();
-        }
-        return toResolution(getParameter(resource.getParameters(), paramName), paramName, timeoutType);
-    }
-
-    private Optional<TimeoutResolution> extractTimeoutFromServiceObject(ProcessContext context, TimeoutType timeoutType, StepLogger logger) {
-        String paramName = Optional.ofNullable(timeoutType.getEntityLevelParamName()).orElse(SERVICE_LEVEL);
+    private Optional<TimeoutResolution> extractTimeoutFromServiceObject(ProcessContext context, TimeoutType timeoutType,
+                                                                        StepLogger logger) {
+        String paramName = Optional.ofNullable(timeoutType.getEntityLevelParamName())
+                                   .orElse(SERVICE_LEVEL);
         return resolveServiceInstance(context, timeoutType)
             .flatMap(service -> Optional.ofNullable(timeoutType.getServiceTimeoutGetter())
                                         .map(getter -> getter.getServiceTimeout(service)))
@@ -162,7 +141,8 @@ public class TimeoutValueResolver {
                        .findFirst();
     }
 
-    private Optional<TimeoutResolution> extractTimeoutFromDescriptorParameters(ProcessContext context, TimeoutType timeoutType, StepLogger logger) {
+    private Optional<TimeoutResolution> extractTimeoutFromDescriptorParameters(ProcessContext context, TimeoutType timeoutType,
+                                                                               StepLogger logger) {
         String paramName = timeoutType.getGlobalLevelParamName();
         DeploymentDescriptor descriptor = getDeploymentDescriptor(context);
         if (descriptor == null) {

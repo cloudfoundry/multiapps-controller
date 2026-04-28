@@ -28,13 +28,10 @@ class TimeoutValueResolverTest {
     @Mock
     private StepLogger stepLogger;
 
-    @Mock
-    private TimeoutServiceResourceNameResolver timeoutServiceResourceNameResolver;
-
     @BeforeEach
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this).close();
-        timeoutValueResolver = new TimeoutValueResolver(timeoutServiceResourceNameResolver);
+        timeoutValueResolver = new TimeoutValueResolver();
     }
 
     @Test
