@@ -9,13 +9,15 @@
     <startEvent id="startEvent1" flowable:formFieldValidation="true"></startEvent>
     <callActivity id="executeTasksCallActivity" name="Execute Tasks Call Activity" flowable:async="true" calledElement="executeTasksSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:fallbackToDefaultTenant="false"></callActivity>
     <serviceTask id="determineTasksFromHookTask" name="Determine Tasks From Hook Step" flowable:async="true" flowable:delegateExpression="${determineTasksFromHookStep}"></serviceTask>
+    <serviceTask id="resolveHookTaskTargetAppTask" name="Resolve Hook Task Target App Step" flowable:async="true" flowable:delegateExpression="${resolveHookTaskTargetAppStep}"></serviceTask>
     <endEvent id="sid-5A2D8943-12FA-4BC2-B6D0-7878EA87FB75">
       <extensionElements>
         <flowable:executionListener event="end" delegateExpression="${hooksEndProcessListener}"></flowable:executionListener>
       </extensionElements>
     </endEvent>
     <sequenceFlow id="sid-5112772F-7C51-4FC3-BC2B-E4BEE435FC6D" sourceRef="startEvent1" targetRef="determineTasksFromHookTask"></sequenceFlow>
-    <sequenceFlow id="sid-9A809249-058E-4637-83DC-547314F6144B" sourceRef="determineTasksFromHookTask" targetRef="executeTasksCallActivity"></sequenceFlow>
+    <sequenceFlow id="sid-9A809249-058E-4637-83DC-547314F6144B" sourceRef="determineTasksFromHookTask" targetRef="resolveHookTaskTargetAppTask"></sequenceFlow>
+    <sequenceFlow id="sid-B3C1D2E4-1234-5678-ABCD-EF0123456789" sourceRef="resolveHookTaskTargetAppTask" targetRef="executeTasksCallActivity"></sequenceFlow>
     <sequenceFlow id="sid-1E5806F9-54D9-4673-BAE3-91C4E13AF3B0" sourceRef="executeTasksCallActivity" targetRef="sid-5A2D8943-12FA-4BC2-B6D0-7878EA87FB75"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_executeHookTasksSubProcess">

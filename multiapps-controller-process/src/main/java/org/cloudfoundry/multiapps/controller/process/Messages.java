@@ -149,6 +149,8 @@ public class Messages {
     public static final String ERROR_PREPARING_TO_EXECUTE_TASKS_ON_APP = "Error preparing to execute tasks on application \"{0}\"";
     public static final String ERROR_PREPARING_TO_RESTART_SERVICE_BROKER_SUBSCRIBERS = "Error preparing to restart service broker subscribers";
     public static final String ERROR_EXECUTING_TASK_0_ON_APP_1 = "Execution of task \"{0}\" on application \"{1}\" failed.";
+    public static final String DUPLICATE_PHASE_IN_PHASES_CONFIG = "Duplicate phase \"{0}\" in \"phases-config\" of hook \"{1}\". Only one target-app per phase is supported.";
+    public static final String INVALID_PHASES_CONFIG_NOT_A_LIST = "Parameter \"phases-config\" of hook \"{0}\" must be a list.";
     public static final String ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY = "Error detecting components to undeploy";
     public static final String ERROR_DELETING_IDLE_ROUTES = "Error deleting idle routes";
     public static final String ERROR_CREATING_SERVICE_BROKERS = "Error creating service brokers";
@@ -213,6 +215,7 @@ public class Messages {
     public static final String CANNOT_RETRIEVE_PARAMETERS_OF_BINDING_BETWEEN_APPLICATION_0_AND_SERVICE_INSTANCE_1 = "Cannot retrieve parameters of binding between application \"{0}\" and service instance \"{1}\"";
     public static final String CANNOT_RETRIEVE_PARAMETERS_OF_BINDING_BETWEEN_APPLICATION_0_AND_SERVICE_INSTANCE_1_FIX = "Cannot retrieve parameters of binding between application \"{0}\" and service instance \"{1}\". Got 502.";
     public static final String CANNOT_RETRIEVE_INSTANCE_OF_SERVICE = "Cannot retrieve service instance of service \"{0}\"";
+    public static final String HOOK_PHASE_BLUE_GREEN_BEFORE_UNMAP_ROUTES_IDLE_USED = "Hook \"{0}\" uses deprecated phase \"blue-green.application.before-unmap-routes.idle\" which is unreachable and will be removed in a future version";
     public static final String COULD_NOT_DELETE_PROVIDED_DEPENDENCY = "Could not delete published provided dependency \"{0}\" from configuration registry";
     public static final String COULD_NOT_DELETE_SERVICE = "Could not delete service \"{0}\", as it does not exist";
     public static final String COULD_NOT_DELETE_SUBSCRIPTION = "Could not delete subscription for application \"{0}\" and resource \"{1}\"";
@@ -409,6 +412,7 @@ public class Messages {
     public static final String WILL_NOT_REBIND_APP_TO_SERVICE_SAME_PARAMETERS = "Service instance \"{0}\" will not be rebound to application \"{1}\" because the binding parameters are not modified";
     public static final String SERVICE_BROKER_DOES_NOT_EXIST = "Service broker with name \"{0}\" does not exist";
     public static final String EXECUTING_HOOK_0 = "Executing hook \"{0}\"";
+    public static final String SKIPPING_HOOK_TASK_NO_LIVE_APP = "Skipping hook task on application \"{0}\" with target-app \"live\": no live application exists yet (initial deployment)";
     public static final String WAITING_PREVIOUS_OPERATIONS_TO_FINISH = "Waiting for previous service operations to finish...";
     public static final String ASYNC_OPERATION_FOR_SERVICE_BROKER_FINISHED = "Async operation for service broker \"{0}\" has finished";
     public static final String STARTING_INCREMENTAL_APPLICATION_INSTANCE_UPDATE_FOR_0 = "Starting incremental application instance update for \"{0}\"...";

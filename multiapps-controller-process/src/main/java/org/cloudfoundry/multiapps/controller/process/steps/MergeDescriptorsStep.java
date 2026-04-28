@@ -15,6 +15,7 @@ import org.cloudfoundry.multiapps.controller.persistence.dto.ImmutableBackupDesc
 import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.security.SecretParametersCollector;
+import org.cloudfoundry.multiapps.controller.process.util.HookPhasesConfigValidator;
 import org.cloudfoundry.multiapps.controller.process.util.NamespaceGlobalParameters;
 import org.cloudfoundry.multiapps.controller.process.util.UnsupportedParameterFinder;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -29,6 +30,8 @@ import org.springframework.context.annotation.Scope;
 @Named("mergeDescriptorsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class MergeDescriptorsStep extends SyncFlowableStep {
+
+    private static final int HOOKS_MIN_SCHEMA_VERSION = 3;
 
     @Inject
     private DescriptorBackupService descriptorBackupService;
@@ -59,6 +62,9 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
                                                                                                                            .toList());
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
 
+        if (context.getVariable(Variables.MTA_MAJOR_SCHEMA_VERSION) >= HOOKS_MIN_SCHEMA_VERSION) {
+            new HookPhasesConfigValidator().validate(descriptor);
+        }
         warnForUnsupportedParameters(descriptor);
 
         backupDeploymentDescriptor(context, descriptor);
