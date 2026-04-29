@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +16,7 @@ import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.DynamicResolvableParametersContextUpdater;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper.CloudComponents;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -117,6 +119,11 @@ public class CreateServiceStep extends ServiceStep {
     protected String getStepErrorMessageAdditionalDescription(ProcessContext context) {
         String offering = context.getVariable(Variables.SERVICE_OFFERING);
         return ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, offering);
+    }
+
+    @Override
+    public Duration getTimeout(ProcessContext context) {
+        return calculateTimeout(context, TimeoutType.CREATE_SERVICE);
     }
 
 }
