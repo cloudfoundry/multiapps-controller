@@ -100,6 +100,7 @@ public class Messages {
     public static final String ERROR_WHILE_DELETING_SERVICE_INSTANCE_METADATA_0 = "Error while deleting service instance metadata \"{0}\"";
     public static final String ERROR_WHILE_DELETING_SERVICE_KEY_0 = "Error while deleting service key \"{0}\"";
     public static final String ERROR_WHILE_CALCULATING_SERVICE_KEYS_FOR_WAITING = "Error while calculating service keys for waiting";
+    public static final String SERVICE_KEY_NOT_FOUND = "Service key \"{0}\" for service \"{1}\" was not found and will be skipped";
     public static final String COULD_NOT_GET_APP_LOGS = "Could not get application recent logs: {0}";
     public static final String ERROR_DURING_INCREMENTAL_INSTANCE_UPDATE_OF_MODULE_0 = "Error during incremental instance update of module \"{0}\"";
     public static final String ERROR_DURING_POLL_OF_INCREMENTAL_INSTANCE_UPDATE_OF_MODULE_0 = "Error during poll of incremental instance update of module \"{0}\"";
@@ -545,6 +546,8 @@ public class Messages {
     public static final String DELETING_ERROR_TYPE_O_FOR_PROCESS_1 = "Deleting error type \"{0}\" for process \"{1}\"";
     public static final String TIMEOUT_MESSAGE = "Application {0} timeout is set by \"{1}\" parameter to {2} seconds";
     public static final String TIMEOUT_DEFAULT_VALUE_MESSAGE = "Application {0} timeout is default one: {1} seconds";
+    public static final String OPERATION_TIMEOUT_MESSAGE = "{0} timeout is set by \"{1}\" parameter to {2} seconds";
+    public static final String OPERATION_TIMEOUT_DEFAULT_VALUE_MESSAGE = "{0} timeout is default one: {1} seconds";
     public static final String PROVIDED_EXTENSION_DESCRIPTORS = "Provided extension descriptors: {0}";
     public static final String CREATED_SUBSCRIPTION = "Created subscription with ID: {0}";
     public static final String UPDATING_SUBSCRIBER_0 = "Updating subscriber: {0} ";
@@ -728,6 +731,7 @@ public class Messages {
     public static final String WILL_ONLY_REMOVE_SERVICE_INSTANCE_METADATA_BECAUSE_THE_SERVICE_TYPE_IS_EXISTING = "Will only remove service instance metadata, because the service type is \"existing\"";
     public static final String DETERMINING_DELETE_ACTIONS_FOR_SERVICE_INSTANCE_0 = "Determining delete actions for service instance \"{0}\"";
     public static final String CANNOT_RETRIEVE_OPTIONAL_SERVICE_BINDING_FOR_SERVICE_INSTANCE_0 = "Cannot retrieve optional service binding for service instance \"{0}\"";
+    public static final String CANNOT_RETRIEVE_SERVICE_BINDING_FOR_SERVICE_INSTANCE_0_NOT_FOUND = "Service instance \"{0}\" was not found; skipping service binding check.";
     public static final String SERVICE_KEYS_SCHEDULED_FOR_RECREATION_MODIFICATION_0 = "Service keys scheduled for recreation due to modification: \"{0}\"";
     public static final String SERVICE_KEYS_SCHEDULED_FOR_RECREATION_STATE_0 = "Service keys scheduled for recreation due to state: \"{0}\"";
     public static final String SERVICE_KEYS_SCHEDULED_FOR_CREATION_0 = "Service keys scheduled for creation: \"{0}\"";
@@ -817,6 +821,18 @@ public class Messages {
     public static final String PARSE_NULL_STRING_ERROR = "Cannot parse null string";
     public static final String INVALID_BOOLEAN_VALUE = "Invalid boolean value: must be 'true' or 'false'";
     public static final String DISABLE_AUTOSCALER_LABEL_CONTENT = "Disabled_by_MTA_operation_{0}";
+
+    public static final String COULD_NOT_RESOLVE_SERVICE_RESOURCE_NAME_FOR_TIMEOUT_TYPE_0 = "Could not resolve service resource name for timeout type {0}";
+    public static final String COULD_NOT_FIND_RESOURCE_0_IN_DESCRIPTOR_FOR_TIMEOUT_TYPE_1 = "Could not find resource {0} in deployment descriptor for timeout type {1}";
+    public static final String EXTRACTING_ALL_TIMEOUT_PARAMETERS_FROM_DESCRIPTOR = "Extracting all timeout parameters from descriptor";
+    public static final String NO_DESCRIPTOR_FOUND_USING_DEFAULT_TIMEOUTS = "No descriptor found; sub-processes will use default timeouts";
+    public static final String SUCCESSFULLY_EXTRACTED_0_TIMEOUT_PARAMETERS = "Successfully extracted {0} timeout parameters from descriptor";
+    public static final String TIMEOUT_0_EQUALS_1_SECONDS_FROM_2 = "Timeout {0} = {1}s (from {2})";
+    public static final String FAILED_TO_RESOLVE_TIMEOUT_FOR_0_1 = "Failed to resolve timeout for {0}: {1}";
+    public static final String ERROR_EXTRACTING_GLOBAL_TIMEOUTS_FROM_DESCRIPTOR = "Error while extracting global timeouts from deployment descriptor";
+    public static final String COULD_NOT_RESOLVE_DESCRIPTOR_RESOURCE_FOR_TIMEOUT_TYPE_0_PARAMETER_1 = "Could not resolve descriptor resource for timeout type {0}; parameter {1} cannot be applied";
+    public static final String DEPLOYMENT_DESCRIPTOR_MISSING_GLOBAL_PARAMETER_0_NOT_APPLIED_FOR_1 = "Deployment descriptor is missing; global parameter {0} cannot be applied for {1}";
+    public static final String NO_DEPLOYMENT_DESCRIPTOR_FOUND_IN_CONTEXT = "No deployment descriptor found in context";
 
     protected Messages() {
     }
