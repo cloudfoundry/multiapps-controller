@@ -53,6 +53,7 @@ import org.cloudfoundry.multiapps.controller.process.flowable.ProcessAction;
 import org.cloudfoundry.multiapps.controller.process.flowable.ProcessActionRegistry;
 import org.cloudfoundry.multiapps.controller.process.metadata.ProcessTypeToOperationMetadataMapper;
 import org.cloudfoundry.multiapps.controller.process.util.OperationsHelper;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
@@ -279,10 +280,22 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private Operation addParameterValues(Operation operation, Set<ParameterMetadata> predefinedParameters) {
-        Map<String, Object> filteredParameters = filterUnnecessaryParameters(predefinedParameters, operation.getParameters());
+        Map<String, Object> originalParameters = operation.getParameters();
+        Map<String, Object> filteredParameters = filterUnnecessaryParameters(predefinedParameters, originalParameters);
         filteredParameters.putAll(ParameterConversion.toFlowableVariables(predefinedParameters, filteredParameters));
+        addServiceTimeoutOperationParamsFlags(originalParameters, filteredParameters);
         return ImmutableOperation.copyOf(operation)
                                  .withParameters(filteredParameters);
+    }
+
+    private void addServiceTimeoutOperationParamsFlags(Map<String, Object> originalParameters, Map<String, Object> targetParameters) {
+        Arrays.stream(TimeoutType.values())
+              .filter(TimeoutType::isServiceScoped)
+              .filter(type -> type.getOperationParamsFlag() != null)
+              .filter(type -> originalParameters.containsKey(type.getProcessVariable()
+                                                                 .getName()))
+              .forEach(type -> targetParameters.put(type.getOperationParamsFlag()
+                                                        .getName(), true));
     }
 
     private Map<String, Object> filterUnnecessaryParameters(Set<ParameterMetadata> predefinedParameters, Map<String, Object> parameters) {
