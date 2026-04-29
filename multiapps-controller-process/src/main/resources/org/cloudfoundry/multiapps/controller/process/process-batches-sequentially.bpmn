@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.flowable.org/test" exporter="Flowable Open Source Modeler" exporterVersion="6.8.0">
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:flowable="http://flowable.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema"
+             expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.flowable.org/test"
+             exporter="Flowable Open Source Modeler" exporterVersion="6.8.0">
   <process id="processBatches" name="processBatches" isExecutable="true">
     <extensionElements>
       <flowable:eventListener events="PROCESS_CANCELLED" delegateExpression="${abortProcessListener}"></flowable:eventListener>
@@ -40,6 +44,13 @@
         <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
         <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
+        <flowable:in source="servicesCreateServiceTimeout" target="servicesCreateServiceTimeout"></flowable:in>
+        <flowable:in source="updateServiceTimeoutProcessVariable" target="updateServiceTimeoutProcessVariable"></flowable:in>
+        <flowable:in source="servicesBindServiceTimeout" target="servicesBindServiceTimeout"></flowable:in>
+        <flowable:in source="servicesCreateServiceKeyTimeout" target="servicesCreateServiceKeyTimeout"></flowable:in>
+        <flowable:in source="createServiceTimeoutFromOperationParams" target="createServiceTimeoutFromOperationParams"></flowable:in>
+        <flowable:in source="bindServiceTimeoutFromOperationParams" target="bindServiceTimeoutFromOperationParams"></flowable:in>
+        <flowable:in source="createServiceKeyTimeoutFromOperationParams" target="createServiceKeyTimeoutFromOperationParams"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToCreate" flowable:elementVariable="serviceToProcess">
         <extensionElements></extensionElements>
