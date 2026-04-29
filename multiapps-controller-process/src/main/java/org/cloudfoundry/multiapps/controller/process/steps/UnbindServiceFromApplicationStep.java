@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -22,7 +23,7 @@ import org.springframework.context.annotation.Scope;
 
 @Named("unbindServiceFromApplicationStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class UnbindServiceFromApplicationStep extends AsyncFlowableStep {
+public class UnbindServiceFromApplicationStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) throws Exception {
@@ -90,4 +91,8 @@ public class UnbindServiceFromApplicationStep extends AsyncFlowableStep {
         return new DeletingServiceBindingOperationCallback(context, controllerClient);
     }
 
+    @Override
+    public Duration getTimeout(ProcessContext context) {
+        return Duration.ofMinutes(5);
+    }
 }

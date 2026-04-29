@@ -32,6 +32,7 @@ import org.cloudfoundry.multiapps.controller.process.util.MockDelegateExecution;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessHelper;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutValueResolver;
 import org.cloudfoundry.multiapps.controller.process.variables.Variable;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -109,6 +110,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     protected final ProcessLoggerProvider processLoggerProvider = Mockito.spy(ProcessLoggerProvider.class);
     @Mock
     protected ProcessHelper processHelper;
+    protected TimeoutValueResolver timeoutValueResolver = new TimeoutValueResolver();
 
     protected ProcessContext context;
     @InjectMocks
@@ -120,6 +122,9 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     public void initMocks() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
+        if (step instanceof TimeoutAsyncFlowableStep timeoutStep) {
+            timeoutStep.timeoutValueResolver = timeoutValueResolver;
+        }
         this.stepLogger = Mockito.spy(new StepLogger(execution, progressMessageService, processLoggerProvider, LOGGER));
         this.context = step.createProcessContext(execution);
         when(stepLoggerFactory.create(any(), any(), any(), any())).thenReturn(stepLogger);
@@ -235,7 +240,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
         }
         context.setVariable(Variables.APP_TO_PROCESS, app);
 
-        when(timeoutType.getProcessVariableAndGlobalLevelParamName()).thenReturn(SupportedParameters.APPS_UPLOAD_TIMEOUT);
+        when(timeoutType.getGlobalLevelParamName()).thenReturn(SupportedParameters.APPS_UPLOAD_TIMEOUT);
 
         Map<String, Object> timeoutGlobalLevelParameters = new HashMap<>();
         timeoutGlobalLevelParameters.put(timeoutGlobalParameter, timeoutGlobalLevel);
