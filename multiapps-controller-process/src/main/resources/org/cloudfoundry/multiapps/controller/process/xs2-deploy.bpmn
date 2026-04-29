@@ -12,6 +12,7 @@
         <flowable:executionListener event="start" delegateExpression="${startProcessListener}"></flowable:executionListener>
       </extensionElements>
     </startEvent>
+    <serviceTask id="globalTimeoutSettingTask" name="Set Global Timeouts" flowable:async="true" flowable:delegateExpression="${globalTimeoutSettingStep}"></serviceTask>
     <endEvent id="endEvent" name="End">
       <extensionElements>
         <flowable:executionListener event="end" delegateExpression="${endProcessListener}"></flowable:executionListener>
@@ -34,7 +35,8 @@
     <serviceTask id="deleteDiscontinuedConfigurationEntriesTask" name="Delete Discontinued Configuration Entries" flowable:async="true" flowable:delegateExpression="${deleteDiscontinuedConfigurationEntriesStep}"></serviceTask>
     <serviceTask id="collectSystemParametersTask" name="Collect System Parameters" flowable:async="true" flowable:delegateExpression="${collectSystemParametersStep}"></serviceTask>
     <serviceTask id="processDescriptorTask" name="Process Descriptor Step" flowable:async="true" flowable:delegateExpression="${processDescriptorStep}"></serviceTask>
-    <sequenceFlow id="flow11" sourceRef="processDescriptorTask" targetRef="buildDeployModelTask"></sequenceFlow>
+    <sequenceFlow id="flow11" sourceRef="processDescriptorTask" targetRef="globalTimeoutSettingTask"></sequenceFlow>
+    <sequenceFlow id="globalTimeoutToBuildDeployModel" sourceRef="globalTimeoutSettingTask" targetRef="buildDeployModelTask"></sequenceFlow>
     <serviceTask id="buildUndeployModelTask" name="Build Undeploy Model" flowable:async="true" flowable:delegateExpression="${buildCloudUndeployModelStep}"></serviceTask>
     <serviceTask id="detectDeployedMtaTask" name="Detect Deployed MTA" flowable:async="true" flowable:delegateExpression="${detectDeployedMtaStep}"></serviceTask>
     <sequenceFlow id="flow8" sourceRef="detectDeployedMtaTask" targetRef="collectSystemParametersTask"></sequenceFlow>
@@ -557,3 +559,4 @@
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </definitions>
+
