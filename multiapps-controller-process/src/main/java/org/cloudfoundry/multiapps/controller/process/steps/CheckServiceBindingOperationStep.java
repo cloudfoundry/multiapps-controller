@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,13 +13,14 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredent
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 @Named("checkServiceBindingOperationStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CheckServiceBindingOperationStep extends AsyncFlowableStep {
+public class CheckServiceBindingOperationStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) throws Exception {
@@ -94,5 +96,10 @@ public class CheckServiceBindingOperationStep extends AsyncFlowableStep {
         String serviceInstanceName = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
         return MessageFormat.format(Messages.ERROR_WHILE_CHECKING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1,
                                     app.getName(), serviceInstanceName);
+    }
+
+    @Override
+    public Duration getTimeout(ProcessContext context) {
+        return calculateTimeout(context, TimeoutType.BIND_SERVICE);
     }
 }

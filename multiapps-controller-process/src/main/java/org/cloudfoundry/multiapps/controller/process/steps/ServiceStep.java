@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,10 +17,11 @@ import org.cloudfoundry.multiapps.controller.core.util.OperationExecutionState;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceProgressReporter;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.http.HttpStatus;
 
-public abstract class ServiceStep extends AsyncFlowableStep {
+public abstract class ServiceStep extends TimeoutAsyncFlowableStep {
 
     @Inject
     private ServiceOperationGetter serviceOperationGetter;
@@ -71,6 +73,11 @@ public abstract class ServiceStep extends AsyncFlowableStep {
             throw new CloudServiceBrokerException(e.getStatusCode(), e.getStatusText(), detailedMessage);
         }
         throw new CloudControllerException(e.getStatusCode(), e.getStatusText(), detailedMessage);
+    }
+
+    @Override
+    public Duration getTimeout(ProcessContext context) {
+        return calculateTimeout(context, TimeoutType.CREATE_SERVICE);
     }
 
     protected abstract ServiceOperation.Type getOperationType();
