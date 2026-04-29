@@ -13,6 +13,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.ServiceBindingOperati
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.DeletingServiceBindingOperationCallback;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceBindingPollingFactory;
@@ -107,6 +108,6 @@ public class UnbindServiceFromApplicationStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public Duration getTimeout(ProcessContext context) {
-        return Duration.ofMinutes(5);
+        return Constants.DEFAULT_UNBIND_SERVICE_TIMEOUT;
     }
 }
