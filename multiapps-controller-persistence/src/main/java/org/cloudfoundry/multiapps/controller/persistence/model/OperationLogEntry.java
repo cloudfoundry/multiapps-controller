@@ -33,8 +33,4 @@ public interface OperationLogEntry {
     @Nullable
     String getOperationLogName();
 
-    @Value.Default
-    default boolean isSendToCloudLoggingService() {
-        return false;
-    }
 }

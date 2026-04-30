@@ -11,7 +11,6 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerP
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
-import org.cloudfoundry.multiapps.controller.process.util.ProcessLoggerPersisterUtil;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -62,8 +61,14 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
             logException(e, Messages.EXECUTION_OF_PROCESS_LISTENER_HAS_FAILED + e.getMessage());
             throw new SLException(e, Messages.EXECUTION_OF_PROCESS_LISTENER_HAS_FAILED + e.getMessage());
         } finally {
-            processLoggerPersister.persistLogs(ProcessLoggerPersisterUtil.createProcessLoggerPersisterConfiguration(execution));
+            finalizeLogs(execution);
         }
+    }
+
+    protected void finalizeLogs(DelegateExecution execution) {
+        String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
+        String taskId = VariableHandling.get(execution, Variables.TASK_ID);
+        processLoggerPersister.persistLogs(correlationId, taskId);
     }
 
     private void initializeMustHaveVariables(DelegateExecution execution) {
@@ -130,7 +135,8 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
 
     protected boolean hasSuperExecution(DelegateExecution execution) {
         return execution.getParentId() != null
-            && flowableFacade.getParentExecution(execution.getParentId()).getSuperExecutionId() != null;
+            && flowableFacade.getParentExecution(execution.getParentId())
+                             .getSuperExecutionId() != null;
     }
 
     protected abstract void notifyInternal(DelegateExecution execution) throws Exception;

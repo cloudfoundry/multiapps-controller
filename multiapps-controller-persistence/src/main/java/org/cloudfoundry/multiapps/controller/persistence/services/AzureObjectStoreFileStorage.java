@@ -14,8 +14,6 @@ import java.util.stream.Collectors;
 import com.azure.core.http.HttpClient;
 import com.azure.core.http.okhttp.OkHttpAsyncHttpClientBuilder;
 import com.azure.core.http.policy.ExponentialBackoffOptions;
-import com.azure.core.http.policy.HttpLogDetailLevel;
-import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.http.policy.RetryOptions;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
@@ -163,8 +161,6 @@ public class AzureObjectStoreFileStorage extends ObjectStoreFileStorage {
         BlobServiceClient serviceClient = new BlobServiceClientBuilder().endpoint(getContainerUriEndpoint(credentials))
                                                                         .retryOptions(createRetryOptions())
                                                                         .httpClient(httpClient)
-                                                                        .httpLogOptions(new HttpLogOptions().setLogLevel(
-                                                                            HttpLogDetailLevel.BODY_AND_HEADERS))
                                                                         .sasToken((String) credentials.get(SAS_TOKEN))
                                                                         .buildClient();
 

@@ -11,7 +11,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableOperationLogEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
-import org.cloudfoundry.multiapps.controller.persistence.model.ProcessLoggerPersisterConfiguration;
 import org.springframework.scheduling.annotation.Async;
 
 @Named("processLoggerPersister")
@@ -19,22 +18,18 @@ public class ProcessLoggerPersister {
 
     private final ProcessLoggerProvider processLoggerProvider;
     private final ProcessLogsPersistenceService processLogsPersistenceService;
-    private final OperationLogsExporter operationLogsExporter;
 
     @Inject
     public ProcessLoggerPersister(ProcessLoggerProvider processLoggerProvider,
-                                  ProcessLogsPersistenceService processLogsPersistenceService,
-                                  OperationLogsExporter operationLogsExporter) {
+                                  ProcessLogsPersistenceService processLogsPersistenceService) {
         this.processLoggerProvider = processLoggerProvider;
         this.processLogsPersistenceService = processLogsPersistenceService;
-        this.operationLogsExporter = operationLogsExporter;
     }
 
     @Async("asyncExecutor")
-    public void persistLogs(ProcessLoggerPersisterConfiguration processLoggerPersisterConfiguration) {
+    public void persistLogs(String correlationId, String taskId) {
 
-        List<ProcessLogger> processLoggers = processLoggerProvider.getExistingLoggers(processLoggerPersisterConfiguration.correlationId(),
-                                                                                      processLoggerPersisterConfiguration.taskId());
+        List<ProcessLogger> processLoggers = processLoggerProvider.getExistingLoggers(correlationId, taskId);
         Map<String, StringBuilder> processLogsMessages = getProcessLogsMessages(processLoggers);
         if (processLogsMessages.isEmpty()) {
             return;
@@ -50,14 +45,7 @@ public class ProcessLoggerPersister {
                                                                             .withOperationLogName(processLogsMessage.getKey())
                                                                             .withOperationLog(processLogsMessage.getValue()
                                                                                                                 .toString())
-                                                                            .withIsSendToCloudLoggingService(false)
                                                                             .withModified(LocalDateTime.now());
-
-            //            operationLogsExporter.sendLogsToCloudLoggingService(processLoggerPersisterConfiguration.loggingConfiguration(),
-            //                                                                operationLogEntry);
-            //            if (operationLogEntry2 != null) {
-            //                operationLogEntry = operationLogEntry2;
-            //            }
 
             processLogsPersistenceService.persistLog(operationLogEntry);
         }

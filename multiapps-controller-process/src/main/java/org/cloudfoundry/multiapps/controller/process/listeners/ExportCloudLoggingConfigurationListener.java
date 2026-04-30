@@ -11,6 +11,8 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerP
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
+import org.cloudfoundry.multiapps.controller.process.variables.Serializer;
+import org.cloudfoundry.multiapps.controller.process.variables.Variable;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -41,17 +43,18 @@ public class ExportCloudLoggingConfigurationListener extends AbstractProcessExec
         if (loggingConfiguration == null) {
             return;
         }
+        Variable<LoggingConfiguration> loggingConfigurationVariable = Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION;
+        Serializer<LoggingConfiguration> loggingConfigurationSerializer = loggingConfigurationVariable.getSerializer();
         String parentProcessInstanceId = VariableHandling.get(execution, Variables.PARENT_PROCESS_INSTANCE_ID);
+
         if (parentProcessInstanceId != null && !parentProcessInstanceId.isEmpty()) {
-            setVariableInParentProcessXSA(execution, Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION.getName(),
-                                          Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION.getSerializer()
-                                                                                          .serialize(loggingConfiguration));
+            setVariableInParentProcessXSA(execution, loggingConfigurationVariable.getName(),
+                                          loggingConfigurationSerializer.serialize(loggingConfiguration));
         } else if (hasSuperExecution(execution)) {
-            setVariableInParentProcess(execution, Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION.getName(),
-                                       Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION.getSerializer()
-                                                                                       .serialize(loggingConfiguration));
+            setVariableInParentProcess(execution, loggingConfigurationVariable.getName(),
+                                       loggingConfigurationSerializer.serialize(loggingConfiguration));
         } else {
-            VariableHandling.set(execution, Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION, loggingConfiguration);
+            VariableHandling.set(execution, loggingConfigurationVariable, loggingConfiguration);
         }
     }
 }

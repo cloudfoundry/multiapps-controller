@@ -40,7 +40,7 @@ class ProcessLoggerPersisterTest {
         when(delegateExecution.getCurrentActivityId()).thenReturn(TEST_TASK_ID);
         when(delegateExecution.getVariable(Constants.VARIABLE_NAME_SPACE_ID)).thenReturn(TEST_SPACE_ID);
         when(delegateExecution.getProcessInstanceId()).thenReturn(TEST_TASK_ID);
-        processLoggerPersister = new ProcessLoggerPersister(processLoggerProvider, processLogsPersistenceService, null);
+        processLoggerPersister = new ProcessLoggerPersister(processLoggerProvider, processLogsPersistenceService);
     }
 
     @Test
@@ -48,7 +48,7 @@ class ProcessLoggerPersisterTest {
         ProcessLogger processLogger = processLoggerProvider.getLogger(delegateExecution);
         ProcessLogger processLoggerSecond = processLoggerProvider.getLogger(delegateExecution, TEST_LOG_NAME);
 
-        processLoggerPersister.persistLogs(null);
+        processLoggerPersister.persistLogs(TEST_CORRELATION_ID, TEST_TASK_ID);
 
         Mockito.verify(processLoggerProvider)
                .getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID);
@@ -69,7 +69,7 @@ class ProcessLoggerPersisterTest {
         ProcessLogger processLoggerSecond = processLoggerProvider.getLogger(delegateExecution, TEST_LOG_NAME);
         ProcessLogger processLoggerThird = processLoggerProvider.getLogger(delegateExecution, TEST_LOG_NAME);
 
-        processLoggerPersister.persistLogs(null);
+        processLoggerPersister.persistLogs(TEST_CORRELATION_ID, TEST_TASK_ID);
 
         Mockito.verify(processLoggerProvider)
                .getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID);
@@ -88,7 +88,7 @@ class ProcessLoggerPersisterTest {
 
     @Test
     void testPersistLogWithoutLogs() {
-        processLoggerPersister.persistLogs(null);
+        processLoggerPersister.persistLogs(TEST_CORRELATION_ID, TEST_TASK_ID);
 
         Mockito.verify(processLoggerProvider)
                .getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID);

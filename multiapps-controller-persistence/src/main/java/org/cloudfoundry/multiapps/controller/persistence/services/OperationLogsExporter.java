@@ -26,7 +26,6 @@ import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.ExternalOperationLogEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableExternalOperationLogEntry;
-import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableOperationLogEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.LogLevel;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
@@ -50,7 +49,6 @@ public class OperationLogsExporter {
     private static final Pattern MESSAGE_LOG_LEVEL_PATTERN = Pattern.compile("^#[^#\\r\\n]*#[^#\\r\\n]*#([^#\\r\\n]*)#", Pattern.MULTILINE);
 
     private static final String MESSAGE_SPLITTING_REGEX = "(?m)^#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#(?:\\r?\\n)?";
-
     private final ProcessLogsPersistenceService processLogsPersistenceService;
 
     public OperationLogsExporter(ProcessLogsPersistenceService processLogsPersistenceService) {
@@ -69,21 +67,29 @@ public class OperationLogsExporter {
         sendLogsToCloudLoggingService(externalOperationLogEntryBatches, cloudLogginServiceWebClient, loggingConfiguration);
     }
 
-    public OperationLogEntry sendLogsToCloudLoggingService(LoggingConfiguration loggingConfiguration, OperationLogEntry operationLogEntry) {
+    public void sendLogsToCloudLoggingService(LoggingConfiguration loggingConfiguration, OperationLogEntry operationLogEntry) {
         if (loggingConfiguration == null) {
-            return null;
+            return;
         }
         List<List<ExternalOperationLogEntry>> externalOperationLogEntryBatches = getExternalOperationLogEntryBatches(loggingConfiguration,
                                                                                                                      operationLogEntry);
 
         WebClient cloudLogginServiceWebClient = getCloudLogginServiceWebClient(loggingConfiguration);
         if (cloudLogginServiceWebClient == null) {
-            return null;
+            return;
         }
 
         sendLogsToCloudLoggingService(externalOperationLogEntryBatches, cloudLogginServiceWebClient, loggingConfiguration);
-        return ImmutableOperationLogEntry.copyOf(operationLogEntry)
-                                         .withIsSendToCloudLoggingService(true);
+    }
+
+    public List<OperationLogEntry> getUnsendProcessLogs(LoggingConfiguration loggingConfiguration) {
+        try {
+            return processLogsPersistenceService.listOperationLogsBySpaceAndOperationId(loggingConfiguration.getTargetSpace(),
+                                                                                        loggingConfiguration.getOperationId());
+        } catch (FileStorageException e) {
+            logErrorOrThrowExceptionBasedOnFailSafe(loggingConfiguration, e.getMessage());
+            return List.of();
+        }
     }
 
     public void removeClientFromCache(String operationId) {
@@ -260,16 +266,6 @@ public class OperationLogsExporter {
         String trimmed = message.substring(message.indexOf("]") + 1)
                                 .trim();
         return trimmed.substring(0, trimmed.length() - 1);
-    }
-
-    public List<OperationLogEntry> getUnsendProcessLogs(LoggingConfiguration loggingConfiguration) {
-        try {
-            return processLogsPersistenceService.listOperationLogsBySpaceAndOperationIdAndIsSendToCloudLoggingService(
-                loggingConfiguration.getTargetSpace(), loggingConfiguration.getOperationId());
-        } catch (FileStorageException e) {
-            logErrorOrThrowExceptionBasedOnFailSafe(loggingConfiguration, e.getMessage());
-            return List.of();
-        }
     }
 
     private WebClient createWebClientWithMtls(LoggingConfiguration loggingConfiguration) {

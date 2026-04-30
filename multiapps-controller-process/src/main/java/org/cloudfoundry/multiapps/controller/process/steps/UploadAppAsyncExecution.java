@@ -30,10 +30,8 @@ import org.cloudfoundry.multiapps.controller.process.context.ApplicationToUpload
 import org.cloudfoundry.multiapps.controller.process.context.ImmutableApplicationToUploadContext;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveContext;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationZipBuilder;
-import org.cloudfoundry.multiapps.controller.process.util.ProcessLoggerPersisterUtil;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,15 +115,15 @@ public class UploadAppAsyncExecution implements AsyncExecution {
         context.getStepLogger()
                .debug(Messages.UPLOAD_OF_APPLICATION_0_STARTED_ON_INSTANCE_1, applicationToProcess.getName(),
                       applicationConfiguration.getApplicationInstanceIndex());
-        return proceedWithUpload(context, applicationToUploadContext);
+        return proceedWithUpload(context.getControllerClient(), applicationToUploadContext);
     }
 
-    private CloudPackage proceedWithUpload(ProcessContext context, ApplicationToUploadContext applicationToUploadContext) {
+    private CloudPackage proceedWithUpload(CloudControllerClient client, ApplicationToUploadContext applicationToUploadContext) {
         applicationToUploadContext.getStepLogger()
                                   .debug(Messages.UPLOADING_FILE_0_FOR_APP_1, applicationToUploadContext.getModuleFileName(),
                                          applicationToUploadContext.getApplication()
                                                                    .getName());
-        CloudPackage cloudPackage = asyncUploadFiles(context, applicationToUploadContext);
+        CloudPackage cloudPackage = asyncUploadFiles(client, applicationToUploadContext);
         applicationToUploadContext.getStepLogger()
                                   .info(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, applicationToUploadContext.getApplication()
                                                                                                           .getName());
@@ -133,7 +131,7 @@ public class UploadAppAsyncExecution implements AsyncExecution {
         return cloudPackage;
     }
 
-    private CloudPackage asyncUploadFiles(ProcessContext context, ApplicationToUploadContext applicationToUploadContext) {
+    private CloudPackage asyncUploadFiles(CloudControllerClient client, ApplicationToUploadContext applicationToUploadContext) {
         Path extractedAppPath = extractApplicationFromArchive(applicationToUploadContext);
         LOGGER.debug(MessageFormat.format(Messages.APPLICATION_WITH_NAME_0_SAVED_TO_1, applicationToUploadContext.getApplication()
                                                                                                                  .getName(),
@@ -143,7 +141,7 @@ public class UploadAppAsyncExecution implements AsyncExecution {
                                                                                                                            .getName(),
                                                               extractedAppPath.toFile()
                                                                               .length());
-        return upload(context, applicationToUploadContext, extractedAppPath);
+        return upload(client, applicationToUploadContext, extractedAppPath);
     }
 
     private Path extractApplicationFromArchive(ApplicationToUploadContext applicationToUploadContext) {
@@ -169,19 +167,17 @@ public class UploadAppAsyncExecution implements AsyncExecution {
         return applicationZipBuilder.extractApplicationInNewArchive(applicationArchiveContext);
     }
 
-    private CloudPackage upload(ProcessContext context, ApplicationToUploadContext applicationToUploadContext,
+    private CloudPackage upload(CloudControllerClient client, ApplicationToUploadContext applicationToUploadContext,
                                 Path extractedModulePath) {
         try {
-            return context.getControllerClient()
-                          .asyncUploadApplicationWithExponentialBackoff(applicationToUploadContext.getApplication()
-                                                                                                  .getName(), extractedModulePath,
-                                                                        getMonitorUploadStatusCallback(
-                                                                            applicationToUploadContext.getApplication(),
-                                                                            extractedModulePath,
-                                                                            applicationToUploadContext.getStepLogger(),
-                                                                            applicationToUploadContext.getCorrelationId(),
-                                                                            applicationToUploadContext.getTaskId(),
-                                                                            context.getExecution()), null);
+            return client.asyncUploadApplicationWithExponentialBackoff(applicationToUploadContext.getApplication()
+                                                                                                 .getName(), extractedModulePath,
+                                                                       getMonitorUploadStatusCallback(
+                                                                           applicationToUploadContext.getApplication(),
+                                                                           extractedModulePath,
+                                                                           applicationToUploadContext.getStepLogger(),
+                                                                           applicationToUploadContext.getCorrelationId(),
+                                                                           applicationToUploadContext.getTaskId()), null);
         } catch (Exception e) {
             FileUtils.cleanUp(extractedModulePath, LOGGER);
             throw new SLException(e, Messages.ERROR_WHILE_STARTING_ASYNC_UPLOAD_OF_APP_WITH_NAME_0,
@@ -217,8 +213,8 @@ public class UploadAppAsyncExecution implements AsyncExecution {
     }
 
     MonitorUploadStatusCallback getMonitorUploadStatusCallback(CloudApplication app, Path file, StepLogger stepLogger, String correlationId,
-                                                               String taskId, DelegateExecution execution) {
-        return new MonitorUploadStatusCallback(app, file, stepLogger, correlationId, taskId, execution);
+                                                               String taskId) {
+        return new MonitorUploadStatusCallback(app, file, stepLogger, correlationId, taskId);
     }
 
     class MonitorUploadStatusCallback implements UploadStatusCallbackExtended {
@@ -228,16 +224,13 @@ public class UploadAppAsyncExecution implements AsyncExecution {
         private final StepLogger stepLogger;
         private final String correlationId;
         private final String taskId;
-        private final DelegateExecution execution;
 
-        public MonitorUploadStatusCallback(CloudApplication app, Path file, StepLogger stepLogger, String correlationId, String taskId,
-                                           DelegateExecution execution) {
+        public MonitorUploadStatusCallback(CloudApplication app, Path file, StepLogger stepLogger, String correlationId, String taskId) {
             this.app = app;
             this.file = file;
             this.stepLogger = stepLogger;
             this.correlationId = correlationId;
             this.taskId = taskId;
-            this.execution = execution;
         }
 
         @Override
@@ -260,7 +253,9 @@ public class UploadAppAsyncExecution implements AsyncExecution {
             stepLogger.debug(Messages.UPLOAD_STATUS_0, status);
             if (status.equals(Status.READY.toString())) {
                 FileUtils.cleanUp(file, LOGGER);
-                processLoggerPersister.persistLogs(ProcessLoggerPersisterUtil.createProcessLoggerPersisterConfiguration(execution));
+                //TODO
+                //                operationLogsExporter.sendLogsToCloudLoggingService();
+                processLoggerPersister.persistLogs(correlationId, taskId);
             }
             return false;
         }

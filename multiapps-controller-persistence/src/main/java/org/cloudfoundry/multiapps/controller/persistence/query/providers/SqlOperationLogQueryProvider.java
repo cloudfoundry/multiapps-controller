@@ -16,14 +16,13 @@ import org.cloudfoundry.multiapps.controller.persistence.util.JdbcUtil;
 
 public class SqlOperationLogQueryProvider {
 
-    public static final String INSERT_FILE_ATTRIBUTES_AND_CONTENT = "INSERT INTO %s (ID, SPACE, NAMESPACE, MODIFIED, OPERATION_ID, OPERATION_LOG, OPERATION_LOG_NAME, IS_SEND_TO_CLOUD_LOGGING_SERVICE) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    public static final String INSERT_FILE_ATTRIBUTES_AND_CONTENT = "INSERT INTO %s (ID, SPACE, NAMESPACE, MODIFIED, OPERATION_ID, OPERATION_LOG, OPERATION_LOG_NAME) VALUES (?, ?, ?, ?, ?, ?, ?)";
     private static final String ID_COLUMN_LABEL = "id";
     private static final String OPERATION_LOG_COLUMN_LABEL = "operation_log";
     private static final String OPERATION_LOG_NAME_COLUMN_LABEL = "operation_log_name";
     private static final String OPERATION_LOG_MODIFIED_COLUMN_LABEL = "modified";
     private static final String SELECT_LOGS_BY_SPACE_ID_OPERATION_ID_AND_OPERATION_LOG_NAME = "SELECT ID, OPERATION_LOG, OPERATION_LOG_NAME, MODIFIED FROM %s WHERE SPACE=? AND OPERATION_ID=? AND OPERATION_LOG_NAME=? ORDER BY MODIFIED ASC";
     private static final String SELECT_LOGS_BY_SPACE_ID_AND_NAME = "SELECT DISTINCT ID, OPERATION_LOG, OPERATION_LOG_NAME, MODIFIED FROM %s WHERE SPACE=? AND OPERATION_ID=? ORDER BY MODIFIED ASC";
-    private static final String SELECT_LOGS_BY_SPACE_ID_AND_NAME_AND_IS_SEND_TO_CLOUD_LOGGING_SERVICE = "SELECT DISTINCT ID, OPERATION_LOG, OPERATION_LOG_NAME, MODIFIED FROM %s WHERE SPACE=? AND OPERATION_ID=? AND IS_SEND_TO_CLOUD_LOGGING_SERVICE=false ORDER BY MODIFIED ASC";
     public static final String UPDATE_IS_SEND_TO_CLOUD_LOGGING_SERVICE = "UPDATE %s SET IS_SEND_TO_CLOUD_LOGGING_SERVICE = ? where ID = ?";
 
     private final String tableName;
@@ -50,32 +49,9 @@ public class SqlOperationLogQueryProvider {
                 statement.setString(5, operationLogEntry.getOperationId());
                 statement.setString(6, operationLogEntry.getOperationLog());
                 statement.setString(7, operationLogEntry.getOperationLogName());
-                statement.setBoolean(8, operationLogEntry.isSendToCloudLoggingService());
 
                 return statement.executeUpdate();
             } finally {
-                JdbcUtil.closeQuietly(statement);
-            }
-        };
-    }
-
-    public SqlQuery<List<OperationLogEntry>> getListFilesQueryBySpaceAndOperationIdAndIsSendToCloudLoggingService(String space,
-                                                                                                                  String operationId) {
-        return (Connection connection) -> {
-            PreparedStatement statement = null;
-            ResultSet resultSet = null;
-            try {
-                List<OperationLogEntry> logs = new ArrayList<>();
-                statement = connection.prepareStatement(getListFilesBySpaceAndOperationIdAndIsSendToCloudLoggingServiceQueryString());
-                statement.setString(1, space);
-                statement.setString(2, operationId);
-                resultSet = statement.executeQuery();
-                while (resultSet.next()) {
-                    logs.add(getOperationLogEntry(resultSet));
-                }
-                return logs;
-            } finally {
-                JdbcUtil.closeQuietly(resultSet);
                 JdbcUtil.closeQuietly(statement);
             }
         };
@@ -124,22 +100,6 @@ public class SqlOperationLogQueryProvider {
         };
     }
 
-    public SqlQuery<Integer> getUpdateIsSendToCloudLoggingService(String id, boolean newStatus) {
-        return (Connection connection) -> {
-            PreparedStatement statement = null;
-            ResultSet resultSet = null;
-            try {
-                statement = connection.prepareStatement(getUpdateIsSendToCloudLoggingServiceQueryString());
-                statement.setBoolean(1, newStatus);
-                statement.setString(2, id);
-                return statement.executeUpdate();
-            } finally {
-                JdbcUtil.closeQuietly(resultSet);
-                JdbcUtil.closeQuietly(statement);
-            }
-        };
-    }
-
     private String getStoreLogQueryString() {
         return String.format(INSERT_FILE_ATTRIBUTES_AND_CONTENT, tableName);
     }
@@ -148,16 +108,8 @@ public class SqlOperationLogQueryProvider {
         return String.format(SELECT_LOGS_BY_SPACE_ID_AND_NAME, tableName);
     }
 
-    private String getListFilesBySpaceAndOperationIdAndIsSendToCloudLoggingServiceQueryString() {
-        return String.format(SELECT_LOGS_BY_SPACE_ID_AND_NAME_AND_IS_SEND_TO_CLOUD_LOGGING_SERVICE, tableName);
-    }
-
     private String getListFilesBySpaceOperationIdAndLogIdQueryString() {
         return String.format(SELECT_LOGS_BY_SPACE_ID_OPERATION_ID_AND_OPERATION_LOG_NAME, tableName);
-    }
-
-    private String getUpdateIsSendToCloudLoggingServiceQueryString() {
-        return String.format(UPDATE_IS_SEND_TO_CLOUD_LOGGING_SERVICE, tableName);
     }
 
     private OperationLogEntry getOperationLogEntry(ResultSet resultSet) throws SQLException {

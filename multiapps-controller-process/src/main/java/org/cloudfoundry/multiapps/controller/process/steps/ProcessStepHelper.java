@@ -16,7 +16,6 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerP
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessHelper;
-import org.cloudfoundry.multiapps.controller.process.util.ProcessLoggerPersisterUtil;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.ProcessEngineConfiguration;
@@ -42,8 +41,7 @@ public abstract class ProcessStepHelper {
                                                                               .getCurrentFlowElement()
                                                                               .getName()));
 
-        getProcessLoggerPersister().persistLogs(
-            ProcessLoggerPersisterUtil.createProcessLoggerPersisterConfiguration(context.getExecution()));
+        getProcessLoggerPersister().persistLogs(context.getVariable(Variables.CORRELATION_ID), context.getVariable(Variables.TASK_ID));
         context.setVariable(Variables.STEP_EXECUTION, state.toString());
     }
 

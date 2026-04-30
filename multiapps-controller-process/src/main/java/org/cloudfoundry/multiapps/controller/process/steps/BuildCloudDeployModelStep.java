@@ -22,7 +22,6 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceIn
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CustomServiceKeysClient;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
@@ -82,9 +81,6 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     private TokenService tokenService;
     @Inject
     private WebClientFactory webClientFactory;
-
-    @Inject
-    private CloudControllerClientFactory clientFactory;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildCloudDeployModelStep.class);
 
@@ -152,8 +148,6 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         List<List<CloudServiceInstanceExtended>> batchesToProcess = getResourceBatches(context, resourcesForDeployment);
         context.setVariable(Variables.BATCHES_TO_PROCESS, batchesToProcess);
         getStepLogger().debug(Messages.CALCULATING_RESOURCE_BATCHES_COMPLETE);
-        getStepLogger().debug("External logging service configurations: {0}");
-
         getStepLogger().debug(Messages.CLOUD_MODEL_BUILT);
         return StepPhase.DONE;
     }

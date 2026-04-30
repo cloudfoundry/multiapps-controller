@@ -42,17 +42,6 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
         }
     }
 
-    public List<OperationLogEntry> listOperationLogsBySpaceAndOperationIdAndIsSendToCloudLoggingService(String space, String operationId)
-        throws FileStorageException {
-        try {
-            return getSqlQueryExecutor().execute(
-                sqlOperationLogQueryProvider.getListFilesQueryBySpaceAndOperationIdAndIsSendToCloudLoggingService(space, operationId));
-        } catch (SQLException e) {
-            throw new FileStorageException(
-                MessageFormat.format(Messages.ERROR_GETTING_LOGS_WITH_SPACE_AND_OPERATION_ID, space, operationId), e);
-        }
-    }
-
     public String getOperationLog(String space, String operationId, String logId) throws FileStorageException {
         List<OperationLogEntry> operationLogs = listOperationLogs(space, operationId, logId);
 
@@ -71,15 +60,6 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
         } catch (SQLException e) {
             throw new FileStorageException(
                 MessageFormat.format(Messages.ERROR_GETTING_LOGS_WITH_SPACE_OPERATION_ID_AND_NAME, space, operationId, logId), e);
-        }
-    }
-
-    public void updateIsSendToCloudLoggingService(String logId, boolean newStatus) throws FileStorageException {
-        try {
-            getSqlQueryExecutor().execute(sqlOperationLogQueryProvider.getUpdateIsSendToCloudLoggingService(logId, newStatus));
-        } catch (SQLException e) {
-            throw new FileStorageException(
-                MessageFormat.format(Messages.ERROR_UPDATING_LOGS_WITH_SPACE_OPERATION_ID_AND_NAME, logId), e);
         }
     }
 
