@@ -19,6 +19,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
@@ -104,10 +105,10 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         DynamicSecureSerialization dynamicSecureSerialization = SecureLoggingUtil.getDynamicSecureSerialization(context);
 
         // Build a map of service keys and save them in the context:
-        //        Map<String, List<CloudServiceKey>> serviceKeys = getServiceKeysCloudModelBuilder(context).build();
-        //        getStepLogger().debug(Messages.SERVICE_KEYS_TO_CREATE, dynamicSecureSerialization.toJson(serviceKeys));
-        //
-        //        context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, serviceKeys);
+        Map<String, List<CloudServiceKey>> serviceKeys = getServiceKeysCloudModelBuilder(context).build();
+        getStepLogger().debug(Messages.SERVICE_KEYS_TO_CREATE, dynamicSecureSerialization.toJson(serviceKeys));
+
+        context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, serviceKeys);
 
         // Build a list of applications for deployment and save them in the context:
         List<Module> modulesCalculatedForDeployment = calculateModulesForDeployment(context, deploymentDescriptor, mtaDescriptorModules,

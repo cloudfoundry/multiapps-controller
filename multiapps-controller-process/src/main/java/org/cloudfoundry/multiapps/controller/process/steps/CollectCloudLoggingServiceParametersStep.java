@@ -41,6 +41,9 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ProcessContext context) throws Exception {
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
+        if (!isCloudLoggingEnabled(deploymentDescriptor)) {
+            return StepPhase.DONE;
+        }
         LoggingConfiguration loggingConfiguration = setExternalLoggingServiceConfigurationIfRequired(context, deploymentDescriptor);
         List<OperationLogEntry> operationLogEntries = operationLogsExporter.getUnsendProcessLogs(loggingConfiguration);
 
@@ -48,11 +51,6 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
             operationLogsExporter.sendLogsToCloudLoggingService(loggingConfiguration, operationLogEntry);
         }
         context.setVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION, loggingConfiguration);
-        //        if (!isRootProcess(context.getExecution())) {
-        //            flowableFacade.setVariableInParentProcess(context.getExecution(), Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION.getName(),
-        //                                                      Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION.getSerializer()
-        //                                                                                                      .serialize(loggingConfiguration));
-        //        }
         return StepPhase.DONE;
     }
 
@@ -69,9 +67,6 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
 
     protected LoggingConfiguration setExternalLoggingServiceConfigurationIfRequired(ProcessContext context,
                                                                                     DeploymentDescriptor deploymentDescriptor) {
-        if (!isCloudLoggingEnabled(deploymentDescriptor)) {
-            return null;
-        }
         ExternalLoggingServiceConfigurationsCalculator calculator = new ExternalLoggingServiceConfigurationsCalculator(clientFactory,
                                                                                                                        context,
                                                                                                                        tokenService);

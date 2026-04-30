@@ -188,7 +188,11 @@
     </sequenceFlow>
     <sequenceFlow id="sid-C67437BE-6EA8-4899-B71B-531CAD3C9A67" sourceRef="undeployAppCallActivity" targetRef="deleteServiceKeysSubProcess"></sequenceFlow>
     <sequenceFlow id="sid-C77B3AAB-E04A-4ACF-AE94-F894A12FD133" sourceRef="deleteServiceKeysSubProcess" targetRef="shouldDeleteDiscontinuedServicesGateway"></sequenceFlow>
-    <serviceTask id="sid-9C5714DF-CEC8-4019-8873-CBBA99AC459A" name="Collect Cloud Logging Service Parameters" flowable:async="true" flowable:delegateExpression="${collectCloudLoggingServiceParametersStep}"></serviceTask>
+    <serviceTask id="sid-9C5714DF-CEC8-4019-8873-CBBA99AC459A" name="Collect Cloud Logging Service Parameters" flowable:async="true" flowable:delegateExpression="${collectCloudLoggingServiceParametersStep}">
+      <extensionElements>
+        <flowable:executionListener event="end" delegateExpression="${exportCloudLoggingConfigurationListener}"></flowable:executionListener>
+      </extensionElements>
+    </serviceTask>
     <sequenceFlow id="sid-EED7B208-C9E9-49F2-8312-DAE8B54FE3D2" sourceRef="mergeDescriptorsTask" targetRef="sid-9C5714DF-CEC8-4019-8873-CBBA99AC459A"></sequenceFlow>
     <sequenceFlow id="flow48" sourceRef="buildUndeployModelTask" targetRef="addDomainsTask"></sequenceFlow>
     <sequenceFlow id="sid-D3B524F3-6DC4-49D6-BD49-9D27284EDD61" sourceRef="sid-9C5714DF-CEC8-4019-8873-CBBA99AC459A" targetRef="detectDeployedMtaTask"></sequenceFlow>

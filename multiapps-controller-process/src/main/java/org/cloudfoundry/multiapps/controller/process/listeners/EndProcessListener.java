@@ -55,16 +55,6 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
         if (isRootProcess(execution)) {
             eventHandler.handle(execution, processTypeParser.getProcessType(execution, false), Operation.State.FINISHED);
             publishDynatraceEvent(execution, processTypeParser.getProcessType(execution, false));
-        } else {
-            if (VariableHandling.get(execution, Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION) != null) {
-                setVariableInParentProcessXSA(execution,
-                                              Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION.getName(),
-                                              Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION.getSerializer()
-                                                                                              .serialize(
-                                                                                                  VariableHandling.get(
-                                                                                                      execution,
-                                                                                                      Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION)));
-            }
         }
     }
 

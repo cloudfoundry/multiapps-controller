@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.Map;
 
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
@@ -71,9 +72,10 @@ public class ExternalLoggingServiceConfigurationsCalculator {
     }
 
     private String getServiceKeyName(Resource resource) {
-        Map<String, Object> serviceKeys = MiscUtil.cast(resource.getParameters()
-                                                                .get(SupportedParameters.SERVICE_KEYS));
-        return MiscUtil.cast(serviceKeys.get(SupportedParameters.NAME));
+        List<Map<String, Object>> serviceKeys = MiscUtil.cast(resource.getParameters()
+                                                                      .get(SupportedParameters.SERVICE_KEYS));
+        return MiscUtil.cast(serviceKeys.get(0)
+                                        .get(SupportedParameters.NAME));
     }
 
     private String getServiceInstanceName(Resource resource) {
