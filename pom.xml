@@ -57,7 +57,6 @@
         <jakarta.annotation-api.version>3.0.0</jakarta.annotation-api.version>
         <bouncycastle.version>2.1.10</bouncycastle.version>
         <apache.compress.version>1.28.0</apache.compress.version>
-        <azure-core-http-netty.version>1.16.4</azure-core-http-netty.version>
         <tika-core.version>3.3.0</tika-core.version>
         <commons-logging.version>1.3.6</commons-logging.version>
         <google-cloud.version>2.64.1</google-cloud.version>
