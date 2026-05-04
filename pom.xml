@@ -24,7 +24,7 @@
         <commons-io.version>2.21.0</commons-io.version>
         <commons-collections4.version>4.5.0</commons-collections4.version>
         <snakeyaml.version>2.6</snakeyaml.version>
-        <httpclient.version>5.6</httpclient.version>
+        <httpclient.version>5.6.1</httpclient.version>
         <httpcore.version>5.4.2</httpcore.version>
         <eclipselink.version>4.0.9</eclipselink.version>
         <flowable.version>7.2.0</flowable.version>
