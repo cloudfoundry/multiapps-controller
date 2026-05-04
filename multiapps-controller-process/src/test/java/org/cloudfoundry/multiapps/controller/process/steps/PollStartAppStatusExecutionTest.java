@@ -112,14 +112,13 @@ class PollStartAppStatusExecutionTest {
         assertEquals(NORMAL_ERROR_MESSAGE, step.getPollingErrorMessage(context));
     }
 
-    private CloudApplicationExtended buildApplication(int instancesCount, boolean isReadinessHealthCheckEnabled) {
+    private CloudApplicationExtended buildApplication(int instancesCount, boolean isReadinessEnabled) {
         return ImmutableCloudApplicationExtended.builder()
                                                 .metadata(ImmutableCloudMetadata.of(UUID.randomUUID()))
                                                 .name(APP_NAME)
                                                 .instances(instancesCount)
                                                 .staging(ImmutableStaging.builder()
-                                                                         .isReadinessHealthCheckEnabled(isReadinessHealthCheckEnabled)
-                                                                         .readinessHealthCheckType("test")
+                                                                         .readinessHealthCheckType(isReadinessEnabled ? "test" : null)
                                                                          .build())
                                                 .build();
     }

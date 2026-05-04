@@ -61,8 +61,8 @@ public class Messages {
     public static final String ERROR_WHILE_CHECKING_SERVICE_KEY_OPERATION_0 = "Error while checking service key operation \"{0}\"";
     public static final String ERROR_OCCURRED_WHILE_CREATING_SERVICE_KEY_0 = "Error occurred while creating service key \"{0}\"";
     public static final String ERROR_OCCURRED_WHILE_DELETING_SERVICE_KEY_0 = "Error occurred while deleting service key \"{0}\"";
-    public static final String OPERATION_FOR_SERVICE_KEY_0_FAILED_WITH_DESCRIPTION_1 = "Operation for service key \"{0}\", failed with description \"{1}\"";
-    public static final String OPERATION_FOR_OPTIONAL_SERVICE_KEY_0_FAILED_WITH_DESCRIPTION_1 = "Operation for service key \"{0}\". for optional service, failed with description \"{1}\"";
+    public static final String OPERATION_FOR_SERVICE_KEY_0_FAILED_WITH_DESCRIPTION_1 = "Operation for service key \"{0}\" failed: {1}";
+    public static final String OPERATION_FOR_OPTIONAL_SERVICE_KEY_0_FAILED_WITH_DESCRIPTION_1 = "Operation for optional service key \"{0}\" failed: {1}";
     public static final String APPLICATION_0_WAS_NOT_FOUND = "Application \"{0}\" was not found";
     public static final String FAILED_TO_UPDATE_FILES_OF_OPERATION_0 = "Failed to update files of operation: {0}";
     public static final String COULD_NOT_DELETE_ORPHANED_FILES_MODIFIED_AFTER_0_AND_BEFORE_1 = "Could not delete orphaned files modified after {0} and before {1}";
@@ -88,13 +88,14 @@ public class Messages {
     public static final String SECRET_VALUE_NOT_FOUND_FOR_TOKEN_0_PID_1_VARIABLE_2 = "Secret value not found for token \"{0}\" (process instance id=\"{1}\", variable=\"{2}\")";
     public static final String INVALID_ENCRYPTION_KEY_LENGTH = "Length of the encryption key is invalid - it must be 32 characters long!";
     public static final String MISSING_MTA_ID_IN_ENCRYPTION_KEY_RESOLVER = "Missing mtaId in encryption key resolver! Cannot continue from here!";
+    public static final String STEP_OF_THE_PROCESS_HAS_FAILED = "A step of the process has failed.";
 
     // Audit log messages
 
     // ERROR log messages
     public static final String COULD_NOT_COMPUTE_ORG_AND_SPACE = "Could not find org and space for space ID \"{0}\"";
     public static final String NO_BUILDS_FOUND_FOR_PACKAGE = "No builds found for package \"{0}\"";
-    public static final String ASYNC_OPERATION_FOR_SERVICE_BROKER_FAILED_WITH = "Async operation for service broker \"{0}\" failed with \"{1}\"";
+    public static final String ASYNC_OPERATION_FOR_SERVICE_BROKER_FAILED_WITH = "Async operation for service broker \"{0}\" failed with errors: {1}";
     public static final String CLEARING_STALE_FLOWABLE_LOCK_OWNER_0_THREW_AN_EXCEPTION_1 = "Clearing stale Flowable lock owner {0} threw an exception: {1}";
     public static final String SERVICE_INSTANCE_0_NOT_BOUND_TO_APP_1 = "Service instance \"{0}\" not bound to application \"{1}\"";
     public static final String ERROR_WHILE_DELETING_SERVICE_INSTANCE_METADATA_0 = "Error while deleting service instance metadata \"{0}\"";
@@ -136,21 +137,18 @@ public class Messages {
     public static final String ERROR_PREPARING_MODULES_DEPLOYMENT = "Error preparing modules deployment";
     public static final String ERROR_PREPARING_RESOURCES_FOR_PROCESSING_AND_RESOLVE_DYNAMIC_PARAMETERS = "Error preparing resources for processing and resolution of dynamic parameters";
     public static final String ERROR_STOPPING_APP = "Error stopping application \"{0}\"";
-    public static final String DOWNLOAD_APP_LOGS_FOR_MORE_INFO = "Download the application logs via the dmol command and check them for more information.";
+    public static final String DOWNLOAD_APP_LOGS_FOR_MORE_INFO = "Download the MTA operation logs for more details.";
     public static final String ERROR_STAGING_APP_0 = "Error staging application \"{0}\"";
-    public static final String ERROR_STAGING_APP_0_DESCRIPTION_1 =
-        "Error staging application \"{0}\": {1}\n" + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
+    public static final String ERROR_STAGING_APP_0_DESCRIPTION_1 = "Error staging application \"{0}\": {1}. Check the application logs of your application for details.";
     public static final String ERROR_PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES = "Error publishing public provided dependencies";
     public static final String ERROR_STARTING_APP_0 = "Error starting application \"{0}\"";
     public static final String ERROR_NONE_OF_THE_INSTANCES_OF_THE_APP_0_BECOME_ROUTABLE = "None of the instances of the app \"{0}\" become routable. Please verify that the defined MTA parameters for the readiness health check align with the app’s code and configuration.";
-    public static final String ERROR_STARTING_APP_0_DESCRIPTION_1 =
-        "Error starting application \"{0}\": {1}\n" + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
+    public static final String ERROR_STARTING_APP_0_DESCRIPTION_1 = "Error starting application \"{0}\": {1}";
     public static final String ERROR_EXECUTING_APP_1 = "Error executing application \"{0}\"";
     public static final String ERROR_EXECUTING_APP_2 = "Error executing application \"{0}\": {1}";
     public static final String ERROR_PREPARING_TO_EXECUTE_TASKS_ON_APP = "Error preparing to execute tasks on application \"{0}\"";
     public static final String ERROR_PREPARING_TO_RESTART_SERVICE_BROKER_SUBSCRIBERS = "Error preparing to restart service broker subscribers";
-    public static final String ERROR_EXECUTING_TASK_0_ON_APP_1 =
-        "Execution of task \"{0}\" on application \"{1}\" failed.\n" + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
+    public static final String ERROR_EXECUTING_TASK_0_ON_APP_1 = "Execution of task \"{0}\" on application \"{1}\" failed.";
     public static final String ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY = "Error detecting components to undeploy";
     public static final String ERROR_DELETING_IDLE_ROUTES = "Error deleting idle routes";
     public static final String ERROR_CREATING_SERVICE_BROKERS = "Error creating service brokers";
@@ -188,11 +186,11 @@ public class Messages {
     public static final String ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1 = "Error while polling service binding operations between app: \"{0}\" and service instance \"{1}\"";
     public static final String ERROR_WHILE_CHECKING_SERVICE_BINDING_OPERATIONS_BETWEEN_APP_0_AND_SERVICE_INSTANCE_1 = "Error while checking service binding operations between app: \"{0}\" and service instance \"{1}\"";
     public static final String ERROR_WHILE_CHECKING_SERVICE_BINDING_OPERATIONS_0 = "Error while checking service binding operations for service binding: \"{0}\"";
-    public static final String ASYNC_OPERATION_FOR_SERVICE_BINDING_FAILED_WITH = "Async operation for service binding \"{0}\" between app \"{1}\" and service instance \"{2}\" with offering \"{3}\" and plan \"{4}\" failed with \"{5}\"";
-    public static final String ASYNC_OPERATION_FOR_USER_PROVIDED_SERVICE_BINDING_FAILED_WITH = "Async operation for service binding \"{0}\" between app \"{1}\" and user-provided service instance \"{2}\" failed with \"{3}\"";
+    public static final String ASYNC_OPERATION_FOR_SERVICE_BINDING_FAILED_WITH = "Async operation for service binding \"{0}\" between app \"{1}\" and service instance \"{2}\" with offering \"{3}\" and plan \"{4}\" failed with errors: {5}";
+    public static final String ASYNC_OPERATION_FOR_USER_PROVIDED_SERVICE_BINDING_FAILED_WITH = "Async operation for service binding \"{0}\" between app \"{1}\" and user-provided service instance \"{2}\" failed with errors: {3}";
     public static final String ASYNC_OPERATION_FOR_SERVICE_BINDING_FAILED_INSTANCE_MISSING = "Async operation for service binding \"{0}\" between app \"{1}\" and service instance \"{2}\" failed: Instance not found. Cause: {3}";
-    public static final String ASYNC_OPERATION_FOR_SERVICE_KEY_FAILED_WITH = "Async operation for service key of service instance \"{0}\" failed with \"{1}\"";
-    public static final String ASYNC_OPERATION_FOR_OPTIONAL_SERVICE_KEY_FAILED_WITH = "Async operation for service key of optional service instance \"{0}\" failed with \"{1}\"";
+    public static final String ASYNC_OPERATION_FOR_SERVICE_KEY_FAILED_WITH = "Async operation for service key of service instance \"{0}\" failed with errors: {1}";
+    public static final String ASYNC_OPERATION_FOR_OPTIONAL_SERVICE_KEY_FAILED_WITH = "Async operation for service key of optional service instance \"{0}\" failed with errors: {1}";
     public static final String ASYNC_OPERATION_FOR_SERVICE_BINDING_FOR_OPTIONAL_SERVICE_FAILED_WITH = "Async operation for service binding \"{0}\" for optional service between app \"{1}\" and service instance \"{2}\" failed with \"{3}\"";
     public static final String ERROR_WHILE_CALCULATING_SERVICE_BINDINGS_TO_DELETE_0 = "Error while calculating service bindings to delete \"{0}\"";
     public static final String ERROR_WHILE_CREATING_SERVICE_KEY_0 = "Error while creating service key \"{0}\"";
@@ -290,8 +288,8 @@ public class Messages {
     public static final String UNBINDING_SERVICE_INSTANCE_FROM_APP_FINISHED = "Unbinding service instance \"{0}\" from application \"{1}\" finished";
     public static final String POLLING_SERVICE_OPERATIONS = "Polling service operations...";
     public static final String AUTO_ABORTING_PROCESS_0 = "Auto-aborting process \"{0}\"...";
-    public static final String SOME_INSTANCES_ARE_DOWN = "Some instances are down. Check the logs of your application for more information.";
-    public static final String SOME_INSTANCES_HAVE_CRASHED = "Some instances have crashed. Check the logs of your application for more information.";
+    public static final String SOME_INSTANCES_ARE_DOWN = "Some instances are down. Check the application logs of your application for details.";
+    public static final String SOME_INSTANCES_HAVE_CRASHED = "Some instances have crashed. Check the application logs of your application for details.";
     public static final String CLEAN_UP_JOB_STARTED_BY_APPLICATION_INSTANCE_0_AT_1 = "Clean-up job started by application instance {0} at: {1}";
     public static final String CLEAN_UP_JOB_WHICH_STARTED_AT_0_HAS_FINISHED_AT_1 = "Clean-up job, which started at: {0}, has finished at: {1}";
     public static final String WILL_CLEAN_UP_DATA_STORED_BEFORE_0 = "Will clean-up data stored before: {0}";
@@ -337,7 +335,7 @@ public class Messages {
     public static final String DELETED_FILE_ENTRIES_0 = "Deleted file entries: {0}";
     public static final String APPLICATION_WITH_NAME_0_SAVED_TO_1 = "Application with name \"{0}\" saved to \"{1}\"";
     public static final String CLOSING_STREAM_FOR_PART_0 = "Closing stream for part: {0}";
-    public static final String REACHED_THE_END_OF_THE_INPUTSTREAM = "Reached the end of the InputStream";
+    public static final String REACHED_THE_END_OF_THE_INPUT_STREAM = "Reached the end of the input stream";
     public static final String CLOSING_LAST_STREAM_FOR_PART_0 = "Closing the last stream, part: {0}";
     public static final String SCALING_UP_OLD_APPLICATION = "Scaling up old application: \"{0}\" to {1} instances";
     public static final String FILE_WITH_ID_0_WAS_DELETED = "File with id \"{0}\" was deleted";

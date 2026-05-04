@@ -21,7 +21,6 @@ import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaServ
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.test.DescriptorTestUtil;
-import org.cloudfoundry.multiapps.controller.process.util.DeprecatedBuildpackChecker;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -86,9 +85,6 @@ class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeplo
     private TokenService tokenService;
     @Mock
     private WebClientFactory webClientFactory;
-
-    @Mock
-    private DeprecatedBuildpackChecker deprecatedBuildpackChecker;
 
     public static Stream<Arguments> testExecute() {
         return Stream.of(

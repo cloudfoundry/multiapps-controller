@@ -1,18 +1,8 @@
 package org.cloudfoundry.multiapps.controller.web.api.impl;
 
-import java.io.BufferedInputStream;
-import java.io.InputStream;
-import java.math.BigInteger;
-import java.text.MessageFormat;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Base64;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.stream.Collectors;
-
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.FilesApiService;
 import org.cloudfoundry.multiapps.controller.api.model.AsyncUploadResult;
@@ -22,8 +12,6 @@ import org.cloudfoundry.multiapps.controller.api.model.ImmutableAsyncUploadResul
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableFileMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.UserCredentials;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.FilesApiServiceAuditLog;
-import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
-import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry.State;
@@ -36,6 +24,7 @@ import org.cloudfoundry.multiapps.controller.process.util.PriorityCallable;
 import org.cloudfoundry.multiapps.controller.process.util.PriorityFuture;
 import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
+import org.cloudfoundry.multiapps.controller.web.monitoring.ApiUsageLogger;
 import org.cloudfoundry.multiapps.controller.web.upload.AsyncUploadJobOrchestrator;
 import org.cloudfoundry.multiapps.controller.web.upload.exception.RejectedAsyncUploadJobException;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
@@ -47,6 +36,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.text.MessageFormat;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Base64;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 @Named
 public class FilesApiServiceImpl implements FilesApiService {
@@ -60,21 +60,28 @@ public class FilesApiServiceImpl implements FilesApiService {
         System.setProperty(Constants.RETRY_LIMIT_PROPERTY, "0");
     }
 
+    private final FileService fileService;
+    private final AsyncUploadJobService uploadJobService;
+    private final FilesApiServiceAuditLog filesApiServiceAuditLog;
+    private final AsyncUploadJobOrchestrator asyncUploadJobOrchestrator;
+    private final ApiUsageLogger apiUsageLogger;
+    private final ExecutorService fileStorageThreadPool;
+    private final HttpServletRequest httpServletRequest;
+
     @Inject
-    @Named("fileService")
-    private FileService fileService;
-    @Inject
-    private DescriptorParserFacadeFactory descriptorParserFactory;
-    @Inject
-    private ApplicationConfiguration configuration;
-    @Inject
-    private AsyncUploadJobService uploadJobService;
-    @Inject
-    private FilesApiServiceAuditLog filesApiServiceAuditLog;
-    @Inject
-    private AsyncUploadJobOrchestrator asyncUploadJobOrchestrator;
-    @Inject
-    private ExecutorService fileStorageThreadPool;
+    public FilesApiServiceImpl(@Named("fileService") FileService fileService,
+                               AsyncUploadJobService uploadJobService,
+                               FilesApiServiceAuditLog filesApiServiceAuditLog,
+                               AsyncUploadJobOrchestrator asyncUploadJobOrchestrator, ApiUsageLogger apiUsageLogger,
+                               ExecutorService fileStorageThreadPool, HttpServletRequest httpServletRequest) {
+        this.fileService = fileService;
+        this.uploadJobService = uploadJobService;
+        this.filesApiServiceAuditLog = filesApiServiceAuditLog;
+        this.asyncUploadJobOrchestrator = asyncUploadJobOrchestrator;
+        this.apiUsageLogger = apiUsageLogger;
+        this.fileStorageThreadPool = fileStorageThreadPool;
+        this.httpServletRequest = httpServletRequest;
+    }
 
     @Override
     public ResponseEntity<List<FileMetadata>> getFiles(String spaceGuid, String namespace) {
@@ -93,6 +100,7 @@ public class FilesApiServiceImpl implements FilesApiService {
 
     @Override
     public ResponseEntity<FileMetadata> uploadFile(MultipartHttpServletRequest request, String spaceGuid, String namespace) {
+        apiUsageLogger.logFilesMutatingCall(spaceGuid, namespace, Constants.ApiEndpointsNames.UPLOAD_FILE, request);
         LOGGER.trace(Messages.RECEIVED_UPLOAD_REQUEST, ServletUtil.decodeUri(request));
         var multipartFile = getFileFromRequest(request);
         try (InputStream in = new BufferedInputStream(multipartFile.getInputStream(), INPUT_STREAM_BUFFER_SIZE)) {
@@ -113,11 +121,13 @@ public class FilesApiServiceImpl implements FilesApiService {
 
     @Override
     public ResponseEntity<Void> startUploadFromUrl(String spaceGuid, String namespace, FileUrl fileUrl) {
+        apiUsageLogger.logFilesMutatingCall(spaceGuid, namespace, Constants.ApiEndpointsNames.START_UPLOAD_FROM_URL, httpServletRequest);
         String decodedUrl = new String(Base64.getUrlDecoder()
                                              .decode(fileUrl.getFileUrl()));
         String urlWithoutUserInfo = UriUtil.stripUserInfo(decodedUrl);
         LOGGER.trace(Messages.RECEIVED_UPLOAD_FROM_URL_REQUEST, urlWithoutUserInfo);
         filesApiServiceAuditLog.logStartUploadFromUrl(SecurityContextUtil.getUsername(), spaceGuid, decodedUrl);
+
         var existingJob = getExistingJob(spaceGuid, namespace, urlWithoutUserInfo);
         if (existingJob == null) {
             return triggerUploadFromUrl(spaceGuid, namespace, urlWithoutUserInfo, decodedUrl, fileUrl.getUserCredentials());

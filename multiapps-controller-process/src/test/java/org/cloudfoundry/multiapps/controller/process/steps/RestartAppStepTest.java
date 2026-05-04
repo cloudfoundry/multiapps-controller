@@ -6,7 +6,6 @@ import java.util.List;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
@@ -49,7 +48,7 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
     @Test
     void testExecuteWhenAppIsStopped() {
         when(processTypeParser.getProcessType(context.getExecution())).thenReturn(ProcessType.DEPLOY);
-        CloudApplicationExtended app = createApplication(APP_NAME, CloudApplication.State.STOPPED, true);
+        CloudApplicationExtended app = createApplication(APP_NAME, CloudApplication.State.STOPPED, false);
         prepareContextAndClient(app);
         step.execute(execution);
         assertStepFinishedSuccessfully();
@@ -68,7 +67,7 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
     @Test
     void testExecuteWhenAppIsStarted() {
         when(processTypeParser.getProcessType(context.getExecution())).thenReturn(ProcessType.DEPLOY);
-        CloudApplicationExtended app = createApplication(APP_NAME, CloudApplication.State.STARTED, true);
+        CloudApplicationExtended app = createApplication(APP_NAME, CloudApplication.State.STARTED, false);
         prepareContextAndClient(app);
         step.execute(execution);
         assertStepFinishedSuccessfully();
@@ -88,19 +87,14 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
         assertEquals(expectedHooks, hookPhasesBeforeStep);
     }
 
-    private CloudApplicationExtended createApplication(String name, CloudApplication.State state, boolean isReadinessHealthCheckEnabled) {
+    private CloudApplicationExtended createApplication(String name, CloudApplication.State state, boolean isReadinessEnabled) {
         return ImmutableCloudApplicationExtended.builder()
                                                 .name(name)
                                                 .state(state)
-                                                .staging(createStaging(isReadinessHealthCheckEnabled))
+                                                .staging(ImmutableStaging.builder()
+                                                                         .readinessHealthCheckType(isReadinessEnabled ? "test" : null)
+                                                                         .build())
                                                 .build();
-    }
-
-    private Staging createStaging(boolean isReadinessHealthCheckEnabled) {
-        return ImmutableStaging.builder()
-                               .isReadinessHealthCheckEnabled(isReadinessHealthCheckEnabled)
-                               .readinessHealthCheckType("http")
-                               .build();
     }
 
     private void prepareContextAndClient(CloudApplicationExtended app) {
