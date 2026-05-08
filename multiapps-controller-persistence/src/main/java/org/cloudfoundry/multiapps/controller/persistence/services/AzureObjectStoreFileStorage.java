@@ -131,7 +131,9 @@ public class AzureObjectStoreFileStorage extends ObjectStoreFileStorage {
 
     @Override
     public void testConnection() {
-        containerClient.getBlobClient("test");
+        containerClient.listBlobs(new ListBlobsOptions().setMaxResultsPerPage(1),
+                                  ObjectStoreConstants.AZURE_OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES)
+                       .iterator();
     }
 
     @Override

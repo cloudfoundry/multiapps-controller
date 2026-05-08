@@ -139,8 +139,11 @@ class AzureObjectStoreFileStorageTest {
 
     @Test
     void testTestConnection() {
+        when(blobContainerClient.listBlobs(any(), any())).thenReturn(pagedIterable);
+
         fileStorage.testConnection();
-        verify(blobContainerClient).getBlobClient("test");
+
+        verify(blobContainerClient).listBlobs(any(), any());
     }
 
     @Test

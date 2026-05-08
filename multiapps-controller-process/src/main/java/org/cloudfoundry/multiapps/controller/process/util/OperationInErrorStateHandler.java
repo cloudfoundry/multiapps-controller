@@ -28,13 +28,9 @@ import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.impl.context.Context;
 import org.flowable.engine.runtime.Execution;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Named
 public class OperationInErrorStateHandler {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(OperationInErrorStateHandler.class);
 
     protected final FlowableFacade flowableFacade;
     private final OperationService operationService;
@@ -155,23 +151,17 @@ public class OperationInErrorStateHandler {
         Operation operation = operationService.createQuery()
                                               .processId(processInstanceId)
                                               .singleResult();
-        if (isOperationInFinalState(operation)) {
-            return;
-        }
-        Operation updatedOperation = ImmutableOperation.builder()
-                                                       .from(operation)
-                                                       .state(Operation.State.ERROR)
-                                                       .build();
-        try {
-            operationService.update(operation, updatedOperation);
-        } catch (Exception e) {
-            LOGGER.warn("Could not set operation \"{}\" to ERROR state (concurrent update): {}", processInstanceId, e.getMessage());
+        if (!isOperationAlreadyAborted(operation)) {
+            operation = ImmutableOperation.builder()
+                                          .from(operation)
+                                          .state(Operation.State.ERROR)
+                                          .build();
+            operationService.update(operation, operation);
         }
     }
 
-    private boolean isOperationInFinalState(Operation operation) {
-        return Operation.State.ABORTED.equals(operation.getState())
-            || Operation.State.FINISHED.equals(operation.getState());
+    private boolean isOperationAlreadyAborted(Operation operation) {
+        return Operation.State.ABORTED.equals(operation.getState());
     }
 
     protected Date getCurrentTimestamp() {

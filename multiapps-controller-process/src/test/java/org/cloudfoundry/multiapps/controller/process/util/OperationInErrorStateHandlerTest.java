@@ -201,11 +201,11 @@ class OperationInErrorStateHandlerTest {
     }
 
     private void assertErrorStateSet() {
-        Operation updatedOperation = ImmutableOperation.builder()
-                                                       .state(Operation.State.ERROR)
-                                                       .build();
+        Operation errorOperation = ImmutableOperation.builder()
+                                                     .state(Operation.State.ERROR)
+                                                     .build();
         Mockito.verify(operationService)
-               .update(updatedOperation, updatedOperation);
+               .update(errorOperation, errorOperation);
     }
 
     private OperationInErrorStateHandlerMock mockHandler() {
