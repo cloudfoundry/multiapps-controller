@@ -677,7 +677,8 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
         if (serviceKey == null) {
             throw new CloudOperationException(HttpStatus.NOT_FOUND, "Not Found", "Service key " + serviceKeyName + " not found.");
         }
-        return doDeleteServiceBinding(serviceKey.getGuid());
+        return doDeleteServiceBindings(List.of(serviceKey.getGuid())).stream()
+                                                                     .findFirst();
     }
 
     @Override
@@ -912,9 +913,9 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
     }
 
     @Override
-    public CloudServiceBinding getServiceBindingForApplication(UUID applicationId, UUID serviceInstanceGuid) {
-        return fetch(() -> getServiceBindingResourceByApplicationGuidAndServiceInstanceGuid(applicationId, serviceInstanceGuid),
-                     ImmutableRawCloudServiceBinding::of);
+    public List<CloudServiceBinding> getServiceBindingsForApplication(UUID applicationId, UUID serviceInstanceGuid) {
+        return fetchList(() -> getServiceBindingResourcesByApplicationGuidAndServiceInstanceGuid(applicationId, serviceInstanceGuid),
+                         ImmutableRawCloudServiceBinding::of);
     }
 
     @Override
@@ -1257,7 +1258,7 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
     }
 
     @Override
-    public Optional<String> unbindServiceInstance(String applicationName, String serviceInstanceName) {
+    public List<String> unbindServiceInstance(String applicationName, String serviceInstanceName) {
         UUID applicationGuid = getRequiredApplicationGuid(applicationName);
         UUID serviceInstanceGuid = getRequiredServiceInstanceGuid(serviceInstanceName);
 
@@ -1266,11 +1267,12 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
 
     @Override
     public Optional<String> deleteServiceBinding(UUID serviceBindingGuid) {
-        return doDeleteServiceBinding(serviceBindingGuid);
+        return doDeleteServiceBindings(List.of(serviceBindingGuid)).stream()
+                                                                   .findFirst();
     }
 
     @Override
-    public Optional<String> unbindServiceInstance(UUID applicationGuid, UUID serviceInstanceGuid) {
+    public List<String> unbindServiceInstance(UUID applicationGuid, UUID serviceInstanceGuid) {
         return doUnbindServiceInstance(applicationGuid, serviceInstanceGuid);
     }
 
@@ -1736,8 +1738,8 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
                                                                         .list(pageRequestSupplier.apply(page)));
     }
 
-    private Mono<? extends ServiceBindingResource> getServiceBindingResourceByApplicationGuidAndServiceInstanceGuid(UUID applicationGuid,
-                                                                                                                    UUID serviceInstanceGuid) {
+    private Flux<? extends ServiceBindingResource> getServiceBindingResourcesByApplicationGuidAndServiceInstanceGuid(UUID applicationGuid,
+                                                                                                                     UUID serviceInstanceGuid) {
         IntFunction<ListServiceBindingsRequest> pageRequestSupplier = page -> ListServiceBindingsRequest.builder()
                                                                                                         .applicationId(
                                                                                                             applicationGuid.toString())
@@ -1745,7 +1747,7 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
                                                                                                             serviceInstanceGuid.toString())
                                                                                                         .page(page)
                                                                                                         .build();
-        return getApplicationServiceBindingResources(pageRequestSupplier).singleOrEmpty();
+        return getApplicationServiceBindingResources(pageRequestSupplier);
     }
 
     private Flux<? extends ServiceBindingResource> getServiceBindingResourcesByApplicationGuid(UUID applicationGuid) {
@@ -2035,23 +2037,47 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
                 .block();
     }
 
-    private Optional<String> doUnbindServiceInstance(UUID applicationGuid, UUID serviceInstanceGuid) {
-        UUID serviceBindingGuid = getServiceBindingGuid(applicationGuid, serviceInstanceGuid);
-        if (serviceBindingGuid == null) {
+    private List<String> doUnbindServiceInstance(UUID applicationGuid, UUID serviceInstanceGuid) {
+        List<UUID> serviceBindingGuids = getServiceBindingGuids(applicationGuid, serviceInstanceGuid);
+        if (serviceBindingGuids.isEmpty()) {
             throw new CloudOperationException(HttpStatus.NOT_FOUND, "Not Found",
                                               "Service binding between service with GUID " + serviceInstanceGuid
                                                   + " and application with GUID " + applicationGuid + " not found.");
         }
-        return doDeleteServiceBinding(serviceBindingGuid);
+        return doDeleteServiceBindings(serviceBindingGuids);
     }
 
-    private Optional<String> doDeleteServiceBinding(UUID guid) {
-        String jobId = delegate.serviceBindingsV3()
-                               .delete(DeleteServiceBindingRequest.builder()
-                                                                  .serviceBindingId(guid.toString())
-                                                                  .build())
-                               .block();
-        return Optional.ofNullable(jobId);
+    private List<String> doDeleteServiceBindings(List<UUID> guids) {
+        List<String> jobIds = new ArrayList<>();
+        List<AbstractCloudFoundryException> errors = new ArrayList<>();
+        for (UUID guid : guids) {
+            try {
+                Optional.ofNullable(deleteSingleServiceBinding(guid))
+                        .ifPresent(jobIds::add);
+            } catch (AbstractCloudFoundryException e) {
+                errors.add(e);
+            }
+        }
+        throwOnErrors(errors);
+        return jobIds;
+    }
+
+    private String deleteSingleServiceBinding(UUID guid) {
+        return delegate.serviceBindingsV3()
+                       .delete(DeleteServiceBindingRequest.builder()
+                                                          .serviceBindingId(guid.toString())
+                                                          .build())
+                       .block();
+    }
+
+    private void throwOnErrors(List<AbstractCloudFoundryException> errors) {
+        if (errors.isEmpty()) {
+            return;
+        }
+        RuntimeException first = errors.get(0);
+        errors.subList(1, errors.size())
+              .forEach(first::addSuppressed);
+        throw first;
     }
 
     private CloudDomain findDomainByName(String name, boolean required) {
@@ -2463,9 +2489,10 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
         return getGuid(routeEntitiesResource.get(0));
     }
 
-    private UUID getServiceBindingGuid(UUID applicationGuid, UUID serviceInstanceGuid) {
-        return getServiceBindingResourceByApplicationGuidAndServiceInstanceGuid(applicationGuid, serviceInstanceGuid).map(this::getGuid)
-                                                                                                                     .block();
+    private List<UUID> getServiceBindingGuids(UUID applicationGuid, UUID serviceInstanceGuid) {
+        return getServiceBindingResourcesByApplicationGuidAndServiceInstanceGuid(applicationGuid, serviceInstanceGuid).map(this::getGuid)
+                                                                                                                      .collectList()
+                                                                                                                      .block();
     }
 
     private void processAsyncUploadInBackground(CloudPackage cloudPackage, UploadStatusCallback callback) {

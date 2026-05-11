@@ -396,9 +396,9 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public CloudServiceBinding getServiceBindingForApplication(UUID applicationGuid, UUID serviceInstanceGuid) {
+    public List<CloudServiceBinding> getServiceBindingsForApplication(UUID applicationGuid, UUID serviceInstanceGuid) {
         logger.debug(Messages.GETTING_BINDING_OF_SERVICE_INSTANCE_0_WITH_APPLICATION_1, serviceInstanceGuid, applicationGuid);
-        return delegate.getServiceBindingForApplication(applicationGuid, serviceInstanceGuid);
+        return delegate.getServiceBindingsForApplication(applicationGuid, serviceInstanceGuid);
     }
 
     @Override
@@ -504,20 +504,20 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public Optional<String> unbindServiceInstance(String applicationName, String serviceInstanceName,
-                                                  ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
+    public List<String> unbindServiceInstance(String applicationName, String serviceInstanceName,
+                                              ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
         logger.debug(Messages.UNBINDING_APPLICATION_0_FROM_SERVICE_INSTANCE_1, applicationName, serviceInstanceName);
         return delegate.unbindServiceInstance(applicationName, serviceInstanceName, applicationServicesUpdateCallback);
     }
 
     @Override
-    public Optional<String> unbindServiceInstance(String applicationName, String serviceInstanceName) {
+    public List<String> unbindServiceInstance(String applicationName, String serviceInstanceName) {
         logger.debug(Messages.UNBINDING_APPLICATION_0_FROM_SERVICE_INSTANCE_1, applicationName, serviceInstanceName);
         return delegate.unbindServiceInstance(applicationName, serviceInstanceName);
     }
 
     @Override
-    public Optional<String> unbindServiceInstance(UUID appGuid, UUID serviceGuid) {
+    public List<String> unbindServiceInstance(UUID appGuid, UUID serviceGuid) {
         logger.debug(Messages.UNBINDING_APPLICATION_0_FROM_SERVICE_INSTANCE_1, appGuid, serviceGuid);
         return delegate.unbindServiceInstance(appGuid, serviceGuid);
     }

@@ -756,6 +756,10 @@ public interface Variables {
     Variable<String> SERVICE_UNBINDING_JOB_ID = ImmutableSimpleVariable.<String> builder()
                                                                        .name("serviceUnbindingJobId")
                                                                        .build();
+    Variable<List<String>> SERVICE_UNBINDING_JOB_IDS = ImmutableSimpleVariable.<List<String>> builder()
+                                                                              .name("serviceUnbindingJobIds")
+                                                                              .defaultValue(Collections.emptyList())
+                                                                              .build();
     Variable<String> SERVICE_KEY_CREATION_JOB_ID = ImmutableSimpleVariable.<String> builder()
                                                                           .name("serviceKeyCreationJobId")
                                                                           .build();

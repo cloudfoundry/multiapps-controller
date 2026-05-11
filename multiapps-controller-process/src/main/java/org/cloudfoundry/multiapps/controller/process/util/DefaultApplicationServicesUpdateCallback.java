@@ -29,8 +29,8 @@ public class DefaultApplicationServicesUpdateCallback implements ApplicationServ
         if (e.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
             UUID applicationGuid = controllerClient.getApplicationGuid(applicationName);
             UUID serviceInstanceGuid = controllerClient.getRequiredServiceInstanceGuid(serviceInstanceName);
-            CloudServiceBinding serviceBinding = controllerClient.getServiceBindingForApplication(applicationGuid, serviceInstanceGuid);
-            if (serviceBinding != null) {
+            List<CloudServiceBinding> serviceBindings = controllerClient.getServiceBindingsForApplication(applicationGuid, serviceInstanceGuid);
+            if (!serviceBindings.isEmpty()) {
                 context.getStepLogger()
                        .warnWithoutProgressMessage(e, Messages.SERVICE_BINDING_BETWEEN_SERVICE_0_AND_APP_1_ALREADY_CREATED,
                                                    serviceInstanceName, applicationName);

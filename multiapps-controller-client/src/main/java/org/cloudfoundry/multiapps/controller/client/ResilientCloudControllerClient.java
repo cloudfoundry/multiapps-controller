@@ -11,7 +11,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.cloudfoundry.client.v3.Metadata;
-import org.cloudfoundry.multiapps.controller.client.util.ResilientCloudOperationExecutor;
 import org.cloudfoundry.multiapps.controller.client.facade.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClientImpl;
@@ -282,8 +281,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public CloudServiceBinding getServiceBindingForApplication(UUID applicationGuid, UUID serviceInstanceGuid) {
-        return executeWithRetry(() -> delegate.getServiceBindingForApplication(applicationGuid, serviceInstanceGuid));
+    public List<CloudServiceBinding> getServiceBindingsForApplication(UUID applicationGuid, UUID serviceInstanceGuid) {
+        return executeWithRetry(() -> delegate.getServiceBindingsForApplication(applicationGuid, serviceInstanceGuid));
     }
 
     @Override
@@ -332,12 +331,12 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public Optional<String> unbindServiceInstance(String applicationName, String serviceInstanceName) {
+    public List<String> unbindServiceInstance(String applicationName, String serviceInstanceName) {
         return executeWithRetry(() -> delegate.unbindServiceInstance(applicationName, serviceInstanceName));
     }
 
     @Override
-    public Optional<String> unbindServiceInstance(UUID appGuid, UUID serviceGuid) {
+    public List<String> unbindServiceInstance(UUID appGuid, UUID serviceGuid) {
         return executeWithRetry(() -> delegate.unbindServiceInstance(appGuid, serviceGuid));
     }
 
@@ -553,8 +552,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public Optional<String> unbindServiceInstance(String applicationName, String serviceInstanceName,
-                                                  ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
+    public List<String> unbindServiceInstance(String applicationName, String serviceInstanceName,
+                                              ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
         return executeWithRetry(
             () -> delegate.unbindServiceInstance(applicationName, serviceInstanceName, applicationServicesUpdateCallback));
     }

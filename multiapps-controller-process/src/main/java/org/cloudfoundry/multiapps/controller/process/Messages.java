@@ -265,8 +265,13 @@ public class Messages {
     public static final String COULD_NOT_PARSE_APP_STOP_DELAY_VAR = "Could not parse variable for delay after app stop: \"{0}\"";
     public static final String DELAY_AFTER_APP_STOP_CANNOT_BE_NEGATIVE = "Delay after app stop cannot be negative: \"{0}\"";
     public static final String SERVICE_BINDING_0_EXISTS_IN_BROKEN_STATE_WILL_BE_RECREATED = "Service binding \"{0}\" exists in broken state, will be recreated";
+    public static final String SERVICE_BINDINGS_EXISTS_IN_BROKEN_STATE_WILL_BE_RECREATED = "Service bindings \"{0}\" exists in broken state, will be recreated";
     public static final String ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATION_BETWEEN_APP_AND_OPTIONAL_SERVICE = "Error while polling service binding operation between app \"{0}\" and optional service instance \"{1}\"";
     public static final String ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATION_BETWEEN_APP_AND_SERVICE = "Error while polling service binding operation between app \"{0}\" and service instance \"{1}\", error \"{2}\"";
+    public static final String ERROR_WHILE_POLLING_SERVICE_BINDING_OPERATION_BETWEEN_APP_AND_SERVICE_CHECK_OPERATION_LOGS =
+        "Error while polling service binding operation between app \"{0}\" and service instance \"{1}\". Multiple bindings error were detected. "
+            + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
+    public static final String ERROR_WHILE_POLLING_SERVICE_BINDING_GUID = "Error while polling service binding guid: \"{0}\", error \"{1}\"";
     public static final String ERROR_WHILE_CREATING_SERVICE_KEY_0_FOR_OPTIONAL_SERVICE_1 = "Error while creating service key \"{0}\" for optional service \"{1}\"";
     public static final String ERROR_WHILE_DELETING_SERVICE_KEY_0_FOR_OPTIONAL_SERVICE_1 = "Error while deleting service key \"{0}\" for optional service \"{1}\"";
     public static final String SERVICE_KEY_0_IS_ALREADY_DELETED = "Service key \"{0}\" is already deleted";

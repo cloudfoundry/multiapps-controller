@@ -36,8 +36,8 @@ public class UnbindServiceFromApplicationCallback implements ApplicationServices
         if (e.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
             UUID applicationGuid = controllerClient.getApplicationGuid(applicationName);
             UUID serviceInstanceGuid = controllerClient.getRequiredServiceInstanceGuid(serviceInstanceName);
-            CloudServiceBinding serviceBinding = controllerClient.getServiceBindingForApplication(applicationGuid, serviceInstanceGuid);
-            if (serviceBinding != null) {
+            List<CloudServiceBinding> serviceBindings = controllerClient.getServiceBindingsForApplication(applicationGuid, serviceInstanceGuid);
+            if (!serviceBindings.isEmpty()) {
                 context.setVariable(Variables.USE_LAST_OPERATION_FOR_SERVICE_BINDING_DELETION, true);
                 return;
             }

@@ -134,7 +134,7 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
     }
 
     protected ServiceBindingParametersGetter getServiceBindingParametersGetter(ProcessContext context) {
-        return new ServiceBindingParametersGetter(context, archiveEntryExtractor, configuration.getMaxManifestSize(), fileService);
+        return new ServiceBindingParametersGetter(context, archiveEntryExtractor, configuration.getMaxManifestSize());
 
     }
 
