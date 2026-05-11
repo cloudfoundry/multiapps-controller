@@ -81,33 +81,45 @@ public class ResolveHookTaskTargetAppStep extends SyncFlowableStep {
                    .stream()
                    .filter(hookExecutionPhases::contains)
                    .findFirst()
-                   .orElse("");
+                   .orElse(HookPhaseProcessType.HookProcessPhase.NONE.getType());
     }
 
     private String resolveAppNameForTarget(ProcessContext context, CloudApplicationExtended app, String targetApp) {
         if (HookPhaseProcessType.HookProcessPhase.LIVE.getType()
                                                       .equals(targetApp)) {
-            if (isInitialDeploy(context)) {
-                getStepLogger().warn(Messages.SKIPPING_HOOK_TASK_NO_LIVE_APP, app.getName());
-                return null;
-            }
-            ApplicationColor liveColor = context.getVariable(Variables.LIVE_MTA_COLOR);
-            String suffix = liveColor != null ? liveColor.asSuffix() : BlueGreenApplicationNameSuffix.LIVE.asSuffix();
-            return BlueGreenApplicationNameSuffix.removeSuffix(app.getName()) + suffix;
+            return resolveLiveAppName(context, app);
         }
         if (HookPhaseProcessType.HookProcessPhase.IDLE.getType()
                                                       .equals(targetApp)) {
-            String baseName = BlueGreenApplicationNameSuffix.removeSuffix(app.getName());
-            ApplicationColor idleColor = context.getVariable(Variables.IDLE_MTA_COLOR);
-            if (idleColor != null) {
-                return baseName + idleColor.asSuffix();
-            }
-            if (isAfterRenamePhase(context)) {
-                return baseName;
-            }
-            return baseName + BlueGreenApplicationNameSuffix.IDLE.asSuffix();
+            return resolveIdleAppName(context, app);
         }
         return app.getName();
+    }
+
+    private String resolveLiveAppName(ProcessContext context, CloudApplicationExtended app) {
+        if (isInitialDeploy(context)) {
+            getStepLogger().warn(Messages.SKIPPING_HOOK_TASK_NO_LIVE_APP, app.getName());
+            return null;
+        }
+        ApplicationColor liveColor = context.getVariable(Variables.LIVE_MTA_COLOR);
+        String suffix = liveColor != null ? liveColor.asSuffix() : BlueGreenApplicationNameSuffix.LIVE.asSuffix();
+        return BlueGreenApplicationNameSuffix.removeSuffix(app.getName()) + suffix;
+    }
+
+    private String resolveIdleAppName(ProcessContext context, CloudApplicationExtended app) {
+        String baseName = BlueGreenApplicationNameSuffix.removeSuffix(app.getName());
+        return baseName + resolveIdleSuffix(context);
+    }
+
+    private String resolveIdleSuffix(ProcessContext context) {
+        ApplicationColor idleColor = context.getVariable(Variables.IDLE_MTA_COLOR);
+        if (idleColor != null) {
+            return idleColor.asSuffix();
+        }
+        if (isAfterRenamePhase(context)) {
+            return "";
+        }
+        return BlueGreenApplicationNameSuffix.IDLE.asSuffix();
     }
 
     private boolean isAfterRenamePhase(ProcessContext context) {
