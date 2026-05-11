@@ -62,6 +62,7 @@
         <google-cloud.version>2.64.1</google-cloud.version>
         <google-cloud-nio.version>0.128.14</google-cloud-nio.version>
         <azure-storage-blob.version>12.33.3</azure-storage-blob.version>
+        <azure-core-http-netty.version>1.16.4</azure-core-http-netty.version>
         <azure-core-http-okhttp.version>1.13.3</azure-core-http-okhttp.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <wire-runtime.version>6.2.0</wire-runtime.version>
@@ -311,6 +312,12 @@
                 <groupId>com.azure</groupId>
                 <artifactId>azure-storage-blob</artifactId>
                 <version>${azure-storage-blob.version}</version>
+            </dependency>
+            <!-- Source: https://mvnrepository.com/artifact/com.azure/azure-core-http-netty -->
+            <dependency>
+                <groupId>com.azure</groupId>
+                <artifactId>azure-core-http-netty</artifactId>
+                <version>${azure-core-http-netty.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.azure</groupId>
