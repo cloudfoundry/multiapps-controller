@@ -11,10 +11,25 @@ import org.immutables.value.Value;
 public interface LoggingConfiguration {
 
     @Nullable
+    String getId();
+
+    @Nullable
     String getTargetOrg();
 
     @Nullable
     String getTargetSpace();
+
+    @Nullable
+    String getMtaOrg();
+
+    @Nullable
+    String getMtaSpace();
+
+    @Nullable
+    String getMtaSpaceId();
+
+    @Nullable
+    String getMtaId();
 
     @Nullable
     String getOperationId();
@@ -36,4 +51,10 @@ public interface LoggingConfiguration {
 
     @Nullable
     Boolean isFailSafe();
+
+    @Nullable
+    String getServiceInstanceName();
+
+    @Nullable
+    String getServiceKeyName();
 }

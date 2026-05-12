@@ -84,7 +84,7 @@ public class OperationLogsExporter {
 
     public List<OperationLogEntry> getUnsendProcessLogs(LoggingConfiguration loggingConfiguration) {
         try {
-            return processLogsPersistenceService.listOperationLogsBySpaceAndOperationId(loggingConfiguration.getTargetSpace(),
+            return processLogsPersistenceService.listOperationLogsBySpaceAndOperationId(loggingConfiguration.getMtaSpaceId(),
                                                                                         loggingConfiguration.getOperationId());
         } catch (FileStorageException e) {
             logErrorOrThrowExceptionBasedOnFailSafe(loggingConfiguration, e.getMessage());

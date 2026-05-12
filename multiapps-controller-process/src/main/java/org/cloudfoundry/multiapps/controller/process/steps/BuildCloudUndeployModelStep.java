@@ -30,6 +30,7 @@ import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
+import org.cloudfoundry.multiapps.controller.persistence.services.CloudLoggingServiceConfigurationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -60,6 +61,8 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     private ProcessTypeParser processTypeParser;
     @Inject
     private DescriptorBackupService descriptorBackupService;
+    @Inject
+    private CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -79,7 +82,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
             }
             return StepPhase.DONE;
         }
-
+        
         List<Module> deploymentDescriptorModules = getDeploymentDescriptorModules(context);
         List<ConfigurationSubscription> subscriptionsToCreate = context.getVariable(Variables.SUBSCRIPTIONS_TO_CREATE);
         Set<String> mtaModules = context.getVariable(Variables.MTA_MODULES);

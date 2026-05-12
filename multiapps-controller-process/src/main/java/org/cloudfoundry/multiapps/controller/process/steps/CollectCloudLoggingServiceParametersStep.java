@@ -4,14 +4,17 @@ import java.util.List;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ResourceType;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
+import org.cloudfoundry.multiapps.controller.persistence.services.CloudLoggingServiceConfigurationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.util.ExternalLoggingServiceConfigurationsCalculator;
+import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -38,13 +41,33 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
     @Inject
     private FlowableFacade flowableFacade;
 
+    @Inject
+    private CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService;
+    @Inject
+    private ProcessTypeParser processTypeParser;
+
     @Override
     protected StepPhase executeStep(ProcessContext context) throws Exception {
-        DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
-        if (!isCloudLoggingEnabled(deploymentDescriptor)) {
-            return StepPhase.DONE;
+        ProcessType processType = processTypeParser.getProcessType(context.getExecution());
+        LoggingConfiguration loggingConfiguration = null;
+        if (processType.equals(ProcessType.UNDEPLOY)) {
+            loggingConfiguration = cloudLoggingServiceConfigurationService.getCloudLoggingServiceConfiguration(
+                context.getVariable(Variables.ORGANIZATION_NAME), context.getVariable(Variables.SPACE_NAME),
+                context.getVariable(Variables.MTA_ID));
+            if (loggingConfiguration == null) {
+                return StepPhase.DONE;
+            }
+            loggingConfiguration = setExternalLoggingServiceConfigurationIfRequired(context, loggingConfiguration);
+        } else {
+            DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
+            if (!isCloudLoggingEnabled(deploymentDescriptor)) {
+                return StepPhase.DONE;
+            }
+
+            loggingConfiguration = setExternalLoggingServiceConfigurationIfRequired(context, deploymentDescriptor);
+            cloudLoggingServiceConfigurationService.storeCloudLoggingServiceConfiguration(loggingConfiguration);
         }
-        LoggingConfiguration loggingConfiguration = setExternalLoggingServiceConfigurationIfRequired(context, deploymentDescriptor);
+
         List<OperationLogEntry> operationLogEntries = operationLogsExporter.getUnsendProcessLogs(loggingConfiguration);
 
         for (OperationLogEntry operationLogEntry : operationLogEntries) {
@@ -72,6 +95,14 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
                                                                                                                        tokenService);
         Resource resource = getLoggingServiceResource(deploymentDescriptor.getResources());
         return calculator.exportOperationLogsToExternalSystem(resource);
+    }
+
+    protected LoggingConfiguration setExternalLoggingServiceConfigurationIfRequired(ProcessContext context,
+                                                                                    LoggingConfiguration loggingConfiguration) {
+        ExternalLoggingServiceConfigurationsCalculator calculator = new ExternalLoggingServiceConfigurationsCalculator(clientFactory,
+                                                                                                                       context,
+                                                                                                                       tokenService);
+        return calculator.exportOperationLogsToExternalSystem(loggingConfiguration, context);
     }
 
     private boolean isCloudLoggingEnabled(DeploymentDescriptor deploymentDescriptor) {

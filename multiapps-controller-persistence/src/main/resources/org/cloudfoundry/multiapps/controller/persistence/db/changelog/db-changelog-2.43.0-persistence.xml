@@ -13,4 +13,59 @@
         </addColumn>
     </changeSet>
 
+    <changeSet author="sap.com" id="add_table_cloud_logging_service_configuration">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="cloud_logging_service_configuration"/>
+            </not>
+        </preConditions>
+        <createSequence sequenceName="cloud_logging_service_configuration_sequence" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="cloud_logging_service_configuration">
+            <column name="id" type="VARCHAR(255)">
+                <constraints primaryKey="true" primaryKeyName="cloud_logging_service_configuration_pk"/>
+            </column>
+
+            <column name="target_org" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="target_space" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="mta_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="mta_org" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="mta_space" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="service_instance_name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="service_key_name" type="VARCHAR(63)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="log_level" type="VARCHAR(5)">
+                <constraints nullable="false" checkConstraint="CHECK (log_level IN ('INFO', 'WARN', 'DEBUG', 'ERROR', 'TRACE'))"/>
+            </column>
+
+            <column name="is_failsafe" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="added_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>
