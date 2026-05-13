@@ -39,6 +39,14 @@ public class CloudLoggingServiceConfigurationService {
         }
     }
 
+    public void deleteCloudLoggingServiceConfiguration(String id) {
+        try {
+            getSqlQueryExecutor().execute(cloudLoggingServiceConfigurationQueryProvider.getDeleteLoggingConfigurationQuery(id));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public SqlQueryExecutor getSqlQueryExecutor() {
         return sqlQueryExecutor;
     }

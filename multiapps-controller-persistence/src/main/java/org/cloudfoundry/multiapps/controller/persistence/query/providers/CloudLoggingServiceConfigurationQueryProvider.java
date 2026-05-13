@@ -17,6 +17,7 @@ public class CloudLoggingServiceConfigurationQueryProvider {
 
     public static final String INSERT_CLOUD_LOGGING_SERVICE_CONFIGURATION = "INSERT INTO %s (ID, TARGET_SPACE, TARGET_ORG, MTA_ID, MTA_ORG, MTA_SPACE, SERVICE_INSTANCE_NAME, SERVICE_KEY_NAME, LOG_LEVEL, IS_FAILSAFE, ADDED_AT) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     public static final String GET_CLOUD_LOGGING_CONFIGURATION = "SELECT ID, TARGET_SPACE, TARGET_ORG, MTA_ID, MTA_ORG, MTA_SPACE, SERVICE_INSTANCE_NAME, SERVICE_KEY_NAME, LOG_LEVEL, IS_FAILSAFE, ADDED_AT FROM %s WHERE MTA_ORG=? AND MTA_SPACE=? AND MTA_ID=?";
+    public static final String DELETE_CLOUD_LOGGING_CONFIGURATION = "DELETE FROM %s WHERE ID=?";
     private static final String ID_COLUMN_LABEL = "id";
     private static final String TARGET_SPACE_COLUMN_LABEL = "target_space";
     private static final String TARGET_ORG_COLUMN_LABEL = "target_org";
@@ -81,6 +82,19 @@ public class CloudLoggingServiceConfigurationQueryProvider {
         };
     }
 
+    public SqlQuery<Integer> getDeleteLoggingConfigurationQuery(String id) {
+        return (Connection connection) -> {
+            PreparedStatement statement = null;
+            try {
+                statement = connection.prepareStatement(getDeleteLoggingConfigurationQueryString());
+                statement.setString(1, id);
+                return statement.executeUpdate();
+            } finally {
+                JdbcUtil.closeQuietly(statement);
+            }
+        };
+    }
+
     private LoggingConfiguration getLoggingConfiguration(ResultSet resultSet) throws SQLException {
         return ImmutableLoggingConfiguration.builder()
                                             .id(resultSet.getString(ID_COLUMN_LABEL))
@@ -102,5 +116,9 @@ public class CloudLoggingServiceConfigurationQueryProvider {
 
     private String getGetLoggingConfigurationQueryString() {
         return String.format(GET_CLOUD_LOGGING_CONFIGURATION, tableName);
+    }
+
+    private String getDeleteLoggingConfigurationQueryString() {
+        return String.format(DELETE_CLOUD_LOGGING_CONFIGURATION, tableName);
     }
 }

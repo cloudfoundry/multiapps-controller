@@ -16,12 +16,14 @@ import org.cloudfoundry.multiapps.controller.core.util.LoggingUtil;
 import org.cloudfoundry.multiapps.controller.core.util.SafeExecutor;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
+import org.cloudfoundry.multiapps.controller.persistence.services.CloudLoggingServiceConfigurationService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessDuration;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
@@ -67,6 +69,8 @@ public class OperationInFinalStateHandler {
     private SecretTokenStoreFactory secretTokenStoreFactory;
     @Inject
     private OperationLogsExporter operationLogsExporter;
+    @Inject
+    private CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService;
 
     private final SafeExecutor safeExecutor = new SafeExecutor();
 
@@ -84,6 +88,7 @@ public class OperationInFinalStateHandler {
         safeExecutor.execute(() -> deletePreviousBackupDescriptors(execution, processType, state));
         safeExecutor.execute(() -> deleteSecretTokensForProcess(correlationId));
         safeExecutor.execute(() -> trackOperationDuration(correlationId, execution, processType, state));
+        safeExecutor.execute(() -> deleteCloudLoggingServiceConfiguration(execution));
         operationLogsExporter.removeClientFromCache(correlationId);
     }
 
@@ -193,6 +198,14 @@ public class OperationInFinalStateHandler {
     private void deleteSecretTokensForProcess(String correlationId) {
         SecretTokenStoreDeletion secretTokenStore = secretTokenStoreFactory.createSecretTokenStoreDeletionRelated();
         secretTokenStore.deleteByProcessInstanceId(correlationId);
+    }
+
+    private void deleteCloudLoggingServiceConfiguration(DelegateExecution execution) {
+        LoggingConfiguration loggingConfiguration = VariableHandling.get(execution, Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION);
+        if (loggingConfiguration == null || loggingConfiguration.getId() == null) {
+            return;
+        }
+        cloudLoggingServiceConfigurationService.deleteCloudLoggingServiceConfiguration(loggingConfiguration.getId());
     }
 
     private void deleteDisposableUserProvidedServiceForProcess(DelegateExecution execution, String correlationId) {
