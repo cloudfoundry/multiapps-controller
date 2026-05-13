@@ -69,7 +69,11 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
         S3ClientBuilder builder = S3Client.builder()
                                           .credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
                                           .overrideConfiguration(buildClientOverrideConfig())
-                                          .httpClientBuilder(UrlConnectionHttpClient.builder());
+                                          .httpClientBuilder(UrlConnectionHttpClient.builder()
+                                                                                    .socketTimeout(
+                                                                                        ObjectStoreConstants.AWS_OBJECT_STORE_SOCKET_TIMEOUT_CONFIG_IN_MINUTES)
+                                                                                    .connectionTimeout(
+                                                                                        ObjectStoreConstants.AWS_OBJECT_STORE_CONNECTION_TIMEOUT_CONFIG_IN_SECONDS));
         builder.endpointOverride(URI.create("https://" + credentials.get(CredentialKeys.HOST)));
         builder.region(software.amazon.awssdk.regions.Region.of((String) credentials.get(CredentialKeys.REGION)));
         return builder.build();
@@ -104,7 +108,8 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
             s3Client.putObject(request, RequestBody.fromInputStream(content, fileSize));
             LOGGER.debug(MessageFormat.format(Messages.STORED_FILE_0_WITH_SIZE_1, fileEntry.getId(), fileSize));
         } catch (Exception e) {
-            throw new FileStorageException(MessageFormat.format(Messages.FILE_UPLOAD_FAILED, fileEntry.getName(),
+            LOGGER.error(MessageFormat.format(Messages.S3_UPLOAD_FAILED_FILE_0_SIZE_1, fileEntry.getName(), fileSize, e));
+            throw new FileStorageException(MessageFormat.format(Messages.UPLOAD_OF_FILE_WITH_NAMESPACE_FAILED, fileEntry.getName(),
                                                                 fileEntry.getNamespace()), e);
         }
     }

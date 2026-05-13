@@ -16,6 +16,8 @@ public class ObjectStoreConstants {
 
     // AWS S3
     public static final Duration AWS_OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES = Duration.ofMinutes(30);
+    public static final Duration AWS_OBJECT_STORE_SOCKET_TIMEOUT_CONFIG_IN_MINUTES = Duration.ofMinutes(10);
+    public static final Duration AWS_OBJECT_STORE_CONNECTION_TIMEOUT_CONFIG_IN_SECONDS = Duration.ofSeconds(10);
 
     // Azure
     public static final Duration AZURE_OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES = Duration.ofMinutes(30);

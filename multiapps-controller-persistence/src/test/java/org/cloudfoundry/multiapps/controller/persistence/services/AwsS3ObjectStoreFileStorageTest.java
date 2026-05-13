@@ -530,7 +530,7 @@ class AwsS3ObjectStoreFileStorageTest {
         assertTrue(config.apiCallAttemptTimeout()
                          .isPresent());
         assertEquals(ObjectStoreConstants.OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES, config.apiCallAttemptTimeout()
-                                                                                              .get());
+                                                                                          .get());
     }
 
     @Test
@@ -542,8 +542,8 @@ class AwsS3ObjectStoreFileStorageTest {
         assertInstanceOf(StandardRetryStrategy.class, config.retryStrategy()
                                                             .get());
         assertEquals(ObjectStoreConstants.OBJECT_STORE_MAX_ATTEMPTS_CONFIG, config.retryStrategy()
-                                                                                  .get()
-                                                                                  .maxAttempts());
+                                                                                .get()
+                                                                                .maxAttempts());
     }
 
     @Test
