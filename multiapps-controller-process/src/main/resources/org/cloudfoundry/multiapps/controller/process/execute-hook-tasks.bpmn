@@ -9,13 +9,15 @@
     <startEvent id="startEvent1" flowable:formFieldValidation="true"></startEvent>
     <callActivity id="executeTasksCallActivity" name="Execute Tasks Call Activity" flowable:async="true" calledElement="executeTasksSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:fallbackToDefaultTenant="false"></callActivity>
     <serviceTask id="determineTasksFromHookTask" name="Determine Tasks From Hook Step" flowable:async="true" flowable:delegateExpression="${determineTasksFromHookStep}"></serviceTask>
+    <serviceTask id="resolveHookTaskTargetAppTask" name="Resolve Hook Task Target App Step" flowable:async="true" flowable:delegateExpression="${resolveHookTaskTargetAppStep}"></serviceTask>
     <endEvent id="sid-5A2D8943-12FA-4BC2-B6D0-7878EA87FB75">
       <extensionElements>
         <flowable:executionListener event="end" delegateExpression="${hooksEndProcessListener}"></flowable:executionListener>
       </extensionElements>
     </endEvent>
     <sequenceFlow id="sid-5112772F-7C51-4FC3-BC2B-E4BEE435FC6D" sourceRef="startEvent1" targetRef="determineTasksFromHookTask"></sequenceFlow>
-    <sequenceFlow id="sid-9A809249-058E-4637-83DC-547314F6144B" sourceRef="determineTasksFromHookTask" targetRef="executeTasksCallActivity"></sequenceFlow>
+    <sequenceFlow id="sid-9A809249-058E-4637-83DC-547314F6144B" sourceRef="determineTasksFromHookTask" targetRef="resolveHookTaskTargetAppTask"></sequenceFlow>
+    <sequenceFlow id="sid-B3C1D2E4-1234-5678-ABCD-EF0123456789" sourceRef="resolveHookTaskTargetAppTask" targetRef="executeTasksCallActivity"></sequenceFlow>
     <sequenceFlow id="sid-1E5806F9-54D9-4673-BAE3-91C4E13AF3B0" sourceRef="executeTasksCallActivity" targetRef="sid-5A2D8943-12FA-4BC2-B6D0-7878EA87FB75"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_executeHookTasksSubProcess">
@@ -24,25 +26,32 @@
         <omgdc:Bounds height="30.0" width="30.0" x="100.0" y="163.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="executeTasksCallActivity" id="BPMNShape_executeTasksCallActivity">
-        <omgdc:Bounds height="80.0" width="100.0" x="405.0" y="138.0"></omgdc:Bounds>
+        <omgdc:Bounds height="80.0" width="100.0" x="600.0" y="138.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="determineTasksFromHookTask" id="BPMNShape_determineTasksFromHookTask">
         <omgdc:Bounds height="80.0" width="100.0" x="210.0" y="138.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="resolveHookTaskTargetAppTask" id="BPMNShape_resolveHookTaskTargetAppTask">
+        <omgdc:Bounds height="80.0" width="100.0" x="405.0" y="138.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="sid-5A2D8943-12FA-4BC2-B6D0-7878EA87FB75" id="BPMNShape_sid-5A2D8943-12FA-4BC2-B6D0-7878EA87FB75">
-        <omgdc:Bounds height="28.0" width="28.0" x="600.0" y="164.0"></omgdc:Bounds>
+        <omgdc:Bounds height="28.0" width="28.0" x="795.0" y="164.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="sid-1E5806F9-54D9-4673-BAE3-91C4E13AF3B0" id="BPMNEdge_sid-1E5806F9-54D9-4673-BAE3-91C4E13AF3B0" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="14.0" flowable:targetDockerY="14.0">
-        <omgdi:waypoint x="504.9499999998701" y="178.0"></omgdi:waypoint>
-        <omgdi:waypoint x="600.0" y="178.0"></omgdi:waypoint>
+        <omgdi:waypoint x="699.95" y="178.0"></omgdi:waypoint>
+        <omgdi:waypoint x="795.0" y="178.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-5112772F-7C51-4FC3-BC2B-E4BEE435FC6D" id="BPMNEdge_sid-5112772F-7C51-4FC3-BC2B-E4BEE435FC6D" flowable:sourceDockerX="15.0" flowable:sourceDockerY="15.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
         <omgdi:waypoint x="129.94999913076796" y="178.0"></omgdi:waypoint>
         <omgdi:waypoint x="209.99999999998067" y="178.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-9A809249-058E-4637-83DC-547314F6144B" id="BPMNEdge_sid-9A809249-058E-4637-83DC-547314F6144B" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
-        <omgdi:waypoint x="309.94999999986936" y="178.0"></omgdi:waypoint>
-        <omgdi:waypoint x="404.9999999999363" y="178.0"></omgdi:waypoint>
+        <omgdi:waypoint x="309.95" y="178.0"></omgdi:waypoint>
+        <omgdi:waypoint x="405.0" y="178.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-B3C1D2E4-1234-5678-ABCD-EF0123456789" id="BPMNEdge_sid-B3C1D2E4-1234-5678-ABCD-EF0123456789" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
+        <omgdi:waypoint x="504.95" y="178.0"></omgdi:waypoint>
+        <omgdi:waypoint x="600.0" y="178.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
