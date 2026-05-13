@@ -50,12 +50,12 @@ public class FileUploadResilientOperationExecutor {
     }
 
     private boolean isTransientError(Exception e) {
-        if (e instanceof IOException || e instanceof UncheckedIOException) {
-            return true;
-        }
-        if (e instanceof FileStorageException) {
-            Throwable cause = e.getCause();
-            return cause instanceof IOException || cause instanceof UncheckedIOException;
+        Throwable cause = e instanceof FileStorageException ? e.getCause() : e;
+        while (cause != null) {
+            if (cause instanceof IOException || cause instanceof UncheckedIOException) {
+                return true;
+            }
+            cause = cause.getCause();
         }
         return false;
     }

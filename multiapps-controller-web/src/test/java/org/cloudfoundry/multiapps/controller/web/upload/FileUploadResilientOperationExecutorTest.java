@@ -74,6 +74,28 @@ class FileUploadResilientOperationExecutorTest {
     }
 
     @Test
+    void testRetryOnFileStorageExceptionWithSdkExceptionWrappingIOException() throws Exception {
+        var attempts = new AtomicInteger(0);
+
+        var result = executor.execute(() -> {
+            if (attempts.incrementAndGet() < 2) {
+                // Mirrors what AWS SDK v2 does: SdkClientException wrapping a network IOException
+                var networkError = new IOException("Connection reset by peer");
+                var sdkException = SdkException.builder()
+                                               .message("network error")
+                                               .cause(networkError)
+                                               .build();
+                throw new FileStorageException("S3 upload failed", sdkException);
+            }
+            return "recovered";
+        });
+
+        assertEquals("recovered", result);
+        assertEquals(1, recordedSleepDurations.size());
+        assertEquals(10000L, recordedSleepDurations.get(0));
+    }
+
+    @Test
     void testRetryOnFileStorageExceptionWithUncheckedIOExceptionCause() throws Exception {
         var attempts = new AtomicInteger(0);
 
