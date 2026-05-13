@@ -138,7 +138,9 @@ public class AsyncUploadJobOrchestrator {
             try {
                 startSyncUploadFromUrlUpload(uploadFromUrlContext, lock);
             } catch (Exception e) {
-                LOGGER.error(e.getMessage(), e);
+                LOGGER.error(MessageFormat.format(Messages.ASYNC_UPLOAD_JOB_FAILED, uploadFromUrlContext.getJobEntry()
+                                                                                                        .getId(),
+                                                  e.getMessage()), e);
                 updateFailedAsyncUploadJob(uploadFromUrlContext.getJobEntry(), e, lock);
                 throw new SLException(e, e.getMessage());
             }
@@ -246,6 +248,8 @@ public class AsyncUploadJobOrchestrator {
             } finally {
                 lock.unlock();
             }
+            LOGGER.info(Messages.ASYNC_UPLOAD_JOB_MONITOR_UPDATE, updatedJobEntry.getId(), updatedJobEntry.getState(),
+                        updatedJobEntry.getBytesRead(), updatedJobEntry.getUpdatedAt());
             waitBetweenUpdates();
         }
     }

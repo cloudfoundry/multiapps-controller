@@ -19,7 +19,7 @@ public final class Messages {
     public static final String MTAR_ENDPOINT_NOT_SECURE_FOR_JOB_WITH_ID = "Remote MTAR endpoint is not a secure connection. HTTPS required. Job id: {0}";
     public static final String CANNOT_PARSE_CONTAINER_URI_OF_OBJECT_STORE = "Cannot parse container_uri of object store";
     public static final String REQUEST_0_1_FAILED_WITH_2 = "Request \"{0} {1}\" failed with \"{2}\"";
-    public static final String ERROR_OCCURRED_WHILE_DELETING_JOB_ENTRY = "Error occurred while deleting job entry";
+    public static final String ERROR_OCCURRED_WHILE_DELETING_JOB_ENTRY = "Error occurred while deleting job entry with id: {}";
     public static final String CANNOT_CREATE_OBJECT_STORE_CLIENT_WITH_PROVIDER_0 = "Cannot create Object Store client with provider: {0}";
     public static final String NO_VALID_OBJECT_STORE_CONFIGURATION_FOUND = "No valid Object Store configuration found!";
     public static final String MISSING_PROPERTIES_FOR_CREATING_THE_SPECIFIC_PROVIDER = "Missing properties for creating the specific provider!";
@@ -76,6 +76,7 @@ public final class Messages {
     public static final String ATTEMPTING_TO_CREATE_OBJECT_STORE_CLIENT = "Attempting to create object store client with provider: {}, container: {}, region: {}, host: {}, endpoint: {}";
     public static final String OBJECT_STORE_WITH_PROVIDER_0_CREATED = "Object store with provider: {0} created";
     public static final String JOB_WITH_ID_WAS_NOT_UPDATED_WITHIN_SECONDS = "Job with ID: {} was not updated within: {} seconds";
+    public static final String STALE_JOB_DETAILS = "Stale job details - id: {}, state: {}, updatedAt: {}, addedAt: {}, startedAt: {}, bytesRead: {}, url: {}, space: {}, namespace: {}, user: {}, instance: {}";
     public static final String CLEARING_OLD_ENTRY = "Clearing old entry with id: {0}";
 
     // DEBUG log messages
@@ -90,6 +91,7 @@ public final class Messages {
     public static final String ASYNC_UPLOAD_JOB_FINISHED = "Async upload job {} finished";
     public static final String UPLOADING_MTAR_STREAM_FROM_REMOTE_ENDPOINT_WITH_JOB_ID = "Uploading MTAR stream from remote endpoint: {}. Job id: {}";
     public static final String CALLING_REMOTE_MTAR_ENDPOINT_FOR_JOB_WITH_ID = "Calling remote MTAR endpoint {}. Job id: {}";
+    public static final String ASYNC_UPLOAD_JOB_MONITOR_UPDATE = "Job {} monitor update - state: {}, bytesRead: {}, updatedAt: {}";
 
     private Messages() {
     }

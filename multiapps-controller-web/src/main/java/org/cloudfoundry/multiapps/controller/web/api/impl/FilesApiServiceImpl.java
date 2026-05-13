@@ -133,6 +133,11 @@ public class FilesApiServiceImpl implements FilesApiService {
             return triggerUploadFromUrl(spaceGuid, namespace, urlWithoutUserInfo, decodedUrl, fileUrl.getUserCredentials());
         }
         if (hasJobStuck(existingJob)) {
+            LOGGER.warn(Messages.JOB_WITH_ID_WAS_NOT_UPDATED_WITHIN_SECONDS, existingJob.getId(), UPDATE_JOB_TIMEOUT);
+            LOGGER.warn(Messages.STALE_JOB_DETAILS, existingJob.getId(), existingJob.getState(), existingJob.getUpdatedAt(),
+                        existingJob.getAddedAt(), existingJob.getStartedAt(), existingJob.getBytesRead(), existingJob.getUrl(),
+                        existingJob.getSpaceGuid(), existingJob.getNamespace(), existingJob.getUser(),
+                        existingJob.getInstanceIndex());
             deleteAsyncJobEntry(existingJob);
             return triggerUploadFromUrl(spaceGuid, namespace, urlWithoutUserInfo, decodedUrl, fileUrl.getUserCredentials());
         }
@@ -166,7 +171,10 @@ public class FilesApiServiceImpl implements FilesApiService {
     private ResponseEntity<AsyncUploadResult> getAsyncUploadResult(AsyncUploadJobEntry job) {
         if (job.getState() == State.RUNNING || job.getState() == State.INITIAL) {
             if (hasJobStuck(job)) {
-                LOGGER.info(Messages.JOB_WITH_ID_WAS_NOT_UPDATED_WITHIN_SECONDS, job.getId(), UPDATE_JOB_TIMEOUT);
+                LOGGER.warn(Messages.JOB_WITH_ID_WAS_NOT_UPDATED_WITHIN_SECONDS, job.getId(), UPDATE_JOB_TIMEOUT);
+                LOGGER.warn(Messages.STALE_JOB_DETAILS, job.getId(), job.getState(), job.getUpdatedAt(), job.getAddedAt(),
+                            job.getStartedAt(), job.getBytesRead(), job.getUrl(), job.getSpaceGuid(), job.getNamespace(),
+                            job.getUser(), job.getInstanceIndex());
                 return ResponseEntity.ok(
                     createErrorResult(MessageFormat.format(Messages.JOB_NOT_UPDATED_FOR_0_SECONDS, UPDATE_JOB_TIMEOUT),
                                       AsyncUploadResult.ClientAction.RETRY_UPLOAD));
@@ -256,7 +264,7 @@ public class FilesApiServiceImpl implements FilesApiService {
                             .id(entry.getId())
                             .delete();
         } catch (Exception e) {
-            LOGGER.error(Messages.ERROR_OCCURRED_WHILE_DELETING_JOB_ENTRY, e);
+            LOGGER.error(Messages.ERROR_OCCURRED_WHILE_DELETING_JOB_ENTRY, entry.getId(), e);
         }
     }
 
