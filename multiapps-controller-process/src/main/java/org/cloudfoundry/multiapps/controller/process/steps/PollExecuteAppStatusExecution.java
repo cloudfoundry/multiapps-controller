@@ -17,6 +17,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStateAction
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -58,13 +59,16 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
 
     private final CloudControllerClientFactory clientFactory;
     private final TokenService tokenService;
+    private final OperationLogsExporter operationLogsExporter;
 
     private static final String DEFAULT_SUCCESS_MARKER = "STDOUT:SUCCESS";
     private static final String DEFAULT_FAILURE_MARKER = "STDERR:FAILURE";
 
-    public PollExecuteAppStatusExecution(CloudControllerClientFactory clientFactory, TokenService tokenService) {
+    public PollExecuteAppStatusExecution(CloudControllerClientFactory clientFactory, TokenService tokenService,
+                                         OperationLogsExporter operationLogsExporter) {
         this.clientFactory = clientFactory;
         this.tokenService = tokenService;
+        this.operationLogsExporter = operationLogsExporter;
     }
 
     @Override
@@ -90,7 +94,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         AppExecutionDetailedStatus status = getAppExecutionStatus(context, appAttributes, recentLogs);
         ProcessLoggerProvider processLoggerProvider = context.getStepLogger()
                                                              .getProcessLoggerProvider();
-        StepsUtil.saveAppLogs(context, logCacheClient, appGuid, app.getName(), LOGGER, processLoggerProvider);
+        StepsUtil.saveAppLogs(context, logCacheClient, appGuid, app.getName(), LOGGER, processLoggerProvider, operationLogsExporter);
         return checkAppExecutionStatus(context, app, appAttributes, status);
     }
 

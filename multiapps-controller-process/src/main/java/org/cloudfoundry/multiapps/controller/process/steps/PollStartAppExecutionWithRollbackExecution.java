@@ -6,6 +6,7 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.model.IncrementalAppInstanceUpdateConfiguration;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
@@ -13,8 +14,9 @@ import static org.cloudfoundry.multiapps.controller.process.steps.StepsUtil.enab
 
 public class PollStartAppExecutionWithRollbackExecution extends PollStartAppStatusExecution {
 
-    public PollStartAppExecutionWithRollbackExecution(CloudControllerClientFactory clientFactory, TokenService tokenService) {
-        super(clientFactory, tokenService);
+    public PollStartAppExecutionWithRollbackExecution(CloudControllerClientFactory clientFactory, TokenService tokenService,
+                                                      OperationLogsExporter operationLogsExporter) {
+        super(clientFactory, tokenService, operationLogsExporter);
     }
 
     @Override

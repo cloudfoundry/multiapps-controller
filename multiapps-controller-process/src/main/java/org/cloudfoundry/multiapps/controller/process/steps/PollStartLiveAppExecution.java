@@ -7,13 +7,15 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
 public class PollStartLiveAppExecution extends PollStartAppStatusExecution {
 
-    public PollStartLiveAppExecution(CloudControllerClientFactory clientFactory, TokenService tokenService) {
-        super(clientFactory, tokenService);
+    public PollStartLiveAppExecution(CloudControllerClientFactory clientFactory, TokenService tokenService,
+                                     OperationLogsExporter operationLogsExporter) {
+        super(clientFactory, tokenService, operationLogsExporter);
     }
 
     @Override

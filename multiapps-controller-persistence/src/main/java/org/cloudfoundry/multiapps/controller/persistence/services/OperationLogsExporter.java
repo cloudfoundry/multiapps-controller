@@ -47,6 +47,8 @@ public class OperationLogsExporter {
     private static final Map<String, WebClient> clientCache = new ConcurrentHashMap<>();
     private static final Pattern MESSAGE_LOG_DATE_PATTERN = Pattern.compile("^#([^#\\r\\n]*)#", Pattern.MULTILINE);
     private static final Pattern MESSAGE_LOG_LEVEL_PATTERN = Pattern.compile("^#[^#\\r\\n]*#[^#\\r\\n]*#([^#\\r\\n]*)#", Pattern.MULTILINE);
+    private static final Pattern MESSAGE_LOG_NAME = Pattern.compile("^#[^#\\\\r\\\\n]*#[^#\\\\r\\\\n]*#[^#\\\\r\\\\n]*#([^#\\\\r\\\\n]*)#",
+                                                                    Pattern.MULTILINE);
 
     private static final String MESSAGE_SPLITTING_REGEX = "(?m)^#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#(?:\\r?\\n)?";
     private final ProcessLogsPersistenceService processLogsPersistenceService;
@@ -101,7 +103,12 @@ public class OperationLogsExporter {
         Map<LogLevel, List<LogLogLog>> operationLogs = getLogsFromOperationLogEntry(message);
         Map<LogLevel, List<LogLogLog>> filteredOperationLogs = removeLogsWithUnwantedLogLevel(loggingConfiguration, operationLogs);
         List<ExternalOperationLogEntry> externalOperationLogEntries = new ArrayList<>();
-        String logName = message.substring(message.indexOf("."), message.indexOf("#", message.indexOf(".") + 1));
+        String logName = "asd";
+        Matcher matcher = MESSAGE_LOG_NAME.matcher(message);
+        if (matcher.find()) {
+            logName = matcher.group(1);
+            logName = logName.substring(logName.indexOf(".") + 1);
+        }
 
         for (Map.Entry<LogLevel, List<LogLogLog>> operationLog : filteredOperationLogs.entrySet()) {
             for (LogLogLog log : operationLog.getValue()) {
@@ -337,7 +344,7 @@ public class OperationLogsExporter {
                                                  .build();
     }
 
-    private record LogLogLog(String log, LocalDateTime dateTime) {
+    public record LogLogLog(String log, LocalDateTime dateTime) {
 
     }
 }

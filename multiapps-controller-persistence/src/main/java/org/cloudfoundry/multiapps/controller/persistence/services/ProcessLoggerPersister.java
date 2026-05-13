@@ -51,6 +51,18 @@ public class ProcessLoggerPersister {
         }
     }
 
+    public List<String> getApplicationProcessLogsMessages(String correlationId, String taskId) {
+        List<ProcessLogger> processLoggers = processLoggerProvider.getExistingLoggers(correlationId, taskId);
+        Map<String, StringBuilder> processLogsMessages = getProcessLogsMessages(processLoggers);
+
+        processLogsMessages.remove("OPERATION.log");
+
+        return processLogsMessages.values()
+                                  .stream()
+                                  .map(StringBuilder::toString)
+                                  .toList();
+    }
+
     public Map<String, StringBuilder> getProcessLogsMessages(List<ProcessLogger> processLoggers) {
         if (processLoggers.isEmpty()) {
             return Collections.emptyMap();

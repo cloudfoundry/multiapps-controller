@@ -18,6 +18,7 @@ import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaAppl
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableIncrementalAppInstanceUpdateConfiguration;
 import org.cloudfoundry.multiapps.controller.core.model.IncrementalAppInstanceUpdateConfiguration;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -39,6 +40,7 @@ class PollStartAppExecutionWithRollbackExecutionTest extends AsyncStepOperationT
 
     private CloudControllerClientFactory clientFactory;
     private TokenService tokenService;
+    private OperationLogsExporter operationLogsExporter;
 
     private AsyncExecutionState expectedAsyncExecutionState;
 
@@ -151,7 +153,7 @@ class PollStartAppExecutionWithRollbackExecutionTest extends AsyncStepOperationT
 
     @Override
     protected List<AsyncExecution> getAsyncOperations(ProcessContext wrapper) {
-        return List.of(new PollStartAppExecutionWithRollbackExecution(clientFactory, tokenService));
+        return List.of(new PollStartAppExecutionWithRollbackExecution(clientFactory, tokenService, operationLogsExporter));
     }
 
     @Override
@@ -163,7 +165,7 @@ class PollStartAppExecutionWithRollbackExecutionTest extends AsyncStepOperationT
     protected IncrementalAppInstancesUpdateStep createStep() {
         clientFactory = Mockito.mock(CloudControllerClientFactory.class);
         tokenService = Mockito.mock(TokenService.class);
-        return new IncrementalAppInstancesUpdateStep(clientFactory, tokenService);
+        return new IncrementalAppInstancesUpdateStep(clientFactory, tokenService, operationLogsExporter);
 
     }
 }
