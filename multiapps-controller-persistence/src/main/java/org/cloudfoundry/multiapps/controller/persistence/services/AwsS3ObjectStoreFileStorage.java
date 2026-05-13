@@ -53,6 +53,7 @@ import java.util.function.Consumer;
 public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AwsS3ObjectStoreFileStorage.class);
+    private static final String HTTPS_SCHEME = "https://";
     private static final int DELETE_BATCH_SIZE = 1000;
 
     private final S3Client s3Client;
@@ -74,7 +75,7 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
                                                                                         ObjectStoreConstants.AWS_OBJECT_STORE_SOCKET_TIMEOUT_CONFIG_IN_MINUTES)
                                                                                     .connectionTimeout(
                                                                                         ObjectStoreConstants.AWS_OBJECT_STORE_CONNECTION_TIMEOUT_CONFIG_IN_SECONDS));
-        builder.endpointOverride(URI.create("https://" + credentials.get(CredentialKeys.HOST)));
+        builder.endpointOverride(URI.create(HTTPS_SCHEME + credentials.get(CredentialKeys.HOST)));
         builder.region(software.amazon.awssdk.regions.Region.of((String) credentials.get(CredentialKeys.REGION)));
         return builder.build();
     }

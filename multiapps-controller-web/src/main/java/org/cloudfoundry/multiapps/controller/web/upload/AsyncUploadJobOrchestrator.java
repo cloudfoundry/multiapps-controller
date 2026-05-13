@@ -1,5 +1,32 @@
 package org.cloudfoundry.multiapps.controller.web.upload;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.util.MiscUtil;
+import org.cloudfoundry.multiapps.controller.api.model.UserCredentials;
+import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
+import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableAsyncUploadJobEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.services.AsyncUploadJobService;
+import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
+import org.cloudfoundry.multiapps.controller.process.stream.CountingInputStream;
+import org.cloudfoundry.multiapps.controller.web.Messages;
+import org.cloudfoundry.multiapps.controller.web.upload.client.DeployFromUrlRemoteClient;
+import org.cloudfoundry.multiapps.controller.web.upload.client.FileFromUrlData;
+import org.cloudfoundry.multiapps.controller.web.upload.exception.RejectedAsyncUploadJobException;
+import org.cloudfoundry.multiapps.controller.web.upload.resilience.FileUploadResilientOperationExecutor;
+import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
+import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
+import org.cloudfoundry.multiapps.mta.handlers.DescriptorParserFacade;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -15,34 +42,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-import org.cloudfoundry.multiapps.common.SLException;
-import org.cloudfoundry.multiapps.common.util.MiscUtil;
-import org.cloudfoundry.multiapps.controller.api.model.UserCredentials;
-import org.cloudfoundry.multiapps.controller.client.util.CheckedSupplier;
-import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
-import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
-import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
-import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry;
-import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
-import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableAsyncUploadJobEntry;
-import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
-import org.cloudfoundry.multiapps.controller.persistence.services.AsyncUploadJobService;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
-import org.cloudfoundry.multiapps.controller.process.stream.CountingInputStream;
-import org.cloudfoundry.multiapps.controller.web.Messages;
-import org.cloudfoundry.multiapps.controller.web.upload.client.DeployFromUrlRemoteClient;
-import org.cloudfoundry.multiapps.controller.web.upload.client.FileFromUrlData;
-import org.cloudfoundry.multiapps.controller.web.upload.exception.RejectedAsyncUploadJobException;
-import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
-import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
-import org.cloudfoundry.multiapps.mta.handlers.DescriptorParserFacade;
-import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @Named
 public class AsyncUploadJobOrchestrator {
 
@@ -53,7 +52,7 @@ public class AsyncUploadJobOrchestrator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AsyncUploadJobOrchestrator.class);
 
-    private final ResilientOperationExecutor resilientOperationExecutor = getResilientOperationExecutor();
+    private final FileUploadResilientOperationExecutor fileUploadResilientOperationExecutor = getFileUploadResilientOperationExecutor();
 
     private final ExecutorService asyncFileUploadExecutor;
     private final ExecutorService deployFromUrlExecutor;
@@ -147,8 +146,7 @@ public class AsyncUploadJobOrchestrator {
     }
 
     private void startSyncUploadFromUrlUpload(UploadFromUrlContext uploadFromUrlContext, Lock lock) throws Exception {
-        FileEntry fileEntry = resilientOperationExecutor.execute(
-            (CheckedSupplier<FileEntry>) () -> doUploadMtarFromUrl(uploadFromUrlContext, lock));
+        FileEntry fileEntry = fileUploadResilientOperationExecutor.execute(() -> doUploadMtarFromUrl(uploadFromUrlContext, lock));
         LOGGER.trace(Messages.UPLOADED_MTAR_FROM_REMOTE_ENDPOINT_AND_JOB_ID, uploadFromUrlContext.getJobEntry()
                                                                                                  .getUrl(),
                      uploadFromUrlContext.getJobEntry()
@@ -272,8 +270,8 @@ public class AsyncUploadJobOrchestrator {
         }
     }
 
-    protected ResilientOperationExecutor getResilientOperationExecutor() {
-        return new ResilientOperationExecutor();
+    protected FileUploadResilientOperationExecutor getFileUploadResilientOperationExecutor() {
+        return new FileUploadResilientOperationExecutor();
     }
 
 }

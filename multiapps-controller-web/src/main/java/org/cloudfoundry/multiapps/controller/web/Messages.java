@@ -57,6 +57,9 @@ public final class Messages {
 
     // WARN log messages
 
+    public static final String FILE_UPLOAD_ATTEMPT_FAILED = "Upload attempt {0}/{1} failed. Retrying in {2} ms. Cause: {3}";
+    public static final String FILE_UPLOAD_ALL_ATTEMPTS_EXHAUSTED = "All {0} upload attempts exhausted. Last error: {1}";
+
     public static final String NO_OBJECTSTORE_PROVIDER_FOUND_FOR_0 = "No ObjectStore provider found for {0}!";
     public static final String NO_OBJECT_STORE_PROVIDERS_DETECTED = "No object store providers detected from credentials. Service name: {}";
 

@@ -83,6 +83,7 @@ public final class Messages {
     public static final String DELETED_0_SECRET_TOKENS_WITH_EXPIRATION_DATE_1 = "Deleted secret tokens \"{0}\" with an expiration date \"{1}\"";
     public static final String FAILED_TO_DELETE_FILE_0_IN_OBJECT_STORE_REASON_1 = "Failed to delete file \"{0}\" in object store. Reason: {1}";
     public static final String S3_UPLOAD_FAILED_FILE_0_SIZE_1 = "S3 upload failed for file \"{0}\" (size={1}). Root cause chain: {2}";
+    public static final String S3_UPLOAD_FAILED_TRANSIENT_CONNECTION_ERROR = "S3 upload failed due to a transient connection error. SDK retry failed because the upload stream is not resettable.";
 
     protected Messages() {
     }

@@ -10,7 +10,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.UserCredentials;
 import org.cloudfoundry.multiapps.controller.client.util.CheckedSupplier;
-import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry;
@@ -22,6 +21,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.AsyncUploadJob
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.web.upload.client.DeployFromUrlRemoteClient;
 import org.cloudfoundry.multiapps.controller.web.upload.client.FileFromUrlData;
+import org.cloudfoundry.multiapps.controller.web.upload.resilience.FileUploadResilientOperationExecutor;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
 import org.cloudfoundry.multiapps.mta.handlers.DescriptorParserFacade;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -445,8 +445,8 @@ class AsyncUploadJobOrchestratorTest {
         }
 
         @Override
-        protected ResilientOperationExecutor getResilientOperationExecutor() {
-            return new ResilientOperationExecutor() {
+        protected FileUploadResilientOperationExecutor getFileUploadResilientOperationExecutor() {
+            return new FileUploadResilientOperationExecutor() {
                 @Override
                 public <T> T execute(CheckedSupplier<T> operation) throws Exception {
                     return operation.get();
