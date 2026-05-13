@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="sap.com" id="add_column_mta_space_id_to_cloud_logging_service_configuration">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="cloud_logging_service_configuration"/>
+            <not>
+                <columnExists tableName="cloud_logging_service_configuration" columnName="mta_space_id"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="cloud_logging_service_configuration">
+            <column name="mta_space_id" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

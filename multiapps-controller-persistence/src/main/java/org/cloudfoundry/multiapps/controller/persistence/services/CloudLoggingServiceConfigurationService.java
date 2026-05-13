@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
@@ -42,6 +43,14 @@ public class CloudLoggingServiceConfigurationService {
     public void deleteCloudLoggingServiceConfiguration(String id) {
         try {
             getSqlQueryExecutor().execute(cloudLoggingServiceConfigurationQueryProvider.getDeleteLoggingConfigurationQuery(id));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<LoggingConfiguration> getAllCloudLoggingServiceConfigurations() {
+        try {
+            return getSqlQueryExecutor().execute(cloudLoggingServiceConfigurationQueryProvider.getAllLoggingConfigurationsQuery());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
