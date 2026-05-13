@@ -40,7 +40,6 @@ public class HookPhasesConfigValidator {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void validateHookHasNoDuplicatePhaseConfigs(Hook hook) {
         Object phasesConfigValue = hook.getParameters().get(SupportedParameters.PHASES_CONFIG);
         if (phasesConfigValue == null) {
@@ -49,6 +48,7 @@ public class HookPhasesConfigValidator {
         if (!(phasesConfigValue instanceof List)) {
             throw new SLException(MessageFormat.format(Messages.INVALID_PHASES_CONFIG_NOT_A_LIST, hook.getName()));
         }
+        @SuppressWarnings("unchecked")
         List<Map<String, String>> phasesConfig = (List<Map<String, String>>) phasesConfigValue;
         Set<String> seenPhases = new HashSet<>();
         for (Map<String, String> phaseConfig : phasesConfig) {

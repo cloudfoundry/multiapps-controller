@@ -127,6 +127,7 @@ public class SupportedParameters {
     public static final String SERVICE_BROKER_SPACE_SCOPED = "service-broker-space-scoped";
     public static final String MODULE_CONFIG = "config";
     public static final String HOOK_REQUIRES = "requires";
+    public static final String PHASES_CONFIG = "phases-config";
 
     // Required dependency parameters:
     public static final String SERVICE_BINDING_CONFIG = "config";
@@ -216,8 +217,6 @@ public class SupportedParameters {
 
     public static final Set<String> DEPENDENCY_PARAMETERS = Set.of(BINDING_NAME, ENV_VAR_NAME, VISIBILITY, USE_LIVE_ROUTES,
                                                                    SERVICE_BINDING_CONFIG, DELETE_SERVICE_KEY_AFTER_DEPLOYMENT);
-
-    public static final String PHASES_CONFIG = "phases-config";
 
     public static final Set<String> MODULE_HOOK_PARAMETERS = Set.of(NAME, COMMAND, MEMORY, DISK_QUOTA, HOOK_REQUIRES, PHASES_CONFIG);
 

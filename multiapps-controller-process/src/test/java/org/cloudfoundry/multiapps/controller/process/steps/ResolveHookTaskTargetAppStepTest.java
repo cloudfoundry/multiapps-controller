@@ -5,10 +5,10 @@ import java.util.Map;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.ImmutableMtaMetadata;
 import org.cloudfoundry.multiapps.controller.core.model.ApplicationColor;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMta;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.ImmutableMtaMetadata;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.Hook;
@@ -35,10 +35,10 @@ class ResolveHookTaskTargetAppStepTest extends SyncFlowableStepTest<ResolveHookT
     private static final String APP_NAME_IDLE = "my-app-idle";
 
     private static final DeployedMta EXISTING_MTA = ImmutableDeployedMta.builder()
-                                                                       .metadata(ImmutableMtaMetadata.builder()
-                                                                                                     .id("test-mta")
-                                                                                                     .build())
-                                                                       .build();
+                                                                        .metadata(ImmutableMtaMetadata.builder()
+                                                                                                      .id("test-mta")
+                                                                                                      .build())
+                                                                        .build();
 
     @Override
     protected ResolveHookTaskTargetAppStep createStep() {
@@ -46,7 +46,7 @@ class ResolveHookTaskTargetAppStepTest extends SyncFlowableStepTest<ResolveHookT
     }
 
     @Test
-    void appNameUnchangedWhenNoHookSet() {
+    void noHook_appName_unchanged() {
         context.setVariable(Variables.APP_TO_PROCESS, buildApp(APP_BASE_NAME));
         context.setVariable(Variables.HOOK_FOR_EXECUTION, null);
 
@@ -58,7 +58,7 @@ class ResolveHookTaskTargetAppStepTest extends SyncFlowableStepTest<ResolveHookT
     }
 
     @Test
-    void appNameUnchangedWhenHookHasNoPhasesConfig() {
+    void hookWithNoPhasesConfig_appName_unchanged() {
         context.setVariable(Variables.APP_TO_PROCESS, buildApp(APP_BASE_NAME));
         context.setVariable(Variables.HOOK_FOR_EXECUTION, buildHook(List.of(BEFORE_STOP_LIVE), Map.of()));
 
@@ -70,7 +70,7 @@ class ResolveHookTaskTargetAppStepTest extends SyncFlowableStepTest<ResolveHookT
     }
 
     @Test
-    void appNameUnchangedWhenNoPhasesConfigMatchesCurrentPhase() {
+    void noPhasesConfigMatchesCurrentPhase_appName_unchanged() {
         context.setVariable(Variables.APP_TO_PROCESS, buildApp(APP_NAME_LIVE));
         context.setVariable(Variables.HOOK_EXECUTION_PHASES, List.of(BEFORE_STOP_LIVE));
         context.setVariable(Variables.HOOK_FOR_EXECUTION, buildHookWithPhasesConfig(
@@ -251,7 +251,8 @@ class ResolveHookTaskTargetAppStepTest extends SyncFlowableStepTest<ResolveHookT
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
-        assertTrue(context.getVariable(Variables.TASKS_TO_EXECUTE).isEmpty());
+        assertTrue(context.getVariable(Variables.TASKS_TO_EXECUTE)
+                          .isEmpty());
     }
 
     private CloudApplicationExtended buildApp(String name) {

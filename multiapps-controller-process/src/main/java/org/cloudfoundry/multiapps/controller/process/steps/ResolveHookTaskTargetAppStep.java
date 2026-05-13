@@ -31,9 +31,7 @@ public class ResolveHookTaskTargetAppStep extends SyncFlowableStep {
         String resolvedAppName = resolveTargetAppName(context, app);
         if (resolvedAppName == null) {
             context.setVariable(Variables.TASKS_TO_EXECUTE, List.of());
-            return StepPhase.DONE;
-        }
-        if (!resolvedAppName.equals(app.getName())) {
+        } else if (!resolvedAppName.equals(app.getName())) {
             context.setVariable(Variables.APP_TO_PROCESS, buildAppWithName(app, resolvedAppName));
         }
 
@@ -47,10 +45,6 @@ public class ResolveHookTaskTargetAppStep extends SyncFlowableStep {
         }
 
         List<Map<String, String>> phasesConfig = getPhasesConfig(hook);
-        if (phasesConfig.isEmpty()) {
-            return app.getName();
-        }
-
         String currentPhase = buildCurrentPhaseString(context, hook);
         String targetApp = phasesConfig.stream()
                                        .filter(config -> currentPhase.equals(config.get(PHASE_KEY)))
@@ -69,10 +63,14 @@ public class ResolveHookTaskTargetAppStep extends SyncFlowableStep {
     private List<Map<String, String>> getPhasesConfig(Hook hook) {
         Object phasesConfigValue = hook.getParameters()
                                        .get(SupportedParameters.PHASES_CONFIG);
-        if (phasesConfigValue instanceof List) {
-            return (List<Map<String, String>>) phasesConfigValue;
+        if (phasesConfigValue == null) {
+            return List.of();
         }
-        return List.of();
+        if (!(phasesConfigValue instanceof List)) {
+            getStepLogger().warn(Messages.INVALID_PHASES_CONFIG_NOT_A_LIST, hook.getName());
+            return List.of();
+        }
+        return (List<Map<String, String>>) phasesConfigValue;
     }
 
     private String buildCurrentPhaseString(ProcessContext context, Hook hook) {
