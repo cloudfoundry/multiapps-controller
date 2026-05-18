@@ -12,6 +12,7 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
 import org.cloudfoundry.multiapps.controller.core.Messages;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.CloudLoggingServiceConfigurationAuditLog;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CFOptimizedEventGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
@@ -21,6 +22,8 @@ import org.cloudfoundry.multiapps.controller.core.util.SecurityUtil;
 import org.cloudfoundry.multiapps.controller.persistence.dto.BackupDescriptor;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
+import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.services.CloudLoggingServiceConfigurationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
@@ -59,6 +62,10 @@ public class DataTerminationService {
     private MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog;
     @Inject
     private DescriptorBackupService descriptorBackupService;
+    @Inject
+    private CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService;
+    @Inject
+    private CloudLoggingServiceConfigurationAuditLog cloudLoggingServiceConfigurationAuditLog;
 
     private static void log(Exception e) {
         LOGGER.error(format(Messages.ERROR_DURING_DATA_TERMINATION_0, e.getMessage()), e);
@@ -72,6 +79,7 @@ public class DataTerminationService {
             SAFE_EXECUTOR.execute(() -> deleteConfigurationEntryOrphanData(spaceId));
             SAFE_EXECUTOR.execute(() -> deleteUserOperationsOrphanData(spaceId));
             SAFE_EXECUTOR.execute(() -> deletedMtaDescriptorsOrphanData(spaceId));
+            SAFE_EXECUTOR.execute(() -> deleteExistingCloudLoggingServiceConfiguration(spaceId));
         }
         if (!spaceEventsToBeDeleted.isEmpty()) {
             SAFE_EXECUTOR.execute(() -> deleteSpaceIdsLeftovers(spaceEventsToBeDeleted));
@@ -161,4 +169,12 @@ public class DataTerminationService {
         }
     }
 
+    private void deleteExistingCloudLoggingServiceConfiguration(String spaceId) {
+        List<LoggingConfiguration> loggingConfigurations = cloudLoggingServiceConfigurationService.getAllCloudLoggingServiceConfigurationsFromSpace(
+            spaceId);
+        for (LoggingConfiguration loggingConfiguration : loggingConfigurations) {
+            cloudLoggingServiceConfigurationService.deleteCloudLoggingServiceConfiguration(loggingConfiguration.getId());
+            cloudLoggingServiceConfigurationAuditLog.logDeleteLoggingConfiguration("", spaceId, loggingConfiguration);
+        }
+    }
 }

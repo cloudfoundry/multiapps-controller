@@ -1,5 +1,12 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
+import java.text.MessageFormat;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.client.v3.Metadata;
@@ -8,6 +15,7 @@ import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation.State;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.CloudLoggingServiceConfigurationAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
@@ -17,13 +25,13 @@ import org.cloudfoundry.multiapps.controller.core.util.SafeExecutor;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.services.CloudLoggingServiceConfigurationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
-import org.cloudfoundry.multiapps.controller.persistence.services.CloudLoggingServiceConfigurationService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessDuration;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
@@ -36,13 +44,6 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.text.MessageFormat;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 import static java.text.MessageFormat.format;
 
@@ -71,6 +72,10 @@ public class OperationInFinalStateHandler {
     private OperationLogsExporter operationLogsExporter;
     @Inject
     private CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService;
+    @Inject
+    private ProcessTypeParser processTypeParser;
+    @Inject
+    private CloudLoggingServiceConfigurationAuditLog cloudLoggingServiceConfigurationAuditLog;
 
     private final SafeExecutor safeExecutor = new SafeExecutor();
 
@@ -205,7 +210,14 @@ public class OperationInFinalStateHandler {
         if (loggingConfiguration == null || loggingConfiguration.getId() == null) {
             return;
         }
-        cloudLoggingServiceConfigurationService.deleteCloudLoggingServiceConfiguration(loggingConfiguration.getId());
+        ProcessType processType = processTypeParser.getProcessType(execution);
+        if (processType.equals(ProcessType.UNDEPLOY)) {
+
+            cloudLoggingServiceConfigurationService.deleteCloudLoggingServiceConfiguration(loggingConfiguration.getId());
+            cloudLoggingServiceConfigurationAuditLog.logDeleteLoggingConfiguration(VariableHandling.get(execution, Variables.USER),
+                                                                                   VariableHandling.get(execution, Variables.SPACE_GUID),
+                                                                                   loggingConfiguration);
+        }
     }
 
     private void deleteDisposableUserProvidedServiceForProcess(DelegateExecution execution, String correlationId) {

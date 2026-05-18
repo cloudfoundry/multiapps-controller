@@ -177,8 +177,10 @@ public class StepsUtil {
         for (ApplicationLog log : recentLogs) {
             ProcessLogger processLogger = processLoggerProvider.getLogger(context.getExecution(), appName);
             processLogger.debug(loggerPrefix + log.toString());
-            operationLogsExporter.sendLogsToCloudLoggingService(context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION),
-                                                                processLogger.getLogMessage());
+            if (context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION) != null) {
+                operationLogsExporter.sendLogsToCloudLoggingService(context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION),
+                                                                    processLogger.getLogMessage());
+            }
         }
 
         var lastLog = recentLogs.get(recentLogs.size() - 1);

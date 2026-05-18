@@ -31,10 +31,10 @@ public class CloudLoggingServiceConfigurationService {
         }
     }
 
-    public LoggingConfiguration getCloudLoggingServiceConfiguration(String mtaOrg, String mtaSpace, String mtaId) {
+    public LoggingConfiguration getCloudLoggingServiceConfiguration(String mtaSpace, String mtaId, String namespace) {
         try {
             return getSqlQueryExecutor().execute(
-                cloudLoggingServiceConfigurationQueryProvider.getGetLoggingConfigurationQuery(mtaOrg, mtaSpace, mtaId));
+                cloudLoggingServiceConfigurationQueryProvider.getGetLoggingConfigurationQuery(mtaSpace, mtaId, namespace));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -48,9 +48,19 @@ public class CloudLoggingServiceConfigurationService {
         }
     }
 
-    public List<LoggingConfiguration> getAllCloudLoggingServiceConfigurations() {
+    public void updateCloudLoggingServiceConfiguration(LoggingConfiguration loggingConfiguration) {
         try {
-            return getSqlQueryExecutor().execute(cloudLoggingServiceConfigurationQueryProvider.getAllLoggingConfigurationsQuery());
+            getSqlQueryExecutor().execute(
+                cloudLoggingServiceConfigurationQueryProvider.getUpdateLoggingConfigurationQuery(loggingConfiguration));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<LoggingConfiguration> getAllCloudLoggingServiceConfigurationsFromSpace(String spaceId) {
+        try {
+            return getSqlQueryExecutor().execute(
+                cloudLoggingServiceConfigurationQueryProvider.getAllCloudLoggingServiceConfigurationsFromSpace(spaceId));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

@@ -10,6 +10,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloud
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableLifecycle;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.LifecycleType;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudSpaceClient;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.CloudLoggingServiceConfigurationAuditLog;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataValidator;
@@ -20,6 +21,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubs
 import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationEntryQuery;
 import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationSubscriptionQuery;
 import org.cloudfoundry.multiapps.controller.persistence.query.Query;
+import org.cloudfoundry.multiapps.controller.persistence.services.CloudLoggingServiceConfigurationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.mta.model.Version;
@@ -63,6 +65,10 @@ class MtaConfigurationPurgerTest {
     ConfigurationSubscriptionQuery configurationSubscriptionQuery;
     @Mock
     MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog;
+    @Mock
+    CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService;
+    @Mock
+    CloudLoggingServiceConfigurationAuditLog cloudLoggingServiceConfigurationAuditLog;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -78,7 +84,8 @@ class MtaConfigurationPurgerTest {
         MtaConfigurationPurger purger = new MtaConfigurationPurger(client, spaceClient, configurationEntryService,
                                                                    configurationSubscriptionService,
                                                                    new MtaMetadataParser(new MtaMetadataValidator()),
-                                                                   mtaConfigurationPurgerAuditLog);
+                                                                   mtaConfigurationPurgerAuditLog, cloudLoggingServiceConfigurationService,
+                                                                   cloudLoggingServiceConfigurationAuditLog);
         purger.purge("org", "space");
         verifyConfigurationEntriesDeleted();
         verifyConfigurationEntriesNotDeleted();

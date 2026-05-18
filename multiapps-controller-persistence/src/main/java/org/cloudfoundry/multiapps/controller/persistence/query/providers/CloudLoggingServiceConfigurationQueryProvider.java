@@ -17,10 +17,13 @@ import org.cloudfoundry.multiapps.controller.persistence.util.JdbcUtil;
 
 public class CloudLoggingServiceConfigurationQueryProvider {
 
-    public static final String INSERT_CLOUD_LOGGING_SERVICE_CONFIGURATION = "INSERT INTO %s (ID, TARGET_SPACE, TARGET_ORG, MTA_ID, MTA_ORG, MTA_SPACE, MTA_SPACE_ID, SERVICE_INSTANCE_NAME, SERVICE_KEY_NAME, LOG_LEVEL, IS_FAILSAFE, ADDED_AT) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    public static final String GET_CLOUD_LOGGING_CONFIGURATION = "SELECT ID, TARGET_SPACE, TARGET_ORG, MTA_ID, MTA_ORG, MTA_SPACE, MTA_SPACE_ID, SERVICE_INSTANCE_NAME, SERVICE_KEY_NAME, LOG_LEVEL, IS_FAILSAFE FROM %s WHERE MTA_ORG=? AND MTA_SPACE=? AND MTA_ID=?";
-    public static final String GET_ALL_CLOUD_LOGGING_CONFIGURATIONS = "SELECT ID, TARGET_SPACE, TARGET_ORG, MTA_ID, MTA_ORG, MTA_SPACE, MTA_SPACE_ID, SERVICE_INSTANCE_NAME, SERVICE_KEY_NAME, LOG_LEVEL, IS_FAILSAFE FROM %s";
+    public static final String INSERT_CLOUD_LOGGING_SERVICE_CONFIGURATION = "INSERT INTO %s (ID, TARGET_SPACE, TARGET_ORG, MTA_ID, MTA_ORG, MTA_SPACE, MTA_SPACE_ID, SERVICE_INSTANCE_NAME, SERVICE_KEY_NAME, LOG_LEVEL, IS_FAILSAFE, ADDED_AT, NAMESPACE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    public static final String GET_CLOUD_LOGGING_CONFIGURATION = "SELECT ID, TARGET_SPACE, TARGET_ORG, MTA_ID, MTA_ORG, MTA_SPACE, MTA_SPACE_ID, SERVICE_INSTANCE_NAME, SERVICE_KEY_NAME, LOG_LEVEL, IS_FAILSAFE, NAMESPACE FROM %s WHERE MTA_SPACE=? AND MTA_ID=? AND NAMESPACE=?";
+    public static final String GET_CLOUD_LOGGING_CONFIGURATION_NULL_NAMESPACE = "SELECT ID, TARGET_SPACE, TARGET_ORG, MTA_ID, MTA_ORG, MTA_SPACE, MTA_SPACE_ID, SERVICE_INSTANCE_NAME, SERVICE_KEY_NAME, LOG_LEVEL, IS_FAILSAFE, NAMESPACE FROM %s WHERE MTA_SPACE=? AND MTA_ID=? AND NAMESPACE IS NULL";
+    public static final String GET_ALL_CLOUD_LOGGING_CONFIGURATIONS = "SELECT ID, TARGET_SPACE, TARGET_ORG, MTA_ID, MTA_ORG, MTA_SPACE, MTA_SPACE_ID, SERVICE_INSTANCE_NAME, SERVICE_KEY_NAME, LOG_LEVEL, IS_FAILSAFE FROM %s WHERE MTA_SPACE_ID=?";
     public static final String DELETE_CLOUD_LOGGING_CONFIGURATION = "DELETE FROM %s WHERE ID=?";
+    public static final String UPDATE_CLOUD_LOGGING_CONFIGURATION = "UPDATE %s SET TARGET_SPACE=?, TARGET_ORG=?, SERVICE_INSTANCE_NAME=?, SERVICE_KEY_NAME=?, LOG_LEVEL=?, IS_FAILSAFE=?, ADDED_AT=? WHERE MTA_SPACE=? AND MTA_ID=? AND NAMESPACE=?";
+    public static final String UPDATE_CLOUD_LOGGING_CONFIGURATION_NULL_NAMESPACE = "UPDATE %s SET TARGET_SPACE=?, TARGET_ORG=?, SERVICE_INSTANCE_NAME=?, SERVICE_KEY_NAME=?, LOG_LEVEL=?, IS_FAILSAFE=?, ADDED_AT=? WHERE MTA_SPACE=? AND MTA_ID=? AND NAMESPACE IS NULL";
     private static final String ID_COLUMN_LABEL = "id";
     private static final String TARGET_SPACE_COLUMN_LABEL = "target_space";
     private static final String TARGET_ORG_COLUMN_LABEL = "target_org";
@@ -56,6 +59,7 @@ public class CloudLoggingServiceConfigurationQueryProvider {
                                                             .name());
                 statement.setBoolean(11, loggingConfiguration.isFailSafe() == null ? true : loggingConfiguration.isFailSafe());
                 statement.setTimestamp(12, Timestamp.valueOf(LocalDateTime.now()));
+                statement.setString(13, loggingConfiguration.getNamespace());
 
                 return statement.executeUpdate();
             } finally {
@@ -64,16 +68,19 @@ public class CloudLoggingServiceConfigurationQueryProvider {
         };
     }
 
-    public SqlQuery<LoggingConfiguration> getGetLoggingConfigurationQuery(String mtaOrg, String mtaSpace, String mtaId) {
+    public SqlQuery<LoggingConfiguration> getGetLoggingConfigurationQuery(String mtaSpace, String mtaId, String namespace) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             ResultSet resultSet = null;
             try {
-                statement = connection.prepareStatement(getGetLoggingConfigurationQueryString());
-                statement.setString(1, mtaOrg);
-                statement.setString(2, mtaSpace);
-                statement.setString(3, mtaId);
-
+                if (namespace == null) {
+                    statement = connection.prepareStatement(String.format(GET_CLOUD_LOGGING_CONFIGURATION_NULL_NAMESPACE, tableName));
+                } else {
+                    statement = connection.prepareStatement(String.format(GET_CLOUD_LOGGING_CONFIGURATION, tableName));
+                    statement.setString(3, namespace);
+                }
+                statement.setString(1, mtaSpace);
+                statement.setString(2, mtaId);
                 resultSet = statement.executeQuery();
 
                 if (resultSet.next()) {
@@ -100,12 +107,41 @@ public class CloudLoggingServiceConfigurationQueryProvider {
         };
     }
 
-    public SqlQuery<List<LoggingConfiguration>> getAllLoggingConfigurationsQuery() {
+    public SqlQuery<Integer> getUpdateLoggingConfigurationQuery(LoggingConfiguration loggingConfiguration) {
+        return (Connection connection) -> {
+            PreparedStatement statement = null;
+            try {
+                String queryTemplate = loggingConfiguration.getNamespace() == null
+                    ? UPDATE_CLOUD_LOGGING_CONFIGURATION_NULL_NAMESPACE
+                    : UPDATE_CLOUD_LOGGING_CONFIGURATION;
+                statement = connection.prepareStatement(String.format(queryTemplate, tableName));
+                statement.setString(1, loggingConfiguration.getTargetSpace());
+                statement.setString(2, loggingConfiguration.getTargetOrg());
+                statement.setString(3, loggingConfiguration.getServiceInstanceName());
+                statement.setString(4, loggingConfiguration.getServiceKeyName());
+                statement.setString(5, loggingConfiguration.getLogLevel()
+                                                           .name());
+                statement.setBoolean(6, loggingConfiguration.isFailSafe() == null ? true : loggingConfiguration.isFailSafe());
+                statement.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
+                statement.setString(8, loggingConfiguration.getMtaSpace());
+                statement.setString(9, loggingConfiguration.getMtaId());
+                if (loggingConfiguration.getNamespace() != null) {
+                    statement.setString(10, loggingConfiguration.getNamespace());
+                }
+                return statement.executeUpdate();
+            } finally {
+                JdbcUtil.closeQuietly(statement);
+            }
+        };
+    }
+
+    public SqlQuery<List<LoggingConfiguration>> getAllCloudLoggingServiceConfigurationsFromSpace(String spaceId) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             ResultSet resultSet = null;
             try {
                 statement = connection.prepareStatement(String.format(GET_ALL_CLOUD_LOGGING_CONFIGURATIONS, tableName));
+                statement.setString(1, spaceId);
                 resultSet = statement.executeQuery();
                 List<LoggingConfiguration> result = new ArrayList<>();
                 while (resultSet.next()) {
@@ -137,10 +173,6 @@ public class CloudLoggingServiceConfigurationQueryProvider {
 
     private String getStoreLoggingConfigurationQueryString() {
         return String.format(INSERT_CLOUD_LOGGING_SERVICE_CONFIGURATION, tableName);
-    }
-
-    private String getGetLoggingConfigurationQueryString() {
-        return String.format(GET_CLOUD_LOGGING_CONFIGURATION, tableName);
     }
 
     private String getDeleteLoggingConfigurationQueryString() {

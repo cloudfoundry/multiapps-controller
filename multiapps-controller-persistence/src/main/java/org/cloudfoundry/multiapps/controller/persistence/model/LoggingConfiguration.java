@@ -57,4 +57,7 @@ public interface LoggingConfiguration {
 
     @Nullable
     String getServiceKeyName();
+
+    @Nullable
+    String getNamespace();
 }

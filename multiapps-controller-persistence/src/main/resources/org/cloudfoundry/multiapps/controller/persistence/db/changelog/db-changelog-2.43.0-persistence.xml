@@ -46,6 +46,14 @@
                 <constraints nullable="false"/>
             </column>
 
+            <column name="mta_space_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="namespace" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+
             <column name="service_instance_name" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>

@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.web.resources;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.CloudLoggingServiceConfigurationAuditLog;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
@@ -10,6 +11,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetad
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaConfigurationPurger;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
+import org.cloudfoundry.multiapps.controller.persistence.services.CloudLoggingServiceConfigurationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.web.Constants;
@@ -44,6 +46,10 @@ public class ConfigurationEntriesResource {
     private TokenService tokenService;
     @Inject
     private MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog;
+    @Inject
+    private CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService;
+    @Inject
+    private CloudLoggingServiceConfigurationAuditLog cloudLoggingServiceConfigurationAuditLog;
 
     @PostMapping(value = Constants.Endpoints.PURGE)
     public ResponseEntity<Void> purgeConfigurationRegistry(@RequestParam(REQUEST_PARAM_ORGANIZATION) String organization,
@@ -58,7 +64,9 @@ public class ConfigurationEntriesResource {
                                                                                                      .toString());
         MtaConfigurationPurger configurationPurger = new MtaConfigurationPurger(client, spaceClient, configurationEntryService,
                                                                                 configurationSubscriptionService, mtaMetadataParser,
-                                                                                mtaConfigurationPurgerAuditLog);
+                                                                                mtaConfigurationPurgerAuditLog,
+                                                                                cloudLoggingServiceConfigurationService,
+                                                                                cloudLoggingServiceConfigurationAuditLog);
         configurationPurger.purge(organization, space);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                              .build();
