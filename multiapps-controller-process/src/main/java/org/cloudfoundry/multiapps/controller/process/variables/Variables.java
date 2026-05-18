@@ -580,6 +580,10 @@ public interface Variables {
                                                                               .type(Variable.typeReference(Hook.class))
                                                                               .defaultValue(Collections.emptyList())
                                                                               .build();
+    Variable<List<String>> HOOK_EXECUTION_PHASES = ImmutableSimpleVariable.<List<String>> builder()
+                                                                         .name("hookExecutionPhases")
+                                                                         .defaultValue(Collections.emptyList())
+                                                                         .build();
     Variable<List<Module>> MODULES_TO_DEPLOY = ImmutableJsonBinaryListVariable.<Module> builder()
                                                                               .name("modulesToDeploy")
                                                                               .type(Variable.typeReference(Module.class))
@@ -756,6 +760,10 @@ public interface Variables {
     Variable<String> SERVICE_UNBINDING_JOB_ID = ImmutableSimpleVariable.<String> builder()
                                                                        .name("serviceUnbindingJobId")
                                                                        .build();
+    Variable<List<String>> SERVICE_UNBINDING_JOB_IDS = ImmutableSimpleVariable.<List<String>> builder()
+                                                                              .name("serviceUnbindingJobIds")
+                                                                              .defaultValue(Collections.emptyList())
+                                                                              .build();
     Variable<String> SERVICE_KEY_CREATION_JOB_ID = ImmutableSimpleVariable.<String> builder()
                                                                           .name("serviceKeyCreationJobId")
                                                                           .build();

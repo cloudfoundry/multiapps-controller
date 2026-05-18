@@ -143,7 +143,7 @@ public interface CloudControllerRestClient {
 
     List<CloudServiceBinding> getAppBindings(UUID applicationGuid);
 
-    CloudServiceBinding getServiceBindingForApplication(UUID applicationId, UUID serviceInstanceGuid);
+    List<CloudServiceBinding> getServiceBindingsForApplication(UUID applicationId, UUID serviceInstanceGuid);
 
     CloudServiceBroker getServiceBroker(String name);
 
@@ -179,9 +179,9 @@ public interface CloudControllerRestClient {
 
     void stopApplication(String applicationName);
 
-    Optional<String> unbindServiceInstance(String applicationName, String serviceInstanceName);
+    List<String> unbindServiceInstance(String applicationName, String serviceInstanceName);
 
-    Optional<String> unbindServiceInstance(UUID applicationGuid, UUID serviceInstanceGuid);
+    List<String> unbindServiceInstance(UUID applicationGuid, UUID serviceInstanceGuid);
 
     void updateApplicationDiskQuota(String applicationName, int disk);
 

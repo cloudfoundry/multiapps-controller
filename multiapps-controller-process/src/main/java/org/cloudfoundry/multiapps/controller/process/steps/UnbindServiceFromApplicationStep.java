@@ -40,11 +40,11 @@ public class UnbindServiceFromApplicationStep extends TimeoutAsyncFlowableStep {
         CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
         String serviceInstanceName = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
         getStepLogger().info(Messages.UNBINDING_SERVICE_INSTANCE_FROM_APP, serviceInstanceName, app.getName());
-        return deleteServiceBinding(context, () -> controllerClient.unbindServiceInstance(app.getName(), serviceInstanceName,
-                                                                                          getApplicationServicesUpdateCallback(context,
-                                                                                                                               controllerClient)),
-                                    () -> MessageFormat.format(Messages.UNBINDING_SERVICE_INSTANCE_FROM_APP_FINISHED, serviceInstanceName,
-                                                               app.getName()));
+        return deleteServiceBindings(context, () -> controllerClient.unbindServiceInstance(app.getName(), serviceInstanceName,
+                                                                                           getApplicationServicesUpdateCallback(context,
+                                                                                                                                controllerClient)),
+                                     () -> MessageFormat.format(Messages.UNBINDING_SERVICE_INSTANCE_FROM_APP_FINISHED, serviceInstanceName,
+                                                                app.getName()));
     }
 
     private StepPhase deleteServiceBinding(ProcessContext context, Supplier<Optional<String>> serviceBindingJobSupplier,
@@ -58,6 +58,20 @@ public class UnbindServiceFromApplicationStep extends TimeoutAsyncFlowableStep {
             return StepPhase.DONE;
         }
         context.setVariable(Variables.SERVICE_UNBINDING_JOB_ID, jobId.get());
+        return StepPhase.POLL;
+    }
+
+    private StepPhase deleteServiceBindings(ProcessContext context, Supplier<List<String>> serviceBindingJobsSupplier,
+                                            Supplier<String> messageSupplier) {
+        List<String> jobIds = serviceBindingJobsSupplier.get();
+        if (context.getVariable(Variables.USE_LAST_OPERATION_FOR_SERVICE_BINDING_DELETION)) {
+            return StepPhase.POLL;
+        }
+        if (jobIds.isEmpty()) {
+            getStepLogger().infoWithoutProgressMessage(messageSupplier.get());
+            return StepPhase.DONE;
+        }
+        context.setVariable(Variables.SERVICE_UNBINDING_JOB_IDS, jobIds);
         return StepPhase.POLL;
     }
 

@@ -1,5 +1,17 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
+import jakarta.xml.bind.DatatypeConverter;
+import org.cloudfoundry.multiapps.controller.persistence.Constants;
+import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
+import org.cloudfoundry.multiapps.controller.persistence.Messages;
+import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.query.providers.ExternalSqlFileQueryProvider;
+import org.cloudfoundry.multiapps.controller.persistence.query.providers.SqlFileQueryProvider;
+import org.cloudfoundry.multiapps.controller.persistence.util.SqlQueryExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,19 +27,6 @@ import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-
-import org.cloudfoundry.multiapps.controller.persistence.Constants;
-import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
-import org.cloudfoundry.multiapps.controller.persistence.Messages;
-import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
-import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
-import org.cloudfoundry.multiapps.controller.persistence.query.providers.ExternalSqlFileQueryProvider;
-import org.cloudfoundry.multiapps.controller.persistence.query.providers.SqlFileQueryProvider;
-import org.cloudfoundry.multiapps.controller.persistence.util.SqlQueryExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import jakarta.xml.bind.DatatypeConverter;
 
 public class FileService {
 
@@ -77,19 +76,11 @@ public class FileService {
 
     public List<FileEntry> listFiles(String space, String namespace) throws FileStorageException {
         try {
-            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getListFilesQuery(space, namespace));
+            List<FileEntry> fileEntriesFromDb = getSqlQueryExecutor().execute(
+                getSqlFileQueryProvider().getListFilesQuery(space, namespace));
+            return fileStorage.getExistingFileEntries(fileEntriesFromDb);
         } catch (SQLException e) {
             throw new FileStorageException(MessageFormat.format(Messages.ERROR_GETTING_FILES_WITH_SPACE_AND_NAMESPACE, space, namespace),
-                                           e);
-        }
-    }
-
-    public List<FileEntry> listFilesBySpaceAndOperationId(String space, String operationId) throws FileStorageException {
-        try {
-            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getListFilesBySpaceAndOperationId(space, operationId));
-        } catch (SQLException e) {
-            throw new FileStorageException(MessageFormat.format(Messages.ERROR_GETTING_FILES_WITH_SPACE_AND_OPERATION_ID, space,
-                                                                operationId),
                                            e);
         }
     }

@@ -44,6 +44,9 @@ class CheckServiceBindingOperationStepTest extends SyncFlowableStepTest<CheckSer
 
     @Test
     void testCheckBindingWhenBindingDoesNotExist() {
+        when(client.getServiceBindingsForApplication(APP_GUID, SERVICE_INSTANCE_GUID)).thenReturn(List.of());
+        when(client.getApplicationGuid(APP_NAME)).thenReturn(APP_GUID);
+        when(client.getRequiredServiceInstanceGuid(SERVICE_INSTANCE_NAME)).thenReturn(SERVICE_INSTANCE_GUID);
         step.execute(execution);
         assertStepFinishedSuccessfully();
     }
@@ -68,7 +71,7 @@ class CheckServiceBindingOperationStepTest extends SyncFlowableStepTest<CheckSer
     void testCheckServiceBindingWhichIsInDifferentStates(ServiceCredentialBindingOperation.State bindingState,
                                                          StepPhase expectedStepPhase) {
         CloudServiceBinding serviceBinding = buildCloudServiceBinding(bindingState);
-        when(client.getServiceBindingForApplication(APP_GUID, SERVICE_INSTANCE_GUID)).thenReturn(serviceBinding);
+        when(client.getServiceBindingsForApplication(APP_GUID, SERVICE_INSTANCE_GUID)).thenReturn(List.of(serviceBinding));
         when(client.getApplicationGuid(APP_NAME)).thenReturn(APP_GUID);
         when(client.getRequiredServiceInstanceGuid(SERVICE_INSTANCE_NAME)).thenReturn(SERVICE_INSTANCE_GUID);
         step.execute(execution);
@@ -76,9 +79,33 @@ class CheckServiceBindingOperationStepTest extends SyncFlowableStepTest<CheckSer
     }
 
     @Test
+    void testCheckServiceBindingWhichIsInDifferentStatesMultipleBindings() {
+        CloudServiceBinding succeededBinding = buildCloudServiceBinding(ServiceCredentialBindingOperation.State.SUCCEEDED);
+        CloudServiceBinding inProgressBinding = buildCloudServiceBinding(ServiceCredentialBindingOperation.State.IN_PROGRESS);
+        // when any binding is non-SUCCEEDED, the non-SUCCEEDED one is selected for state checking
+        when(client.getServiceBindingsForApplication(APP_GUID, SERVICE_INSTANCE_GUID)).thenReturn(
+            List.of(succeededBinding, inProgressBinding));
+        when(client.getApplicationGuid(APP_NAME)).thenReturn(APP_GUID);
+        when(client.getRequiredServiceInstanceGuid(SERVICE_INSTANCE_NAME)).thenReturn(SERVICE_INSTANCE_GUID);
+        step.execute(execution);
+        assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
+    }
+
+    @Test
+    void testCheckServiceBindingAllSucceededMultipleBindings() {
+        CloudServiceBinding binding1 = buildCloudServiceBinding(ServiceCredentialBindingOperation.State.SUCCEEDED);
+        CloudServiceBinding binding2 = buildCloudServiceBinding(ServiceCredentialBindingOperation.State.SUCCEEDED);
+        when(client.getServiceBindingsForApplication(APP_GUID, SERVICE_INSTANCE_GUID)).thenReturn(List.of(binding1, binding2));
+        when(client.getApplicationGuid(APP_NAME)).thenReturn(APP_GUID);
+        when(client.getRequiredServiceInstanceGuid(SERVICE_INSTANCE_NAME)).thenReturn(SERVICE_INSTANCE_GUID);
+        step.execute(execution);
+        assertStepFinishedSuccessfully();
+    }
+
+    @Test
     void testThrowExceptionWhenFetchingServiceBinding() {
-        when(client.getServiceBindingForApplication(APP_GUID,
-                                                    SERVICE_INSTANCE_GUID)).thenThrow(
+        when(client.getServiceBindingsForApplication(APP_GUID,
+                                                     SERVICE_INSTANCE_GUID)).thenThrow(
             new CloudOperationException(HttpStatus.SERVICE_UNAVAILABLE));
         when(client.getApplicationGuid(APP_NAME)).thenReturn(APP_GUID);
         when(client.getRequiredServiceInstanceGuid(SERVICE_INSTANCE_NAME)).thenReturn(SERVICE_INSTANCE_GUID);
@@ -91,8 +118,8 @@ class CheckServiceBindingOperationStepTest extends SyncFlowableStepTest<CheckSer
 
     @Test
     void testThrowExceptionWhenFetchingServiceBindingWithOptionalService() {
-        when(client.getServiceBindingForApplication(APP_GUID,
-                                                    SERVICE_INSTANCE_GUID)).thenThrow(new CloudOperationException(HttpStatus.BAD_GATEWAY));
+        when(client.getServiceBindingsForApplication(APP_GUID,
+                                                     SERVICE_INSTANCE_GUID)).thenThrow(new CloudOperationException(HttpStatus.BAD_GATEWAY));
         CloudServiceInstanceExtended optionalServiceInstance = buildOptionalCloudServiceInstanceExtended();
         context.setVariable(Variables.SERVICES_TO_BIND, List.of(optionalServiceInstance));
         when(client.getApplicationGuid(APP_NAME)).thenReturn(APP_GUID);

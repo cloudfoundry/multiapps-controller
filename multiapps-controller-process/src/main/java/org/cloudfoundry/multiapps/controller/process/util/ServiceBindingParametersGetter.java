@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -14,12 +15,12 @@ import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.BindingDetails;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
@@ -34,14 +35,11 @@ public class ServiceBindingParametersGetter {
 
     private final ArchiveEntryExtractor archiveEntryExtractor;
     private final long maxManifestSize;
-    private final FileService fileService;
 
-    public ServiceBindingParametersGetter(ProcessContext context, ArchiveEntryExtractor archiveEntryExtractor, long maxManifestSize,
-                                          FileService fileService) {
+    public ServiceBindingParametersGetter(ProcessContext context, ArchiveEntryExtractor archiveEntryExtractor, long maxManifestSize) {
         this.context = context;
         this.archiveEntryExtractor = archiveEntryExtractor;
         this.maxManifestSize = maxManifestSize;
-        this.fileService = fileService;
     }
 
     public Map<String, Object> getServiceBindingParametersFromMta(CloudApplicationExtended app, String serviceName) {
@@ -131,13 +129,21 @@ public class ServiceBindingParametersGetter {
     public Map<String, Object> getServiceBindingParametersFromExistingInstance(CloudApplication application, String serviceName) {
         CloudControllerClient client = context.getControllerClient();
         UUID serviceGuid = client.getRequiredServiceInstanceGuid(serviceName);
-        CloudServiceBinding serviceBinding = client.getServiceBindingForApplication(application.getGuid(), serviceGuid);
-        if (serviceBinding == null) {
+        return getServiceBindingParametersFromExistingInstance(application, serviceName, serviceGuid);
+    }
+
+    public Map<String, Object> getServiceBindingParametersFromExistingInstance(CloudApplication application, String serviceName,
+                                                                               UUID serviceInstanceGuid) {
+        CloudControllerClient client = context.getControllerClient();
+        List<CloudServiceBinding> serviceBindings = client.getServiceBindingsForApplication(application.getGuid(), serviceInstanceGuid);
+        Optional<CloudServiceBinding> serviceBindingOptional = selectNewestBinding(serviceBindings);
+        if (serviceBindingOptional.isEmpty()) {
             throw new SLException(Messages.SERVICE_INSTANCE_0_NOT_BOUND_TO_APP_1, serviceName, application.getName());
         }
 
         try {
-            return client.getServiceBindingParameters(serviceBinding.getGuid());
+            return client.getServiceBindingParameters(serviceBindingOptional.get()
+                                                                            .getGuid());
         } catch (CloudOperationException e) {
             if (HttpStatus.NOT_IMPLEMENTED == e.getStatusCode() || HttpStatus.BAD_REQUEST == e.getStatusCode()) {
                 // ignore 501 and 400 error codes from service brokers
@@ -156,6 +162,17 @@ public class ServiceBindingParametersGetter {
             }
             throw e;
         }
+    }
+
+    private Optional<CloudServiceBinding> selectNewestBinding(List<CloudServiceBinding> bindings) {
+        return bindings.stream()
+                       .filter(binding -> binding.getServiceBindingOperation()
+                                                 .getState() == ServiceCredentialBindingOperation.State.SUCCEEDED)
+                       .max(Comparator.comparing(binding -> binding.getMetadata()
+                                                                   .getCreatedAt()))
+                       .or(() -> bindings.stream()
+                                         .max(Comparator.comparing(binding -> binding.getMetadata()
+                                                                                     .getCreatedAt())));
     }
 
 }

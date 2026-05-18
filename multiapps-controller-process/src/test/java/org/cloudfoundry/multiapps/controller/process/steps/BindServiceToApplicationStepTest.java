@@ -122,7 +122,7 @@ class BindServiceToApplicationStepTest extends SyncFlowableStepTest<BindServiceT
 
     private void handleServiceAlreadyBoundErrorInCallback(ProcessContext customProcessContext) {
         CloudOperationException cloudException = new CloudControllerException(HttpStatus.UNPROCESSABLE_ENTITY);
-        when(client.getServiceBindingForApplication(any(), any())).thenReturn(buildCloudServiceBinding());
+        when(client.getServiceBindingsForApplication(any(), any())).thenReturn(List.of(buildCloudServiceBinding()));
         new DefaultApplicationServicesUpdateCallback(customProcessContext, client).onError(cloudException, APPLICATION_NAME, SERVICE_NAME);
     }
 

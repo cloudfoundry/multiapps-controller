@@ -1,18 +1,6 @@
 package org.cloudfoundry.multiapps.controller.web.api.impl;
 
-import java.io.InputStream;
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.FutureTask;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.AsyncUploadResult;
@@ -30,12 +18,12 @@ import org.cloudfoundry.multiapps.controller.persistence.query.AsyncUploadJobsQu
 import org.cloudfoundry.multiapps.controller.persistence.services.AsyncUploadJobService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
+import org.cloudfoundry.multiapps.controller.web.monitoring.ApiUsageLogger;
 import org.cloudfoundry.multiapps.controller.web.upload.AsyncUploadJobOrchestrator;
 import org.cloudfoundry.multiapps.controller.web.upload.exception.RejectedAsyncUploadJobException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -46,6 +34,21 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.FutureTask;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -72,21 +75,27 @@ class FilesApiServiceImplTest {
     private MultipartHttpServletRequest request;
     @Mock
     private MultipartFile file;
-    @InjectMocks
-    private final FilesApiServiceImpl testedClass = new FilesApiServiceImpl();
     @Mock
     private FilesApiServiceAuditLog filesApiServiceAuditLog;
-    @Mock(name = "fileStorageThreadPool")
+    @Mock
+    private ApiUsageLogger apiUsageLogger;
+    @Mock
     private ExecutorService fileStorageThreadPool;
     @Mock
     private AsyncUploadJobOrchestrator asyncUploadJobOrchestrator;
     @Mock
     private AsyncUploadJobService uploadJobService;
+    @Mock
+    private HttpServletRequest httpServletRequest;
+
+    private FilesApiServiceImpl testedClass;
 
     @BeforeEach
     public void initialize() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
+        testedClass = new FilesApiServiceImpl(fileService, uploadJobService, filesApiServiceAuditLog, asyncUploadJobOrchestrator,
+                                             apiUsageLogger, fileStorageThreadPool, httpServletRequest);
         SecurityContextHolder.clearContext();
         var user = new UserInfo("user1", "user1", null);
         var token = new DefaultOAuth2User(Collections.emptyList(), Map.of("user_info", user), "user_info");
