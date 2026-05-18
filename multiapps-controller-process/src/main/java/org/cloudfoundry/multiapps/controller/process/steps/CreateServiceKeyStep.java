@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +14,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredent
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceKeyPollingFactory;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -20,7 +22,7 @@ import org.springframework.http.HttpStatus;
 
 @Named("createServiceKeyStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CreateServiceKeyStep extends AsyncFlowableStep {
+public class CreateServiceKeyStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) throws Exception {
@@ -81,4 +83,8 @@ public class CreateServiceKeyStep extends AsyncFlowableStep {
         return MessageFormat.format(Messages.ERROR_WHILE_CREATING_SERVICE_KEY_0, serviceKeyToCreate.getName());
     }
 
+    @Override
+    public Duration getTimeout(ProcessContext context) {
+        return calculateTimeout(context, TimeoutType.CREATE_SERVICE_KEY);
+    }
 }
