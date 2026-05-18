@@ -91,9 +91,9 @@ public class ServicesCloudModelBuilder {
                                                         commonServiceParameters.failOnServiceParametersUpdateFailure())
                                                     .shouldFailOnPlanUpdateFailure(commonServiceParameters.failOnServicePlanUpdateFailure())
                                                     .shouldFailOnTagsUpdateFailure(commonServiceParameters.failOnServiceTagsUpdateFailure())
-                                                    .createServiceTimeout(extractTimeoutValue(parameters, "create-service-timeout"))
-                                                    .bindServiceTimeout(extractTimeoutValue(parameters, "bind-service-timeout"))
-                                                    .createServiceKeyTimeout(extractTimeoutValue(parameters, "create-service-key-timeout"))
+                                                    .createServiceTimeout(extractTimeoutValue(parameters, SupportedParameters.CREATE_SERVICE_TIMEOUT))
+                                                    .bindServiceTimeout(extractTimeoutValue(parameters, SupportedParameters.BIND_SERVICE_TIMEOUT))
+                                                    .createServiceKeyTimeout(extractTimeoutValue(parameters, SupportedParameters.CREATE_SERVICE_KEY_TIMEOUT))
                                                     .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource))
                                                     .build();
     }
@@ -126,9 +126,9 @@ public class ServicesCloudModelBuilder {
                                                         commonServiceParameters.failOnServiceParametersUpdateFailure())
                                                     .shouldFailOnPlanUpdateFailure(commonServiceParameters.failOnServicePlanUpdateFailure())
                                                     .shouldFailOnTagsUpdateFailure(commonServiceParameters.failOnServiceTagsUpdateFailure())
-                                                    .createServiceTimeout(extractTimeoutValue(parameters, "create-service-timeout"))
-                                                    .bindServiceTimeout(extractTimeoutValue(parameters, "bind-service-timeout"))
-                                                    .createServiceKeyTimeout(extractTimeoutValue(parameters, "create-service-key-timeout"))
+                                                    .createServiceTimeout(extractTimeoutValue(parameters, SupportedParameters.CREATE_SERVICE_TIMEOUT))
+                                                    .bindServiceTimeout(extractTimeoutValue(parameters, SupportedParameters.BIND_SERVICE_TIMEOUT))
+                                                    .createServiceKeyTimeout(extractTimeoutValue(parameters, SupportedParameters.CREATE_SERVICE_KEY_TIMEOUT))
                                                     .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource))
                                                     .build();
     }
@@ -147,9 +147,9 @@ public class ServicesCloudModelBuilder {
                                                         commonServiceParameters.failOnServiceParametersUpdateFailure())
                                                     .shouldFailOnPlanUpdateFailure(commonServiceParameters.failOnServicePlanUpdateFailure())
                                                     .shouldFailOnTagsUpdateFailure(commonServiceParameters.failOnServiceTagsUpdateFailure())
-                                                    .createServiceTimeout(extractTimeoutValue(parameters, "create-service-timeout"))
-                                                    .bindServiceTimeout(extractTimeoutValue(parameters, "bind-service-timeout"))
-                                                    .createServiceKeyTimeout(extractTimeoutValue(parameters, "create-service-key-timeout"))
+                                                    .createServiceTimeout(extractTimeoutValue(parameters, SupportedParameters.CREATE_SERVICE_TIMEOUT))
+                                                    .bindServiceTimeout(extractTimeoutValue(parameters, SupportedParameters.BIND_SERVICE_TIMEOUT))
+                                                    .createServiceKeyTimeout(extractTimeoutValue(parameters, SupportedParameters.CREATE_SERVICE_KEY_TIMEOUT))
                                                     .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource))
                                                     .build();
     }
