@@ -16,6 +16,7 @@ import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Resource;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -30,6 +31,7 @@ import static org.mockito.Mockito.when;
 class TimeoutServiceResourceNameResolverTest {
 
     private TimeoutServiceResourceNameResolver resolver;
+    private AutoCloseable mockitoCloseable;
 
     @Mock
     private ProcessContext context;
@@ -39,11 +41,13 @@ class TimeoutServiceResourceNameResolverTest {
 
     @BeforeEach
     void setUp() {
-        try (var closeable = MockitoAnnotations.openMocks(this)) {
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        mockitoCloseable = MockitoAnnotations.openMocks(this);
         resolver = new TimeoutServiceResourceNameResolver();
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        mockitoCloseable.close();
     }
 
     @Test
@@ -325,11 +329,5 @@ class TimeoutServiceResourceNameResolverTest {
     }
 
 }
-
-
-
-
-
-
 
 

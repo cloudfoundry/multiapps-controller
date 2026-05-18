@@ -30,7 +30,8 @@ class TimeoutValueResolverTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        MockitoAnnotations.openMocks(this).close();
+        MockitoAnnotations.openMocks(this)
+                          .close();
         timeoutValueResolver = new TimeoutValueResolver();
     }
 
@@ -42,7 +43,7 @@ class TimeoutValueResolverTest {
         when(context.getVariable(Variables.APP_TO_PROCESS)).thenReturn(null);
         when(context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR)).thenReturn(null);
 
-        TimeoutValueResolver.TimeoutResolution resolution = 
+        TimeoutValueResolver.TimeoutResolution resolution =
             timeoutValueResolver.resolveTimeout(context, TimeoutType.UPLOAD, stepLogger);
 
         assertNotNull(resolution);
@@ -59,15 +60,11 @@ class TimeoutValueResolverTest {
         when(context.getVariable(Variables.APP_TO_PROCESS)).thenReturn(app);
         when(context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR)).thenReturn(null);
 
-        TimeoutValueResolver.TimeoutResolution resolution = 
+        TimeoutValueResolver.TimeoutResolution resolution =
             timeoutValueResolver.resolveTimeout(context, TimeoutType.START, stepLogger);
 
         assertNotNull(resolution);
         assertNotNull(resolution.timeout());
-    }
-
-    @Test
-    void testResolveTimeoutFromDescriptorParameters() {
     }
 
     @Test
@@ -78,7 +75,7 @@ class TimeoutValueResolverTest {
         when(context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS)).thenReturn(null);
         when(context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR)).thenReturn(null);
 
-        TimeoutValueResolver.TimeoutResolution resolution = 
+        TimeoutValueResolver.TimeoutResolution resolution =
             timeoutValueResolver.resolveTimeout(context, TimeoutType.UPLOAD, stepLogger);
 
         assertNotNull(resolution);
@@ -108,21 +105,21 @@ class TimeoutValueResolverTest {
 
     @Test
     void testToDurationThrowsExceptionForNegativeValue() {
-        assertThrows(ContentException.class, () -> 
+        assertThrows(ContentException.class, () ->
             timeoutValueResolver.toDuration(-1, "testParam", 3600)
         );
     }
 
     @Test
     void testToDurationThrowsExceptionForValueExceedingMax() {
-        assertThrows(ContentException.class, () -> 
+        assertThrows(ContentException.class, () ->
             timeoutValueResolver.toDuration(3601, "testParam", 3600)
         );
     }
 
     @Test
     void testToDurationThrowsExceptionForNonNumberValue() {
-        assertThrows(ContentException.class, () -> 
+        assertThrows(ContentException.class, () ->
             timeoutValueResolver.toDuration("invalid", "testParam", 3600)
         );
     }
