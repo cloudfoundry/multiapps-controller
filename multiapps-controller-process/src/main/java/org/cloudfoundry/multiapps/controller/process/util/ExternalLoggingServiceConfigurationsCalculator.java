@@ -78,10 +78,15 @@ public class ExternalLoggingServiceConfigurationsCalculator {
 
     private CloudServiceKey getCloudLoggingServiceKey(String serviceInstanceName, String serviceKeyName, String destinationOrg,
                                                       String destinationSpace, boolean isFailSafe) {
-        if (serviceKeyName == null || serviceKeyName.isBlank()) {
-
-        }
         String correlationId = context.getVariable(Variables.CORRELATION_ID);
+        if (areCloudLoggingParametersValid(serviceInstanceName, serviceKeyName)) {
+            if (isFailSafe) {
+                return null;
+            } else {
+                throw new SLException(
+                    MessageFormat.format("No logging service key found for operation {0}, skipping log export", correlationId));
+            }
+        }
         CloudControllerClient client1 = calculateExternalLoggingServiceConfiguration(destinationOrg, destinationSpace);
         try {
             CloudServiceKey loggingServiceKey = client1.getServiceKey(serviceInstanceName, serviceKeyName);
@@ -103,14 +108,14 @@ public class ExternalLoggingServiceConfigurationsCalculator {
         }
     }
 
-    private boolean areCloudLoggingParametersValid() {
-
+    private boolean areCloudLoggingParametersValid(String serviceInstanceName, String serviceKeyName) {
+        return serviceInstanceName == null || serviceInstanceName.isBlank() || serviceKeyName == null || serviceKeyName.isBlank();
     }
 
     private String getServiceKeyName(Resource resource) {
         List<Map<String, Object>> serviceKeys = MiscUtil.cast(resource.getParameters()
                                                                       .get(SupportedParameters.SERVICE_KEYS));
-        if (serviceKeys != null || serviceKeys.isEmpty()) {
+        if (serviceKeys == null || serviceKeys.isEmpty()) {
             return null;
         }
         return MiscUtil.cast(serviceKeys.get(0)
@@ -150,9 +155,8 @@ public class ExternalLoggingServiceConfigurationsCalculator {
 
     private CloudServiceKey getServiceKeyWithResource(Resource resource) {
         return getCloudLoggingServiceKey(getServiceInstanceName(resource), getServiceKeyName(resource),
-                                         getDestination(resource).get("org-name")
-                                                                 .toString(), getDestination(resource).get("space-name")
-                                                                                                      .toString(),
+                                         getTargetOrg(resource, context.getVariable(Variables.ORGANIZATION_NAME)),
+                                         getTargetSpace(resource, context.getVariable(Variables.SPACE_NAME)),
                                          resource.isOptional());
     }
 
@@ -219,6 +223,10 @@ public class ExternalLoggingServiceConfigurationsCalculator {
     }
 
     private String getTargetOrg(Resource resource, String org) {
+        Map<String, Object> destination = getDestination(resource);
+        if (destination == null) {
+            return org;
+        }
         return getDestination(resource).get("org-name") == null
             ? org
             : getDestination(resource).get("org-name")
@@ -226,10 +234,14 @@ public class ExternalLoggingServiceConfigurationsCalculator {
     }
 
     private String getTargetSpace(Resource resource, String space) {
-        return getDestination(resource).get("space-name") == null
+        Map<String, Object> destination = getDestination(resource);
+        if (destination == null) {
+            return space;
+        }
+        return destination.get("space-name") == null
             ? space
-            : getDestination(resource).get("space-name")
-                                      .toString();
+            : destination.get("space-name")
+                         .toString();
     }
 
     private Map<String, Object> getDestination(Resource resource) {
