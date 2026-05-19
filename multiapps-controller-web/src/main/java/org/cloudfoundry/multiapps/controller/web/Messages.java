@@ -17,7 +17,6 @@ public final class Messages {
     public static final String FILE_URL_RESPONSE_DID_NOT_RETURN_CONTENT_LENGTH_FOR_JOB_WITH_ID = "File URL response did not return Content-Length header. Job id: {0}";
     public static final String ERROR_FROM_REMOTE_MTAR_ENDPOINT_FOR_JOB_WITH_ID = "Error from remote MTAR endpoint {0} with status code {1}, message: {2}. Job id: {3}";
     public static final String MTAR_ENDPOINT_NOT_SECURE_FOR_JOB_WITH_ID = "Remote MTAR endpoint is not a secure connection. HTTPS required. Job id: {0}";
-    public static final String CANNOT_PARSE_CONTAINER_URI_OF_OBJECT_STORE = "Cannot parse container_uri of object store";
     public static final String REQUEST_0_1_FAILED_WITH_2 = "Request \"{0} {1}\" failed with \"{2}\"";
     public static final String ERROR_OCCURRED_WHILE_DELETING_JOB_ENTRY = "Error occurred while deleting job entry";
     public static final String CANNOT_CREATE_OBJECT_STORE_CLIENT_WITH_PROVIDER_0 = "Cannot create Object Store client with provider: {0}";

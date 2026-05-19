@@ -12,7 +12,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.azure.core.http.HttpClient;
-import com.azure.core.http.okhttp.OkHttpAsyncHttpClientBuilder;
+import com.azure.core.http.jdk.httpclient.JdkHttpClientBuilder;
 import com.azure.core.http.policy.ExponentialBackoffOptions;
 import com.azure.core.http.policy.RetryOptions;
 import com.azure.storage.blob.BlobClient;
@@ -24,6 +24,7 @@ import com.azure.storage.blob.models.BlobListDetails;
 import com.azure.storage.blob.models.BlobRange;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.models.ListBlobsOptions;
+import com.azure.storage.blob.models.ParallelTransferOptions;
 import com.azure.storage.blob.options.BlobParallelUploadOptions;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
@@ -31,28 +32,36 @@ import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreConstan
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreFilter;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreMapper;
 
-public class AzureObjectStoreFileStorage implements FileStorage {
+public class AzureObjectStoreFileStorage extends ObjectStoreFileStorage {
 
     private static final String SAS_TOKEN = "sas_token";
     private static final String CONTAINER_NAME = "container_name";
     private static final String CONTAINER_URI = "container_uri";
+    private static final long MAX_SINGLE_UPLOAD_SIZE = 15L * 1024 * 1024; // 15MB
+    private static final long BLOCK_SIZE = 8L * 1024 * 1024;              // 8MB
+    private static final int MAX_CONCURRENCY = 5;
     private final HttpClient httpClient;
     private final BlobContainerClient containerClient;
 
     public AzureObjectStoreFileStorage(Map<String, Object> credentials) {
         this.containerClient = createContainerClient(credentials);
-        this.httpClient = new OkHttpAsyncHttpClientBuilder().build();
+        this.httpClient = new JdkHttpClientBuilder().build();
     }
 
     @Override
     public void addFile(FileEntry fileEntry, InputStream content) throws FileStorageException {
         BlobClient blobClient = containerClient.getBlobClient(fileEntry.getId());
         try {
+            ParallelTransferOptions pto = new ParallelTransferOptions().setMaxSingleUploadSizeLong(MAX_SINGLE_UPLOAD_SIZE)
+                                                                       .setMaxConcurrency(MAX_CONCURRENCY)
+                                                                       .setBlockSizeLong(BLOCK_SIZE);
+
             BlobParallelUploadOptions blobParallelUploadOptions = new BlobParallelUploadOptions(content);
+            blobParallelUploadOptions.setParallelTransferOptions(pto);
             blobParallelUploadOptions.setMetadata(ObjectStoreMapper.createFileEntryMetadata(fileEntry));
 
-            blobClient.uploadWithResponse(blobParallelUploadOptions, ObjectStoreConstants.OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES,
-                                          null);
+            blobClient.uploadWithResponse(blobParallelUploadOptions,
+                                          ObjectStoreConstants.AZURE_OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES, null);
         } catch (BlobStorageException e) {
             throw new FileStorageException(e);
         }
@@ -64,6 +73,12 @@ public class AzureObjectStoreFileStorage implements FileStorage {
         return fileEntries.stream()
                           .filter(fileEntry -> !existingFiles.contains(fileEntry.getId()))
                           .toList();
+    }
+
+    @Override
+    protected boolean existsInObjectStore(FileEntry fileEntry) {
+        return containerClient.getBlobClient(fileEntry.getId())
+                              .exists();
     }
 
     @Override
@@ -196,7 +211,7 @@ public class AzureObjectStoreFileStorage implements FileStorage {
         BlobListDetails blobListDetails = new BlobListDetails().setRetrieveMetadata(true);
         ListBlobsOptions listBlobsOptions = new ListBlobsOptions().setDetails(blobListDetails);
 
-        return containerClient.listBlobs(listBlobsOptions, ObjectStoreConstants.OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES)
+        return containerClient.listBlobs(listBlobsOptions, ObjectStoreConstants.AZURE_OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES)
                               .stream()
                               .filter(filter)
                               .map(BlobItem::getName)
@@ -205,7 +220,7 @@ public class AzureObjectStoreFileStorage implements FileStorage {
 
     public Set<String> getAllEntriesNames() {
         ListBlobsOptions listOptions = new ListBlobsOptions();
-        return containerClient.listBlobs(listOptions, ObjectStoreConstants.OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES)
+        return containerClient.listBlobs(listOptions, ObjectStoreConstants.AZURE_OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES)
                               .stream()
                               .map(BlobItem::getName)
                               .collect(Collectors.toSet());

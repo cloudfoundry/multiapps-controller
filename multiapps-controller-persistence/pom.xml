@@ -109,7 +109,7 @@
         </dependency>
         <dependency>
             <groupId>com.azure</groupId>
-            <artifactId>azure-core-http-okhttp</artifactId>
+            <artifactId>azure-core-http-jdk-httpclient</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.jclouds</groupId>

@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.web.configuration.service;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.web.Constants;
 
 public class ObjectStoreServiceInfoCreator {
