@@ -7,6 +7,8 @@ public class CloudFoundryTokenProvider implements TokenProvider {
 
     private final OAuthClient client;
 
+    private static final int TEST = 0;
+
     public CloudFoundryTokenProvider(OAuthClient client) {
         this.client = client;
     }
