@@ -2,20 +2,17 @@ package org.cloudfoundry.multiapps.controller.web.interceptors;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-
+import io.github.resilience4j.ratelimiter.RateLimiterConfig;
+import io.github.resilience4j.ratelimiter.internal.AtomicRateLimiter;
+import io.github.resilience4j.ratelimiter.internal.AtomicRateLimiter.AtomicRateLimiterMetrics;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.util.RateLimiterProvider;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-
-import io.github.resilience4j.ratelimiter.RateLimiterConfig;
-import io.github.resilience4j.ratelimiter.internal.AtomicRateLimiter;
-import io.github.resilience4j.ratelimiter.internal.AtomicRateLimiter.AtomicRateLimiterMetrics;
 
 @Named
 public class RateLimitingInterceptor implements CustomHandlerInterceptor {
@@ -32,7 +29,7 @@ public class RateLimitingInterceptor implements CustomHandlerInterceptor {
         if (!shouldRateLimit(request)) {
             return true;
         }
-        String ipAddress = request.getRemoteAddr();
+        String ipAddress = resolveClientIp(request);
         AtomicRateLimiter rateLimiter = rateLimiterProvider.getRateLimiter(ipAddress);
 
         boolean hasAcquiredPermission = rateLimiter.acquirePermission();
@@ -52,6 +49,15 @@ public class RateLimitingInterceptor implements CustomHandlerInterceptor {
 
     private static boolean shouldRateLimit(HttpServletRequest request) {
         return request.getHeader(HttpHeaders.AUTHORIZATION) == null;
+    }
+
+    private static String resolveClientIp(HttpServletRequest request) {
+        String trueClientIp = request.getHeader(Constants.X_CF_TRUE_CLIENT_IP_HEADER);
+        if (trueClientIp != null && !trueClientIp.isBlank()) {
+
+            return trueClientIp;
+        }
+        return request.getRemoteAddr();
     }
 
     private static long getUtcTimeForNextReset(long nanosToWaitForReset) {
