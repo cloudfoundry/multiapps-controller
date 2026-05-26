@@ -70,7 +70,7 @@ class RawCloudRouteTest {
                             .url(HOST + "." + DOMAIN_NAME)
                             .addAllDestinations(DESTINATIONS)
                             .options(RouteOptions.builder()
-                                                 .value("loadbalancing", "round-robin")
+                                                 .loadbalancing("round-robin")
                                                  .build())
                             .build();
     }

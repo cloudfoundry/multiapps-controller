@@ -1990,13 +1990,11 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
         if (routeResource == null) {
             return doAddRoute(domainGuid, host, path, options);
         }
-        if (!Objects.equals(routeResource.getOptions()
-                                         .getValues(), options)) {
+        RouteOptions desiredOptions = toRouteOptions(options);
+        if (!Objects.equals(routeResource.getOptions(), desiredOptions)) {
             UpdateRouteRequest request = UpdateRouteRequest.builder()
                                                            .routeId(routeResource.getId())
-                                                           .options(RouteOptions.builder()
-                                                                                .values(options)
-                                                                                .build())
+                                                           .options(desiredOptions)
                                                            .build();
             UpdateRouteResponse response = delegate.routesV3()
                                                    .update(request)
@@ -2018,12 +2016,21 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
                                                                                                           .space(buildToOneRelationship(
                                                                                                               getTargetSpaceGuid()))
                                                                                                           .build())
-                                                                         .options(RouteOptions.builder()
-                                                                                              .values(options)
-                                                                                              .build())
+                                                                         .options(toRouteOptions(options))
                                                                          .build())
                                                .block();
         return getGuid(response);
+    }
+
+    private RouteOptions toRouteOptions(Map<String, Object> options) {
+        if (options == null || options.isEmpty()) {
+            return null;
+        }
+        return RouteOptions.builder()
+                           .loadbalancing((String) options.get("loadbalancing"))
+                           .hashHeader((String) options.get("hash_header"))
+                           .hashBalance((String) options.get("hash_balance"))
+                           .build();
     }
 
     private void doCreateDomain(String name) {

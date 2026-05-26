@@ -1,11 +1,14 @@
 package org.cloudfoundry.multiapps.controller.client.facade.adapters;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.v3.routes.Route;
+import org.cloudfoundry.client.v3.routes.RouteOptions;
 import org.cloudfoundry.multiapps.controller.client.facade.Nullable;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudDomain;
@@ -46,9 +49,25 @@ public abstract class RawCloudRoute extends RawCloudEntity<CloudRoute> {
                                   .url(route.getUrl())
                                   .destinations(destinations)
                                   .requestedProtocol(computeRequestedProtocol(destinations))
-                                  .options(route.getOptions()
-                                                .getValues())
+                                  .options(toOptionsMap(route.getOptions()))
                                   .build();
+    }
+
+    private static Map<String, Object> toOptionsMap(RouteOptions options) {
+        Map<String, Object> result = new HashMap<>();
+        if (options == null) {
+            return result;
+        }
+        if (options.getLoadbalancing() != null) {
+            result.put("loadbalancing", options.getLoadbalancing());
+        }
+        if (options.getHashHeader() != null) {
+            result.put("hash_header", options.getHashHeader());
+        }
+        if (options.getHashBalance() != null) {
+            result.put("hash_balance", options.getHashBalance());
+        }
+        return result;
     }
 
     private static String computeDomain(Route route) {
