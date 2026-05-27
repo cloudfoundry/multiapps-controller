@@ -176,7 +176,9 @@ public class JCloudsObjectStoreFileStorage extends ObjectStoreFileStorage {
 
     @Override
     public void testConnection() {
-        blobStore.blobExists(container, "test");
+        if (!blobStore.containerExists(container)) {
+            throw new IllegalStateException(MessageFormat.format(Messages.OBJECT_STORE_BUCKET_NOT_FOUND, container));
+        }
     }
 
     @Override

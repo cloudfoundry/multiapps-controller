@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.persistence.services;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.contrib.nio.testing.LocalStorageHelper;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
@@ -20,8 +21,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
@@ -149,6 +152,33 @@ class GcpObjectStoreFileStorageTest extends JCloudsObjectStoreFileStorageTest {
         mockedGcpFileStorage.getExistingFileEntries(List.of(entry));
 
         verify(mockedStorage).get(List.of(BlobId.of(CONTAINER, entry.getId())));
+    }
+
+    @Override
+    @Test
+    void testConnection() {
+        Bucket mockBucket = mock(Bucket.class);
+        when(mockedStorage.get(CONTAINER)).thenReturn(mockBucket);
+        assertDoesNotThrow(mockedGcpFileStorage::testConnection);
+    }
+
+    @Test
+    void testTestConnectionWhenBucketExists() {
+        Bucket mockBucket = mock(Bucket.class);
+        when(mockedStorage.get(CONTAINER)).thenReturn(mockBucket);
+
+        assertDoesNotThrow(mockedGcpFileStorage::testConnection);
+        verify(mockedStorage).get(CONTAINER);
+    }
+
+    @Test
+    void testTestConnectionWhenBucketDoesNotExist() {
+        when(mockedStorage.get(CONTAINER)).thenReturn(null);
+
+        var exception = assertThrows(IllegalStateException.class, mockedGcpFileStorage::testConnection);
+        assertTrue(exception.getMessage()
+                            .contains(CONTAINER));
+        verify(mockedStorage).get(CONTAINER);
     }
 
     private void mockStorageGetToReturn(List<Blob> blobs) {
