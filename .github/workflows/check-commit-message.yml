@@ -4,6 +4,9 @@ on:
   pull_request:
     types: [ synchronize, opened ]
 
+permissions:
+  pull-requests: read
+
 jobs:
   check_commit_message:
     name: Check Commit Message
@@ -12,7 +15,7 @@ jobs:
     steps:
       - name: Check Commit Message
         id: commits
-        uses: actions/github-script@v7
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
             const prNumber = context.payload.pull_request.number;
