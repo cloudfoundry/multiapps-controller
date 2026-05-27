@@ -47,8 +47,8 @@ public class OperationLogsExporter {
     private static final Map<String, WebClient> clientCache = new ConcurrentHashMap<>();
     private static final Pattern MESSAGE_LOG_DATE_PATTERN = Pattern.compile("^#([^#\\r\\n]*)#", Pattern.MULTILINE);
     private static final Pattern MESSAGE_LOG_LEVEL_PATTERN = Pattern.compile("^#[^#\\r\\n]*#[^#\\r\\n]*#([^#\\r\\n]*)#", Pattern.MULTILINE);
-    private static final Pattern MESSAGE_LOG_NAME = Pattern.compile("^#[^#\\\\r\\\\n]*#[^#\\\\r\\\\n]*#[^#\\\\r\\\\n]*#([^#\\\\r\\\\n]*)#",
-                                                                    Pattern.MULTILINE);
+    private static final Pattern MESSAGE_LOG_NAME = Pattern.compile("^#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#([^#\\r\\n]*)#",
+                                                                   Pattern.MULTILINE);
 
     private static final String MESSAGE_SPLITTING_REGEX = "(?m)^#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#(?:\\r?\\n)?";
     private final ProcessLogsPersistenceService processLogsPersistenceService;
