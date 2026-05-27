@@ -48,6 +48,7 @@ public final class Messages {
     public static final String APPLICATION_SHUTDOWN_WITH_APPLICATION_INSTANCE_ID_ALREADY_EXIST = "Application shutdown application instance ID \"{0}\" already exist";
     public static final String SECRET_TOKEN_WITH_ID_NOT_EXIST = "Secret token with ID \"{0}\" does not exist";
     public static final String DATABASE_HEALTH_CHECK_FAILED = "Database health check failed";
+    public static final String OBJECT_STORE_BUCKET_NOT_FOUND = "Object store bucket \"{0}\" not found";
     public static final String UPLOAD_OF_FILE_WITH_NAMESPACE_FAILED = "Upload of file: \"{0}\" with namespace: \"{1}\" failed";
 
     // ERROR log messages:

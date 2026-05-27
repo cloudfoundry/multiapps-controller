@@ -231,6 +231,30 @@ class JCloudsObjectStoreFileStorageTest {
     }
 
     @Test
+    void testTestConnectionWhenContainerExists() {
+        BlobStore mockBlobStore = mock(BlobStore.class);
+        JCloudsObjectStoreFileStorage testFileStorage = new JCloudsObjectStoreFileStorage(mockBlobStore, CONTAINER);
+
+        when(mockBlobStore.containerExists(CONTAINER)).thenReturn(true);
+
+        assertDoesNotThrow(testFileStorage::testConnection);
+        verify(mockBlobStore).containerExists(CONTAINER);
+    }
+
+    @Test
+    void testTestConnectionWhenContainerDoesNotExist() {
+        BlobStore mockBlobStore = mock(BlobStore.class);
+        JCloudsObjectStoreFileStorage testFileStorage = new JCloudsObjectStoreFileStorage(mockBlobStore, CONTAINER);
+
+        when(mockBlobStore.containerExists(CONTAINER)).thenReturn(false);
+
+        var exception = assertThrows(IllegalStateException.class, testFileStorage::testConnection);
+        assertTrue(exception.getMessage()
+                            .contains(CONTAINER));
+        verify(mockBlobStore).containerExists(CONTAINER);
+    }
+
+    @Test
     void testDeleteFilesByIds() throws Exception {
         FileEntry fileEntry = addFile(TEST_FILE_LOCATION);
         fileStorage.deleteFilesByIds(List.of(fileEntry.getId()));

@@ -192,7 +192,10 @@ public class GcpObjectStoreFileStorage implements FileStorage {
 
     @Override
     public void testConnection() {
-        storage.get(bucketName, "test");
+        var bucket = storage.get(bucketName);
+        if (bucket == null) {
+            throw new IllegalStateException(MessageFormat.format(Messages.OBJECT_STORE_BUCKET_NOT_FOUND, bucketName));
+        }
     }
 
     @Override
