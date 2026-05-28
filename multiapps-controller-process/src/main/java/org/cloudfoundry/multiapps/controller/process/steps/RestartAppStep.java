@@ -12,6 +12,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplicati
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ReadinessHealthCheckUtil;
 import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
@@ -28,6 +29,8 @@ public class RestartAppStep extends TimeoutAsyncFlowableStepWithHooks implements
     protected CloudControllerClientFactory clientFactory;
     @Inject
     protected TokenService tokenService;
+    @Inject
+    protected OperationLogsExporter operationLogsExporter;
 
     @Override
     public StepPhase executePollingStep(ProcessContext context) {
@@ -92,8 +95,8 @@ public class RestartAppStep extends TimeoutAsyncFlowableStepWithHooks implements
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
-        return List.of(new PollStartAppStatusExecution(clientFactory, tokenService),
-                       new PollExecuteAppStatusExecution(clientFactory, tokenService));
+        return List.of(new PollStartAppStatusExecution(clientFactory, tokenService, operationLogsExporter),
+                       new PollExecuteAppStatusExecution(clientFactory, tokenService, operationLogsExporter));
     }
 
     @Override

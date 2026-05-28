@@ -12,6 +12,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.InstanceState;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ReadinessHealthCheckUtil;
@@ -26,10 +27,13 @@ public class PollStartAppStatusExecution implements AsyncExecution {
     private static final Logger LOGGER = LoggerFactory.getLogger(PollStartAppStatusExecution.class);
     private final CloudControllerClientFactory clientFactory;
     private final TokenService tokenService;
+    private final OperationLogsExporter operationLogsExporter;
 
-    public PollStartAppStatusExecution(CloudControllerClientFactory clientFactory, TokenService tokenService) {
+    public PollStartAppStatusExecution(CloudControllerClientFactory clientFactory, TokenService tokenService,
+                                       OperationLogsExporter operationLogsExporter) {
         this.clientFactory = clientFactory;
         this.tokenService = tokenService;
+        this.operationLogsExporter = operationLogsExporter;
     }
 
     @Override
@@ -51,7 +55,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         var correlationId = context.getVariable(Variables.CORRELATION_ID);
         var logCacheClient = clientFactory.createLogCacheClient(tokenService.getToken(userGuid), correlationId);
 
-        StepsUtil.saveAppLogs(context, logCacheClient, app.getGuid(), app.getName(), LOGGER, processLoggerProvider);
+        StepsUtil.saveAppLogs(context, logCacheClient, app.getGuid(), app.getName(), LOGGER, processLoggerProvider, operationLogsExporter);
         return checkStartupStatus(context, app, status);
     }
 

@@ -158,6 +158,8 @@ public class SupportedParameters {
     public static final String FAIL_ON_SERVICE_UPDATE = "fail-on-service-update";
     public static final String SYSLOG_DRAIN_URL = "syslog-drain-url";
     public static final String SERVICE_GUID = "service-guid";
+    public static final String LOG_LEVEL = "log-level";
+    public static final String DESTINATION = "destination";
 
     // Configuration reference (new syntax):
     public static final String PROVIDER_NID = "provider-nid";
@@ -210,7 +212,8 @@ public class SupportedParameters {
                                                                  SERVICE_KEY_NAME, SERVICE_NAME, SERVICE_PLAN, SERVICE_TAGS, SERVICE_BROKER,
                                                                  SKIP_SERVICE_UPDATES, TYPE, PROVIDER_ID, PROVIDER_NID, TARGET,
                                                                  SERVICE_CONFIG_PATH, FILTER, MANAGED, VERSION, PATH, MEMORY,
-                                                                 FAIL_ON_SERVICE_UPDATE, SERVICE_PROVIDER, SERVICE_VERSION);
+                                                                 FAIL_ON_SERVICE_UPDATE, SERVICE_PROVIDER, SERVICE_VERSION, LOG_LEVEL,
+                                                                 DESTINATION);
     public static final Set<String> GLOBAL_PARAMETERS = Set.of(KEEP_EXISTING_ROUTES, APPS_UPLOAD_TIMEOUT, APPS_TASK_EXECUTION_TIMEOUT,
                                                                APPS_START_TIMEOUT, APPS_STAGE_TIMEOUT, APPLY_NAMESPACE,
                                                                ENABLE_PARALLEL_DEPLOYMENTS, DEPLOY_MODE, BG_DEPENDENCY_AWARE_STOP_ORDER);

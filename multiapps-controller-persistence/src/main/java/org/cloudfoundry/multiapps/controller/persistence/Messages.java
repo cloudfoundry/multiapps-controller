@@ -14,6 +14,7 @@ public final class Messages {
     public static final String ERROR_GETTING_FILES_WITH_SPACE_AND_NAMESPACE = "Error getting files with space {0} and namespace {1}";
     public static final String ERROR_GETTING_LOGS_WITH_SPACE_AND_OPERATION_ID = "Error getting logs with space {0} and operation id {1}";
     public static final String ERROR_GETTING_LOGS_WITH_SPACE_OPERATION_ID_AND_NAME = "Error getting logs with space {0} operation id {1} and file name {2}";
+    public static final String ERROR_UPDATING_LOGS_WITH_SPACE_OPERATION_ID_AND_NAME = "Error updating log  with space {0} operation id {1} and file name {2}";
     public static final String ERROR_GETTING_ALL_FILES = "Error getting all files";
     public static final String ERROR_LOG_FILE_NOT_FOUND = "Log file with name \"{0}\" for operation \"{1}\" in space \"{2}\" was not found";
     public static final String ERROR_CORRELATION_ID_OR_ACTIVITY_ID_NULL = "Unable to retrieve correlation id or activity id for process \"{0}\" at activity \"{1}\" and space \"{2}\"";
@@ -48,6 +49,7 @@ public final class Messages {
     public static final String APPLICATION_SHUTDOWN_WITH_APPLICATION_INSTANCE_ID_ALREADY_EXIST = "Application shutdown application instance ID \"{0}\" already exist";
     public static final String SECRET_TOKEN_WITH_ID_NOT_EXIST = "Secret token with ID \"{0}\" does not exist";
     public static final String DATABASE_HEALTH_CHECK_FAILED = "Database health check failed";
+    public static final String FAILED_TO_SEND_LOG_MESSAGE_TO_CLS = "Failed to send log message to Cloud Logging service";
 
     // ERROR log messages:
     public static final String UPLOAD_STREAM_FAILED_TO_CLOSE = "Cannot close file upload stream";
@@ -77,6 +79,7 @@ public final class Messages {
     public static final String RETRIEVED_SECRET_TOKEN_WITH_ID_0_FOR_PROCESS_WITH_ID_1 = "Retrieved secret token with id \"{0}\" for process with id \"{1}\"";
     public static final String DELETED_0_SECRET_TOKENS_FOR_PROCESS_WITH_ID_1 = "Deleted \"{0}\" secret tokens for process with id \"{1}\"";
     public static final String DELETED_0_SECRET_TOKENS_WITH_EXPIRATION_DATE_1 = "Deleted secret tokens \"{0}\" with an expiration date \"{1}\"";
+    public static final String CREATING_WEBCLIENT_WITH_MTLS_CONFIGURATION_FOR_ENDPOINT_1 = "Creating WebClient with mTLS configuration for endpoint: {0}";
 
     protected Messages() {
     }

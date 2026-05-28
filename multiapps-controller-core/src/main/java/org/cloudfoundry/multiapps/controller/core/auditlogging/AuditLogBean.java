@@ -58,4 +58,9 @@ public class AuditLogBean {
     public ConfigurationEntryServiceAuditLog buildAConfigurationEntryServiceAuditLog(AuditLoggingFacade auditLoggingFacade) {
         return new ConfigurationEntryServiceAuditLog(auditLoggingFacade);
     }
+
+    @Bean
+    public CloudLoggingServiceConfigurationAuditLog buildCloudLoggingServiceConfigurationAuditLog(AuditLoggingFacade auditLoggingFacade) {
+        return new CloudLoggingServiceConfigurationAuditLog(auditLoggingFacade);
+    }
 }

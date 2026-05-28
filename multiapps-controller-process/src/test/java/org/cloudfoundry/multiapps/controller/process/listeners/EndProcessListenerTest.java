@@ -1,11 +1,10 @@
 package org.cloudfoundry.multiapps.controller.process.listeners;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
@@ -23,6 +22,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class EndProcessListenerTest {
 
@@ -50,6 +51,8 @@ class EndProcessListenerTest {
     private StepLogger stepLogger;
     @Mock
     private ProcessLoggerPersister processLoggerPersister;
+    @Mock
+    private OperationLogsExporter operationLogsExporter;
 
     @Test
     void testNotifyInternal() {
@@ -62,7 +65,8 @@ class EndProcessListenerTest {
                                                                        configuration,
                                                                        eventHandler,
                                                                        dynatracePublisher,
-                                                                       processTypeParser);
+                                                                       processTypeParser,
+                                                                       operationLogsExporter);
         // set the process as root process
         VariableHandling.set(execution, Variables.CORRELATION_ID, execution.getProcessInstanceId());
         VariableHandling.set(execution, Variables.SPACE_GUID, SPACE_ID);

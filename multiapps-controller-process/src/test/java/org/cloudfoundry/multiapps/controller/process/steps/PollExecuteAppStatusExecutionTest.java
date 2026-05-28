@@ -27,6 +27,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvid
 import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStateAction;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.process.util.MockDelegateExecution;
@@ -77,6 +78,8 @@ class PollExecuteAppStatusExecutionTest {
     private TokenService tokenService;
     @Mock
     private LogCacheClient logCacheClient;
+    @Mock
+    private OperationLogsExporter operationLogsExporter;
 
     private DelegateExecution execution;
     private ProcessContext context;
@@ -88,7 +91,7 @@ class PollExecuteAppStatusExecutionTest {
                           .close();
         execution = MockDelegateExecution.createSpyInstance();
         context = new ProcessContext(execution, stepLogger, clientProvider);
-        step = new PollExecuteAppStatusExecution(clientFactory, tokenService);
+        step = new PollExecuteAppStatusExecution(clientFactory, tokenService, operationLogsExporter);
     }
 
     static Stream<Arguments> testStep() {
