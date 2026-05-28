@@ -3,11 +3,13 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 
 public class PollStartServiceBrokerSubscriberStatusExecution extends PollStartAppStatusExecution {
 
-    public PollStartServiceBrokerSubscriberStatusExecution(CloudControllerClientFactory clientFactory, TokenService tokenService) {
-        super(clientFactory, tokenService);
+    public PollStartServiceBrokerSubscriberStatusExecution(CloudControllerClientFactory clientFactory, TokenService tokenService,
+                                                           OperationLogsExporter operationLogsExporter) {
+        super(clientFactory, tokenService, operationLogsExporter);
     }
 
     @Override

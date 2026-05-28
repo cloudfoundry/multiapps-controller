@@ -32,6 +32,8 @@ import org.cloudfoundry.multiapps.controller.core.model.BlueGreenApplicationName
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.Phase;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -162,7 +164,7 @@ public class StepsUtil {
     }
 
     static void saveAppLogs(ProcessContext context, LogCacheClient client, UUID appGuid, String appName, Logger logger,
-                            ProcessLoggerProvider processLoggerProvider) {
+                            ProcessLoggerProvider processLoggerProvider, OperationLogsExporter operationLogsExporter) {
         LocalDateTime offset = context.getVariable(Variables.LOGS_OFFSET);
         var recentLogs = getRecentLogsSafely(client, appGuid, offset, logger);
         if (recentLogs.isEmpty()) {
@@ -173,8 +175,12 @@ public class StepsUtil {
         }
         var loggerPrefix = getLoggerPrefix(logger);
         for (ApplicationLog log : recentLogs) {
-            processLoggerProvider.getLogger(context.getExecution(), appName)
-                                 .debug(loggerPrefix + log.toString());
+            ProcessLogger processLogger = processLoggerProvider.getLogger(context.getExecution(), appName);
+            processLogger.debug(loggerPrefix + log.toString());
+            if (context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION) != null) {
+                operationLogsExporter.sendLogsToCloudLoggingService(context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION),
+                                                                    processLogger.getLogMessage());
+            }
         }
 
         var lastLog = recentLogs.get(recentLogs.size() - 1);

@@ -1,22 +1,18 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
-
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
-import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
-import org.cloudfoundry.multiapps.controller.persistence.test.TestDataSourceProvider;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 class ProcessLoggerPersisterTest {
 
@@ -54,12 +50,17 @@ class ProcessLoggerPersisterTest {
 
         processLoggerPersister.persistLogs(TEST_CORRELATION_ID, TEST_TASK_ID);
 
-        Mockito.verify(processLoggerProvider).getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID);
-        Mockito.verify(processLoggerProvider).removeProcessLoggerFromCache(processLogger);
-        Mockito.verify(processLoggerProvider).removeProcessLoggerFromCache(processLoggerSecond);
-        Mockito.verify(processLogsPersistenceService, times(2)).persistLog(any());
+        Mockito.verify(processLoggerProvider)
+               .getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID);
+        Mockito.verify(processLoggerProvider)
+               .removeProcessLoggerFromCache(processLogger);
+        Mockito.verify(processLoggerProvider)
+               .removeProcessLoggerFromCache(processLoggerSecond);
+        Mockito.verify(processLogsPersistenceService, times(2))
+               .persistLog(any());
 
-        Assertions.assertEquals(processLoggerProvider.getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID).size(), 0);
+        Assertions.assertEquals(processLoggerProvider.getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID)
+                                                     .size(), 0);
     }
 
     @Test
@@ -70,20 +71,28 @@ class ProcessLoggerPersisterTest {
 
         processLoggerPersister.persistLogs(TEST_CORRELATION_ID, TEST_TASK_ID);
 
-        Mockito.verify(processLoggerProvider).getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID);
-        Mockito.verify(processLoggerProvider).removeProcessLoggerFromCache(processLogger);
-        Mockito.verify(processLoggerProvider).removeProcessLoggerFromCache(processLoggerSecond);
-        Mockito.verify(processLoggerProvider).removeProcessLoggerFromCache(processLoggerThird);
-        Mockito.verify(processLogsPersistenceService, times(2)).persistLog(any());
+        Mockito.verify(processLoggerProvider)
+               .getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID);
+        Mockito.verify(processLoggerProvider)
+               .removeProcessLoggerFromCache(processLogger);
+        Mockito.verify(processLoggerProvider)
+               .removeProcessLoggerFromCache(processLoggerSecond);
+        Mockito.verify(processLoggerProvider)
+               .removeProcessLoggerFromCache(processLoggerThird);
+        Mockito.verify(processLogsPersistenceService, times(2))
+               .persistLog(any());
 
-        Assertions.assertEquals(processLoggerProvider.getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID).size(), 0);
+        Assertions.assertEquals(processLoggerProvider.getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID)
+                                                     .size(), 0);
     }
 
     @Test
     void testPersistLogWithoutLogs() {
         processLoggerPersister.persistLogs(TEST_CORRELATION_ID, TEST_TASK_ID);
 
-        Mockito.verify(processLoggerProvider).getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID);
-        Mockito.verify(processLogsPersistenceService, times(0)).persistLog(any());
+        Mockito.verify(processLoggerProvider)
+               .getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID);
+        Mockito.verify(processLogsPersistenceService, times(0))
+               .persistLog(any());
     }
 }

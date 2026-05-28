@@ -9,6 +9,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudTask;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -25,10 +26,13 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
 
     private final CloudControllerClientFactory clientFactory;
     private final TokenService tokenService;
+    private final OperationLogsExporter operationLogsExporter;
 
-    public PollExecuteTaskStatusExecution(CloudControllerClientFactory clientFactory, TokenService tokenService) {
+    public PollExecuteTaskStatusExecution(CloudControllerClientFactory clientFactory, TokenService tokenService,
+                                          OperationLogsExporter operationLogsExporter) {
         this.clientFactory = clientFactory;
         this.tokenService = tokenService;
+        this.operationLogsExporter = operationLogsExporter;
     }
 
     @Override
@@ -50,7 +54,7 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
         var logCacheClient = clientFactory.createLogCacheClient(tokenService.getToken(userGuid), correlationId);
 
         UUID appGuid = client.getApplicationGuid(app.getName());
-        StepsUtil.saveAppLogs(context, logCacheClient, appGuid, app.getName(), LOGGER, processLoggerProvider);
+        StepsUtil.saveAppLogs(context, logCacheClient, appGuid, app.getName(), LOGGER, processLoggerProvider, operationLogsExporter);
 
         if (currentState == CloudTask.State.SUCCEEDED) {
             return AsyncExecutionState.FINISHED;

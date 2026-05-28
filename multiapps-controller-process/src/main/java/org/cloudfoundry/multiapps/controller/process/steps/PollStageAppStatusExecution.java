@@ -8,6 +8,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplicati
 import org.cloudfoundry.multiapps.controller.client.facade.domain.PackageState;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationStager;
@@ -24,12 +25,14 @@ public class PollStageAppStatusExecution implements AsyncExecution {
     private final ApplicationStager applicationStager;
     private final CloudControllerClientFactory clientFactory;
     private final TokenService tokenService;
+    private final OperationLogsExporter operationLogsExporter;
 
     public PollStageAppStatusExecution(ApplicationStager applicationStager, CloudControllerClientFactory clientFactory,
-                                       TokenService tokenService) {
+                                       TokenService tokenService, OperationLogsExporter operationLogsExporter) {
         this.applicationStager = applicationStager;
         this.clientFactory = clientFactory;
         this.tokenService = tokenService;
+        this.operationLogsExporter = operationLogsExporter;
     }
 
     @Override
@@ -49,7 +52,8 @@ public class PollStageAppStatusExecution implements AsyncExecution {
         var logCacheClient = clientFactory.createLogCacheClient(tokenService.getToken(userGuid), correlationId);
 
         UUID appGuid = client.getApplicationGuid(application.getName());
-        StepsUtil.saveAppLogs(context, logCacheClient, appGuid, application.getName(), LOGGER, processLoggerProvider);
+        StepsUtil.saveAppLogs(context, logCacheClient, appGuid, application.getName(), LOGGER, processLoggerProvider,
+                              operationLogsExporter);
 
         if (state.getState() != PackageState.STAGED) {
             return checkStagingState(context.getStepLogger(), application.getName(), state);

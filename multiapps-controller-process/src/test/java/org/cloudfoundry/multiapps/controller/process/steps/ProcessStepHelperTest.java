@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.mockito.ArgumentMatchers.any;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -12,6 +10,7 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.model.ErrorType;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
@@ -32,6 +31,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import static org.mockito.ArgumentMatchers.any;
 
 class ProcessStepHelperTest {
 
@@ -54,6 +55,9 @@ class ProcessStepHelperTest {
     private ProcessContext context;
     @Mock
     private DelegateExecution execution;
+    @Mock
+    private OperationLogsExporter operationLogsExporter;
+
     private ProcessStepHelper processStepHelper;
 
     @BeforeEach
@@ -68,6 +72,7 @@ class ProcessStepHelperTest {
                                                       .processEngineConfiguration(processEngineConfiguration)
                                                       .processHelper(processHelper)
                                                       .processLoggerPersister(processLoggerPersister)
+                                                      .operationLogsExporter(operationLogsExporter)
                                                       .build();
     }
 
