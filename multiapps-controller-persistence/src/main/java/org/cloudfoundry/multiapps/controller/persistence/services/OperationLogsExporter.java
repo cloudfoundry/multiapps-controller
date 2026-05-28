@@ -36,8 +36,8 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 
-import static com.azure.core.http.ContentType.APPLICATION_JSON;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Named("operationLogsExporter")
 public class OperationLogsExporter {
@@ -182,7 +182,7 @@ public class OperationLogsExporter {
 
     private ResponseEntity<Void> executeSendLongHttpRequest(WebClient webClient, List<ExternalOperationLogEntry> logEntryBatch) {
         return webClient.post()
-                        .header(CONTENT_TYPE, APPLICATION_JSON)
+                        .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
                         .bodyValue(JsonUtil.toJson(logEntryBatch))
                         .retrieve()
                         .toBodilessEntity()

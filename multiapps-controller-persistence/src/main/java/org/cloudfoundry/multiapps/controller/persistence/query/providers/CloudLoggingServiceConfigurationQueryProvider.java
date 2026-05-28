@@ -73,10 +73,8 @@ public class CloudLoggingServiceConfigurationQueryProvider {
             PreparedStatement statement = null;
             ResultSet resultSet = null;
             try {
-                if (namespace == null) {
-                    statement = connection.prepareStatement(String.format(GET_CLOUD_LOGGING_CONFIGURATION_NULL_NAMESPACE, tableName));
-                } else {
-                    statement = connection.prepareStatement(String.format(GET_CLOUD_LOGGING_CONFIGURATION, tableName));
+                statement = connection.prepareStatement(getGetLoggingConfigurationQueryString(namespace));
+                if (namespace != null) {
                     statement.setString(3, namespace);
                 }
                 statement.setString(1, mtaSpace);
@@ -111,9 +109,7 @@ public class CloudLoggingServiceConfigurationQueryProvider {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             try {
-                String queryTemplate = loggingConfiguration.getNamespace() == null
-                    ? UPDATE_CLOUD_LOGGING_CONFIGURATION_NULL_NAMESPACE
-                    : UPDATE_CLOUD_LOGGING_CONFIGURATION;
+                String queryTemplate = getUpdateLoggingConfigurationQueryString(loggingConfiguration.getNamespace());
                 statement = connection.prepareStatement(String.format(queryTemplate, tableName));
                 statement.setString(1, loggingConfiguration.getTargetSpace());
                 statement.setString(2, loggingConfiguration.getTargetOrg());
@@ -140,7 +136,7 @@ public class CloudLoggingServiceConfigurationQueryProvider {
             PreparedStatement statement = null;
             ResultSet resultSet = null;
             try {
-                statement = connection.prepareStatement(String.format(GET_ALL_CLOUD_LOGGING_CONFIGURATIONS, tableName));
+                statement = connection.prepareStatement(getAllLoggingConfigurationQueryString());
                 statement.setString(1, spaceId);
                 resultSet = statement.executeQuery();
                 List<LoggingConfiguration> result = new ArrayList<>();
@@ -177,5 +173,25 @@ public class CloudLoggingServiceConfigurationQueryProvider {
 
     private String getDeleteLoggingConfigurationQueryString() {
         return String.format(DELETE_CLOUD_LOGGING_CONFIGURATION, tableName);
+    }
+
+    private String getAllLoggingConfigurationQueryString() {
+        return String.format(GET_ALL_CLOUD_LOGGING_CONFIGURATIONS, tableName);
+    }
+
+    private String getUpdateLoggingConfigurationQueryString(String namespace) {
+        if (namespace == null) {
+            return String.format(UPDATE_CLOUD_LOGGING_CONFIGURATION_NULL_NAMESPACE, tableName);
+        } else {
+            return String.format(UPDATE_CLOUD_LOGGING_CONFIGURATION, tableName);
+        }
+    }
+
+    private String getGetLoggingConfigurationQueryString(String namespace) {
+        if (namespace == null) {
+            return String.format(GET_CLOUD_LOGGING_CONFIGURATION_NULL_NAMESPACE, tableName);
+        } else {
+            return String.format(GET_CLOUD_LOGGING_CONFIGURATION, tableName);
+        }
     }
 }

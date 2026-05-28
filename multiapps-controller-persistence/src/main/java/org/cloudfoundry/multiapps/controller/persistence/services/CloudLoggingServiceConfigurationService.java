@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import jakarta.inject.Named;
+import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.query.providers.CloudLoggingServiceConfigurationQueryProvider;
@@ -24,10 +25,11 @@ public class CloudLoggingServiceConfigurationService {
 
     public void storeCloudLoggingServiceConfiguration(LoggingConfiguration loggingConfiguration) {
         try {
+            
             getSqlQueryExecutor().execute(
                 cloudLoggingServiceConfigurationQueryProvider.getStoreLoggingConfigurationQuery(loggingConfiguration));
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new SLException(e);
         }
     }
 
@@ -36,7 +38,7 @@ public class CloudLoggingServiceConfigurationService {
             return getSqlQueryExecutor().execute(
                 cloudLoggingServiceConfigurationQueryProvider.getGetLoggingConfigurationQuery(mtaSpace, mtaId, namespace));
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new SLException(e);
         }
     }
 
@@ -44,7 +46,7 @@ public class CloudLoggingServiceConfigurationService {
         try {
             getSqlQueryExecutor().execute(cloudLoggingServiceConfigurationQueryProvider.getDeleteLoggingConfigurationQuery(id));
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new SLException(e);
         }
     }
 
@@ -53,7 +55,7 @@ public class CloudLoggingServiceConfigurationService {
             getSqlQueryExecutor().execute(
                 cloudLoggingServiceConfigurationQueryProvider.getUpdateLoggingConfigurationQuery(loggingConfiguration));
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new SLException(e);
         }
     }
 
@@ -62,7 +64,7 @@ public class CloudLoggingServiceConfigurationService {
             return getSqlQueryExecutor().execute(
                 cloudLoggingServiceConfigurationQueryProvider.getAllCloudLoggingServiceConfigurationsFromSpace(spaceId));
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new SLException(e);
         }
     }
 

@@ -178,7 +178,7 @@ class CloudLoggingServiceConfigurationAuditLogTest {
         assertEquals(LOGGING_CONFIG_ID, identifiers.get("id"));
         // null fields should not be exposed in getConfigurationIdentifiers
         for (ConfigurationIdentifier identifier : captured.getConfigurationIdentifiers()) {
-            assertNotNull(identifier.getValue(), "Configuration identifier value should not be null");
+            assertNotNull(identifier.getIdentifierValue(), "Configuration identifier value should not be null");
         }
     }
 
@@ -295,7 +295,7 @@ class CloudLoggingServiceConfigurationAuditLogTest {
         Map<String, String> result = new HashMap<>();
         List<ConfigurationIdentifier> configurationIdentifiers = config.getConfigurationIdentifiers();
         for (ConfigurationIdentifier identifier : configurationIdentifiers) {
-            result.put(identifier.getName(), identifier.getValue());
+            result.put(identifier.getIdentifierName(), identifier.getIdentifierValue());
         }
         return result;
     }
@@ -303,7 +303,7 @@ class CloudLoggingServiceConfigurationAuditLogTest {
     private int countNonReservedIdentifiers(AuditLogConfiguration config) {
         int count = 0;
         for (ConfigurationIdentifier identifier : config.getConfigurationIdentifiers()) {
-            String name = identifier.getName();
+            String name = identifier.getIdentifierName();
             if (!"performed_action".equals(name) && !"time".equals(name) && !"spaceId".equals(name)) {
                 count++;
             }
