@@ -125,8 +125,8 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
                           .close();
         this.stepLogger = Mockito.spy(
             new StepLogger(execution, progressMessageService, processLoggerProvider, LOGGER, operationLogsExporter));
-        this.context = step.createProcessContext(execution);
         when(stepLoggerFactory.create(any(), any(), any(), any(), any())).thenReturn(stepLogger);
+        this.context = step.createProcessContext(execution);
         context.setVariable(Variables.SPACE_NAME, SPACE_NAME);
         context.setVariable(Variables.SPACE_GUID, SPACE_GUID);
         context.setVariable(Variables.USER, USER_NAME);

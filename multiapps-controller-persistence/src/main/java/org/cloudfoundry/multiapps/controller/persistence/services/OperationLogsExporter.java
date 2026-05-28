@@ -275,7 +275,7 @@ public class OperationLogsExporter {
         return trimmed.substring(0, trimmed.length() - 1);
     }
 
-    private WebClient createWebClientWithMtls(LoggingConfiguration loggingConfiguration) {
+    protected WebClient createWebClientWithMtls(LoggingConfiguration loggingConfiguration) {
         SslContext sslContext = getSslContext(loggingConfiguration);
         if (sslContext == null) {
             return null;

@@ -1,19 +1,37 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
+import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation.State;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.CloudLoggingServiceConfigurationAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
+import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
+import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
+import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMta;
+import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableLoggingConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.query.DescriptorBackupQuery;
 import org.cloudfoundry.multiapps.controller.persistence.query.impl.OperationQueryImpl;
+import org.cloudfoundry.multiapps.controller.persistence.services.CloudLoggingServiceConfigurationService;
+import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
+import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessDuration;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
@@ -21,6 +39,7 @@ import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenS
 import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenStoreFactory;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,9 +54,13 @@ import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class OperationInFinalStateHandlerTest {
 
@@ -50,6 +73,10 @@ class OperationInFinalStateHandlerTest {
     private static final String USER_GUID = "test-user";
     private static final long PROCESS_DURATION = 1000;
     private static final String DISPOSABLE_USER_PROVIDED_SERVICE_NAME = "__mta-secure-my-mta-fake343";
+    private static final String LOGGING_CONFIG_ID = "logging-config-1";
+    private static final String USER_NAME = "test-user-name";
+    private static final String NAMESPACE = "dev";
+    private static final String MTA_VERSION_1 = "1.0.0";
 
     private static final Operation OPERATION = createOperation("1", ProcessType.DEPLOY, "spaceId", "mtaId", "user", true,
                                                                ZonedDateTime.parse("2010-10-08T10:00:00.000Z[UTC]"),
@@ -79,6 +106,20 @@ class OperationInFinalStateHandlerTest {
     private CloudControllerClientProvider cloudControllerClientProvider;
     @Mock
     private CloudControllerClient cloudControllerClient;
+    @Mock
+    private OperationLogsExporter operationLogsExporter;
+    @Mock
+    private HistoricOperationEventService historicOperationEventService;
+    @Mock
+    private DescriptorBackupService descriptorBackupService;
+    @Mock
+    private DescriptorBackupQuery descriptorBackupQuery;
+    @Mock
+    private CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService;
+    @Mock
+    private CloudLoggingServiceConfigurationAuditLog cloudLoggingServiceConfigurationAuditLog;
+    @Mock
+    private ProcessTypeParser processTypeParser;
 
     @InjectMocks
     private final OperationInFinalStateHandler eventHandler = new OperationInFinalStateHandler();
@@ -230,6 +271,232 @@ class OperationInFinalStateHandlerTest {
         assertEquals(PROCESS_TYPE, actualDynatraceEvent.getProcessType());
         assertEquals(OPERATION_STATE, actualDynatraceEvent.getOperationState());
         assertEquals(PROCESS_DURATION, actualDynatraceEvent.getProcessDuration());
+    }
+
+    @Test
+    void testRemovesClientFromCacheAfterHandle() {
+        prepareContext(null, null, true);
+        prepareOperationTimeAggregator();
+        prepareOperationService();
+
+        eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
+
+        verify(operationLogsExporter).removeClientFromCache(PROCESS_ID);
+    }
+
+    @Test
+    void testHistoricOperationEventEmittedWithFinishedEventTypeWhenStateIsFinished() {
+        prepareContext(null, null, true);
+        prepareOperationTimeAggregator();
+        prepareOperationService();
+
+        eventHandler.handle(execution, PROCESS_TYPE, State.FINISHED);
+
+        ArgumentCaptor<HistoricOperationEvent> captor = ArgumentCaptor.forClass(HistoricOperationEvent.class);
+        verify(historicOperationEventService).add(captor.capture());
+        assertEquals(HistoricOperationEvent.EventType.FINISHED, captor.getValue()
+                                                                      .getType());
+    }
+
+    @Test
+    void testHistoricOperationEventEmittedWithAbortedEventTypeWhenStateIsAborted() {
+        prepareContext(null, null, true);
+        prepareOperationTimeAggregator();
+        prepareOperationService();
+
+        eventHandler.handle(execution, PROCESS_TYPE, State.ABORTED);
+
+        ArgumentCaptor<HistoricOperationEvent> captor = ArgumentCaptor.forClass(HistoricOperationEvent.class);
+        verify(historicOperationEventService).add(captor.capture());
+        assertEquals(HistoricOperationEvent.EventType.ABORTED, captor.getValue()
+                                                                     .getType());
+    }
+
+    @Test
+    void testSetOperationStateSkippedWhenOperationAlreadyFinal() {
+        prepareContext(null, null, true);
+        prepareOperationTimeAggregator();
+        OperationQueryImpl operationQuery = Mockito.mock(OperationQueryImpl.class);
+        when(operationService.createQuery()).thenReturn(operationQuery);
+        when(operationQuery.processId(any())).thenReturn(operationQuery);
+        Operation alreadyFinalOperation = ImmutableOperation.builder()
+                                                            .from(OPERATION)
+                                                            .state(State.FINISHED)
+                                                            .hasAcquiredLock(false)
+                                                            .endedAt(ZonedDateTime.parse("2010-10-15T10:00:00.000Z[UTC]"))
+                                                            .build();
+        when(operationQuery.singleResult()).thenReturn(alreadyFinalOperation);
+
+        eventHandler.handle(execution, PROCESS_TYPE, State.FINISHED);
+
+        verify(operationService, never()).update(any(), any());
+        verify(historicOperationEventService, never()).add(any());
+    }
+
+    @Test
+    void testDeleteCloudLoggingServiceConfiguration_skippedWhenLoggingConfigurationIsNull() {
+        prepareContext(null, null, true);
+        prepareOperationTimeAggregator();
+        prepareOperationService();
+
+        eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
+
+        verify(cloudLoggingServiceConfigurationService, never()).deleteCloudLoggingServiceConfiguration(anyString());
+        verify(cloudLoggingServiceConfigurationAuditLog, never()).logDeleteLoggingConfiguration(anyString(), anyString(), any());
+    }
+
+    @Test
+    void testDeleteCloudLoggingServiceConfiguration_skippedWhenLoggingConfigurationIdIsNull() {
+        prepareContext(null, null, true);
+        prepareOperationTimeAggregator();
+        prepareOperationService();
+        LoggingConfiguration loggingConfiguration = ImmutableLoggingConfiguration.builder()
+                                                                                  .build();
+        VariableHandling.set(execution, Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION, loggingConfiguration);
+
+        eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
+
+        verify(cloudLoggingServiceConfigurationService, never()).deleteCloudLoggingServiceConfiguration(anyString());
+        verify(cloudLoggingServiceConfigurationAuditLog, never()).logDeleteLoggingConfiguration(anyString(), anyString(), any());
+    }
+
+    @Test
+    void testDeleteCloudLoggingServiceConfiguration_skippedWhenProcessTypeIsNotUndeploy() {
+        prepareContext(null, null, true);
+        prepareOperationTimeAggregator();
+        prepareOperationService();
+        LoggingConfiguration loggingConfiguration = ImmutableLoggingConfiguration.builder()
+                                                                                  .id(LOGGING_CONFIG_ID)
+                                                                                  .build();
+        VariableHandling.set(execution, Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION, loggingConfiguration);
+        when(processTypeParser.getProcessType(execution)).thenReturn(ProcessType.DEPLOY);
+
+        eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
+
+        verify(cloudLoggingServiceConfigurationService, never()).deleteCloudLoggingServiceConfiguration(anyString());
+        verify(cloudLoggingServiceConfigurationAuditLog, never()).logDeleteLoggingConfiguration(anyString(), anyString(), any());
+    }
+
+    @Test
+    void testDeleteCloudLoggingServiceConfiguration_deletesAndAuditsWhenProcessTypeIsUndeploy() {
+        prepareContext(null, null, true);
+        prepareOperationTimeAggregator();
+        prepareOperationService();
+        LoggingConfiguration loggingConfiguration = ImmutableLoggingConfiguration.builder()
+                                                                                  .id(LOGGING_CONFIG_ID)
+                                                                                  .build();
+        VariableHandling.set(execution, Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION, loggingConfiguration);
+        VariableHandling.set(execution, Variables.USER, USER_NAME);
+        when(processTypeParser.getProcessType(execution)).thenReturn(ProcessType.UNDEPLOY);
+
+        eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
+
+        verify(cloudLoggingServiceConfigurationService).deleteCloudLoggingServiceConfiguration(LOGGING_CONFIG_ID);
+        verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration(eq(USER_NAME), eq(SPACE_ID),
+                                                                                       eq(loggingConfiguration));
+    }
+
+    @Test
+    void testDeletePreviousBackupDescriptors_skippedWhenStateIsNotFinished() {
+        prepareContext(null, null, true);
+        prepareOperationTimeAggregator();
+        prepareOperationService();
+
+        eventHandler.handle(execution, PROCESS_TYPE, State.ABORTED);
+
+        verify(descriptorBackupService, never()).createQuery();
+    }
+
+    @Test
+    void testDeletePreviousBackupDescriptors_undeployWithDeployedMtaVersion_deletesByVersion() {
+        prepareContext(null, null, true);
+        prepareOperationTimeAggregator();
+        prepareOperationService();
+        prepareDescriptorBackupQuery();
+        VariableHandling.set(execution, Variables.MTA_NAMESPACE, NAMESPACE);
+        DeployedMta deployedMta = buildDeployedMta(MTA_VERSION_1);
+        VariableHandling.set(execution, Variables.DEPLOYED_MTA, deployedMta);
+
+        eventHandler.handle(execution, ProcessType.UNDEPLOY, State.FINISHED);
+
+        verify(descriptorBackupQuery).mtaId(MTA_ID);
+        verify(descriptorBackupQuery).spaceId(SPACE_ID);
+        verify(descriptorBackupQuery).namespace(NAMESPACE);
+        verify(descriptorBackupQuery).mtaVersion(MTA_VERSION_1);
+        verify(descriptorBackupQuery).delete();
+    }
+
+    @Test
+    void testDeletePreviousBackupDescriptors_undeployWithoutDeployedMta_doesNotDelete() {
+        prepareContext(null, null, true);
+        prepareOperationTimeAggregator();
+        prepareOperationService();
+        VariableHandling.set(execution, Variables.MTA_NAMESPACE, NAMESPACE);
+
+        eventHandler.handle(execution, ProcessType.UNDEPLOY, State.FINISHED);
+
+        verify(descriptorBackupService, never()).createQuery();
+    }
+
+    @Test
+    void testDeletePreviousBackupDescriptors_deployWithCurrentDescriptorVersion_skipsCurrentVersion() {
+        prepareContext(null, null, true);
+        prepareOperationTimeAggregator();
+        prepareOperationService();
+        prepareDescriptorBackupQuery();
+        VariableHandling.set(execution, Variables.MTA_NAMESPACE, NAMESPACE);
+        DeploymentDescriptor descriptor = DeploymentDescriptor.createV3()
+                                                              .setVersion(MTA_VERSION_1);
+        VariableHandling.set(execution, Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, descriptor);
+        VariableHandling.set(execution, Variables.APPS_TO_UNDEPLOY, Collections.emptyList());
+
+        eventHandler.handle(execution, ProcessType.DEPLOY, State.FINISHED);
+
+        ArgumentCaptor<List<String>> versionsCaptor = ArgumentCaptor.forClass(List.class);
+        verify(descriptorBackupQuery).mtaVersionsNotMatch(versionsCaptor.capture());
+        assertEquals(List.of(MTA_VERSION_1), versionsCaptor.getValue());
+        verify(descriptorBackupQuery).delete();
+    }
+
+    @Test
+    void testDeletePreviousBackupDescriptors_deployWithNoVersionsToSkip_doesNotDelete() {
+        prepareContext(null, null, true);
+        prepareOperationTimeAggregator();
+        prepareOperationService();
+        VariableHandling.set(execution, Variables.MTA_NAMESPACE, NAMESPACE);
+        DeploymentDescriptor descriptor = DeploymentDescriptor.createV3();
+        VariableHandling.set(execution, Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, descriptor);
+        VariableHandling.set(execution, Variables.APPS_TO_UNDEPLOY, Collections.emptyList());
+
+        eventHandler.handle(execution, ProcessType.DEPLOY, State.FINISHED);
+
+        verify(descriptorBackupService, never()).createQuery();
+    }
+
+    private void prepareDescriptorBackupQuery() {
+        when(descriptorBackupService.createQuery()).thenReturn(descriptorBackupQuery);
+        when(descriptorBackupQuery.mtaId(anyString())).thenReturn(descriptorBackupQuery);
+        when(descriptorBackupQuery.spaceId(anyString())).thenReturn(descriptorBackupQuery);
+        when(descriptorBackupQuery.namespace(any())).thenReturn(descriptorBackupQuery);
+        when(descriptorBackupQuery.mtaVersion(anyString())).thenReturn(descriptorBackupQuery);
+        when(descriptorBackupQuery.mtaVersionsNotMatch(any())).thenReturn(descriptorBackupQuery);
+    }
+
+    private DeployedMta buildDeployedMta(String mtaVersion) {
+        DeployedMtaApplication application = ImmutableDeployedMtaApplication.builder()
+                                                                             .name("app-1")
+                                                                             .moduleName("module-1")
+                                                                             .v3Metadata(Metadata.builder()
+                                                                                                 .annotation(MtaMetadataAnnotations.MTA_VERSION,
+                                                                                                             mtaVersion)
+                                                                                                 .build())
+                                                                             .build();
+        return ImmutableDeployedMta.builder()
+                                   .metadata(org.cloudfoundry.multiapps.controller.core.cf.metadata.ImmutableMtaMetadata.builder()
+                                                                                                                       .id(MTA_ID)
+                                                                                                                       .build())
+                                   .applications(List.of(application))
+                                   .build();
     }
 
     private static Operation createOperation(String processId, ProcessType type, String spaceId, String mtaId, String user,
