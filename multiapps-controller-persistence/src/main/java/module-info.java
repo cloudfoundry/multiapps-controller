@@ -67,4 +67,5 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires io.netty.handler;
     requires reactor.netty.http;
     requires reactor.netty.core;
+    requires reactor.core;
 }
