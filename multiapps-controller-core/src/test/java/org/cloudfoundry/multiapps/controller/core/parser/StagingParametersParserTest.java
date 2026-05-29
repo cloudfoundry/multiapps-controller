@@ -17,10 +17,12 @@ import static org.cloudfoundry.multiapps.controller.core.Messages.BUILDPACKS_NOT
 import static org.cloudfoundry.multiapps.controller.core.Messages.BUILDPACKS_REQUIRED_FOR_CNB;
 import static org.cloudfoundry.multiapps.controller.core.Messages.DOCKER_INFO_NOT_ALLOWED_WITH_LIFECYCLE;
 import static org.cloudfoundry.multiapps.controller.core.Messages.DOCKER_INFO_REQUIRED;
+import static org.cloudfoundry.multiapps.controller.core.Messages.INVALID_HEALTH_CHECK_INTERVAL;
 import static org.cloudfoundry.multiapps.controller.core.Messages.UNSUPPORTED_LIFECYCLE_VALUE;
 import static org.cloudfoundry.multiapps.controller.core.model.SupportedParameters.BUILDPACK;
 import static org.cloudfoundry.multiapps.controller.core.model.SupportedParameters.BUILDPACKS;
 import static org.cloudfoundry.multiapps.controller.core.model.SupportedParameters.DOCKER;
+import static org.cloudfoundry.multiapps.controller.core.model.SupportedParameters.HEALTH_CHECK_INTERVAL;
 import static org.cloudfoundry.multiapps.controller.core.model.SupportedParameters.LIFECYCLE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -136,6 +138,31 @@ class StagingParametersParserTest {
         assertNull(staging.getLifecycleType());
         assertTrue(CollectionUtils.isEmpty(staging.getBuildpacks()));
         assertNull(staging.getDockerInfo());
+    }
+
+    @Test
+    void testHealthCheckIntervalIsParsedCorrectly() {
+        parametersList.add(mapOf(HEALTH_CHECK_INTERVAL, 15));
+
+        Staging staging = parser.parse(parametersList);
+
+        assertNotNull(staging);
+        assertEquals(15, staging.getHealthCheckInterval());
+    }
+
+    @Test
+    void testHealthCheckIntervalValidationRejectsNonPositiveValue() {
+        parametersList.add(mapOf(HEALTH_CHECK_INTERVAL, 0));
+
+        ContentException exception = assertThrows(ContentException.class, () -> parser.parse(parametersList));
+        assertEquals(MessageFormat.format(INVALID_HEALTH_CHECK_INTERVAL, 0), exception.getMessage());
+    }
+
+    @Test
+    void testHealthCheckIntervalIsNullWhenAbsent() {
+        Staging staging = parser.parse(parametersList);
+
+        assertNull(staging.getHealthCheckInterval());
     }
 
     private static Map<String, Object> mapOf(String key, Object value) {
