@@ -88,6 +88,7 @@ public final class Messages {
     public static final String ERROR_OCCURRED_WHILE_CHECKING_DATABASE_INSTANCE_0 = "Error occurred while checking database instance: \"{0}\"";
     public static final String DOCKER_INFO_NOT_ALLOWED_WITH_LIFECYCLE = "Docker information must not be provided when lifecycle is set to \"{0}\"";
     public static final String UNSUPPORTED_LIFECYCLE_VALUE = "Unsupported lifecycle value: \"{0}\"";
+    public static final String INVALID_HEALTH_CHECK_INTERVAL = "Parameter \"health-check-interval\" must be a positive integer greater than 0, but was: {0}";
     public static final String BUILDPACKS_REQUIRED_FOR_CNB = "Buildpacks must be provided when lifecycle is set to 'cnb'.";
     public static final String DOCKER_INFO_REQUIRED = "Docker information must be provided when lifecycle is set to 'docker'.";
     public static final String BUILDPACKS_NOT_ALLOWED_WITH_DOCKER = "Buildpacks must not be provided when lifecycle is set to 'docker'.";

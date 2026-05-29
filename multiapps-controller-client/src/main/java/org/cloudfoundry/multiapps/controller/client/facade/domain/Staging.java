@@ -57,6 +57,12 @@ public interface Staging {
     Integer getReadinessHealthCheckInterval();
 
     /**
+     * @return liveness health check interval in seconds, or null to use the CF platform default
+     */
+    @Nullable
+    Integer getHealthCheckInterval();
+
+    /**
      * @return readiness health check timeout
      */
     @Nullable

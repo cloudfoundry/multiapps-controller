@@ -392,7 +392,7 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
         UpdateProcessRequest.Builder updateProcessRequestBuilder = UpdateProcessRequest.builder()
                                                                                        .processId(getApplicationProcessResponse.getId())
                                                                                        .command(staging.getCommand());
-        if (staging.getHealthCheckType() != null) {
+        if (staging.getHealthCheckType() != null || staging.getHealthCheckInterval() != null) {
             updateProcessRequestBuilder.healthCheck(buildHealthCheck(staging));
         }
         if (staging.getReadinessHealthCheckType() != null) {
@@ -438,15 +438,17 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
     }
 
     private HealthCheck buildHealthCheck(Staging staging) {
-        HealthCheckType healthCheckType = HealthCheckType.from(staging.getHealthCheckType());
-        return HealthCheck.builder()
-                          .type(healthCheckType)
-                          .data(Data.builder()
-                                    .endpoint(staging.getHealthCheckHttpEndpoint())
-                                    .timeout(staging.getHealthCheckTimeout())
-                                    .invocationTimeout(staging.getInvocationTimeout())
-                                    .build())
-                          .build();
+        HealthCheck.Builder healthCheckBuilder = HealthCheck.builder()
+                                                            .data(Data.builder()
+                                                                      .endpoint(staging.getHealthCheckHttpEndpoint())
+                                                                      .timeout(staging.getHealthCheckTimeout())
+                                                                      .invocationTimeout(staging.getInvocationTimeout())
+                                                                      .interval(staging.getHealthCheckInterval())
+                                                                      .build());
+        if (staging.getHealthCheckType() != null) {
+            healthCheckBuilder.type(HealthCheckType.from(staging.getHealthCheckType()));
+        }
+        return healthCheckBuilder.build();
     }
 
     private void addRoutes(Set<CloudRoute> routes, UUID applicationGuid) {

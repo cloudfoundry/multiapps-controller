@@ -20,6 +20,7 @@ import static org.cloudfoundry.multiapps.controller.core.Messages.BUILDPACKS_NOT
 import static org.cloudfoundry.multiapps.controller.core.Messages.BUILDPACKS_REQUIRED_FOR_CNB;
 import static org.cloudfoundry.multiapps.controller.core.Messages.DOCKER_INFO_NOT_ALLOWED_WITH_LIFECYCLE;
 import static org.cloudfoundry.multiapps.controller.core.Messages.DOCKER_INFO_REQUIRED;
+import static org.cloudfoundry.multiapps.controller.core.Messages.INVALID_HEALTH_CHECK_INTERVAL;
 import static org.cloudfoundry.multiapps.controller.core.Messages.UNSUPPORTED_LIFECYCLE_VALUE;
 
 public class StagingParametersParser implements ParametersParser<Staging> {
@@ -53,6 +54,9 @@ public class StagingParametersParser implements ParametersParser<Staging> {
         Integer readinessHealthCheckInterval = (Integer) PropertiesUtil.getPropertyValue(parametersList,
                                                                                          SupportedParameters.READINESS_HEALTH_CHECK_INTERVAL,
                                                                                          null);
+        Integer healthCheckInterval = (Integer) PropertiesUtil.getPropertyValue(parametersList,
+                                                                                SupportedParameters.HEALTH_CHECK_INTERVAL,
+                                                                                null);
         Boolean isSshEnabled = (Boolean) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.ENABLE_SSH, null);
         Map<String, Boolean> appFeatures = getAppFeatures(parametersList);
         overrideSshFeatureIfMissing(appFeatures, isSshEnabled);
@@ -60,6 +64,7 @@ public class StagingParametersParser implements ParametersParser<Staging> {
         LifecycleType lifecycleType = parseLifecycleType(parametersList);
 
         validateLifecycleType(lifecycleType, buildpacks, dockerInfo);
+        validateHealthCheckInterval(healthCheckInterval);
 
         return ImmutableStaging.builder()
                                .command(command)
@@ -69,6 +74,7 @@ public class StagingParametersParser implements ParametersParser<Staging> {
                                .invocationTimeout(healthCheckInvocationTimeout)
                                .healthCheckType(healthCheckType)
                                .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
+                               .healthCheckInterval(healthCheckInterval)
                                .readinessHealthCheckType(readinessHealthCheckType)
                                .readinessHealthCheckHttpEndpoint(readinessHealthCheckHttpEndpoint)
                                .readinessHealthCheckInvocationTimeout(readinessHealthCheckInvocationTimeout)
@@ -139,6 +145,12 @@ public class StagingParametersParser implements ParametersParser<Staging> {
 
     private String getDefaultHealthCheckHttpEndpoint(String healthCheckType) {
         return HTTP_HEALTH_CHECK_TYPE.equals(healthCheckType) ? DEFAULT_HEALTH_CHECK_HTTP_ENDPOINT : null;
+    }
+
+    private void validateHealthCheckInterval(Integer healthCheckInterval) {
+        if (healthCheckInterval != null && healthCheckInterval <= 0) {
+            throw new ContentException(MessageFormat.format(INVALID_HEALTH_CHECK_INTERVAL, healthCheckInterval));
+        }
     }
 
 }
