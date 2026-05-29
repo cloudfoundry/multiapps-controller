@@ -40,6 +40,18 @@ public class AdditionalModuleParametersReporter {
                                                         readinessHealthCheckInvocationTimeout, readinessHealthCheckInterval,
                                                         buildpacks.toString(), module.getType());
         }
+        String healthCheckType = (String) module.getParameters()
+                                                .get(SupportedParameters.HEALTH_CHECK_TYPE);
+        String healthCheckHttpEndpoint = (String) module.getParameters()
+                                                        .get(SupportedParameters.HEALTH_CHECK_HTTP_ENDPOINT);
+        Integer healthCheckInvocationTimeout = (Integer) module.getParameters()
+                                                               .get(SupportedParameters.HEALTH_CHECK_INVOCATION_TIMEOUT);
+        Integer healthCheckInterval = (Integer) module.getParameters()
+                                                      .get(SupportedParameters.HEALTH_CHECK_INTERVAL);
+        if (healthCheckType != null) {
+            reportUsageOfHealthCheckParameters(mtaId, correlationId, healthCheckType, healthCheckHttpEndpoint, healthCheckInvocationTimeout,
+                                               healthCheckInterval, buildpacks.toString(), module.getType());
+        }
     }
 
     // this method is being observed by Dynatrace, be careful if you change it
@@ -50,5 +62,14 @@ public class AdditionalModuleParametersReporter {
         LOGGER.info(MessageFormat.format("MTA with ID \"{0}\" associated with operation ID \"{1}\" uses readiness health check parameters: type=\"{2}\", httpEndpoint=\"{3}\", invocationTimeout=\"{4}\", interval=\"{5}\", buildpacks=\"{6}\", moduleType=\"{7}\"",
                                          mtaId, correlationId, readinessHealthCheckType, readinessHealthCheckHttpEndpoint,
                                          readinessHealthCheckInvocationTimeout, readinessHealthCheckInterval, buildpacks, moduleType));
+    }
+
+    // this method is being observed by Dynatrace, be careful if you change it
+    private void reportUsageOfHealthCheckParameters(String mtaId, String correlationId, String healthCheckType,
+                                                    String healthCheckHttpEndpoint, Integer healthCheckInvocationTimeout,
+                                                    Integer healthCheckInterval, String buildpacks, String moduleType) {
+        LOGGER.info(MessageFormat.format("MTA with ID \"{0}\" associated with operation ID \"{1}\" uses health check parameters: type=\"{2}\", httpEndpoint=\"{3}\", invocationTimeout=\"{4}\", interval=\"{5}\", buildpacks=\"{6}\", moduleType=\"{7}\"",
+                                         mtaId, correlationId, healthCheckType, healthCheckHttpEndpoint, healthCheckInvocationTimeout,
+                                         healthCheckInterval, buildpacks, moduleType));
     }
 }
