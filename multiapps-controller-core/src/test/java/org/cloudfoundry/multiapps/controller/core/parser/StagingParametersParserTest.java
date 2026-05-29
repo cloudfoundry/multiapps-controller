@@ -5,12 +5,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.LifecycleType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.util.CollectionUtils;
 
 import static org.cloudfoundry.multiapps.controller.core.Messages.BUILDPACKS_NOT_ALLOWED_WITH_DOCKER;
@@ -150,12 +154,39 @@ class StagingParametersParserTest {
         assertEquals(15, staging.getHealthCheckInterval());
     }
 
+    static Stream<Arguments> testHealthCheckIntervalAcceptsPositiveValues() {
+        return Stream.of(Arguments.of(1), Arguments.of(15), Arguments.of(60), Arguments.of(Integer.MAX_VALUE));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testHealthCheckIntervalAcceptsPositiveValues(int interval) {
+        parametersList.add(mapOf(HEALTH_CHECK_INTERVAL, interval));
+
+        Staging staging = parser.parse(parametersList);
+
+        assertEquals(interval, staging.getHealthCheckInterval());
+    }
+
     @Test
     void testHealthCheckIntervalValidationRejectsNonPositiveValue() {
         parametersList.add(mapOf(HEALTH_CHECK_INTERVAL, 0));
 
         ContentException exception = assertThrows(ContentException.class, () -> parser.parse(parametersList));
         assertEquals(MessageFormat.format(INVALID_HEALTH_CHECK_INTERVAL, 0), exception.getMessage());
+    }
+
+    static Stream<Arguments> testHealthCheckIntervalValidationRejectsNonPositiveValues() {
+        return Stream.of(Arguments.of(0), Arguments.of(-1), Arguments.of(-15), Arguments.of(Integer.MIN_VALUE));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testHealthCheckIntervalValidationRejectsNonPositiveValues(int interval) {
+        parametersList.add(mapOf(HEALTH_CHECK_INTERVAL, interval));
+
+        ContentException exception = assertThrows(ContentException.class, () -> parser.parse(parametersList));
+        assertEquals(MessageFormat.format(INVALID_HEALTH_CHECK_INTERVAL, interval), exception.getMessage());
     }
 
     @Test
