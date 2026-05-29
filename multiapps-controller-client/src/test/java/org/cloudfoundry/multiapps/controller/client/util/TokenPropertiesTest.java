@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.client.util;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
@@ -22,20 +23,11 @@ class TokenPropertiesTest {
     }
 
     @Test
-    void testGettersExposeConstructorValues() {
-        TokenProperties props = new TokenProperties("client-x", "user-id-x", "user-name-x");
-
-        Assertions.assertEquals("client-x", props.getClientId());
-        Assertions.assertEquals("user-id-x", props.getUserId());
-        Assertions.assertEquals("user-name-x", props.getUserName());
-    }
-
-    @Test
     void testFromTokenReadsAllAdditionalInfoKeys() {
         Mockito.when(token.getAdditionalInfo())
-               .thenReturn(Map.of("client_id", "c1",
-                                  "user_id", "u1",
-                                  "user_name", "alice"));
+               .thenReturn(Map.of(TokenProperties.CLIENT_ID_KEY, "c1",
+                                  TokenProperties.USER_ID_KEY, "u1",
+                                  TokenProperties.USER_NAME_KEY, "alice"));
 
         TokenProperties props = TokenProperties.fromToken(token);
 
@@ -45,7 +37,7 @@ class TokenPropertiesTest {
     }
 
     @Test
-    void testFromTokenReturnsNullsWhenAdditionalInfoEmpty() {
+    void testFromTokenReturnsNullsWhenAllKeysMissing() {
         Mockito.when(token.getAdditionalInfo())
                .thenReturn(Map.of());
 
@@ -54,5 +46,37 @@ class TokenPropertiesTest {
         Assertions.assertNull(props.getClientId());
         Assertions.assertNull(props.getUserId());
         Assertions.assertNull(props.getUserName());
+    }
+
+    @Test
+    void testFromTokenReturnsNullForIndividualMissingKeys() {
+        Map<String, Object> info = new HashMap<>();
+        info.put(TokenProperties.CLIENT_ID_KEY, "c1");
+        Mockito.when(token.getAdditionalInfo())
+               .thenReturn(info);
+
+        TokenProperties props = TokenProperties.fromToken(token);
+
+        Assertions.assertEquals("c1", props.getClientId());
+        Assertions.assertNull(props.getUserId());
+        Assertions.assertNull(props.getUserName());
+    }
+
+    @Test
+    void testFromTokenThrowsWhenAdditionalInfoIsNull() {
+        Mockito.when(token.getAdditionalInfo())
+               .thenReturn(null);
+
+        Assertions.assertThrows(NullPointerException.class, () -> TokenProperties.fromToken(token));
+    }
+
+    @Test
+    void testFromTokenThrowsWhenValueIsNotAString() {
+        Map<String, Object> info = new HashMap<>();
+        info.put(TokenProperties.CLIENT_ID_KEY, Integer.valueOf(42));
+        Mockito.when(token.getAdditionalInfo())
+               .thenReturn(info);
+
+        Assertions.assertThrows(ClassCastException.class, () -> TokenProperties.fromToken(token));
     }
 }

@@ -7,11 +7,17 @@ import org.cloudfoundry.multiapps.controller.core.auditlogging.model.Configurati
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 class FlowableSlmpResourceAuditLogTest {
+
+    private static final String USERNAME = "alice";
+    private static final String SPACE_ID = "space";
+    private static final String ACTION = "do-thing";
+    private static final String CONFIGURATION = "the-config";
 
     @Mock
     private AuditLoggingFacade auditLoggingFacade;
@@ -26,35 +32,47 @@ class FlowableSlmpResourceAuditLogTest {
     }
 
     @Test
-    void testAuditLogConfigurationChangeDelegatesWithProvidedAction() {
-        auditLog.auditLogConfigurationChange("alice", "space", "do-thing", "the-config",
-                                              ConfigurationChangeActions.CONFIGURATION_CREATE);
+    void testAuditLogConfigurationChangeForwardsActionAndCapturedFields() {
+        auditLog.auditLogConfigurationChange(USERNAME, SPACE_ID, ACTION, CONFIGURATION,
+                                             ConfigurationChangeActions.CONFIGURATION_CREATE);
 
+        ArgumentCaptor<AuditLogConfiguration> captor = ArgumentCaptor.forClass(AuditLogConfiguration.class);
         Mockito.verify(auditLoggingFacade)
-               .logConfigurationChangeAuditLog(Mockito.any(AuditLogConfiguration.class),
-                                               Mockito.eq(ConfigurationChangeActions.CONFIGURATION_CREATE));
+               .logConfigurationChangeAuditLog(captor.capture(), Mockito.eq(ConfigurationChangeActions.CONFIGURATION_CREATE));
+        AuditLogConfiguration captured = captor.getValue();
+        Assertions.assertEquals(USERNAME, captured.getUserId());
+        Assertions.assertEquals(SPACE_ID, captured.getSpaceId());
+        Assertions.assertEquals(ACTION, captured.getPerformedAction());
+        Assertions.assertEquals(CONFIGURATION, captured.getConfigurationName());
     }
 
     @Test
-    void testAuditLogActionPerformedDelegatesToDataAccess() {
-        auditLog.auditLogActionPerformed("alice", "space", "look", "the-config");
+    void testAuditLogActionPerformedForwardsCapturedFieldsToDataAccess() {
+        auditLog.auditLogActionPerformed(USERNAME, SPACE_ID, ACTION, CONFIGURATION);
 
+        ArgumentCaptor<AuditLogConfiguration> captor = ArgumentCaptor.forClass(AuditLogConfiguration.class);
         Mockito.verify(auditLoggingFacade)
-               .logDataAccessAuditLog(Mockito.any(AuditLogConfiguration.class));
+               .logDataAccessAuditLog(captor.capture());
+        AuditLogConfiguration captured = captor.getValue();
+        Assertions.assertEquals(USERNAME, captured.getUserId());
+        Assertions.assertEquals(SPACE_ID, captured.getSpaceId());
+        Assertions.assertEquals(ACTION, captured.getPerformedAction());
+        Assertions.assertEquals(CONFIGURATION, captured.getConfigurationName());
     }
 
     @Test
     void testAuditLogActionPerformedWithParametersIncludesParameters() {
-        auditLog.auditLogActionPerformed("alice", "space", "look", "the-config", Map.of("key", "value"));
+        auditLog.auditLogActionPerformed(USERNAME, SPACE_ID, ACTION, CONFIGURATION, Map.of("key", "value"));
 
-        org.mockito.ArgumentCaptor<AuditLogConfiguration> captor = org.mockito.ArgumentCaptor.forClass(AuditLogConfiguration.class);
+        ArgumentCaptor<AuditLogConfiguration> captor = ArgumentCaptor.forClass(AuditLogConfiguration.class);
         Mockito.verify(auditLoggingFacade)
                .logDataAccessAuditLog(captor.capture());
-        Assertions.assertTrue(captor.getValue()
-                                    .getConfigurationIdentifiers()
-                                    .stream()
-                                    .anyMatch(identifier -> "key".equals(identifier.getIdentifierName())
-                                        && "value".equals(identifier.getIdentifierValue())));
+        AuditLogConfiguration captured = captor.getValue();
+        Assertions.assertEquals(USERNAME, captured.getUserId());
+        Assertions.assertEquals(ACTION, captured.getPerformedAction());
+        Assertions.assertTrue(captured.getConfigurationIdentifiers()
+                                      .stream()
+                                      .anyMatch(id -> "key".equals(id.getIdentifierName()) && "value".equals(id.getIdentifierValue())));
     }
 
 }

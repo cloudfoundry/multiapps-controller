@@ -1,9 +1,14 @@
 package org.cloudfoundry.multiapps.controller.client.facade;
 
+import java.util.stream.Stream;
+
 import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -18,76 +23,56 @@ class CloudCredentialsTest {
                           .close();
     }
 
-    @Test
-    void testEmailPasswordConstructorDefaultsClientIdAndClientSecret() {
-        CloudCredentials c = new CloudCredentials("alice@example.com", "secret");
+    static Stream<Arguments> emailPasswordConstructors() {
+        return Stream.of(Arguments.of(new CloudCredentials("alice@example.com", "secret"),
+                                      "alice@example.com",
+                                      "secret",
+                                      "cf",
+                                      "",
+                                      null),
+                         Arguments.of(new CloudCredentials("a", "b", "client-x"), "a", "b", "client-x", "", null),
+                         Arguments.of(new CloudCredentials("a", "b", "cid", "csecret"), "a", "b", "cid", "csecret", null),
+                         Arguments.of(new CloudCredentials("a", "b", "cid", "csecret", "uaa"), "a", "b", "cid", "csecret", "uaa"));
+    }
 
-        Assertions.assertEquals("alice@example.com", c.getEmail());
-        Assertions.assertEquals("secret", c.getPassword());
-        Assertions.assertEquals("cf", c.getClientId());
-        Assertions.assertEquals("", c.getClientSecret());
-        Assertions.assertNull(c.getOrigin());
-        Assertions.assertNull(c.getProxyUser());
-        Assertions.assertFalse(c.isProxyUserSet());
-        Assertions.assertTrue(c.isRefreshable());
-        Assertions.assertNull(c.getToken());
+    @ParameterizedTest
+    @MethodSource("emailPasswordConstructors")
+    void testEmailPasswordConstructorsAssignAllFields(CloudCredentials credentials, String email, String password, String clientId,
+                                                     String clientSecret, String origin) {
+        Assertions.assertEquals(email, credentials.getEmail());
+        Assertions.assertEquals(password, credentials.getPassword());
+        Assertions.assertEquals(clientId, credentials.getClientId());
+        Assertions.assertEquals(clientSecret, credentials.getClientSecret());
+        Assertions.assertEquals(origin, credentials.getOrigin());
+        Assertions.assertNull(credentials.getToken());
+        Assertions.assertNull(credentials.getProxyUser());
+        Assertions.assertFalse(credentials.isProxyUserSet());
+        Assertions.assertTrue(credentials.isRefreshable());
     }
 
     @Test
-    void testEmailPasswordClientIdConstructor() {
-        CloudCredentials c = new CloudCredentials("a", "b", "client-x");
+    void testTokenAndRefreshableConstructorRespectsRefreshableFlag() {
+        CloudCredentials refreshable = new CloudCredentials(token);
+        CloudCredentials nonRefreshable = new CloudCredentials(token, false);
 
-        Assertions.assertEquals("client-x", c.getClientId());
+        Assertions.assertSame(token, refreshable.getToken());
+        Assertions.assertTrue(refreshable.isRefreshable());
+        Assertions.assertSame(token, nonRefreshable.getToken());
+        Assertions.assertFalse(nonRefreshable.isRefreshable());
     }
 
     @Test
-    void testEmailPasswordClientIdSecretConstructor() {
-        CloudCredentials c = new CloudCredentials("a", "b", "cid", "csecret");
+    void testTokenWithClientCredentialsConstructorsAssignClientId() {
+        CloudCredentials withClientId = new CloudCredentials(token, "client-y");
+        CloudCredentials withClientIdAndSecret = new CloudCredentials(token, "client-y", "shh");
 
-        Assertions.assertEquals("cid", c.getClientId());
-        Assertions.assertEquals("csecret", c.getClientSecret());
+        Assertions.assertEquals("client-y", withClientId.getClientId());
+        Assertions.assertEquals("client-y", withClientIdAndSecret.getClientId());
+        Assertions.assertEquals("shh", withClientIdAndSecret.getClientSecret());
     }
 
     @Test
-    void testEmailPasswordClientIdSecretOriginConstructor() {
-        CloudCredentials c = new CloudCredentials("a", "b", "cid", "csecret", "uaa");
-
-        Assertions.assertEquals("uaa", c.getOrigin());
-    }
-
-    @Test
-    void testTokenOnlyConstructor() {
-        CloudCredentials c = new CloudCredentials(token);
-
-        Assertions.assertSame(token, c.getToken());
-        Assertions.assertTrue(c.isRefreshable());
-    }
-
-    @Test
-    void testTokenAndRefreshableConstructor() {
-        CloudCredentials c = new CloudCredentials(token, false);
-
-        Assertions.assertSame(token, c.getToken());
-        Assertions.assertFalse(c.isRefreshable());
-    }
-
-    @Test
-    void testTokenAndClientIdConstructor() {
-        CloudCredentials c = new CloudCredentials(token, "client-y");
-
-        Assertions.assertEquals("client-y", c.getClientId());
-    }
-
-    @Test
-    void testTokenClientIdSecretConstructor() {
-        CloudCredentials c = new CloudCredentials(token, "client-y", "shh");
-
-        Assertions.assertEquals("client-y", c.getClientId());
-        Assertions.assertEquals("shh", c.getClientSecret());
-    }
-
-    @Test
-    void testProxyForUserCopiesFieldsAndSetsProxyUser() {
+    void testProxyForUserCopiesEmailPasswordClientIdAndTokenAndSetsProxyUser() {
         CloudCredentials base = new CloudCredentials("a@b.c", "pw", "cid");
 
         CloudCredentials proxied = base.proxyForUser("admin");
@@ -97,5 +82,15 @@ class CloudCredentialsTest {
         Assertions.assertEquals("cid", proxied.getClientId());
         Assertions.assertEquals("admin", proxied.getProxyUser());
         Assertions.assertTrue(proxied.isProxyUserSet());
+    }
+
+    @Test
+    void testProxyForUserWithTokenCopiesToken() {
+        CloudCredentials base = new CloudCredentials(token);
+
+        CloudCredentials proxied = base.proxyForUser("admin");
+
+        Assertions.assertSame(token, proxied.getToken());
+        Assertions.assertEquals("admin", proxied.getProxyUser());
     }
 }

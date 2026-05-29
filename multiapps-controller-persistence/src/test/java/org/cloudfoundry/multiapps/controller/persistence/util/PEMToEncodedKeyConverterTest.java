@@ -27,14 +27,28 @@ class PEMToEncodedKeyConverterTest {
     }
 
     @Test
-    void testThrowsForUnsupportedPEMObject() throws Exception {
-        String pem = "-----BEGIN CERTIFICATE-----\n"
-            + "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvBC9X+2Zg99Q==\n"
-            + "-----END CERTIFICATE-----\n";
+    void testThrowsIllegalArgumentExceptionWithInvalidKeyFormatMessageForPublicKey() throws Exception {
+        String pem = generatePublicKeyPem();
 
         try (PEMParser parser = new PEMParser(new StringReader(pem))) {
-            Assertions.assertThrows(Exception.class, () -> converter.getPrivateEncodedKey(parser));
+            IllegalArgumentException thrown = Assertions.assertThrows(IllegalArgumentException.class,
+                                                                      () -> converter.getPrivateEncodedKey(parser));
+            Assertions.assertTrue(thrown.getMessage()
+                                        .startsWith("Invalid key format:"),
+                                  () -> "Unexpected message: " + thrown.getMessage());
         }
+    }
+
+    private String generatePublicKeyPem() throws Exception {
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+        generator.initialize(2048);
+        KeyPair keyPair = generator.generateKeyPair();
+
+        StringWriter writer = new StringWriter();
+        try (JcaPEMWriter pemWriter = new JcaPEMWriter(writer)) {
+            pemWriter.writeObject(keyPair.getPublic());
+        }
+        return writer.toString();
     }
 
     private String generateRsaKeyPairPem() throws Exception {

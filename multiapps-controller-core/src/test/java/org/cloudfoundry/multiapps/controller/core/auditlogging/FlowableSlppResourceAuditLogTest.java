@@ -14,6 +14,11 @@ import org.mockito.MockitoAnnotations;
 
 class FlowableSlppResourceAuditLogTest {
 
+    private static final String USERNAME = "alice";
+    private static final String SPACE_ID = "space";
+    private static final String ACTION = "do-thing";
+    private static final String CONFIGURATION = "the-config";
+
     @Mock
     private AuditLoggingFacade auditLoggingFacade;
 
@@ -27,43 +32,63 @@ class FlowableSlppResourceAuditLogTest {
     }
 
     @Test
-    void testAuditLogConfigurationChangeDelegates() {
-        auditLog.auditLogConfigurationChange("alice", "space", "do-thing", "the-config",
-                                              ConfigurationChangeActions.CONFIGURATION_DELETE);
+    void testAuditLogConfigurationChangeForwardsActionAndCapturedFields() {
+        auditLog.auditLogConfigurationChange(USERNAME, SPACE_ID, ACTION, CONFIGURATION,
+                                             ConfigurationChangeActions.CONFIGURATION_DELETE);
 
+        ArgumentCaptor<AuditLogConfiguration> captor = ArgumentCaptor.forClass(AuditLogConfiguration.class);
         Mockito.verify(auditLoggingFacade)
-               .logConfigurationChangeAuditLog(Mockito.any(AuditLogConfiguration.class),
-                                               Mockito.eq(ConfigurationChangeActions.CONFIGURATION_DELETE));
+               .logConfigurationChangeAuditLog(captor.capture(), Mockito.eq(ConfigurationChangeActions.CONFIGURATION_DELETE));
+        AuditLogConfiguration captured = captor.getValue();
+        Assertions.assertEquals(USERNAME, captured.getUserId());
+        Assertions.assertEquals(SPACE_ID, captured.getSpaceId());
+        Assertions.assertEquals(ACTION, captured.getPerformedAction());
+        Assertions.assertEquals(CONFIGURATION, captured.getConfigurationName());
     }
 
     @Test
     void testAuditLogConfigurationChangeWithParametersIncludesParameters() {
-        auditLog.auditLogConfigurationChange("alice", "space", "do-thing", "the-config", Map.of("k", "v"),
-                                              ConfigurationChangeActions.CONFIGURATION_UPDATE);
+        auditLog.auditLogConfigurationChange(USERNAME, SPACE_ID, ACTION, CONFIGURATION, Map.of("k", "v"),
+                                             ConfigurationChangeActions.CONFIGURATION_UPDATE);
 
         ArgumentCaptor<AuditLogConfiguration> captor = ArgumentCaptor.forClass(AuditLogConfiguration.class);
         Mockito.verify(auditLoggingFacade)
                .logConfigurationChangeAuditLog(captor.capture(), Mockito.eq(ConfigurationChangeActions.CONFIGURATION_UPDATE));
-        Assertions.assertTrue(captor.getValue()
-                                    .getConfigurationIdentifiers()
-                                    .stream()
-                                    .anyMatch(id -> "k".equals(id.getIdentifierName()) && "v".equals(id.getIdentifierValue())));
+        AuditLogConfiguration captured = captor.getValue();
+        Assertions.assertEquals(USERNAME, captured.getUserId());
+        Assertions.assertEquals(ACTION, captured.getPerformedAction());
+        Assertions.assertTrue(captured.getConfigurationIdentifiers()
+                                      .stream()
+                                      .anyMatch(id -> "k".equals(id.getIdentifierName()) && "v".equals(id.getIdentifierValue())));
     }
 
     @Test
-    void testAuditLogActionPerformedDelegatesToDataAccess() {
-        auditLog.auditLogActionPerformed("alice", "space", "look", "the-config");
+    void testAuditLogActionPerformedForwardsCapturedFieldsToDataAccess() {
+        auditLog.auditLogActionPerformed(USERNAME, SPACE_ID, ACTION, CONFIGURATION);
 
+        ArgumentCaptor<AuditLogConfiguration> captor = ArgumentCaptor.forClass(AuditLogConfiguration.class);
         Mockito.verify(auditLoggingFacade)
-               .logDataAccessAuditLog(Mockito.any(AuditLogConfiguration.class));
+               .logDataAccessAuditLog(captor.capture());
+        AuditLogConfiguration captured = captor.getValue();
+        Assertions.assertEquals(USERNAME, captured.getUserId());
+        Assertions.assertEquals(SPACE_ID, captured.getSpaceId());
+        Assertions.assertEquals(ACTION, captured.getPerformedAction());
+        Assertions.assertEquals(CONFIGURATION, captured.getConfigurationName());
     }
 
     @Test
-    void testAuditLogActionPerformedWithParametersDelegatesToDataAccess() {
-        auditLog.auditLogActionPerformed("alice", "space", "look", "the-config", Map.of("k", "v"));
+    void testAuditLogActionPerformedWithParametersIncludesParameters() {
+        auditLog.auditLogActionPerformed(USERNAME, SPACE_ID, ACTION, CONFIGURATION, Map.of("k", "v"));
 
+        ArgumentCaptor<AuditLogConfiguration> captor = ArgumentCaptor.forClass(AuditLogConfiguration.class);
         Mockito.verify(auditLoggingFacade)
-               .logDataAccessAuditLog(Mockito.any(AuditLogConfiguration.class));
+               .logDataAccessAuditLog(captor.capture());
+        AuditLogConfiguration captured = captor.getValue();
+        Assertions.assertEquals(USERNAME, captured.getUserId());
+        Assertions.assertEquals(ACTION, captured.getPerformedAction());
+        Assertions.assertTrue(captured.getConfigurationIdentifiers()
+                                      .stream()
+                                      .anyMatch(id -> "k".equals(id.getIdentifierName()) && "v".equals(id.getIdentifierValue())));
     }
 
 }

@@ -12,12 +12,13 @@ class OperationLogStorageExceptionTest {
     }
 
     @Test
-    void testCauseConstructor() {
+    void testCauseConstructorPreservesCauseAndUsesItsMessage() {
         Throwable cause = new RuntimeException("boom");
 
         OperationLogStorageException e = new OperationLogStorageException(cause);
 
         Assertions.assertSame(cause, e.getCause());
+        Assertions.assertEquals("boom", e.getMessage());
     }
 
     @Test
@@ -29,13 +30,12 @@ class OperationLogStorageExceptionTest {
     }
 
     @Test
-    void testMessageAndCauseConstructorPreservesMessage() {
-        // The (String, Throwable) ctor resolves to SLException(String, Object...),
-        // so the message survives but the Throwable is treated as a MessageFormat argument.
+    void testMessageAndCauseConstructorPreservesMessageAndCause() {
         Throwable cause = new RuntimeException("boom");
 
         OperationLogStorageException e = new OperationLogStorageException("storage failed", cause);
 
         Assertions.assertEquals("storage failed", e.getMessage());
+        Assertions.assertSame(cause, e.getCause());
     }
 }

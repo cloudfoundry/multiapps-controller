@@ -10,6 +10,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import reactor.core.publisher.Mono;
+
 class OAuthTokenProviderTest {
 
     @Mock
@@ -29,17 +31,49 @@ class OAuthTokenProviderTest {
     }
 
     @Test
-    void testGetTokenReturnsAuthorizationHeaderValueFromOAuthClient() {
+    void testGetTokenIsLazyAndDoesNotInvokeOAuthClientUntilSubscribed() {
         Mockito.when(oAuthClient.getToken())
                .thenReturn(token);
         Mockito.when(token.getAuthorizationHeaderValue())
                .thenReturn("Bearer abc123");
 
-        String result = provider.getToken(connectionContext)
-                                .block();
+        Mono<String> mono = provider.getToken(connectionContext);
+
+        Mockito.verify(oAuthClient, Mockito.never())
+               .getToken();
+
+        String result = mono.block();
 
         Assertions.assertEquals("Bearer abc123", result);
         Mockito.verify(oAuthClient)
                .getToken();
+    }
+
+    @Test
+    void testGetTokenInvokesOAuthClientOncePerSubscription() {
+        Mockito.when(oAuthClient.getToken())
+               .thenReturn(token);
+        Mockito.when(token.getAuthorizationHeaderValue())
+               .thenReturn("Bearer abc123");
+
+        Mono<String> mono = provider.getToken(connectionContext);
+
+        mono.block();
+        mono.block();
+
+        Mockito.verify(oAuthClient, Mockito.times(2))
+               .getToken();
+    }
+
+    @Test
+    void testGetTokenPropagatesOAuthClientFailure() {
+        RuntimeException failure = new RuntimeException("token retrieval failed");
+        Mockito.when(oAuthClient.getToken())
+               .thenThrow(failure);
+
+        Mono<String> mono = provider.getToken(connectionContext);
+
+        RuntimeException thrown = Assertions.assertThrows(RuntimeException.class, mono::block);
+        Assertions.assertSame(failure, thrown);
     }
 }
