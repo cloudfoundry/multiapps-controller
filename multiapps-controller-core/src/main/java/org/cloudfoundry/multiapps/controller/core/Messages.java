@@ -91,6 +91,7 @@ public final class Messages {
     public static final String BUILDPACKS_REQUIRED_FOR_CNB = "Buildpacks must be provided when lifecycle is set to 'cnb'.";
     public static final String DOCKER_INFO_REQUIRED = "Docker information must be provided when lifecycle is set to 'docker'.";
     public static final String BUILDPACKS_NOT_ALLOWED_WITH_DOCKER = "Buildpacks must not be provided when lifecycle is set to 'docker'.";
+    public static final String INVALID_HEALTH_CHECK_INTERVAL = "Invalid value \"{0}\" for parameter \"health-check-interval\". The value must be a positive integer (seconds).";
     public static final String EXTENSION_DESCRIPTORS_COULD_NOT_BE_PARSED_TO_VALID_YAML = "Extension descriptor(s) could not be parsed as a valid YAML file. These descriptors may fail future deployments once stricter validation is enforced. Please review and correct them now to avoid future issues. Use at your own risk";
     public static final String UNSUPPORTED_FILE_FORMAT = "Unsupported file format! \"{0}\" detected";
     public static final String ENCRYPTION_HAS_FAILED = "Encryption has failed! Errored with \"{0}\"";
