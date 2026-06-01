@@ -159,6 +159,16 @@ class StagingParametersParserTest {
     }
 
     @Test
+    void testHealthCheckIntervalAcceptsSmallestPositiveValue() {
+        parametersList.add(mapOf(HEALTH_CHECK_INTERVAL, 1));
+
+        Staging staging = parser.parse(parametersList);
+
+        assertNotNull(staging);
+        assertEquals(1, staging.getHealthCheckInterval());
+    }
+
+    @Test
     void testHealthCheckIntervalRejectsZero() {
         parametersList.add(mapOf(HEALTH_CHECK_INTERVAL, 0));
 
