@@ -249,26 +249,6 @@
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>0.8.14</version>
                 </plugin>
-                <plugin>
-                    <groupId>com.diffplug.spotless</groupId>
-                    <artifactId>spotless-maven-plugin</artifactId>
-                    <version>3.4.0</version>
-                    <configuration>
-                        <!-- THE MAGIC LINE: Spotless will only format files changed relative to this branch -->
-                        <ratchetFrom>origin/master</ratchetFrom>
-                        <java>
-                            <eclipse>
-                                <file>
-                                    https://raw.githubusercontent.com/cloudfoundry/multiapps/master/ide/mta_formatter_java_eclipse_bridge.xml
-                                </file>
-                            </eclipse>
-                            <importOrder>
-                                <order>java|javax,,\\#</order>
-                            </importOrder>
-                            <removeUnusedImports/>
-                        </java>
-                    </configuration>
-                </plugin>
             </plugins>
         </pluginManagement>
     </build>

@@ -64,11 +64,3 @@ mvn verify sonar:sonar -P sonar
 The deployable WAR is at `multiapps-controller-web/target/multiapps-controller-web-<version>.war`.
 
 Integration tests (`**/*IntegrationTest`) are excluded from the default surefire run.
-
-## Formatting Rule
-
-Before completing any task or committing code, you **MUST** run:
-
-```bash
-mvn spotless:apply
-```
