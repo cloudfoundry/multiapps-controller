@@ -21,6 +21,7 @@ import static org.cloudfoundry.multiapps.controller.core.Messages.UNSUPPORTED_LI
 import static org.cloudfoundry.multiapps.controller.core.model.SupportedParameters.BUILDPACK;
 import static org.cloudfoundry.multiapps.controller.core.model.SupportedParameters.BUILDPACKS;
 import static org.cloudfoundry.multiapps.controller.core.model.SupportedParameters.DOCKER;
+import static org.cloudfoundry.multiapps.controller.core.model.SupportedParameters.HEALTH_CHECK_INTERVAL;
 import static org.cloudfoundry.multiapps.controller.core.model.SupportedParameters.LIFECYCLE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -136,6 +137,24 @@ class StagingParametersParserTest {
         assertNull(staging.getLifecycleType());
         assertTrue(CollectionUtils.isEmpty(staging.getBuildpacks()));
         assertNull(staging.getDockerInfo());
+    }
+
+    @Test
+    void testHealthCheckIntervalIsParsedWhenPresent() {
+        parametersList.add(mapOf(HEALTH_CHECK_INTERVAL, 15));
+
+        Staging staging = parser.parse(parametersList);
+
+        assertNotNull(staging);
+        assertEquals(Integer.valueOf(15), staging.getHealthCheckInterval());
+    }
+
+    @Test
+    void testHealthCheckIntervalIsNullWhenAbsent() {
+        Staging staging = parser.parse(parametersList);
+
+        assertNotNull(staging);
+        assertNull(staging.getHealthCheckInterval());
     }
 
     private static Map<String, Object> mapOf(String key, Object value) {
