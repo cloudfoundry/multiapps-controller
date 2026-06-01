@@ -20,7 +20,6 @@ import static org.cloudfoundry.multiapps.controller.core.Messages.BUILDPACKS_NOT
 import static org.cloudfoundry.multiapps.controller.core.Messages.BUILDPACKS_REQUIRED_FOR_CNB;
 import static org.cloudfoundry.multiapps.controller.core.Messages.DOCKER_INFO_NOT_ALLOWED_WITH_LIFECYCLE;
 import static org.cloudfoundry.multiapps.controller.core.Messages.DOCKER_INFO_REQUIRED;
-import static org.cloudfoundry.multiapps.controller.core.Messages.INVALID_HEALTH_CHECK_INTERVAL;
 import static org.cloudfoundry.multiapps.controller.core.Messages.UNSUPPORTED_LIFECYCLE_VALUE;
 
 public class StagingParametersParser implements ParametersParser<Staging> {
@@ -40,7 +39,6 @@ public class StagingParametersParser implements ParametersParser<Staging> {
                                                                                          null);
         Integer healthCheckInterval = (Integer) PropertiesUtil.getPropertyValue(parametersList,
                                                                                 SupportedParameters.HEALTH_CHECK_INTERVAL, null);
-        validateHealthCheckInterval(healthCheckInterval);
         String healthCheckType = (String) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.HEALTH_CHECK_TYPE, null);
         String healthCheckHttpEndpoint = (String) PropertiesUtil.getPropertyValue(parametersList,
                                                                                   SupportedParameters.HEALTH_CHECK_HTTP_ENDPOINT,
@@ -83,12 +81,6 @@ public class StagingParametersParser implements ParametersParser<Staging> {
                                .dockerInfo(dockerInfo)
                                .lifecycleType(lifecycleType)
                                .build();
-    }
-
-    private void validateHealthCheckInterval(Integer healthCheckInterval) {
-        if (healthCheckInterval != null && healthCheckInterval <= 0) {
-            throw new ContentException(MessageFormat.format(INVALID_HEALTH_CHECK_INTERVAL, healthCheckInterval));
-        }
     }
 
     @SuppressWarnings("unchecked")
