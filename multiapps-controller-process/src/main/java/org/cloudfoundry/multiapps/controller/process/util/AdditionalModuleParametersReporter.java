@@ -16,9 +16,15 @@ public class AdditionalModuleParametersReporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(AdditionalModuleParametersReporter.class);
 
     private final ProcessContext context;
+    private final Logger logger;
 
     public AdditionalModuleParametersReporter(ProcessContext context) {
+        this(context, LOGGER);
+    }
+
+    AdditionalModuleParametersReporter(ProcessContext context, Logger logger) {
         this.context = context;
+        this.logger = logger;
     }
 
     public void reportUsageOfAdditionalParameters(Module module) {
@@ -33,12 +39,17 @@ public class AdditionalModuleParametersReporter {
                                                                         .get(SupportedParameters.READINESS_HEALTH_CHECK_INVOCATION_TIMEOUT);
         Integer readinessHealthCheckInterval = (Integer) module.getParameters()
                                                                .get(SupportedParameters.READINESS_HEALTH_CHECK_INTERVAL);
+        Integer healthCheckInterval = (Integer) module.getParameters()
+                                                      .get(SupportedParameters.HEALTH_CHECK_INTERVAL);
         List<String> buildpacks = PropertiesUtil.getPluralOrSingular(List.of(module.getParameters()), SupportedParameters.BUILDPACKS,
                                                                      SupportedParameters.BUILDPACK);
         if (readinessHealthCheckType != null) {
             reportUsageOfReadinessHealthCheckParameters(mtaId, correlationId, readinessHealthCheckType, readinessHealthCheckHttpEndpoint,
                                                         readinessHealthCheckInvocationTimeout, readinessHealthCheckInterval,
                                                         buildpacks.toString(), module.getType());
+        }
+        if (healthCheckInterval != null) {
+            reportUsageOfHealthCheckInterval(mtaId, correlationId, healthCheckInterval, buildpacks.toString(), module.getType());
         }
     }
 
@@ -50,5 +61,11 @@ public class AdditionalModuleParametersReporter {
         LOGGER.info(MessageFormat.format("MTA with ID \"{0}\" associated with operation ID \"{1}\" uses readiness health check parameters: type=\"{2}\", httpEndpoint=\"{3}\", invocationTimeout=\"{4}\", interval=\"{5}\", buildpacks=\"{6}\", moduleType=\"{7}\"",
                                          mtaId, correlationId, readinessHealthCheckType, readinessHealthCheckHttpEndpoint,
                                          readinessHealthCheckInvocationTimeout, readinessHealthCheckInterval, buildpacks, moduleType));
+    }
+
+    private void reportUsageOfHealthCheckInterval(String mtaId, String correlationId, Integer healthCheckInterval, String buildpacks,
+                                                  String moduleType) {
+        logger.info(MessageFormat.format("MTA with ID \"{0}\" associated with operation ID \"{1}\" uses liveness health check parameters: interval=\"{2}\", buildpacks=\"{3}\", moduleType=\"{4}\"",
+                                         mtaId, correlationId, healthCheckInterval, buildpacks, moduleType));
     }
 }
