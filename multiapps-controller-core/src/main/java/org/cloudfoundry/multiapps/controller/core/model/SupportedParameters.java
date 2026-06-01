@@ -63,6 +63,7 @@ public class SupportedParameters {
     public static final String HEALTH_CHECK_TIMEOUT = "health-check-timeout";
     public static final String HEALTH_CHECK_TYPE = "health-check-type";
     public static final String HEALTH_CHECK_HTTP_ENDPOINT = "health-check-http-endpoint";
+    public static final String HEALTH_CHECK_INTERVAL = "health-check-interval";
     public static final String READINESS_HEALTH_CHECK_TYPE = "readiness-health-check-type";
     public static final String READINESS_HEALTH_CHECK_HTTP_ENDPOINT = "readiness-health-check-http-endpoint";
     public static final String READINESS_HEALTH_CHECK_INVOCATION_TIMEOUT = "readiness-health-check-invocation-timeout";
@@ -190,6 +191,7 @@ public class SupportedParameters {
                                                                DEPENDENCY_TYPE, DISK_QUOTA, DOCKER, DOMAIN, DOMAINS, DEFAULT_DOMAIN,
                                                                ENABLE_SSH, ENABLE_PARALLEL_SERVICE_BINDINGS, HEALTH_CHECK_HTTP_ENDPOINT,
                                                                HEALTH_CHECK_TIMEOUT, HEALTH_CHECK_INVOCATION_TIMEOUT, HEALTH_CHECK_TYPE,
+                                                               HEALTH_CHECK_INTERVAL,
                                                                HOST, HOSTS, IDLE_DOMAIN, IDLE_DOMAINS, IDLE_HOST, IDLE_HOSTS, IDLE_ROUTES,
                                                                INSTANCES, KEEP_EXISTING_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY,
                                                                KEEP_EXISTING_ROUTES, MEMORY, NO_ROUTE, NO_START, RESTART_ON_ENV_CHANGE,

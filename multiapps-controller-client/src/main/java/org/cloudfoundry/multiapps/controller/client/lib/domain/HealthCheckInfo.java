@@ -10,12 +10,14 @@ public class HealthCheckInfo {
     private final String type;
     private final Integer timeout;
     private final Integer invocationTimeout;
+    private final Integer interval;
     private final String httpEndpoint;
 
-    private HealthCheckInfo(String type, Integer timeout, Integer invocationTimeout, String httpEndpoint) {
+    private HealthCheckInfo(String type, Integer timeout, Integer invocationTimeout, Integer interval, String httpEndpoint) {
         this.type = type;
         this.timeout = timeout;
         this.invocationTimeout = invocationTimeout;
+        this.interval = interval;
         this.httpEndpoint = httpEndpoint;
     }
 
@@ -26,16 +28,18 @@ public class HealthCheckInfo {
         }
         var timeout = staging.getHealthCheckTimeout();
         var invocationTimeout = staging.getInvocationTimeout();
+        var interval = staging.getHealthCheckInterval();
         var httpEndpoint = staging.getHealthCheckHttpEndpoint();
-        return new HealthCheckInfo(type, timeout, invocationTimeout, httpEndpoint);
+        return new HealthCheckInfo(type, timeout, invocationTimeout, interval, httpEndpoint);
     }
 
     public static HealthCheckInfo fromProcess(CloudProcess process) {
         var type = process.getHealthCheckType();
         var timeout = process.getHealthCheckTimeout();
         var invocationTimeout = process.getHealthCheckInvocationTimeout();
+        var interval = process.getHealthCheckInterval();
         var httpEndpoint = process.getHealthCheckHttpEndpoint();
-        return new HealthCheckInfo(type.toString(), timeout, invocationTimeout, httpEndpoint);
+        return new HealthCheckInfo(type.toString(), timeout, invocationTimeout, interval, httpEndpoint);
     }
 
     public String getType() {
@@ -48,6 +52,10 @@ public class HealthCheckInfo {
 
     public Integer getInvocationTimeout() {
         return invocationTimeout;
+    }
+
+    public Integer getInterval() {
+        return interval;
     }
 
     public String getHttpEndpoint() {
@@ -66,6 +74,7 @@ public class HealthCheckInfo {
         return Objects.equals(getType(), other.getType())
             && Objects.equals(getTimeout(), other.getTimeout())
             && Objects.equals(getInvocationTimeout(), other.getInvocationTimeout())
+            && Objects.equals(getInterval(), other.getInterval())
             && Objects.equals(getHttpEndpoint(), other.getHttpEndpoint());
     }
 }
