@@ -7,3 +7,4 @@ modules:
     type: foo
     parameters:
       health-check-type: port
+      health-check-interval: 30

@@ -39,6 +39,7 @@ import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTes
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.DEFAULT_DOMAIN;
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.DISK_IN_MB;
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.HEALTH_CHECK_ENDPOINT;
+import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.HEALTH_CHECK_INTERVAL;
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.HEALTH_CHECK_TIMEMOUT;
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.JAVA_BUILDPACK;
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.JAVA_BUILDPACK_URL;
@@ -88,10 +89,14 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
                                           .healthCheckType(HealthCheckType.PROCESS.getValue())
                                           .healthCheckHttpEndpoint(HEALTH_CHECK_ENDPOINT)
                                           .healthCheckTimeout(HEALTH_CHECK_TIMEMOUT)
+                                          .healthCheckInterval(HEALTH_CHECK_INTERVAL)
                                           .build();
         CloudRoute route = getImmutableCloudRoute();
         try {
             verifyApplicationWillBeCreated(applicationName, staging, Set.of(route));
+            UUID applicationGuid = client.getApplicationGuid(applicationName);
+            CloudProcess cloudProcess = client.getApplicationProcess(applicationGuid);
+            assertEquals(HEALTH_CHECK_INTERVAL, cloudProcess.getHealthCheckInterval());
         } catch (Exception e) {
             fail(e);
         } finally {

@@ -111,7 +111,13 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
                         true, LifecycleType.CNB),
                 Arguments.of(ImmutableStaging.builder().addBuildpack("buildpack-333").build(),
                         ImmutableStaging.builder().addBuildpacks("buildpack-4", "buildpack-8").lifecycleType(LifecycleType.CNB).build(),
-                        true, LifecycleType.CNB));
+                        true, LifecycleType.CNB),
+				Arguments.of(
+						ImmutableStaging.builder().addBuildpack("buildpack-1").command("command1").stackName("stack1")
+								.healthCheckType("port").build(),
+						ImmutableStaging.builder().addBuildpack("buildpack-1").command("command1").stackName("stack1")
+								.healthCheckType("port").healthCheckInterval(15).build(),
+						true, LifecycleType.BUILDPACK));
 //@formatter:on
     }
 
@@ -233,6 +239,7 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
         var hcType = staging.getHealthCheckType();
         var hcTimeout = staging.getHealthCheckTimeout();
         var hcEndpoint = staging.getHealthCheckHttpEndpoint();
+        var hcInterval = staging.getHealthCheckInterval();
         when(client.getApplicationProcess(application.getGuid())).thenReturn(ImmutableCloudProcess.builder()
                                                                                                   .command(command)
                                                                                                   .diskInMb(disk == null ? 1024 : disk)
@@ -244,6 +251,7 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
                                                                                                                            hcType.toUpperCase()))
                                                                                                   .healthCheckTimeout(hcTimeout)
                                                                                                   .healthCheckHttpEndpoint(hcEndpoint)
+                                                                                                  .healthCheckInterval(hcInterval)
                                                                                                   .instances(1)
                                                                                                   .build());
     }

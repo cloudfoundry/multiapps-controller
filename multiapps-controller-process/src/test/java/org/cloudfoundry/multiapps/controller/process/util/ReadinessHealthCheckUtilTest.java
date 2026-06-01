@@ -10,12 +10,14 @@ import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvid
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.delegate.DelegateExecution;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class ReadinessHealthCheckUtilTest {
 
@@ -41,6 +43,19 @@ class ReadinessHealthCheckUtilTest {
     void testShouldWaitForAppToBecomeRoutable(String readinessHealthCheckType, boolean expectedResult) {
         assertEquals(expectedResult, ReadinessHealthCheckUtil.shouldWaitForAppToBecomeRoutable(
             createContext(readinessHealthCheckType)));
+    }
+
+    @Test
+    void testHealthCheckIntervalAloneDoesNotTriggerReadinessGate() {
+        DelegateExecution execution = MockDelegateExecution.createSpyInstance();
+        ProcessContext context = new ProcessContext(execution, stepLogger, clientProvider);
+        Staging staging = ImmutableStaging.builder()
+                                          .healthCheckInterval(30)
+                                          .build();
+        context.setVariable(Variables.APP_TO_PROCESS, ImmutableCloudApplicationExtended.builder()
+                                                                                       .staging(staging)
+                                                                                       .build());
+        assertFalse(ReadinessHealthCheckUtil.shouldWaitForAppToBecomeRoutable(context));
     }
 
     private ProcessContext createContext(String readinessHealthCheckType) {

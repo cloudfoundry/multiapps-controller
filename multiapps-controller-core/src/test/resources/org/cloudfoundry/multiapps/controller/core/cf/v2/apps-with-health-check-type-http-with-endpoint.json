@@ -21,6 +21,7 @@
       "buildpacks": [],
       "healthCheckType": "http",
       "healthCheckHttpEndpoint": "/health",
+      "healthCheckInterval": 45,
       "appFeatures": {}
     },
     "routes": [

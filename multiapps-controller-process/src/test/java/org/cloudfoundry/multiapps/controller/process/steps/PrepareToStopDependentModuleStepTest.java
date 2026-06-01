@@ -82,6 +82,7 @@ class PrepareToStopDependentModuleStepTest extends SyncFlowableStepTest<PrepareT
     private Staging createStaging() {
         return ImmutableStaging.builder()
                                .readinessHealthCheckType("http")
+                               .healthCheckInterval(30)
                                .build();
     }
 

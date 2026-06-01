@@ -10,6 +10,7 @@ public class IntegrationTestConstants {
     public static final String NODEJS_BUILDPACK = "nodejs_buildpack";
     public static final String STATICFILE_BUILDPACK = "staticfile_buildpack";
     public static final int HEALTH_CHECK_TIMEMOUT = 100;
+    public static final int HEALTH_CHECK_INTERVAL = 60;
     public static final int DISK_IN_MB = 128;
     public static final int MEMORY_IN_MB = 128;
     public static final String DEFAULT_DOMAIN = "deploy-service.custom.domain.for.integration.tests";

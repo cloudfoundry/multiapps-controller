@@ -8,3 +8,4 @@ modules:
     parameters:
       health-check-type: http
       health-check-http-endpoint: /health
+      health-check-interval: 45

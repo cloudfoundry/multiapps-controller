@@ -20,6 +20,7 @@
     "staging": {
       "buildpacks": [],
       "healthCheckType": "port",
+      "healthCheckInterval": 30,
       "appFeatures": {}
     },
     "routes": [

@@ -93,6 +93,7 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
                                                 .state(state)
                                                 .staging(ImmutableStaging.builder()
                                                                          .readinessHealthCheckType(isReadinessEnabled ? "test" : null)
+                                                                         .healthCheckInterval(30)
                                                                          .build())
                                                 .build();
     }

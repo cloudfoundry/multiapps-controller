@@ -119,6 +119,7 @@ class PollStartAppStatusExecutionTest {
                                                 .instances(instancesCount)
                                                 .staging(ImmutableStaging.builder()
                                                                          .readinessHealthCheckType(isReadinessEnabled ? "test" : null)
+                                                                         .healthCheckInterval(30)
                                                                          .build())
                                                 .build();
     }
