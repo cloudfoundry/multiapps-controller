@@ -138,6 +138,24 @@ class StagingParametersParserTest {
         assertNull(staging.getDockerInfo());
     }
 
+    @Test
+    void testHealthCheckIntervalIsParsedWhenProvided() {
+        parametersList.add(mapOf("health-check-interval", 45));
+
+        Staging staging = parser.parse(parametersList);
+
+        assertNotNull(staging);
+        assertEquals(Integer.valueOf(45), staging.getHealthCheckInterval());
+    }
+
+    @Test
+    void testHealthCheckIntervalIsNullWhenAbsent() {
+        Staging staging = parser.parse(parametersList);
+
+        assertNotNull(staging);
+        assertNull(staging.getHealthCheckInterval());
+    }
+
     private static Map<String, Object> mapOf(String key, Object value) {
         return Collections.singletonMap(key, value);
     }
