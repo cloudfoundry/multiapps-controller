@@ -819,6 +819,8 @@ public class Messages {
     public static final String IGNORING_NOT_FOUND_OPTIONAL_SERVICE = "Service {0} not found but is optional";
     public static final String IGNORING_NOT_FOUND_INACTIVE_SERVICE = "Service {0} not found but is inactive";
 
+    public static final String MTA_USES_HEALTH_CHECK_INTERVAL_PARAMETER = "MTA with ID \"{0}\" associated with operation ID \"{1}\" uses health check interval parameter: interval=\"{2}\", buildpacks=\"{3}\", moduleType=\"{4}\"";
+
     // Not log messages
     public static final String SERVICE_TYPE = "{0}/{1}";
     public static final String PARSE_NULL_STRING_ERROR = "Cannot parse null string";

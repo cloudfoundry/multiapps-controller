@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
+import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.Module;
@@ -33,12 +34,18 @@ public class AdditionalModuleParametersReporter {
                                                                         .get(SupportedParameters.READINESS_HEALTH_CHECK_INVOCATION_TIMEOUT);
         Integer readinessHealthCheckInterval = (Integer) module.getParameters()
                                                                .get(SupportedParameters.READINESS_HEALTH_CHECK_INTERVAL);
+        Integer healthCheckInterval = (Integer) module.getParameters()
+                                                      .get(SupportedParameters.HEALTH_CHECK_INTERVAL);
         List<String> buildpacks = PropertiesUtil.getPluralOrSingular(List.of(module.getParameters()), SupportedParameters.BUILDPACKS,
                                                                      SupportedParameters.BUILDPACK);
         if (readinessHealthCheckType != null) {
             reportUsageOfReadinessHealthCheckParameters(mtaId, correlationId, readinessHealthCheckType, readinessHealthCheckHttpEndpoint,
                                                         readinessHealthCheckInvocationTimeout, readinessHealthCheckInterval,
                                                         buildpacks.toString(), module.getType());
+        }
+        if (healthCheckInterval != null) {
+            reportUsageOfLivenessHealthCheckIntervalParameter(mtaId, correlationId, healthCheckInterval, buildpacks.toString(),
+                                                              module.getType());
         }
     }
 
@@ -50,5 +57,12 @@ public class AdditionalModuleParametersReporter {
         LOGGER.info(MessageFormat.format("MTA with ID \"{0}\" associated with operation ID \"{1}\" uses readiness health check parameters: type=\"{2}\", httpEndpoint=\"{3}\", invocationTimeout=\"{4}\", interval=\"{5}\", buildpacks=\"{6}\", moduleType=\"{7}\"",
                                          mtaId, correlationId, readinessHealthCheckType, readinessHealthCheckHttpEndpoint,
                                          readinessHealthCheckInvocationTimeout, readinessHealthCheckInterval, buildpacks, moduleType));
+    }
+
+    // this method is being observed by Dynatrace, be careful if you change it
+    private void reportUsageOfLivenessHealthCheckIntervalParameter(String mtaId, String correlationId, Integer healthCheckInterval,
+                                                                   String buildpacks, String moduleType) {
+        LOGGER.info(MessageFormat.format(Messages.MTA_USES_HEALTH_CHECK_INTERVAL_PARAMETER, mtaId, correlationId, healthCheckInterval,
+                                         buildpacks, moduleType));
     }
 }

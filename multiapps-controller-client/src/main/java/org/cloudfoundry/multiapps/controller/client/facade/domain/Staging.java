@@ -51,6 +51,12 @@ public interface Staging {
     String getHealthCheckHttpEndpoint();
 
     /**
+     * @return health check interval
+     */
+    @Nullable
+    Integer getHealthCheckInterval();
+
+    /**
      * @return readiness health check interval
      */
     @Nullable
