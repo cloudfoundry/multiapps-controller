@@ -111,7 +111,15 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
                         true, LifecycleType.CNB),
                 Arguments.of(ImmutableStaging.builder().addBuildpack("buildpack-333").build(),
                         ImmutableStaging.builder().addBuildpacks("buildpack-4", "buildpack-8").lifecycleType(LifecycleType.CNB).build(),
-                        true, LifecycleType.CNB));
+                        true, LifecycleType.CNB),
+                Arguments.of(
+                        ImmutableStaging.builder().addBuildpack("buildpack-1").healthCheckType("port").healthCheckInterval(10).build(),
+                        ImmutableStaging.builder().addBuildpack("buildpack-1").healthCheckType("port").healthCheckInterval(20).build(),
+                        true, LifecycleType.BUILDPACK),
+                Arguments.of(
+                        ImmutableStaging.builder().addBuildpack("buildpack-1").healthCheckType("port").healthCheckInterval(10).build(),
+                        ImmutableStaging.builder().addBuildpack("buildpack-1").healthCheckType("port").healthCheckInterval(10).build(),
+                        false, LifecycleType.BUILDPACK));
 //@formatter:on
     }
 
@@ -232,6 +240,7 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
         String command = staging.getCommand() == null ? DEFAULT_COMMAND : staging.getCommand();
         var hcType = staging.getHealthCheckType();
         var hcTimeout = staging.getHealthCheckTimeout();
+        var hcInterval = staging.getHealthCheckInterval();
         var hcEndpoint = staging.getHealthCheckHttpEndpoint();
         when(client.getApplicationProcess(application.getGuid())).thenReturn(ImmutableCloudProcess.builder()
                                                                                                   .command(command)
@@ -243,6 +252,7 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
                                                                                                                        : HealthCheckType.valueOf(
                                                                                                                            hcType.toUpperCase()))
                                                                                                   .healthCheckTimeout(hcTimeout)
+                                                                                                  .healthCheckInterval(hcInterval)
                                                                                                   .healthCheckHttpEndpoint(hcEndpoint)
                                                                                                   .instances(1)
                                                                                                   .build());
