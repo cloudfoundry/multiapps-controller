@@ -23,11 +23,13 @@ public abstract class RawCloudProcess extends RawCloudEntity<CloudProcess> {
         Integer healthCheckTimeout = null;
         String healthCheckHttpEndpoint = null;
         Integer healthCheckInvocationTimeout = null;
+        Integer healthCheckInterval = null;
         if (healthCheck.getData() != null) {
             Data healthCheckData = healthCheck.getData();
             healthCheckTimeout = healthCheckData.getTimeout();
             healthCheckInvocationTimeout = healthCheckData.getInvocationTimeout();
             healthCheckHttpEndpoint = healthCheckData.getEndpoint();
+            healthCheckInterval = healthCheckData.getInterval();
         }
         Integer readinessHealthCheckInvocationTimeout = null;
         String readinessHealthCheckHttpEndpoint = null;
@@ -49,6 +51,7 @@ public abstract class RawCloudProcess extends RawCloudEntity<CloudProcess> {
                                     .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
                                     .healthCheckTimeout(healthCheckTimeout)
                                     .healthCheckInvocationTimeout(healthCheckInvocationTimeout)
+                                    .healthCheckInterval(healthCheckInterval)
                                     .readinessHealthCheckType(readinessHealthCheckType.getType()
                                                                                       .getValue())
                                     .readinessHealthCheckHttpEndpoint(readinessHealthCheckHttpEndpoint)
