@@ -30,6 +30,9 @@ public abstract class CloudProcess extends CloudEntity implements Derivable<Clou
     public abstract Integer getHealthCheckTimeout();
 
     @Nullable
+    public abstract Integer getHealthCheckInterval();
+
+    @Nullable
     public abstract Integer getReadinessHealthCheckInterval();
 
     @Nullable
