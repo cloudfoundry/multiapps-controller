@@ -44,7 +44,7 @@ public interface CloudControllerRestClient {
 
     void addDomain(String domainName);
 
-    void addRoute(String host, String domainName, String path);
+    void addRoute(String host, String domainName, String path, Map<String, Object> options);
 
     Optional<String> bindServiceInstance(String bindingName, String applicationName, String serviceInstanceName);
 

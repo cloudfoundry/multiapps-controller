@@ -36,7 +36,7 @@
         <fasterxml.jackson.version>2.21.2</fasterxml.jackson.version>
         <liquibase.version>4.33.0</liquibase.version>
         <liquibase-slf4j.version>5.1.0</liquibase-slf4j.version>
-        <cloudfoundry-client.version>5.16.0.RELEASE</cloudfoundry-client.version>
+        <cloudfoundry-client.version>6.0.0-SNAPSHOT</cloudfoundry-client.version>
         <!--reactor netty 1.3.x uses direct memory leading to OOM errors-->
         <reactor-netty.version>1.2.17</reactor-netty.version>
         <!-- Override Netty version to fix CVE-2026-42583 (Lz4FrameDecoder resource exhaustion) -->
@@ -51,7 +51,7 @@
         <!-- auto-service hasn't had a new release since 12.06.2023 - should check for alternatives in the future -->
         <auto-service.version>1.1.1</auto-service.version>
         <commons-codec.version>1.21.0</commons-codec.version>
-        <multiapps.version>2.48.0</multiapps.version>
+        <multiapps.version>2.49.0-SNAPSHOT</multiapps.version>
         <java-cfenv.version>4.0.0</java-cfenv.version>
         <jaxb-api.version>4.0.5</jaxb-api.version>
         <jaxb-core.version>4.0.7</jaxb-core.version>

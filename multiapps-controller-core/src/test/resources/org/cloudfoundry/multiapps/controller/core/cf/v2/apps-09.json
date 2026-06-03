@@ -29,6 +29,7 @@
         },
         "host": "module-1",
         "path": "",
+        "options": {},
         "url": "module-1.sofd60245639a"
       }
     ],
@@ -95,6 +96,7 @@
         },
         "host": "module-2",
         "path": "",
+        "options": {},
         "url": "module-2.sofd60245639a"
       }
     ],
@@ -147,6 +149,7 @@
         },
         "host": "module-3",
         "path": "",
+        "options": {},
         "url": "module-3.sofd60245639a"
       }
     ],
@@ -199,6 +202,7 @@
         },
         "host": "module-4",
         "path": "",
+        "options": {},
         "url": "module-4.sofd60245639a"
       }
     ],

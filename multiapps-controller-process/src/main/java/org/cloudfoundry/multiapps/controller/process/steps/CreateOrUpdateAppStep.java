@@ -18,6 +18,7 @@ import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ImmutableApplicationToCreateDto;
@@ -374,6 +375,11 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             ControllerClientFacade.Context clientContext = new ControllerClientFacade.Context(client, context, getStepLogger());
             var process = client.getApplicationProcess(existingApp.getGuid());
             var currentRoutes = client.getApplicationRoutes(existingApp.getGuid());
+            getStepLogger().info("Existing application \"{0}\" route options \"{1}\"", existingApp.getName(), currentRoutes.stream()
+                                                                                                                           .map(
+                                                                                                                               CloudRoute::getOptions)
+                                                                                                                           .collect(
+                                                                                                                               Collectors.toList()));
             context.setVariable(Variables.CURRENT_ROUTES, currentRoutes);
             return List.of(new StagingApplicationAttributeUpdater(clientContext, process),
                            new MemoryApplicationAttributeUpdater(clientContext, process),

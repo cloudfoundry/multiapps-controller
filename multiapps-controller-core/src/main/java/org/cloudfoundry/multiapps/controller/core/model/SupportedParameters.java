@@ -114,6 +114,7 @@ public class SupportedParameters {
     public static final String NO_START = "no-start";
     public static final String CHECK_DEPLOY_ID = "check-deploy-id";
     public static final String SKIP_DEPLOY = "skip-deploy";
+    public static final String ROUTE_OPTIONS = "options";
 
     public static final String REGISTER_SERVICE_URL = "register-service-url";
     public static final String REGISTER_SERVICE_URL_SERVICE_NAME = "service-name";

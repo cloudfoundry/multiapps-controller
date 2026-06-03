@@ -34,7 +34,8 @@ public class SupportedParameterTest {
 
     private static final Set<String> NESTED_PARAMETERS = Set.of(SupportedParameters.IDLE_ROUTE, SupportedParameters.VCAP_APPLICATION_ENV,
                                                                 SupportedParameters.VCAP_SERVICES_ENV,
-                                                                SupportedParameters.USER_PROVIDED_ENV, SupportedParameters.NO_HOSTNAME);
+                                                                SupportedParameters.USER_PROVIDED_ENV, SupportedParameters.NO_HOSTNAME,
+                                                                SupportedParameters.ROUTE_OPTIONS);
 
     private static final Set<String> PLANNED_FUTURE_PARAMETERS = Set.of(
         SupportedParameters.READINESS_HEALTH_CHECK_HTTP_ENDPOINT,

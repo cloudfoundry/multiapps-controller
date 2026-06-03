@@ -29,6 +29,7 @@
         },
         "host": "i027947-shine",
         "path": "",
+        "options": {},
         "url": "i027947-shine.cfapps.neo.ondemand.com"
       }
     ],
@@ -84,6 +85,7 @@
         },
         "host": "i027947-shine-xsjs",
         "path": "",
+        "options": {},
         "url": "i027947-shine-xsjs.cfapps.neo.ondemand.com"
       }
     ],
@@ -142,6 +144,7 @@
         },
         "host": "i027947-shine-odata",
         "path": "",
+        "options": {},
         "url": "i027947-shine-odata.cfapps.neo.ondemand.com"
       }
     ],

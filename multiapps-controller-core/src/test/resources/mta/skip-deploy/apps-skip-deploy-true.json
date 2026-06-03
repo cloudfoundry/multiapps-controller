@@ -29,6 +29,7 @@
         },
         "host": "foo",
         "path": "",
+        "options": {},
         "url": "foo.cfapps.neo.ondemand.com"
       }
     ],

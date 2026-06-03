@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.core.util;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -32,7 +33,7 @@ class ApplicationURITest {
     @ParameterizedTest
     @MethodSource
     void testGetHostDomainPath(String uri, boolean noHostname, String expectedHost, String expectedDomain, String expectedPath) {
-        ApplicationURI applicationURI = new ApplicationURI(uri, noHostname, "http2");
+        ApplicationURI applicationURI = new ApplicationURI(uri, noHostname, "http2", Collections.emptyMap());
         Assertions.assertEquals(expectedHost, applicationURI.getHost());
         Assertions.assertEquals(expectedDomain, applicationURI.getDomain());
         Assertions.assertEquals(expectedPath, applicationURI.getPath());

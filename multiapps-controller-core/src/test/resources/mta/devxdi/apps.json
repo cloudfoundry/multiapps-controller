@@ -31,6 +31,7 @@
         },
         "host": "i027947-di-core",
         "path": "",
+        "options": {},
         "url": "i027947-di-core.cfapps.neo.ondemand.com"
       }
     ],
@@ -93,6 +94,7 @@
         },
         "host": "i027947-di-builder",
         "path": "",
+        "options": {},
         "url": "i027947-di-builder.cfapps.neo.ondemand.com"
       }
     ],
@@ -152,6 +154,7 @@
         },
         "host": "i027947-di-runner",
         "path": "",
+        "options": {},
         "url": "i027947-di-runner.cfapps.neo.ondemand.com"
       }
     ],
