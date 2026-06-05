@@ -3,15 +3,20 @@ package org.cloudfoundry.multiapps.controller.web.util;
 import java.io.InputStream;
 import java.util.stream.Stream;
 
+import org.cloudfoundry.multiapps.common.ParsingException;
 import org.cloudfoundry.multiapps.common.test.Tester;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.controller.web.util.bar.Bar;
 import org.cloudfoundry.multiapps.controller.web.util.foo.Foo;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class XmlNamespaceIgnoringHttpMessageConverterTest {
 
@@ -41,6 +46,20 @@ class XmlNamespaceIgnoringHttpMessageConverterTest {
     @MethodSource
     void testReadFrom(String entityResource, Class<?> type, Expectation expectation) {
         tester.test(() -> converter.read(type, createHttpInputMessage(entityResource)), expectation);
+    }
+
+    @Test
+    void testReadFromRejectsExternalEntityXxeAttack() {
+        ParsingException e = assertThrows(ParsingException.class,
+                                          () -> converter.read(Foo.class, createHttpInputMessage("xxe-external-entity.xml")));
+        assertTrue(e.getCause().toString().contains("DOCTYPE is disallowed"), "Expected DOCTYPE rejection but got: " + e.getCause());
+    }
+
+    @Test
+    void testReadFromRejectsBillionLaughsDoSAttack() {
+        ParsingException e = assertThrows(ParsingException.class,
+                                          () -> converter.read(Foo.class, createHttpInputMessage("xxe-billion-laughs.xml")));
+        assertTrue(e.getCause().toString().contains("DOCTYPE is disallowed"), "Expected DOCTYPE rejection but got: " + e.getCause());
     }
 
     private HttpInputMessage createHttpInputMessage(String resource) {
