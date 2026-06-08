@@ -21,12 +21,26 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
 
 public class XmlNamespaceIgnoringHttpMessageConverter implements HttpMessageConverter<Object> {
 
-    private static final SAXParserFactory SAX_PARSER_FACTORY = SAXParserFactory.newInstance();
+    private static final SAXParserFactory SAX_PARSER_FACTORY = createSaxParserFactory();
+
+    private static SAXParserFactory createSaxParserFactory() {
+        SAXParserFactory factory = SAXParserFactory.newInstance();
+        try {
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        } catch (SAXNotRecognizedException | SAXNotSupportedException | ParserConfigurationException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+        return factory;
+    }
 
     private final Jaxb2RootElementHttpMessageConverter delegate = new Jaxb2RootElementHttpMessageConverter();
 
