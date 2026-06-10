@@ -48,7 +48,7 @@ public class OperationLogsExporter {
     private static final Pattern MESSAGE_LOG_DATE_PATTERN = Pattern.compile("^#([^#\\r\\n]*)#", Pattern.MULTILINE);
     private static final Pattern MESSAGE_LOG_LEVEL_PATTERN = Pattern.compile("^#[^#\\r\\n]*#[^#\\r\\n]*#([^#\\r\\n]*)#", Pattern.MULTILINE);
     private static final Pattern MESSAGE_LOG_NAME = Pattern.compile("^#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#([^#\\r\\n]*)#",
-                                                                   Pattern.MULTILINE);
+                                                                    Pattern.MULTILINE);
 
     private static final String MESSAGE_SPLITTING_REGEX = "(?m)^#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#(?:\\r?\\n)?";
     private final ProcessLogsPersistenceService processLogsPersistenceService;
@@ -126,7 +126,8 @@ public class OperationLogsExporter {
 
         for (Map.Entry<LogLevel, List<LogLogLog>> operationLog : filteredOperationLogs.entrySet()) {
             for (LogLogLog log : operationLog.getValue()) {
-                externalOperationLogEntries.add(convertToExternalLogEntry(operationLogEntry, log, operationLog.getKey()));
+                externalOperationLogEntries.add(
+                    convertToExternalLogEntry(operationLogEntry, log, operationLog.getKey(), loggingConfiguration.getOperationId()));
             }
         }
         return getLogEntryBatches(externalOperationLogEntries);
@@ -317,7 +318,7 @@ public class OperationLogsExporter {
     }
 
     private ExternalOperationLogEntry convertToExternalLogEntry(OperationLogEntry operationLogEntry, LogLogLog operationLog,
-                                                                LogLevel level) {
+                                                                LogLevel level, String operationId) {
         return ImmutableExternalOperationLogEntry.builder()
                                                  .timestamp(String.valueOf(operationLog.dateTime()
                                                                                        .atOffset(ZoneOffset.UTC)))
@@ -325,7 +326,7 @@ public class OperationLogsExporter {
                                                  .id(UUID.randomUUID()
                                                          .toString())
                                                  .operationLogName(operationLogEntry.getOperationLogName())
-                                                 .correlationId(operationLogEntry.getOperationId())
+                                                 .correlationId(operationId)
                                                  .level(level.name())
                                                  .build();
     }
