@@ -30,6 +30,7 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires aliyun.sdk.oss;
     requires com.azure.core;
     requires com.azure.storage.blob;
+    requires com.azure.core.http.jdk.httpclient;
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.databind;
     requires com.google.auth;
@@ -65,5 +66,4 @@ open module org.cloudfoundry.multiapps.controller.persistence {
 
     requires static java.compiler;
     requires static org.immutables.value;
-    requires com.azure.core.http.jdk.httpclient;
 }

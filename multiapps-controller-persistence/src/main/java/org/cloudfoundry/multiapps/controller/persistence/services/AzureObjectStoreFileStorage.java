@@ -44,8 +44,8 @@ public class AzureObjectStoreFileStorage extends ObjectStoreFileStorage {
     private final BlobContainerClient containerClient;
 
     public AzureObjectStoreFileStorage(Map<String, Object> credentials) {
-        this.containerClient = createContainerClient(credentials);
         this.httpClient = new JdkHttpClientBuilder().build();
+        this.containerClient = createContainerClient(credentials);
     }
 
     @Override
