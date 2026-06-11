@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
@@ -31,10 +33,15 @@ import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfigurat
 import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.netty.http.client.HttpClient;
+import reactor.netty.http.client.PrematureCloseException;
+import reactor.util.retry.Retry;
 
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -44,6 +51,10 @@ public class OperationLogsExporter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationLogsExporter.class);
     private static final long MAX_LIMIT_REQUEST_SIZE_BYTES = 3 * 1024 * 1024 + 512 * 1024; // 3.5MB
+    private static final int MAX_RETRY_ATTEMPTS = 4;
+    private static final Duration INITIAL_RETRY_BACKOFF = Duration.ofMillis(500);
+    private static final Duration MAX_RETRY_BACKOFF = Duration.ofSeconds(10);
+    private static final Set<Integer> RETRYABLE_STATUS_CODES = Set.of(408, 425, 429, 500, 502, 503, 504);
     private static final Map<String, WebClient> clientCache = new ConcurrentHashMap<>();
     private static final Pattern MESSAGE_LOG_DATE_PATTERN = Pattern.compile("^#([^#\\r\\n]*)#", Pattern.MULTILINE);
     private static final Pattern MESSAGE_LOG_LEVEL_PATTERN = Pattern.compile("^#[^#\\r\\n]*#[^#\\r\\n]*#([^#\\r\\n]*)#", Pattern.MULTILINE);
@@ -165,9 +176,14 @@ public class OperationLogsExporter {
     private void sendLogsToCloudLoggingService(List<List<ExternalOperationLogEntry>> externalOperationLogEntryBatches,
                                                WebClient webClient, LoggingConfiguration loggingConfiguration) {
         for (List<ExternalOperationLogEntry> logEntryBatch : externalOperationLogEntryBatches) {
-            ResponseEntity<Void> response = executeSendLongHttpRequest(webClient, logEntryBatch);
-            if (hasRequestFailed(response)) {
-                logErrorOrThrowExceptionBasedOnFailSafe(loggingConfiguration, Messages.FAILED_TO_SEND_LOG_MESSAGE_TO_CLS);
+            try {
+                ResponseEntity<Void> response = executeSendLongHttpRequest(webClient, logEntryBatch);
+                if (hasRequestFailed(response)) {
+                    logErrorOrThrowExceptionBasedOnFailSafe(loggingConfiguration, Messages.FAILED_TO_SEND_LOG_MESSAGE_TO_CLS);
+                }
+            } catch (RuntimeException e) {
+                logErrorOrThrowExceptionBasedOnFailSafe(loggingConfiguration,
+                                                        Messages.FAILED_TO_SEND_LOG_MESSAGE_TO_CLS + ": " + describeFailure(e));
             }
         }
     }
@@ -187,7 +203,42 @@ public class OperationLogsExporter {
                         .bodyValue(JsonUtil.toJson(logEntryBatch))
                         .retrieve()
                         .toBodilessEntity()
+                        .retryWhen(buildRetrySpec())
                         .block();
+    }
+
+    private Retry buildRetrySpec() {
+        return Retry.backoff(MAX_RETRY_ATTEMPTS, INITIAL_RETRY_BACKOFF)
+                    .maxBackoff(MAX_RETRY_BACKOFF)
+                    .jitter(0.5d)
+                    .filter(this::isRetryableError)
+                    .doBeforeRetry(retrySignal -> LOGGER.warn(MessageFormat.format(Messages.RETRYING_SEND_LOGS_TO_CLS,
+                                                                                   describeFailure(retrySignal.failure()))))
+                    .onRetryExhaustedThrow((spec, retrySignal) -> retrySignal.failure());
+    }
+
+    private boolean isRetryableError(Throwable throwable) {
+        if (throwable instanceof WebClientResponseException responseException) {
+            return RETRYABLE_STATUS_CODES.contains(responseException.getStatusCode()
+                                                                   .value());
+        }
+        if (throwable instanceof WebClientRequestException) {
+            return true;
+        }
+        return throwable instanceof PrematureCloseException || throwable instanceof IOException;
+    }
+
+    private String describeFailure(Throwable throwable) {
+        if (throwable instanceof WebClientResponseException responseException) {
+            String retryAfter = responseException.getHeaders()
+                                                 .getFirst(HttpHeaders.RETRY_AFTER);
+            return MessageFormat.format("HTTP {0} {1}{2}", responseException.getStatusCode()
+                                                                            .value(),
+                                        responseException.getStatusText(),
+                                        retryAfter != null ? " (Retry-After=" + retryAfter + ")" : "");
+        }
+        return throwable.getClass()
+                        .getSimpleName() + ": " + throwable.getMessage();
     }
 
     private List<List<ExternalOperationLogEntry>> getLogEntryBatches(List<ExternalOperationLogEntry> externalLogEntries) {

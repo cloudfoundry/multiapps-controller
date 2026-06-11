@@ -59,6 +59,7 @@ public final class Messages {
     public static final String COULD_NOT_CLOSE_STATEMENT = "Could not close statement.";
     public static final String COULD_NOT_CLOSE_CONNECTION = "Could not close connection.";
     public static final String ATTEMPT_TO_UPLOAD_BLOB_FAILED = "Attempt [{0}/{1}] to upload blob to ObjectStore failed with \"{2}\"";
+    public static final String RETRYING_SEND_LOGS_TO_CLS = "Retrying send of log batch to Cloud Logging service after transient failure: {0}";
     public static final String ATTEMPT_TO_DOWNLOAD_MISSING_BLOB = "Attempt [{0}/{1}] to download missing blob {2} from ObjectStore";
     public static final String USER_METADATA_OF_BLOB_0_EMPTY_AND_WILL_BE_DELETED = "User metadata of blob \"{0}\" is empty and will be deleted";
     public static final String DATE_METADATA_OF_BLOB_0_IS_NOT_IN_PROPER_FORMAT_AND_WILL_BE_DELETED = "Date metadata of blob \"{0}\" is not in a proper format and will be deleted";
