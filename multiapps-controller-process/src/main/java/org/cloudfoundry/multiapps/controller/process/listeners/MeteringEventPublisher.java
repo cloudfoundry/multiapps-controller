@@ -49,9 +49,15 @@ public class MeteringEventPublisher {
             LOGGER.debug("Skipping metering event {}: CF_REGION env var is not set", measureId);
             return;
         }
+        String serviceId = configuration.getMeteringServiceId();
+        String servicePlan = configuration.getMeteringServicePlan();
+        if (serviceId == null || serviceId.isBlank() || servicePlan == null || servicePlan.isBlank()) {
+            LOGGER.debug("Skipping metering event {}: METERING_SERVICE_ID or METERING_SERVICE_PLAN env var is not set", measureId);
+            return;
+        }
         String dimension = processType != null ? processType.getName()
                                                             .toLowerCase(Locale.ROOT)
                                                 : "unknown";
-        meteringClient.recordUsage(region, organisationId, List.of(dimension), measureId);
+        meteringClient.recordUsage(region, organisationId, List.of(dimension), measureId, serviceId, servicePlan);
     }
 }

@@ -47,6 +47,8 @@ public class ApplicationConfiguration {
     static final String CFG_MAX_UPLOAD_SIZE = "MAX_UPLOAD_SIZE";
     static final String OBJECTSTORE_REGIONS = "OBJECTSTORE_REGIONS";
     static final String CFG_CF_REGION = "CF_REGION";
+    static final String CFG_METERING_SERVICE_ID = "METERING_SERVICE_ID";
+    static final String CFG_METERING_SERVICE_PLAN = "METERING_SERVICE_PLAN";
     static final String CFG_MAX_MTA_DESCRIPTOR_SIZE = "MAX_MTA_DESCRIPTOR_SIZE";
     static final String CFG_MAX_MANIFEST_SIZE = "DEFAULT_MAX_MANIFEST_SIZE";
     static final String CFG_MAX_RESOURCE_FILE_SIZE = "DEFAULT_MAX_RESOURCE_FILE_SIZE";
@@ -874,6 +876,14 @@ public class ApplicationConfiguration {
 
     public String getCfRegion() {
         return environment.getString(CFG_CF_REGION);
+    }
+
+    public String getMeteringServiceId() {
+        return environment.getString(CFG_METERING_SERVICE_ID);
+    }
+
+    public String getMeteringServicePlan() {
+        return environment.getString(CFG_METERING_SERVICE_PLAN);
     }
 
     private String getGlobalAuditorOriginFromEnvironment() {

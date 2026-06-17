@@ -17,8 +17,14 @@ public interface UsagePayload {
     String getTimestamp();
 
     default Map<String, Object> getProduct() {
-        return Map.of("service", Map.of("id", "deploy-service", "plan", "standard"));
+        return Map.of("service", Map.of("id", getServiceId(), "plan", getServicePlan()));
     }
+
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    String getServiceId();
+
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    String getServicePlan();
 
     Map<String, Object> getMeasure();
 

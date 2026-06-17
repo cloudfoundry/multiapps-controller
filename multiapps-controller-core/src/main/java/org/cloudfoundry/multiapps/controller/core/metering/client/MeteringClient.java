@@ -42,9 +42,11 @@ public class MeteringClient {
         this.httpClient = httpClient;
     }
 
-    public void recordUsage(String landscape, String organisationId, List<String> customDimensions, String measureMessage) {
+    public void recordUsage(String landscape, String organisationId, List<String> customDimensions, String measureMessage,
+                            String serviceId, String servicePlan) {
         try {
-            UsagePayload usagePayload = createUsagePayload(landscape, organisationId, customDimensions, measureMessage);
+            UsagePayload usagePayload = createUsagePayload(landscape, organisationId, customDimensions, measureMessage, serviceId,
+                                                           servicePlan);
             String url = createUsageIngestionUrl();
             String json = JsonUtil.convertToJson(List.of(usagePayload));
 
@@ -67,13 +69,16 @@ public class MeteringClient {
         }
     }
 
-    private UsagePayload createUsagePayload(String landscape, String organisationId, List<String> customDimensions, String measureMessage) {
+    private UsagePayload createUsagePayload(String landscape, String organisationId, List<String> customDimensions, String measureMessage,
+                                            String serviceId, String servicePlan) {
         return ImmutableUsagePayload.builder()
                                     .id(UUID.randomUUID())
                                     .timestamp(ZonedDateTime.ofInstant(Instant.now(), ZoneOffset.UTC)
                                                             .format(DATE_TIME_FORMAT))
                                     .customDimensions(getCustomDimensions(customDimensions))
                                     .measure(getMeasure(measureMessage))
+                                    .serviceId(serviceId)
+                                    .servicePlan(servicePlan)
                                     .consumer(ImmutableConsumer.builder()
                                                                .region(landscape)
                                                                .btp(ImmutableEnvironment.builder()
