@@ -88,6 +88,8 @@ class StartProcessListenerTest {
     private FlowableFacade flowableFacade;
     @Mock
     private ProcessLoggerPersister processLoggerPersister;
+    @Mock
+    private MeteringEventPublisher meteringEventPublisher;
 
     private StartProcessListener listener;
 
@@ -114,7 +116,8 @@ class StartProcessListenerTest {
                                             operationService,
                                             operationMetadataMapper,
                                             dynatracePublisher,
-                                            fileService);
+                                            fileService,
+                                            meteringEventPublisher);
     }
 
     @ParameterizedTest

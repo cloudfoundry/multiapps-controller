@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.core.metering.client;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -12,12 +13,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.cloudfoundry.multiapps.controller.client.facade.util.JsonUtil;
-import org.cloudfoundry.multiapps.controller.core.metering.configuration.MeteringConfiguration;
 import org.cloudfoundry.multiapps.controller.core.metering.model.Credentials;
 import org.cloudfoundry.multiapps.controller.core.metering.model.ImmutableConsumer;
 import org.cloudfoundry.multiapps.controller.core.metering.model.ImmutableEnvironment;
@@ -29,33 +32,38 @@ import org.slf4j.LoggerFactory;
 public class MeteringClient {
 
     private final Credentials credentials;
-    private final HttpClient httpClient;
+    private final CloseableHttpClient httpClient;
     private final String USAGE_INGESTION_URL_TEMPLATE = "{0}/v2/accounts/{1}/namespaces/metering/datastreams/{2}/eventBatch";
     private final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
-    private static final Logger LOGGER = LoggerFactory.getLogger(MeteringConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MeteringClient.class);
 
-    public MeteringClient(Credentials credentials, HttpClient httpClient) {
+    public MeteringClient(Credentials credentials, CloseableHttpClient httpClient) {
         this.credentials = credentials;
         this.httpClient = httpClient;
-        sendTestUsage();
-    }
-
-    public void sendTestUsage() {
-        recordUsage("cf-eu10-canary", "b71fc53b-7518-4d2b-b8da-00aaed032e0c", List.of("deploy"), "deploy-started");
     }
 
     public void recordUsage(String landscape, String organisationId, List<String> customDimensions, String measureMessage) {
-        UsagePayload usagePayload = createUsagePayload(landscape, organisationId, customDimensions, measureMessage);
-        String url = createUsageIngestionUrl();
-
-        HttpPost httpPost = new HttpPost(URI.create(url));
-        LOGGER.error(JsonUtil.convertToJson(List.of(usagePayload)));
-        httpPost.setEntity(new StringEntity(JsonUtil.convertToJson(List.of(usagePayload))));
         try {
-            CloseableHttpResponse a = (CloseableHttpResponse) httpClient.execute(httpPost);
-            LOGGER.error(String.valueOf(a.getCode()));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            UsagePayload usagePayload = createUsagePayload(landscape, organisationId, customDimensions, measureMessage);
+            String url = createUsageIngestionUrl();
+            String json = JsonUtil.convertToJson(List.of(usagePayload));
+
+            HttpPost httpPost = new HttpPost(URI.create(url));
+            httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
+            try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
+                int status = response.getCode();
+                if (status >= 200 && status < 300) {
+                    LOGGER.error("Metering event sent: status={} measure={} landscape={} org={}", status, measureMessage, landscape,
+                                 organisationId);
+                    return;
+                }
+                String body = response.getEntity() != null ? EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8) : "";
+                LOGGER.warn("Metering event rejected: status={} reason={} measure={} landscape={} org={} body={}", status,
+                            response.getReasonPhrase(), measureMessage, landscape, organisationId, body);
+            }
+        } catch (IOException | ParseException | RuntimeException e) {
+            LOGGER.warn("Failed to send metering event: measure={} landscape={} org={}: {}", measureMessage, landscape, organisationId,
+                        e.getMessage(), e);
         }
     }
 

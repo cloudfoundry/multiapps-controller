@@ -46,6 +46,7 @@ public class ApplicationConfiguration {
     static final String CFG_PLATFORM = "PLATFORM"; // Mandatory
     static final String CFG_MAX_UPLOAD_SIZE = "MAX_UPLOAD_SIZE";
     static final String OBJECTSTORE_REGIONS = "OBJECTSTORE_REGIONS";
+    static final String CFG_CF_REGION = "CF_REGION";
     static final String CFG_MAX_MTA_DESCRIPTOR_SIZE = "MAX_MTA_DESCRIPTOR_SIZE";
     static final String CFG_MAX_MANIFEST_SIZE = "DEFAULT_MAX_MANIFEST_SIZE";
     static final String CFG_MAX_RESOURCE_FILE_SIZE = "DEFAULT_MAX_RESOURCE_FILE_SIZE";
@@ -869,6 +870,10 @@ public class ApplicationConfiguration {
 
     private String getGlobalAuditorPasswordFromEnvironment() {
         return environment.getString(CFG_GLOBAL_AUDITOR_PASSWORD);
+    }
+
+    public String getCfRegion() {
+        return environment.getString(CFG_CF_REGION);
     }
 
     private String getGlobalAuditorOriginFromEnvironment() {

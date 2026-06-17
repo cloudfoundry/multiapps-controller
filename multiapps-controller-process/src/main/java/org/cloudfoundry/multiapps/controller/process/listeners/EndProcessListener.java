@@ -29,13 +29,15 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
     private final OperationInFinalStateHandler eventHandler;
     protected final DynatracePublisher dynatracePublisher;
     protected final ProcessTypeParser processTypeParser;
+    private final MeteringEventPublisher meteringEventPublisher;
 
     @Inject
     public EndProcessListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
                               ProcessLoggerProvider processLoggerProvider, ProcessLoggerPersister processLoggerPersister,
                               HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
                               ApplicationConfiguration configuration, OperationInFinalStateHandler eventHandler,
-                              DynatracePublisher dynatracePublisher, ProcessTypeParser processTypeParser) {
+                              DynatracePublisher dynatracePublisher, ProcessTypeParser processTypeParser,
+                              MeteringEventPublisher meteringEventPublisher) {
         super(progressMessageService,
               stepLoggerFactory,
               processLoggerProvider,
@@ -46,13 +48,16 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
         this.eventHandler = eventHandler;
         this.dynatracePublisher = dynatracePublisher;
         this.processTypeParser = processTypeParser;
+        this.meteringEventPublisher = meteringEventPublisher;
     }
 
     @Override
     protected void notifyInternal(DelegateExecution execution) {
         if (isRootProcess(execution)) {
-            eventHandler.handle(execution, processTypeParser.getProcessType(execution, false), Operation.State.FINISHED);
-            publishDynatraceEvent(execution, processTypeParser.getProcessType(execution, false));
+            ProcessType processType = processTypeParser.getProcessType(execution, false);
+            eventHandler.handle(execution, processType, Operation.State.FINISHED);
+            publishDynatraceEvent(execution, processType);
+            meteringEventPublisher.publishFinalState(execution, processType, Operation.State.FINISHED);
         }
     }
 

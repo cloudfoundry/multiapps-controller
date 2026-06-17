@@ -32,6 +32,7 @@ class EndProcessListenerTest {
     private final OperationInFinalStateHandler eventHandler = Mockito.mock(OperationInFinalStateHandler.class);
     private final DynatracePublisher dynatracePublisher = Mockito.mock(DynatracePublisher.class);
     private final ProcessTypeParser processTypeParser = Mockito.mock(ProcessTypeParser.class);
+    private final MeteringEventPublisher meteringEventPublisher = Mockito.mock(MeteringEventPublisher.class);
     private final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
     @Mock
     private ProgressMessageService progressMessageService;
@@ -62,7 +63,8 @@ class EndProcessListenerTest {
                                                                        configuration,
                                                                        eventHandler,
                                                                        dynatracePublisher,
-                                                                       processTypeParser);
+                                                                       processTypeParser,
+                                                                       meteringEventPublisher);
         // set the process as root process
         VariableHandling.set(execution, Variables.CORRELATION_ID, execution.getProcessInstanceId());
         VariableHandling.set(execution, Variables.SPACE_GUID, SPACE_ID);

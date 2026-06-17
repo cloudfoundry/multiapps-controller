@@ -56,6 +56,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     private final ProcessTypeToOperationMetadataMapper operationMetadataMapper;
     private final DynatracePublisher dynatracePublisher;
     private final FileService fileService;
+    private final MeteringEventPublisher meteringEventPublisher;
 
     @Inject
     public StartProcessListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
@@ -63,7 +64,8 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
                                 HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
                                 ApplicationConfiguration configuration, ProcessTypeParser processTypeParser,
                                 OperationService operationService, ProcessTypeToOperationMetadataMapper operationMetadataMapper,
-                                DynatracePublisher dynatracePublisher, FileService fileService) {
+                                DynatracePublisher dynatracePublisher, FileService fileService,
+                                MeteringEventPublisher meteringEventPublisher) {
         super(progressMessageService,
               stepLoggerFactory,
               processLoggerProvider,
@@ -76,6 +78,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         this.operationMetadataMapper = operationMetadataMapper;
         this.dynatracePublisher = dynatracePublisher;
         this.fileService = fileService;
+        this.meteringEventPublisher = meteringEventPublisher;
     }
 
     @Override
@@ -96,6 +99,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         logProcessEnvironment();
         logProcessVariables(execution, processType, correlationId);
         publishDynatraceEvent(execution, processType, correlationId);
+        meteringEventPublisher.publishStarted(execution, processType);
     }
 
     private boolean operationDoesNotExist(String correlationId) {

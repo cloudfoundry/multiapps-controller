@@ -20,12 +20,15 @@ class AbortProcessListenerTest {
 
     private final OperationInFinalStateHandler eventHandler = Mockito.mock(OperationInFinalStateHandler.class);
     private final ProcessTypeParser processTypeParser = Mockito.mock(ProcessTypeParser.class);
+    private final MeteringEventPublisher meteringEventPublisher = Mockito.mock(MeteringEventPublisher.class);
     private final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
 
     private final AbortProcessListener abortProcessListenerWithContext = new AbortProcessListenerMock(eventHandler,
                                                                                                       processTypeParser,
+                                                                                                      meteringEventPublisher,
                                                                                                       execution);
-    private final AbortProcessListener abortProcessListener = new AbortProcessListenerMock(eventHandler, processTypeParser, null);
+    private final AbortProcessListener abortProcessListener = new AbortProcessListenerMock(eventHandler, processTypeParser,
+                                                                                            meteringEventPublisher, null);
 
     @Test
     void testWithWrongEventClass() {
@@ -91,8 +94,8 @@ class AbortProcessListenerTest {
         private final DelegateExecution execution;
 
         private AbortProcessListenerMock(OperationInFinalStateHandler eventHandler, ProcessTypeParser processTypeParser,
-                                         DelegateExecution execution) {
-            super(eventHandler, processTypeParser);
+                                         MeteringEventPublisher meteringEventPublisher, DelegateExecution execution) {
+            super(eventHandler, processTypeParser, meteringEventPublisher);
             this.execution = execution;
         }
 

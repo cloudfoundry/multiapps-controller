@@ -6,6 +6,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
+import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.OperationInFinalStateHandler;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
@@ -25,11 +26,14 @@ public class AbortProcessListener extends AbstractFlowableEngineEventListener {
 
     private final OperationInFinalStateHandler eventHandler;
     protected final ProcessTypeParser processTypeParser;
+    private final MeteringEventPublisher meteringEventPublisher;
 
     @Inject
-    public AbortProcessListener(OperationInFinalStateHandler eventHandler, ProcessTypeParser processTypeParser) {
+    public AbortProcessListener(OperationInFinalStateHandler eventHandler, ProcessTypeParser processTypeParser,
+                                MeteringEventPublisher meteringEventPublisher) {
         this.eventHandler = eventHandler;
         this.processTypeParser = processTypeParser;
+        this.meteringEventPublisher = meteringEventPublisher;
     }
 
     @Override
@@ -57,7 +61,9 @@ public class AbortProcessListener extends AbstractFlowableEngineEventListener {
                                              event.getProcessInstanceId()));
             return;
         }
-        eventHandler.handle(execution, processTypeParser.getProcessType(execution, false), Operation.State.ABORTED);
+        ProcessType processType = processTypeParser.getProcessType(execution, false);
+        eventHandler.handle(execution, processType, Operation.State.ABORTED);
+        meteringEventPublisher.publishFinalState(execution, processType, Operation.State.ABORTED);
     }
 
     private static boolean hasCorrectEntityType(FlowableEngineEntityEvent event) {

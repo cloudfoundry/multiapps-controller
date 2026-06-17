@@ -26,6 +26,7 @@ open module org.cloudfoundry.multiapps.controller.core {
     exports org.cloudfoundry.multiapps.controller.core.helpers.v3;
     exports org.cloudfoundry.multiapps.controller.core.http;
     exports org.cloudfoundry.multiapps.controller.core.liquibase;
+    exports org.cloudfoundry.multiapps.controller.core.metering.client;
     exports org.cloudfoundry.multiapps.controller.core.model;
     exports org.cloudfoundry.multiapps.controller.core.parser;
     exports org.cloudfoundry.multiapps.controller.core.resolvers.v2;
@@ -84,7 +85,6 @@ open module org.cloudfoundry.multiapps.controller.core {
     requires spring.security.oauth2.client;
     requires org.apache.httpcomponents.httpcore;
     requires org.bouncycastle.fips.pkix;
-    requires org.bouncycastle.fips.core;
     requires token.client;
     requires java.api;
 
