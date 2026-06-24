@@ -34,10 +34,10 @@ import static org.mockito.Mockito.when;
 class ExportCloudLoggingConfigurationListenerTest {
 
     private static final LoggingConfiguration LOGGING_CONFIGURATION = ImmutableLoggingConfiguration.builder()
-                                                                                                    .operationId("op-1")
-                                                                                                    .logLevel(LogLevel.INFO)
-                                                                                                    .isFailSafe(true)
-                                                                                                    .build();
+                                                                                                   .operationId("op-1")
+                                                                                                   .logLevel(LogLevel.INFO)
+                                                                                                   .isFailSafe(true)
+                                                                                                   .build();
 
     @Mock
     private ProgressMessageService progressMessageService;
@@ -75,7 +75,7 @@ class ExportCloudLoggingConfigurationListenerTest {
         listener.notify(execution);
 
         verify(flowableFacade, never()).setVariableInParentProcess(any(), anyString(), any());
-        verify(flowableFacade, never()).setVariableInParentProcessXSA(any(), anyString(), any());
+        verify(flowableFacade, never()).setVariableInParentProcessUsingParentProcessInstanceId(any(), anyString(), any());
     }
 
     @Test
@@ -85,8 +85,9 @@ class ExportCloudLoggingConfigurationListenerTest {
 
         listener.notify(execution);
 
-        verify(flowableFacade).setVariableInParentProcessXSA(eq(execution),
-                                                             eq(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION.getName()), any());
+        verify(flowableFacade).setVariableInParentProcessUsingParentProcessInstanceId(eq(execution),
+                                                                                      eq(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION.getName()),
+                                                                                      any());
     }
 
     @Test
@@ -96,9 +97,9 @@ class ExportCloudLoggingConfigurationListenerTest {
 
         listener.notify(execution);
 
-        verify(flowableFacade).setVariableInParentProcessXSA(eq(execution),
-                                                             eq(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION.getName()),
-                                                             anyString());
+        verify(flowableFacade).setVariableInParentProcessUsingParentProcessInstanceId(eq(execution),
+                                                                                      eq(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION.getName()),
+                                                                                      anyString());
     }
 
     @Test
@@ -141,7 +142,7 @@ class ExportCloudLoggingConfigurationListenerTest {
         listener.notify(execution);
 
         verify(flowableFacade, never()).setVariableInParentProcess(any(), anyString(), any());
-        verify(flowableFacade, never()).setVariableInParentProcessXSA(any(), anyString(), any());
+        verify(flowableFacade, never()).setVariableInParentProcessUsingParentProcessInstanceId(any(), anyString(), any());
     }
 
     @Test
@@ -152,13 +153,15 @@ class ExportCloudLoggingConfigurationListenerTest {
 
         listener.notify(execution);
 
-        verify(flowableFacade).setVariableInParentProcessXSA(any(), anyString(), any());
+        verify(flowableFacade).setVariableInParentProcessUsingParentProcessInstanceId(any(), anyString(), any());
         verify(flowableFacade, never()).setVariableInParentProcess(any(), anyString(), any());
     }
 
     private void prepareSuperExecution() {
         String parentId = "parent-execution-id";
-        Mockito.doReturn(parentId).when(execution).getParentId();
+        Mockito.doReturn(parentId)
+               .when(execution)
+               .getParentId();
         Execution parentExecution = Mockito.mock(Execution.class);
         when(parentExecution.getSuperExecutionId()).thenReturn("super-execution-id");
         when(flowableFacade.getParentExecution(parentId)).thenReturn(parentExecution);

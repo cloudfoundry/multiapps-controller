@@ -114,6 +114,7 @@ public class Messages {
     public static final String ERROR_DETECTING_DEPLOYED_MTA = "Error detecting deployed MTA";
     public static final String ERROR_RENAMING_APPLICATIONS = "Error renaming applications";
     public static final String ERROR_COLLECTING_SYSTEM_PARAMETERS = "Error collecting system parameters";
+    public static final String ERROR_COLLECTING_CLOUD_LOGGING_SERVICE_PARAMETERS = "Error collecting cloud logging service parameters";
     public static final String ERROR_RESOLVING_DESCRIPTOR_PROPERTIES = "Error resolving merged descriptor properties and parameters";
     public static final String ERROR_CREATING_SUBSCRIPTIONS = "Error creating subscriptions";
     public static final String ERROR_BUILDING_CLOUD_MODEL = "Error building cloud model";
@@ -818,7 +819,9 @@ public class Messages {
 
     public static final String IGNORING_NOT_FOUND_OPTIONAL_SERVICE = "Service {0} not found but is optional";
     public static final String IGNORING_NOT_FOUND_INACTIVE_SERVICE = "Service {0} not found but is inactive";
-
+    public static final String NO_CLOUD_LOGGING_SERVICE_KEY_FOUND_FOR_OPERATION_0_SKIPPING_LOG_EXPORT = "No cloud logging service key found for operation {0}, skipping log export";
+    public static final String INVALID_LOG_LEVEL = "Invalid log level";
+    public static final String MISSING_REQUIRED_1_CREDENTIAL_FROM_SCL_EXPORT = "Missing required {1} credential for SAP Cloud Logging export";
     // Not log messages
     public static final String SERVICE_TYPE = "{0}/{1}";
     public static final String PARSE_NULL_STRING_ERROR = "Cannot parse null string";

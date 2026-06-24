@@ -16,10 +16,10 @@ import static org.mockito.Mockito.when;
 
 class ProcessLoggerPersisterTest {
 
-    private final static String TEST_CORRELATION_ID = "test-correlation-id";
-    private final static String TEST_LOG_NAME = "test-log-name";
-    private final static String TEST_TASK_ID = "test-task-id";
-    private final static String TEST_SPACE_ID = "test-space-id";
+    private static final String TEST_CORRELATION_ID = "test-correlation-id";
+    private static final String TEST_LOG_NAME = "test-log-name";
+    private static final String TEST_TASK_ID = "test-task-id";
+    private static final String TEST_SPACE_ID = "test-space-id";
 
     @Mock
     private DelegateExecution delegateExecution;
@@ -59,8 +59,8 @@ class ProcessLoggerPersisterTest {
         Mockito.verify(processLogsPersistenceService, times(2))
                .persistLog(any());
 
-        Assertions.assertEquals(processLoggerProvider.getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID)
-                                                     .size(), 0);
+        Assertions.assertEquals(0, processLoggerProvider.getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID)
+                                                        .size());
     }
 
     @Test
@@ -82,8 +82,8 @@ class ProcessLoggerPersisterTest {
         Mockito.verify(processLogsPersistenceService, times(2))
                .persistLog(any());
 
-        Assertions.assertEquals(processLoggerProvider.getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID)
-                                                     .size(), 0);
+        Assertions.assertEquals(0, processLoggerProvider.getExistingLoggers(TEST_CORRELATION_ID, TEST_TASK_ID)
+                                                        .size());
     }
 
     @Test

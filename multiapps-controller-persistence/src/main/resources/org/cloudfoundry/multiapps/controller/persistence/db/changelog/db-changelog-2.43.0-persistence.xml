@@ -63,7 +63,7 @@
             </column>
 
             <column name="log_level" type="VARCHAR(5)">
-                <constraints nullable="false" checkConstraint="CHECK (log_level IN ('INFO', 'WARN', 'DEBUG', 'ERROR', 'TRACE'))"/>
+                <constraints nullable="false"/>
             </column>
 
             <column name="is_failsafe" type="BOOLEAN">

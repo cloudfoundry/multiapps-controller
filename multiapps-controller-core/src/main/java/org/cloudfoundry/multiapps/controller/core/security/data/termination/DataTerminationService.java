@@ -6,7 +6,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
@@ -46,26 +45,36 @@ public class DataTerminationService {
     // https://v3-apidocs.cloudfoundry.org/version/3.128.0/index.html#timestamps
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-    @Inject
-    private ConfigurationEntryService configurationEntryService;
-    @Inject
-    private ConfigurationSubscriptionService configurationSubscriptionService;
-    @Inject
-    private OperationService operationService;
-    @Inject
-    private FileService fileService;
-    @Inject
-    private ApplicationConfiguration configuration;
-    @Inject
-    private WebClientFactory webClientFactory;
-    @Inject
-    private MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog;
-    @Inject
-    private DescriptorBackupService descriptorBackupService;
-    @Inject
-    private CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService;
-    @Inject
-    private CloudLoggingServiceConfigurationAuditLog cloudLoggingServiceConfigurationAuditLog;
+    private final ConfigurationEntryService configurationEntryService;
+    private final ConfigurationSubscriptionService configurationSubscriptionService;
+    private final OperationService operationService;
+    private final FileService fileService;
+    private final ApplicationConfiguration configuration;
+    private final WebClientFactory webClientFactory;
+    private final MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog;
+    private final DescriptorBackupService descriptorBackupService;
+    private final CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService;
+    private final CloudLoggingServiceConfigurationAuditLog cloudLoggingServiceConfigurationAuditLog;
+
+    public DataTerminationService(ConfigurationEntryService configurationEntryService,
+                                  ConfigurationSubscriptionService configurationSubscriptionService, OperationService operationService,
+                                  FileService fileService, ApplicationConfiguration configuration, WebClientFactory webClientFactory,
+                                  MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog,
+                                  DescriptorBackupService descriptorBackupService,
+                                  CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService,
+                                  CloudLoggingServiceConfigurationAuditLog cloudLoggingServiceConfigurationAuditLog) {
+        this.configurationEntryService = configurationEntryService;
+        this.configurationSubscriptionService = configurationSubscriptionService;
+        this.operationService = operationService;
+        this.fileService = fileService;
+        this.configuration = configuration;
+        this.webClientFactory = webClientFactory;
+        this.mtaConfigurationPurgerAuditLog = mtaConfigurationPurgerAuditLog;
+        this.descriptorBackupService = descriptorBackupService;
+        this.cloudLoggingServiceConfigurationService = cloudLoggingServiceConfigurationService;
+        this.cloudLoggingServiceConfigurationAuditLog = cloudLoggingServiceConfigurationAuditLog;
+
+    }
 
     private static void log(Exception e) {
         LOGGER.error(format(Messages.ERROR_DURING_DATA_TERMINATION_0, e.getMessage()), e);

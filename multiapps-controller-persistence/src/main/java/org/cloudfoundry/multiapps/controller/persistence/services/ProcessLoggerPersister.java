@@ -16,6 +16,7 @@ import org.springframework.scheduling.annotation.Async;
 @Named("processLoggerPersister")
 public class ProcessLoggerPersister {
 
+    private static final String OPERATION_LOG_NAME = "OPERATION.log";
     private final ProcessLoggerProvider processLoggerProvider;
     private final ProcessLogsPersistenceService processLogsPersistenceService;
 
@@ -55,7 +56,7 @@ public class ProcessLoggerPersister {
         List<ProcessLogger> processLoggers = processLoggerProvider.getExistingLoggers(correlationId, taskId);
         Map<String, StringBuilder> processLogsMessages = getProcessLogsMessages(processLoggers);
 
-        processLogsMessages.remove("OPERATION.log");
+        processLogsMessages.remove(OPERATION_LOG_NAME);
 
         return processLogsMessages.values()
                                   .stream()

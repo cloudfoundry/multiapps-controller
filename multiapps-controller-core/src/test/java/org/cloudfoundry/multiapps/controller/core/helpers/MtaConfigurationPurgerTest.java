@@ -94,7 +94,7 @@ class MtaConfigurationPurgerTest {
                                                                    new MtaMetadataParser(new MtaMetadataValidator()),
                                                                    mtaConfigurationPurgerAuditLog, cloudLoggingServiceConfigurationService,
                                                                    cloudLoggingServiceConfigurationAuditLog);
-        purger.purge("org", "space");
+        purger.purge("org", "space", "test-user");
         verifyConfigurationEntriesDeleted();
         verifyConfigurationEntriesNotDeleted();
     }
@@ -172,12 +172,12 @@ class MtaConfigurationPurgerTest {
         when(spaceClient.getSpace(TARGET_ORG, TARGET_SPACE)).thenReturn(createCloudSpace(spaceId));
 
         MtaConfigurationPurger purger = createPurger();
-        purger.purge(TARGET_ORG, TARGET_SPACE);
+        purger.purge(TARGET_ORG, TARGET_SPACE, "test-user");
 
         verify(cloudLoggingServiceConfigurationService).deleteCloudLoggingServiceConfiguration("id-1");
         verify(cloudLoggingServiceConfigurationService).deleteCloudLoggingServiceConfiguration("id-2");
-        verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration("", spaceId, config1);
-        verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration("", spaceId, config2);
+        verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration("test-user", spaceId, config1);
+        verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration("test-user", spaceId, config2);
     }
 
     @Test
@@ -187,7 +187,7 @@ class MtaConfigurationPurgerTest {
         when(spaceClient.getSpace(TARGET_ORG, TARGET_SPACE)).thenReturn(createCloudSpace(spaceId));
 
         MtaConfigurationPurger purger = createPurger();
-        purger.purge(TARGET_ORG, TARGET_SPACE);
+        purger.purge(TARGET_ORG, TARGET_SPACE, "test-user");
 
         verify(cloudLoggingServiceConfigurationService, never()).deleteCloudLoggingServiceConfiguration(Mockito.anyString());
         verify(cloudLoggingServiceConfigurationAuditLog, never()).logDeleteLoggingConfiguration(Mockito.anyString(), Mockito.anyString(),
@@ -202,10 +202,10 @@ class MtaConfigurationPurgerTest {
         when(spaceClient.getSpace(TARGET_ORG, TARGET_SPACE)).thenReturn(createCloudSpace(spaceId));
 
         MtaConfigurationPurger purger = createPurger();
-        purger.purge(TARGET_ORG, TARGET_SPACE);
+        purger.purge(TARGET_ORG, TARGET_SPACE, "test-user");
 
         verify(cloudLoggingServiceConfigurationService).deleteCloudLoggingServiceConfiguration("id-1");
-        verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration("", spaceId, config);
+        verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration("test-user", spaceId, config);
     }
 
     private MtaConfigurationPurger createPurger() {

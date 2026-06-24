@@ -30,7 +30,6 @@
       <flowable:in source="deployedMta" target="deployedMta"></flowable:in>
       <flowable:in source="idleMtaColor" target="idleMtaColor"></flowable:in>
       <flowable:in source="liveMtaColor" target="liveMtaColor"></flowable:in>
-      <flowable:in source="isLogCacheCleared" target="isLogCacheCleared"></flowable:in>
       <flowable:in source="externalLoggingServiceConfigurations" target="externalLoggingServiceConfigurations"></flowable:in>
     </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution">

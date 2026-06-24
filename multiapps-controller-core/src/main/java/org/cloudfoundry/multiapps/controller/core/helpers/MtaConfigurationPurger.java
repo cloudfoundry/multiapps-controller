@@ -59,13 +59,13 @@ public class MtaConfigurationPurger {
         this.cloudLoggingServiceConfigurationAuditLog = cloudLoggingServiceConfigurationAuditLog;
     }
 
-    public void purge(String org, String space) {
+    public void purge(String org, String space, String userName) {
         CloudTarget targetSpace = new CloudTarget(org, space);
         String targetId = new ClientHelper(spaceClient).computeSpaceId(org, space);
         List<CloudApplication> existingApps = getExistingApps();
         purgeConfigurationSubscriptions(targetId, existingApps);
         purgeConfigurationEntries(targetSpace, existingApps, targetId);
-        purgeCloudLoggingServiceConfigurations(targetId);
+        purgeCloudLoggingServiceConfigurations(targetId, userName);
     }
 
     private void purgeConfigurationSubscriptions(String spaceId, List<CloudApplication> existingApps) {
@@ -106,12 +106,12 @@ public class MtaConfigurationPurger {
         }
     }
 
-    private void purgeCloudLoggingServiceConfigurations(String spaceId) {
+    private void purgeCloudLoggingServiceConfigurations(String spaceId, String userName) {
         List<LoggingConfiguration> loggingConfigurations = cloudLoggingServiceConfigurationService.getAllCloudLoggingServiceConfigurationsFromSpace(
             spaceId);
         for (LoggingConfiguration loggingConfiguration : loggingConfigurations) {
             cloudLoggingServiceConfigurationService.deleteCloudLoggingServiceConfiguration(loggingConfiguration.getId());
-            cloudLoggingServiceConfigurationAuditLog.logDeleteLoggingConfiguration("", spaceId, loggingConfiguration);
+            cloudLoggingServiceConfigurationAuditLog.logDeleteLoggingConfiguration(userName, spaceId, loggingConfiguration);
         }
     }
 

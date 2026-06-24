@@ -10,19 +10,20 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LogLevelTest {
 
-    static Stream<Arguments> testGet() {
+    static Stream<Arguments> testGet_withValidInput() {
         return Stream.of(Arguments.of("INFO", LogLevel.INFO), Arguments.of("WARN", LogLevel.WARN), Arguments.of("DEBUG", LogLevel.DEBUG),
                          Arguments.of("ERROR", LogLevel.ERROR), Arguments.of("TRACE", LogLevel.TRACE));
     }
 
     @ParameterizedTest
     @MethodSource
-    void testGet(String value, LogLevel expected) {
+    void testGet_withValidInput(String value, LogLevel expected) {
         assertEquals(expected, LogLevel.get(value));
     }
 
@@ -34,6 +35,16 @@ class LogLevelTest {
     @Test
     void testGet_returnsNullForNull() {
         assertNull(LogLevel.get(null));
+    }
+
+    @Test
+    void testIsValid_ValidInput() {
+        assertTrue(LogLevel.isValid("INFO"));
+    }
+
+    @Test
+    void testIsValid_InvalidInput() {
+        assertFalse(LogLevel.isValid("test"));
     }
 
     @Test

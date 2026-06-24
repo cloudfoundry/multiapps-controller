@@ -68,7 +68,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
     @Inject
     private ProcessHelper processHelper;
     @Inject
-    private OperationLogsExporter operationLogsExporter;
+    protected OperationLogsExporter operationLogsExporter;
 
     @Override
     public void execute(DelegateExecution execution) {

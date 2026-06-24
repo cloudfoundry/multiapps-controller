@@ -1,17 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.security.data.termination;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +11,7 @@ import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.CloudLoggingServiceConfigurationAuditLog;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.CFOptimizedEventGetter;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
 import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
@@ -33,9 +22,10 @@ import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfigurat
 import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationEntryQuery;
 import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationSubscriptionQuery;
 import org.cloudfoundry.multiapps.controller.persistence.query.OperationQuery;
+import org.cloudfoundry.multiapps.controller.persistence.services.CloudLoggingServiceConfigurationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
-import org.cloudfoundry.multiapps.controller.persistence.services.CloudLoggingServiceConfigurationService;
+import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
@@ -50,6 +40,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.verification.VerificationMode;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class DataTerminationServiceTest {
 
@@ -77,20 +79,27 @@ class DataTerminationServiceTest {
     @Mock
     private MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog;
     @Mock
+    private DescriptorBackupService descriptorBackupService;
+    @Mock
+    private WebClientFactory webClientFactory;
+    @Mock
     private CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService;
     @Mock
     private CloudLoggingServiceConfigurationAuditLog cloudLoggingServiceConfigurationAuditLog;
     @InjectMocks
-    private final DataTerminationService dataTerminationService = createDataTerminationService();
+    private DataTerminationService dataTerminationService;
 
     @BeforeEach
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
+        dataTerminationService = createDataTerminationService();
     }
 
     private DataTerminationService createDataTerminationService() {
-        return new DataTerminationService() {
+        return new DataTerminationService(configurationEntryService, configurationSubscriptionService, operationService, fileService,
+                                          configuration, webClientFactory, mtaConfigurationPurgerAuditLog, descriptorBackupService,
+                                          cloudLoggingServiceConfigurationService, cloudLoggingServiceConfigurationAuditLog) {
 
             @Override
             protected CFOptimizedEventGetter getCfOptimizedEventGetter() {
@@ -164,12 +173,14 @@ class DataTerminationServiceTest {
         when(configurationSubscriptionService.createQuery()).thenReturn(configurationSubscriptionQuery);
         when(configurationEntryService.createQuery()).thenReturn(configurationEntryQuery);
 
-        ConfigurationSubscriptionQuery configurationSubscriptionQueryMock = new MockBuilder<>(configurationSubscriptionQuery).on(query -> query.spaceId(deletedSpace))
+        ConfigurationSubscriptionQuery configurationSubscriptionQueryMock = new MockBuilder<>(configurationSubscriptionQuery).on(
+                                                                                                                                 query -> query.spaceId(deletedSpace))
                                                                                                                              .build();
         doReturn(subscriptions).when(configurationSubscriptionQueryMock)
                                .list();
 
-        ConfigurationEntryQuery configurationEntryQueryMock = new MockBuilder<>(configurationEntryQuery).on(query -> query.spaceId(deletedSpace))
+        ConfigurationEntryQuery configurationEntryQueryMock = new MockBuilder<>(configurationEntryQuery).on(
+                                                                                                            query -> query.spaceId(deletedSpace))
                                                                                                         .build();
         doReturn(configurationEntries).when(configurationEntryQueryMock)
                                       .list();

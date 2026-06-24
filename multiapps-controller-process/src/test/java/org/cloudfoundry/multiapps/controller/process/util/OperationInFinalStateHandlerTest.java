@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.client.v3.Metadata;
@@ -208,7 +207,7 @@ class OperationInFinalStateHandlerTest {
     }
 
     private void prepareOperationTimeAggregator() {
-        Mockito.when(operationTimeAggregator.computeOverallProcessTime(Mockito.eq(PROCESS_ID), Mockito.any()))
+        Mockito.when(operationTimeAggregator.computeOverallProcessTime(eq(PROCESS_ID), Mockito.any()))
                .thenReturn(processTime);
         Mockito.when(processTime.getProcessDuration())
                .thenReturn(PROCESS_DURATION);
@@ -351,7 +350,7 @@ class OperationInFinalStateHandlerTest {
         prepareOperationTimeAggregator();
         prepareOperationService();
         LoggingConfiguration loggingConfiguration = ImmutableLoggingConfiguration.builder()
-                                                                                  .build();
+                                                                                 .build();
         VariableHandling.set(execution, Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION, loggingConfiguration);
 
         eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
@@ -366,8 +365,8 @@ class OperationInFinalStateHandlerTest {
         prepareOperationTimeAggregator();
         prepareOperationService();
         LoggingConfiguration loggingConfiguration = ImmutableLoggingConfiguration.builder()
-                                                                                  .id(LOGGING_CONFIG_ID)
-                                                                                  .build();
+                                                                                 .id(LOGGING_CONFIG_ID)
+                                                                                 .build();
         VariableHandling.set(execution, Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION, loggingConfiguration);
         when(processTypeParser.getProcessType(execution)).thenReturn(ProcessType.DEPLOY);
 
@@ -383,8 +382,8 @@ class OperationInFinalStateHandlerTest {
         prepareOperationTimeAggregator();
         prepareOperationService();
         LoggingConfiguration loggingConfiguration = ImmutableLoggingConfiguration.builder()
-                                                                                  .id(LOGGING_CONFIG_ID)
-                                                                                  .build();
+                                                                                 .id(LOGGING_CONFIG_ID)
+                                                                                 .build();
         VariableHandling.set(execution, Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION, loggingConfiguration);
         VariableHandling.set(execution, Variables.USER, USER_NAME);
         when(processTypeParser.getProcessType(execution)).thenReturn(ProcessType.UNDEPLOY);
@@ -392,8 +391,7 @@ class OperationInFinalStateHandlerTest {
         eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
 
         verify(cloudLoggingServiceConfigurationService).deleteCloudLoggingServiceConfiguration(LOGGING_CONFIG_ID);
-        verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration(eq(USER_NAME), eq(SPACE_ID),
-                                                                                       eq(loggingConfiguration));
+        verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration(USER_NAME, SPACE_ID, loggingConfiguration);
     }
 
     @Test
@@ -484,17 +482,18 @@ class OperationInFinalStateHandlerTest {
 
     private DeployedMta buildDeployedMta(String mtaVersion) {
         DeployedMtaApplication application = ImmutableDeployedMtaApplication.builder()
-                                                                             .name("app-1")
-                                                                             .moduleName("module-1")
-                                                                             .v3Metadata(Metadata.builder()
-                                                                                                 .annotation(MtaMetadataAnnotations.MTA_VERSION,
-                                                                                                             mtaVersion)
-                                                                                                 .build())
-                                                                             .build();
+                                                                            .name("app-1")
+                                                                            .moduleName("module-1")
+                                                                            .v3Metadata(Metadata.builder()
+                                                                                                .annotation(
+                                                                                                    MtaMetadataAnnotations.MTA_VERSION,
+                                                                                                    mtaVersion)
+                                                                                                .build())
+                                                                            .build();
         return ImmutableDeployedMta.builder()
                                    .metadata(org.cloudfoundry.multiapps.controller.core.cf.metadata.ImmutableMtaMetadata.builder()
-                                                                                                                       .id(MTA_ID)
-                                                                                                                       .build())
+                                                                                                                        .id(MTA_ID)
+                                                                                                                        .build())
                                    .applications(List.of(application))
                                    .build();
     }

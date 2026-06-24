@@ -20,6 +20,12 @@ public interface LoggingConfiguration {
     String getTargetSpace();
 
     @Nullable
+    String getTargetSpaceGuid();
+
+    @Nullable
+    String getServiceInstanceGuid();
+
+    @Nullable
     String getMtaOrg();
 
     @Nullable
@@ -49,8 +55,10 @@ public interface LoggingConfiguration {
     @Nullable
     LogLevel getLogLevel();
 
-    @Nullable
-    Boolean isFailSafe();
+    @Value.Default
+    default Boolean isFailSafe() {
+        return false;
+    }
 
     @Nullable
     String getServiceInstanceName();

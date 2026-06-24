@@ -53,6 +53,7 @@ public final class Messages {
 
     // ERROR log messages:
     public static final String UPLOAD_STREAM_FAILED_TO_CLOSE = "Cannot close file upload stream";
+    public static final String INVALID_LOG_FILE = "Invalid log file";
 
     // WARN log messages:
     public static final String COULD_NOT_CLOSE_RESULT_SET = "Could not close result set.";

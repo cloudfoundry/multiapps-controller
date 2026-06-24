@@ -582,9 +582,9 @@ public interface Variables {
                                                                               .defaultValue(Collections.emptyList())
                                                                               .build();
     Variable<List<String>> HOOK_EXECUTION_PHASES = ImmutableSimpleVariable.<List<String>> builder()
-                                                                         .name("hookExecutionPhases")
-                                                                         .defaultValue(Collections.emptyList())
-                                                                         .build();
+                                                                          .name("hookExecutionPhases")
+                                                                          .defaultValue(Collections.emptyList())
+                                                                          .build();
     Variable<List<Module>> MODULES_TO_DEPLOY = ImmutableJsonBinaryListVariable.<Module> builder()
                                                                               .name("modulesToDeploy")
                                                                               .type(Variable.typeReference(Module.class))
@@ -979,18 +979,8 @@ public interface Variables {
                                                                                                        .defaultValue(null)
                                                                                                        .build();
 
-    Variable<Boolean> IS_EXTERNAL_LOGGING_SERVICE_ENABLED = ImmutableSimpleVariable.<Boolean> builder()
-                                                                                   .name("isExternalLoggingServiceEnabled")
-                                                                                   .defaultValue(false)
-                                                                                   .build();
-
-    Variable<Boolean> IS_LOG_CACHE_CLEARED = ImmutableSimpleVariable.<Boolean> builder()
-                                                                    .name("isLogCacheCleared")
-                                                                    .defaultValue(false)
-                                                                    .build();
-
     Variable<String> PARENT_PROCESS_INSTANCE_ID = ImmutableSimpleVariable.<String> builder()
                                                                          .name("parentProcessInstanceId")
-                                                                         .defaultValue("")
+                                                                         .defaultValue(null)
                                                                          .build();
 }

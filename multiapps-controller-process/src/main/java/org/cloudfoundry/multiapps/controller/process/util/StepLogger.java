@@ -6,6 +6,7 @@ import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableProgressMessage;
+import org.cloudfoundry.multiapps.controller.persistence.model.LogLevel;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage.ProgressMessageType;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
@@ -51,7 +52,7 @@ public class StepLogger implements UserMessageLogger {
         ProcessLogger processLogger = getProcessLogger();
         processLogger.info(getPrefix(simpleStepLogger) + message);
         String formattedMessage = processLogger.getLogMessage();
-        sendLogsToCLoudLoggingService(formattedMessage);
+        sendLogsToCLoudLoggingService(formattedMessage, LogLevel.INFO);
     }
 
     public void info(String pattern, Object... arguments) {
@@ -81,7 +82,7 @@ public class StepLogger implements UserMessageLogger {
         processLogger.error(getPrefix(simpleStepLogger) + message);
         String formattedMessage = processLogger.getLogMessage();
 
-        sendLogsToCLoudLoggingService(formattedMessage);
+        sendLogsToCLoudLoggingService(formattedMessage, LogLevel.ERROR);
 
     }
 
@@ -112,7 +113,7 @@ public class StepLogger implements UserMessageLogger {
         processLogger.warn(getPrefix(simpleStepLogger) + message, e);
         String formattedMessage = processLogger.getLogMessage();
 
-        sendLogsToCLoudLoggingService(formattedMessage);
+        sendLogsToCLoudLoggingService(formattedMessage, LogLevel.WARN);
 
     }
 
@@ -127,7 +128,7 @@ public class StepLogger implements UserMessageLogger {
         processLogger.warn(getPrefix(simpleStepLogger) + message);
         String formattedMessage = processLogger.getLogMessage();
 
-        sendLogsToCLoudLoggingService(formattedMessage);
+        sendLogsToCLoudLoggingService(formattedMessage, LogLevel.WARN);
 
     }
 
@@ -164,7 +165,7 @@ public class StepLogger implements UserMessageLogger {
         ProcessLogger processLogger = getProcessLogger();
         processLogger.debug(getPrefix(simpleStepLogger) + message);
         String formattedMessage = processLogger.getLogMessage();
-        sendLogsToCLoudLoggingService(formattedMessage);
+        sendLogsToCLoudLoggingService(formattedMessage, LogLevel.DEBUG);
     }
 
     public void trace(String pattern, Object... arguments) {
@@ -176,13 +177,13 @@ public class StepLogger implements UserMessageLogger {
         ProcessLogger processLogger = getProcessLogger();
         processLogger.trace(getPrefix(simpleStepLogger) + message);
         String formattedMessage = processLogger.getLogMessage();
-        sendLogsToCLoudLoggingService(formattedMessage);
+        sendLogsToCLoudLoggingService(formattedMessage, LogLevel.TRACE);
     }
 
-    private void sendLogsToCLoudLoggingService(String message) {
+    private void sendLogsToCLoudLoggingService(String message, LogLevel level) {
         LoggingConfiguration loggingConfiguration = VariableHandling.get(execution, Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION);
         if (loggingConfiguration != null) {
-            operationLogsExporter.sendLogsToCloudLoggingService(loggingConfiguration, message);
+            operationLogsExporter.sendLogsToCloudLoggingService(loggingConfiguration, message, level);
         }
     }
 

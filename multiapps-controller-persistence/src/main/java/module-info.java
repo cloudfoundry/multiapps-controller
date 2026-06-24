@@ -43,6 +43,7 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires google.cloud.core;
     requires google.cloud.nio;
     requires google.cloud.storage;
+    requires io.netty.handler;
     requires jakarta.xml.bind;
     requires jakarta.annotation;
     requires jakarta.inject;
@@ -55,17 +56,16 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires org.bouncycastle.fips.core;
     requires org.bouncycastle.fips.pkix;
     requires org.cloudfoundry.multiapps.common;
-    requires spring.webflux;
     requires org.eclipse.persistence.core;
     requires org.slf4j;
+    requires reactor.core;
+    requires reactor.netty.core;
+    requires reactor.netty.http;
     requires spring.beans;
     requires spring.context;
     requires spring.core;
+    requires spring.webflux;
 
     requires static java.compiler;
     requires static org.immutables.value;
-    requires io.netty.handler;
-    requires reactor.netty.http;
-    requires reactor.netty.core;
-    requires reactor.core;
 }

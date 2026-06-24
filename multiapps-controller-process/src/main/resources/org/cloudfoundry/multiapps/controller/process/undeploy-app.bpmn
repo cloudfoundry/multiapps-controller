@@ -31,7 +31,6 @@
         <flowable:in source="deployedMta" target="deployedMta"></flowable:in>
         <flowable:in source="idleMtaColor" target="idleMtaColor"></flowable:in>
         <flowable:in source="liveMtaColor" target="liveMtaColor"></flowable:in>
-        <flowable:in source="isLogCacheCleared" target="isLogCacheCleared"></flowable:in>
         <flowable:in source="externalLoggingServiceConfigurations" target="externalLoggingServiceConfigurations"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution">
@@ -120,6 +119,7 @@
             <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
             <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
             <flowable:in source="mtaId" target="mtaId"></flowable:in>
+            <flowable:in source="externalLoggingServiceConfigurations" target="externalLoggingServiceConfigurations"></flowable:in>
           </extensionElements>
           <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="cloudServiceBindingsToDelete" flowable:elementVariable="serviceBindingToDelete">
             <extensionElements>

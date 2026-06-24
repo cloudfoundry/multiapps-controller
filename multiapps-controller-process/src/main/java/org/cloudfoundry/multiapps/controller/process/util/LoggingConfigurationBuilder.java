@@ -1,7 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.text.MessageFormat;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -13,21 +12,28 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKe
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableLoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.LogLevel;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
+import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 
-public class ExternalLoggingServiceConfigurationsCalculator {
+public class LoggingConfigurationBuilder {
+
+    private static final String CREDENTIAL_KEY_INGEST_MTLS_ENDPOINT = "ingest-mtls-endpoint";
+    private static final String CREDENTIAL_KEY_SERVER_CA = "server-ca";
+    private static final String CREDENTIAL_KEY_INGEST_MTLS_CERT = "ingest-mtls-cert";
+    private static final String CREDENTIAL_KEY_INGEST_MTLS_KEY = "ingest-mtls-key";
 
     private final CloudControllerClientFactory clientFactory;
     private final ProcessContext context;
     private final TokenService tokenService;
 
-    public ExternalLoggingServiceConfigurationsCalculator(CloudControllerClientFactory clientFactory, ProcessContext context,
-                                                          TokenService tokenService) {
+    public LoggingConfigurationBuilder(CloudControllerClientFactory clientFactory, ProcessContext context,
+                                       TokenService tokenService) {
         this.clientFactory = clientFactory;
         this.context = context;
         this.tokenService = tokenService;
@@ -41,16 +47,18 @@ public class ExternalLoggingServiceConfigurationsCalculator {
         }
 
         String correlationId = context.getVariable(Variables.CORRELATION_ID);
-        String spaceId = getTargetSpace(resource, context.getVariable(Variables.SPACE_NAME));
-        String orgId = getTargetOrg(resource, context.getVariable(Variables.ORGANIZATION_NAME));
+        String spaceName = getTargetSpace(resource, context.getVariable(Variables.SPACE_NAME));
+        String orgName = getTargetOrg(resource, context.getVariable(Variables.ORGANIZATION_NAME));
+        String targetSpaceGuid = resolveTargetSpaceGuid(orgName, spaceName);
         LogLevel logLevel = getLogLevelsFromConfiguration(resource);
 
         return ImmutableLoggingConfiguration.copyOf(loggingConfiguration)
                                             .withId(UUID.randomUUID()
                                                         .toString())
                                             .withOperationId(correlationId)
-                                            .withTargetSpace(spaceId)
-                                            .withTargetOrg(orgId)
+                                            .withTargetSpace(spaceName)
+                                            .withTargetSpaceGuid(targetSpaceGuid)
+                                            .withTargetOrg(orgName)
                                             .withMtaId(context.getVariable(Variables.MTA_ID))
                                             .withMtaSpaceId(context.getVariable(Variables.SPACE_GUID))
                                             .withMtaSpace(context.getVariable(Variables.SPACE_NAME))
@@ -60,76 +68,35 @@ public class ExternalLoggingServiceConfigurationsCalculator {
                                             .withIsFailSafe(resource.isOptional());
     }
 
-    public LoggingConfiguration exportOperationLogsToExternalSystem(LoggingConfiguration incommingLoggingConfiguration,
+    public LoggingConfiguration exportOperationLogsToExternalSystem(LoggingConfiguration incomingLoggingConfiguration,
                                                                     ProcessContext context) {
-        return getCredentialsFromServiceKey(incommingLoggingConfiguration, context);
+        return getCredentialsFromServiceKey(incomingLoggingConfiguration, context);
     }
 
     private LogLevel getLogLevelsFromConfiguration(Resource resource) {
-        LogLevel logLevel = LogLevel.INFO;
-        if (resource.getParameters()
-                    .containsKey(SupportedParameters.LOG_LEVEL)) {
-            String logLevelFromDescriptor = MiscUtil.cast(resource.getParameters()
-                                                                  .get(SupportedParameters.LOG_LEVEL));
-            logLevel = LogLevel.get(logLevelFromDescriptor);
+        if (!resource.getParameters()
+                     .containsKey(SupportedParameters.LOG_LEVEL)) {
+            return LogLevel.INFO;
         }
-        return logLevel;
-    }
-
-    private CloudServiceKey getCloudLoggingServiceKey(String serviceInstanceName, String serviceKeyName, String destinationOrg,
-                                                      String destinationSpace, boolean isFailSafe) {
-        String correlationId = context.getVariable(Variables.CORRELATION_ID);
-        if (areCloudLoggingParametersValid(serviceInstanceName, serviceKeyName)) {
-            if (isFailSafe) {
-                return null;
-            } else {
-                throw new SLException(
-                    MessageFormat.format("No logging service key found for operation {0}, skipping log export", correlationId));
-            }
+        String logLevelFromDescriptor = MiscUtil.cast(resource.getParameters()
+                                                              .get(SupportedParameters.LOG_LEVEL));
+        if (LogLevel.isValid(logLevelFromDescriptor)) {
+            return LogLevel.get(logLevelFromDescriptor);
         }
-        CloudControllerClient client1 = calculateExternalLoggingServiceConfiguration(destinationOrg, destinationSpace);
-        try {
-            CloudServiceKey loggingServiceKey = client1.getServiceKey(serviceInstanceName, serviceKeyName);
-            if (loggingServiceKey == null) {
-                if (isFailSafe) {
-                    return null;
-                } else {
-                    throw new SLException(
-                        MessageFormat.format("No logging service key found for operation {0}, skipping log export", correlationId));
-                }
-            }
-            return loggingServiceKey;
-        } catch (CloudOperationException e) {
-            if (isFailSafe) {
-                return null;
-            } else {
-                throw new SLException(e);
-            }
+        if (resource.isOptional()) {
+            return null;
+        } else {
+            throw new SLException(Messages.INVALID_LOG_LEVEL);
         }
     }
 
-    private boolean areCloudLoggingParametersValid(String serviceInstanceName, String serviceKeyName) {
+    private boolean areCloudLoggingParametersInvalid(String serviceInstanceName, String serviceKeyName) {
         return serviceInstanceName == null || serviceInstanceName.isBlank() || serviceKeyName == null || serviceKeyName.isBlank();
     }
 
     private String getServiceKeyName(Resource resource) {
-        List<Map<String, Object>> serviceKeys = MiscUtil.cast(resource.getParameters()
-                                                                      .get(SupportedParameters.SERVICE_KEYS));
-        if (serviceKeys == null || serviceKeys.isEmpty()) {
-            return null;
-        }
-        return MiscUtil.cast(serviceKeys.get(0)
-                                        .get(SupportedParameters.NAME));
-    }
-
-    private String getServiceInstanceName(Resource resource) {
-        if (resource.getParameters()
-                    .containsKey(SupportedParameters.SERVICE_NAME)) {
-            return MiscUtil.cast(resource.getParameters()
-                                         .get(SupportedParameters.SERVICE_NAME));
-        } else {
-            return resource.getName();
-        }
+        return MiscUtil.cast(resource.getParameters()
+                                     .get(SupportedParameters.SERVICE_KEY_NAME));
     }
 
     private LoggingConfiguration getCredentialsFromServiceKey(LoggingConfiguration loggingConfiguration, ProcessContext context) {
@@ -139,14 +106,16 @@ public class ExternalLoggingServiceConfigurationsCalculator {
         }
         Map<String, Object> credentials = loggingServiceKey.getCredentials();
 
-        String endpoint = getCredentialFromServiceKey("ingest-mtls-endpoint", credentials);
-        String serverCa = getCredentialFromServiceKey("server-ca", credentials);
-        String ingestMtlsCert = getCredentialFromServiceKey("ingest-mtls-cert", credentials);
-        String ingestMtlsKey = getCredentialFromServiceKey("ingest-mtls-key", credentials);
+        String endpoint = getCredentialFromServiceKey(CREDENTIAL_KEY_INGEST_MTLS_ENDPOINT, credentials);
+        String serverCa = getCredentialFromServiceKey(CREDENTIAL_KEY_SERVER_CA, credentials);
+        String ingestMtlsCert = getCredentialFromServiceKey(CREDENTIAL_KEY_INGEST_MTLS_CERT, credentials);
+        String ingestMtlsKey = getCredentialFromServiceKey(CREDENTIAL_KEY_INGEST_MTLS_KEY, credentials);
 
         return ImmutableLoggingConfiguration.copyOf(loggingConfiguration)
                                             .withOperationId(context.getVariable(Variables.CORRELATION_ID))
                                             .withMtaSpaceId(context.getVariable(Variables.SPACE_GUID))
+                                            .withServiceInstanceGuid(toGuidString(loggingServiceKey.getServiceInstance()
+                                                                                                   .getGuid()))
                                             .withServerCa(serverCa)
                                             .withEndpointUrl(endpoint)
                                             .withClientCert(ingestMtlsCert)
@@ -154,7 +123,7 @@ public class ExternalLoggingServiceConfigurationsCalculator {
     }
 
     private CloudServiceKey getServiceKeyWithResource(Resource resource) {
-        return getCloudLoggingServiceKey(getServiceInstanceName(resource), getServiceKeyName(resource),
+        return getCloudLoggingServiceKey(NameUtil.getServiceInstanceNameOrDefault(resource), getServiceKeyName(resource),
                                          getTargetOrg(resource, context.getVariable(Variables.ORGANIZATION_NAME)),
                                          getTargetSpace(resource, context.getVariable(Variables.SPACE_NAME)),
                                          resource.isOptional());
@@ -166,6 +135,34 @@ public class ExternalLoggingServiceConfigurationsCalculator {
                                          loggingConfiguration.isFailSafe());
     }
 
+    private CloudServiceKey getCloudLoggingServiceKey(String serviceInstanceName, String serviceKeyName, String destinationOrg,
+                                                      String destinationSpace, boolean isFailSafe) {
+        if (areCloudLoggingParametersInvalid(serviceInstanceName, serviceKeyName)) {
+            return handleMissingServiceKey(isFailSafe, null);
+        }
+        CloudControllerClient client = calculateExternalLoggingServiceConfiguration(destinationOrg, destinationSpace);
+        try {
+            CloudServiceKey loggingServiceKey = client.getServiceKey(serviceInstanceName, serviceKeyName);
+            if (loggingServiceKey != null) {
+                return loggingServiceKey;
+            }
+            return handleMissingServiceKey(isFailSafe, null);
+        } catch (CloudOperationException e) {
+            return handleMissingServiceKey(isFailSafe, e);
+        }
+    }
+
+    private CloudServiceKey handleMissingServiceKey(boolean isFailSafe, CloudOperationException cause) {
+        if (isFailSafe) {
+            return null;
+        }
+        if (cause != null) {
+            throw new SLException(cause);
+        }
+        throw new SLException(MessageFormat.format(Messages.NO_CLOUD_LOGGING_SERVICE_KEY_FOUND_FOR_OPERATION_0_SKIPPING_LOG_EXPORT,
+                                                   context.getVariable(Variables.CORRELATION_ID)));
+    }
+
     private LoggingConfiguration getCredentialsFromServiceKey(Resource resource) {
         CloudServiceKey loggingServiceKey = getServiceKeyWithResource(resource);
         if (loggingServiceKey == null) {
@@ -173,17 +170,19 @@ public class ExternalLoggingServiceConfigurationsCalculator {
         }
         Map<String, Object> credentials = loggingServiceKey.getCredentials();
 
-        String endpoint = getCredentialFromServiceKey("ingest-mtls-endpoint", credentials);
-        String serverCa = getCredentialFromServiceKey("server-ca", credentials);
-        String ingestMtlsCert = getCredentialFromServiceKey("ingest-mtls-cert", credentials);
-        String ingestMtlsKey = getCredentialFromServiceKey("ingest-mtls-key", credentials);
+        String endpoint = getCredentialFromServiceKey(CREDENTIAL_KEY_INGEST_MTLS_ENDPOINT, credentials);
+        String serverCa = getCredentialFromServiceKey(CREDENTIAL_KEY_SERVER_CA, credentials);
+        String ingestMtlsCert = getCredentialFromServiceKey(CREDENTIAL_KEY_INGEST_MTLS_CERT, credentials);
+        String ingestMtlsKey = getCredentialFromServiceKey(CREDENTIAL_KEY_INGEST_MTLS_KEY, credentials);
 
         return ImmutableLoggingConfiguration.builder()
                                             .serverCa(serverCa)
                                             .endpointUrl(endpoint)
                                             .clientKey(ingestMtlsKey)
                                             .clientCert(ingestMtlsCert)
-                                            .serviceInstanceName(getServiceInstanceName(resource))
+                                            .serviceInstanceName(NameUtil.getServiceInstanceNameOrDefault(resource))
+                                            .serviceInstanceGuid(toGuidString(loggingServiceKey.getServiceInstance()
+                                                                                               .getGuid()))
                                             .serviceKeyName(loggingServiceKey.getName())
                                             .build();
     }
@@ -192,7 +191,7 @@ public class ExternalLoggingServiceConfigurationsCalculator {
         String credential = (String) credentials.get(credentialsName);
 
         if (credential == null) {
-            throw new IllegalArgumentException("Missing required " + credentialsName + " credential for SAP Cloud Logging export");
+            throw new SLException(MessageFormat.format(Messages.MISSING_REQUIRED_1_CREDENTIAL_FROM_SCL_EXPORT, credentialsName));
         }
 
         return credential;
@@ -201,17 +200,25 @@ public class ExternalLoggingServiceConfigurationsCalculator {
     private CloudControllerClient calculateExternalLoggingServiceConfiguration(String destinationOrg, String destinationSpace) {
         String currentTargetOrg = context.getVariable(Variables.ORGANIZATION_NAME);
         String currentTargetSpace = context.getVariable(Variables.SPACE_NAME);
-        CloudControllerClient client = context.getControllerClient();
 
         String targetOrg = getTargetOrg(destinationOrg, currentTargetOrg);
         String targetSpace = getTargetSpace(destinationSpace, currentTargetSpace);
 
-        if (!targetOrg.equals(currentTargetOrg) || !targetSpace.equals(currentTargetSpace)) {
-            client = clientFactory.createClient(tokenService.getToken(context.getVariable(Variables.USER_GUID)), targetOrg,
-                                                targetSpace, context.getVariable(Variables.CORRELATION_ID));
+        if (targetOrg.equals(currentTargetOrg) && targetSpace.equals(currentTargetSpace)) {
+            return context.getControllerClient();
         }
+        return clientFactory.createClient(tokenService.getToken(context.getVariable(Variables.USER_GUID)), targetOrg, targetSpace,
+                                          context.getVariable(Variables.CORRELATION_ID));
+    }
 
-        return client;
+    private String resolveTargetSpaceGuid(String destinationOrg, String destinationSpace) {
+        CloudControllerClient client = calculateExternalLoggingServiceConfiguration(destinationOrg, destinationSpace);
+        return toGuidString(client.getTarget()
+                                  .getGuid());
+    }
+
+    private static String toGuidString(UUID guid) {
+        return guid == null ? null : guid.toString();
     }
 
     private String getTargetOrg(String existingLoggingConfigurationOrg, String org) {
@@ -227,9 +234,9 @@ public class ExternalLoggingServiceConfigurationsCalculator {
         if (destination == null) {
             return org;
         }
-        return getDestination(resource).get("org-name") == null
+        return getDestination(resource).get(SupportedParameters.CLS_ORG_NAME) == null
             ? org
-            : getDestination(resource).get("org-name")
+            : getDestination(resource).get(SupportedParameters.CLS_ORG_NAME)
                                       .toString();
     }
 
@@ -238,9 +245,9 @@ public class ExternalLoggingServiceConfigurationsCalculator {
         if (destination == null) {
             return space;
         }
-        return destination.get("space-name") == null
+        return destination.get(SupportedParameters.CLS_SPACE_NAME) == null
             ? space
-            : destination.get("space-name")
+            : destination.get(SupportedParameters.CLS_SPACE_NAME)
                          .toString();
     }
 

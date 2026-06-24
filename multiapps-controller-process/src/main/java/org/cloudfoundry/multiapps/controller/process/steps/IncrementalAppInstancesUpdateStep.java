@@ -18,7 +18,6 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableIncrementalAppInstanceUpdateConfiguration;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -39,14 +38,11 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
 
     private final CloudControllerClientFactory clientFactory;
     private final TokenService tokenService;
-    private final OperationLogsExporter operationLogsExportero;
 
     @Inject
-    public IncrementalAppInstancesUpdateStep(CloudControllerClientFactory clientFactory, TokenService tokenService,
-                                             OperationLogsExporter operationLogsExportero) {
+    public IncrementalAppInstancesUpdateStep(CloudControllerClientFactory clientFactory, TokenService tokenService) {
         this.clientFactory = clientFactory;
         this.tokenService = tokenService;
-        this.operationLogsExportero = operationLogsExportero;
     }
 
     @Override
@@ -178,8 +174,8 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
         // The sequence of executions is crucial, as the incremental blue-green deployment alternates between them during the polling
         // process
-        return List.of(new PollStartLiveAppExecution(clientFactory, tokenService, operationLogsExportero),
-                       new PollStartAppExecutionWithRollbackExecution(clientFactory, tokenService, operationLogsExportero),
+        return List.of(new PollStartLiveAppExecution(clientFactory, tokenService, operationLogsExporter),
+                       new PollStartAppExecutionWithRollbackExecution(clientFactory, tokenService, operationLogsExporter),
                        new PollIncrementalAppInstanceUpdateExecution());
     }
 

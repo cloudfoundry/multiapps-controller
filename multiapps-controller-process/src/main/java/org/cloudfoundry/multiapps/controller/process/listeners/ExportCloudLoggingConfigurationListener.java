@@ -48,13 +48,15 @@ public class ExportCloudLoggingConfigurationListener extends AbstractProcessExec
         String parentProcessInstanceId = VariableHandling.get(execution, Variables.PARENT_PROCESS_INSTANCE_ID);
 
         if (parentProcessInstanceId != null && !parentProcessInstanceId.isEmpty()) {
-            setVariableInParentProcessXSA(execution, loggingConfigurationVariable.getName(),
-                                          loggingConfigurationSerializer.serialize(loggingConfiguration));
-        } else if (hasSuperExecution(execution)) {
+            setVariableInParentProcessUsingParentProcessInstanceId(execution, loggingConfigurationVariable.getName(),
+                                                                   loggingConfigurationSerializer.serialize(loggingConfiguration));
+            return;
+        }
+        if (hasSuperExecution(execution)) {
             setVariableInParentProcess(execution, loggingConfigurationVariable.getName(),
                                        loggingConfigurationSerializer.serialize(loggingConfiguration));
-        } else {
-            VariableHandling.set(execution, loggingConfigurationVariable, loggingConfiguration);
+            return;
         }
+        VariableHandling.set(execution, loggingConfigurationVariable, loggingConfiguration);
     }
 }
