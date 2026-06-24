@@ -73,12 +73,12 @@ public abstract class ProcessStepHelper {
 
     private void logException(ProcessContext context, Throwable t) {
         LOGGER.error(Messages.EXCEPTION_CAUGHT, t);
-        ProcessLogger a = getProcessLogger();
-        a.error(Messages.EXCEPTION_CAUGHT, t);
+        ProcessLogger processLogger = getProcessLogger();
+        processLogger.error(Messages.EXCEPTION_CAUGHT, t);
 
         if (context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION) != null) {
-            getOperationLogsExporter().sendLogsToCloudLoggingService(context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION),
-                                                                     a.getLogMessage());
+            getOperationLogsExporter().error(context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION),
+                                             processLogger.getLogMessage());
         }
         if (t instanceof ContentException) {
             context.setVariable(Variables.ERROR_TYPE, ErrorType.CONTENT_ERROR);
@@ -96,13 +96,12 @@ public abstract class ProcessStepHelper {
                                                                     .text(throwable.getMessage())
                                                                     .build());
         } catch (SLException e) {
-            ProcessLogger a = getProcessLogger();
-            a.error(Messages.SAVING_ERROR_MESSAGE_FAILED, e);
+            ProcessLogger processLogger = getProcessLogger();
+            processLogger.error(Messages.SAVING_ERROR_MESSAGE_FAILED, e);
 
             if (context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION) != null) {
-                getOperationLogsExporter().sendLogsToCloudLoggingService(
-                    context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION),
-                    a.getLogMessage());
+                getOperationLogsExporter().error(context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION),
+                                                 processLogger.getLogMessage());
             }
         }
     }
@@ -126,12 +125,12 @@ public abstract class ProcessStepHelper {
     }
 
     private void logDebug(ProcessContext context, String message) {
-        ProcessLogger a = getProcessLogger();
-        a.debug(message);
+        ProcessLogger processLogger = getProcessLogger();
+        processLogger.debug(message);
 
         if (context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION) != null) {
-            getOperationLogsExporter().sendLogsToCloudLoggingService(context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION),
-                                                                     a.getLogMessage());
+            getOperationLogsExporter().debug(context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION),
+                                             processLogger.getLogMessage());
         }
     }
 

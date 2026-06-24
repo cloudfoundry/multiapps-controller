@@ -158,6 +158,9 @@ public final class Messages {
     public static final String FLOWABLE_JOB_EXECUTOR_CORE_THREADS = "Flowable job executor core threads: {0}";
     public static final String FLOWABLE_JOB_EXECUTOR_MAX_THREADS = "Flowable job executor max threads: {0}";
     public static final String FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY = "Flowable job executor queue capacity: {0}";
+    public static final String CLOUD_LOGGING_SERVICE_EXECUTOR_CORE_THREADS = "Cloud logging service executor core threads: {0}";
+    public static final String CLOUD_LOGGING_SERVICE_EXECUTOR_MAX_THREADS = "Cloud logging service executor max threads: {0}";
+    public static final String CLOUD_LOGGING_SERVICE_EXECUTOR_QUEUE_CAPACITY = "Cloud logging service executor queue capacity: {0}";
     public static final String GLOBAL_AUDITOR_ORIGIN = "Global auditor user origin: {0}";
 
     public static final String AUDIT_LOG_ABOUT_TO_PERFORM_ACTION = "About to perform action \"{0}\"";

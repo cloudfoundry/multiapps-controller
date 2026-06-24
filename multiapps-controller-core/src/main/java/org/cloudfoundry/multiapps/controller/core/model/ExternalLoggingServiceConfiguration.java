@@ -39,9 +39,13 @@ public interface ExternalLoggingServiceConfiguration {
     @Nullable
     String getClientKey();
 
-    @Nullable
-    List<String> getLogLevels();
+    @Value.Default
+    default List<String> getLogLevels() {
+        return List.of();
+    }
 
-    @Nullable
-    Boolean isFailSafe();
+    @Value.Default
+    default Boolean isFailSafe() {
+        return false;
+    }
 }

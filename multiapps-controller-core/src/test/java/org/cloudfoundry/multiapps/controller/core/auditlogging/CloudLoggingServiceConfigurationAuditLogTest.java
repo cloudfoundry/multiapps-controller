@@ -19,6 +19,7 @@ import org.mockito.MockitoAnnotations;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 class CloudLoggingServiceConfigurationAuditLogTest {
@@ -98,9 +99,9 @@ class CloudLoggingServiceConfigurationAuditLogTest {
     @Test
     void testLogCreateLoggingConfiguration_logLevelIsNullStringWhenLogLevelIsNull() {
         LoggingConfiguration config = ImmutableLoggingConfiguration.builder()
-                                                                    .from(buildLoggingConfiguration())
-                                                                    .logLevel(null)
-                                                                    .build();
+                                                                   .from(buildLoggingConfiguration())
+                                                                   .logLevel(null)
+                                                                   .build();
 
         auditLog.logCreateLoggingConfiguration(USERNAME, SPACE_ID, config);
 
@@ -168,8 +169,8 @@ class CloudLoggingServiceConfigurationAuditLogTest {
     @Test
     void testLogDeleteLoggingConfiguration_omitsNullValuesFromConfigurationIdentifiers() {
         LoggingConfiguration sparseConfig = ImmutableLoggingConfiguration.builder()
-                                                                          .id(LOGGING_CONFIG_ID)
-                                                                          .build();
+                                                                         .id(LOGGING_CONFIG_ID)
+                                                                         .build();
 
         auditLog.logDeleteLoggingConfiguration(USERNAME, SPACE_ID, sparseConfig);
 
@@ -201,49 +202,14 @@ class CloudLoggingServiceConfigurationAuditLogTest {
     }
 
     @Test
-    void testLogGetLoggingConfiguration_includesMtaIdAndNamespaceOnly() {
+    void testLogGetLoggingConfiguration_includesAllConfigurationIdentifiers() {
         auditLog.logGetLoggingConfiguration(USERNAME, SPACE_ID, buildLoggingConfiguration());
 
         Map<String, String> identifiers = identifiersFromDataAccess();
         assertEquals(MTA_ID, identifiers.get("mtaId"));
         assertEquals(NAMESPACE, identifiers.get("namespace"));
-        // The "get" variant only logs mtaId and namespace
-        assertEquals(2, countNonReservedIdentifiers(captureDataAccess()));
-    }
-
-    // --- logListLoggingConfigurations ---
-
-    @Test
-    void testLogListLoggingConfigurations_invokesDataAccessFacade() {
-        auditLog.logListLoggingConfigurations(USERNAME, SPACE_ID);
-
-        verify(auditLoggingFacade).logDataAccessAuditLog(any(AuditLogConfiguration.class));
-    }
-
-    @Test
-    void testLogListLoggingConfigurations_setsUserAndSpace() {
-        auditLog.logListLoggingConfigurations(USERNAME, SPACE_ID);
-
-        AuditLogConfiguration captured = captureDataAccess();
-        assertEquals(USERNAME, captured.getUserId());
-        assertEquals(SPACE_ID, captured.getSpaceId());
-    }
-
-    @Test
-    void testLogListLoggingConfigurations_hasNoConfigurationParameters() {
-        auditLog.logListLoggingConfigurations(USERNAME, SPACE_ID);
-
-        // List variant uses 3-argument constructor without parameters, so only base identifiers exist
-        AuditLogConfiguration captured = captureDataAccess();
-        assertEquals(0, countNonReservedIdentifiers(captured));
-    }
-
-    @Test
-    void testLogListLoggingConfigurations_setsPerformedActionContainingSpaceId() {
-        auditLog.logListLoggingConfigurations(USERNAME, SPACE_ID);
-
-        assertTrue(captureDataAccess().getPerformedAction()
-                                       .contains(SPACE_ID));
+        // The "get" variant logs the full set of configuration identifiers
+        assertEquals(12, countNonReservedIdentifiers(captureDataAccess()));
     }
 
     // --- Helpers ---
@@ -326,10 +292,6 @@ class CloudLoggingServiceConfigurationAuditLogTest {
                                             .logLevel(LogLevel.INFO)
                                             .isFailSafe(true)
                                             .build();
-    }
-
-    private static <T> T any(Class<T> clazz) {
-        return org.mockito.ArgumentMatchers.any(clazz);
     }
 
     private static ConfigurationChangeActions eqAction(ConfigurationChangeActions action) {

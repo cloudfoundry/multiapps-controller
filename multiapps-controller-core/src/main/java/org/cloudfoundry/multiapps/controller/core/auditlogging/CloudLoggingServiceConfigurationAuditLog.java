@@ -63,22 +63,11 @@ public class CloudLoggingServiceConfigurationAuditLog {
 
     public void logGetLoggingConfiguration(String username, String spaceId, LoggingConfiguration loggingConfiguration) {
         String performedAction = MessageFormat.format(Messages.LOGGING_CONFIGURATION_GET, spaceId);
-        Map<String, String> identifiers = new HashMap<>();
-        identifiers.put(MTA_ID_PROPERTY_NAME, loggingConfiguration.getMtaId());
-        identifiers.put(NAMESPACE_PROPERTY_NAME, loggingConfiguration.getNamespace());
         auditLoggingFacade.logDataAccessAuditLog(new AuditLogConfiguration(username,
                                                                            spaceId,
                                                                            performedAction,
                                                                            Messages.LOGGING_CONFIGURATION_GET_AUDIT_LOG_CONFIG,
-                                                                           identifiers));
-    }
-
-    public void logListLoggingConfigurations(String username, String spaceId) {
-        String performedAction = MessageFormat.format(Messages.LOGGING_CONFIGURATION_LIST, spaceId);
-        auditLoggingFacade.logDataAccessAuditLog(new AuditLogConfiguration(username,
-                                                                           spaceId,
-                                                                           performedAction,
-                                                                           Messages.LOGGING_CONFIGURATION_LIST_AUDIT_LOG_CONFIG));
+                                                                           buildIdentifiers(loggingConfiguration)));
     }
 
     private Map<String, String> buildIdentifiers(LoggingConfiguration loggingConfiguration) {

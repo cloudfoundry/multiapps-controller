@@ -12,7 +12,6 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudTask;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -29,8 +28,6 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
     private CloudControllerClientFactory clientFactory;
     @Inject
     private TokenService tokenService;
-    @Inject
-    private OperationLogsExporter operationLogsExporter;
 
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) {

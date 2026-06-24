@@ -207,7 +207,7 @@ class OperationInFinalStateHandlerTest {
     }
 
     private void prepareOperationTimeAggregator() {
-        Mockito.when(operationTimeAggregator.computeOverallProcessTime(Mockito.eq(PROCESS_ID), Mockito.any()))
+        Mockito.when(operationTimeAggregator.computeOverallProcessTime(eq(PROCESS_ID), Mockito.any()))
                .thenReturn(processTime);
         Mockito.when(processTime.getProcessDuration())
                .thenReturn(PROCESS_DURATION);
@@ -391,8 +391,7 @@ class OperationInFinalStateHandlerTest {
         eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
 
         verify(cloudLoggingServiceConfigurationService).deleteCloudLoggingServiceConfiguration(LOGGING_CONFIG_ID);
-        verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration(eq(USER_NAME), eq(SPACE_ID),
-                                                                                       eq(loggingConfiguration));
+        verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration(USER_NAME, SPACE_ID, loggingConfiguration);
     }
 
     @Test

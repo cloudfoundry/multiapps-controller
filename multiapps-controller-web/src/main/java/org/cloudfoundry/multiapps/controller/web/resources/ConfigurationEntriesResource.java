@@ -67,7 +67,7 @@ public class ConfigurationEntriesResource {
                                                                                 mtaConfigurationPurgerAuditLog,
                                                                                 cloudLoggingServiceConfigurationService,
                                                                                 cloudLoggingServiceConfigurationAuditLog);
-        configurationPurger.purge(organization, space);
+        configurationPurger.purge(organization, space, user.getName());
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                              .build();
     }

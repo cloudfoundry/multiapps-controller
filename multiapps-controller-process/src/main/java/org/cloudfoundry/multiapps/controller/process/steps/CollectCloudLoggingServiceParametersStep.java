@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.List;
 
-import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.CloudLoggingServiceConfigurationAuditLog;
@@ -12,14 +11,12 @@ import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.CloudLoggingServiceConfigurationService;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
-import org.cloudfoundry.multiapps.controller.process.util.ExternalLoggingServiceConfigurationsCalculator;
+import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.LoggingConfigurationBuilder;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
-import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Resource;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -29,23 +26,24 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
 
-    @Inject
-    private TokenService tokenService;
+    private static final String CLOUDFOUNDRY_RESOURCE_TYPE_PREFIX = "org.cloudfoundry.";
 
-    @Inject
-    private CloudControllerClientFactory clientFactory;
+    private final TokenService tokenService;
+    private final CloudControllerClientFactory clientFactory;
+    private final CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService;
+    private final ProcessTypeParser processTypeParser;
+    private final CloudLoggingServiceConfigurationAuditLog cloudLoggingServiceConfigurationAuditLog;
 
-    @Inject
-    private OperationLogsExporter operationLogsExporter;
-
-    @Inject
-    private CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService;
-
-    @Inject
-    private ProcessTypeParser processTypeParser;
-
-    @Inject
-    private CloudLoggingServiceConfigurationAuditLog cloudLoggingServiceConfigurationAuditLog;
+    public CollectCloudLoggingServiceParametersStep(TokenService tokenService, CloudControllerClientFactory clientFactory,
+                                                    CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService,
+                                                    ProcessTypeParser processTypeParser,
+                                                    CloudLoggingServiceConfigurationAuditLog cloudLoggingServiceConfigurationAuditLog) {
+        this.tokenService = tokenService;
+        this.clientFactory = clientFactory;
+        this.cloudLoggingServiceConfigurationService = cloudLoggingServiceConfigurationService;
+        this.processTypeParser = processTypeParser;
+        this.cloudLoggingServiceConfigurationAuditLog = cloudLoggingServiceConfigurationAuditLog;
+    }
 
     @Override
     protected StepPhase executeStep(ProcessContext context) throws Exception {
@@ -62,15 +60,31 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
         return StepPhase.DONE;
     }
 
+    @Override
+    protected String getStepErrorMessage(ProcessContext context) {
+        return Messages.ERROR_COLLECTING_CLOUD_LOGGING_SERVICE_PARAMETERS;
+    }
+
     private LoggingConfiguration getLoggingConfiguration(ProcessContext context) {
         ProcessType processType = processTypeParser.getProcessType(context.getExecution());
-        LoggingConfiguration loggingConfiguration = getExistingLoggingConfiguration(context);
+        LoggingConfiguration existingLoggingConfiguration = getExistingLoggingConfiguration(context);
 
         if (processType.equals(ProcessType.UNDEPLOY)) {
-            return processUndeployLoggingConfiguration(context, loggingConfiguration);
-        } else {
-            return processDeployLoggingConfiguration(context, loggingConfiguration);
+            return processUndeployLoggingConfiguration(context, existingLoggingConfiguration);
         }
+        return processDeployLoggingConfiguration(context, existingLoggingConfiguration);
+    }
+
+    private LoggingConfiguration getExistingLoggingConfiguration(ProcessContext context) {
+        LoggingConfiguration loggingConfiguration = cloudLoggingServiceConfigurationService.getCloudLoggingServiceConfiguration(
+            context.getVariable(Variables.SPACE_NAME), context.getVariable(Variables.MTA_ID), context.getVariable(Variables.MTA_NAMESPACE));
+
+        if (loggingConfiguration != null) {
+            cloudLoggingServiceConfigurationAuditLog.logGetLoggingConfiguration(context.getVariable(Variables.USER),
+                                                                                context.getVariable(Variables.SPACE_GUID),
+                                                                                loggingConfiguration);
+        }
+        return loggingConfiguration;
     }
 
     private LoggingConfiguration processUndeployLoggingConfiguration(ProcessContext context,
@@ -85,91 +99,67 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
                                                                    LoggingConfiguration existingLoggingConfiguration) {
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
         if (!isCloudLoggingEnabled(deploymentDescriptor)) {
-            if (existingLoggingConfiguration != null) {
-                cloudLoggingServiceConfigurationAuditLog.logDeleteLoggingConfiguration(context.getVariable(Variables.USER),
-                                                                                       context.getVariable(Variables.SPACE_GUID),
-                                                                                       existingLoggingConfiguration);
-                cloudLoggingServiceConfigurationService.deleteCloudLoggingServiceConfiguration(existingLoggingConfiguration.getId());
-            }
+            deleteExistingLoggingConfigurationIfExists(context, existingLoggingConfiguration);
             return null;
         }
 
-        existingLoggingConfiguration = setExternalLoggingServiceConfigurationIfRequired(context, deploymentDescriptor);
-        if (existingLoggingConfiguration == null) {
+        LoggingConfiguration newLoggingConfiguration = setExternalLoggingServiceConfigurationIfRequired(context, deploymentDescriptor);
+        if (newLoggingConfiguration == null) {
             return null;
         }
-        storeOrUpdateLoggingConfiguration(context, existingLoggingConfiguration, getExistingLoggingConfiguration(context));
-        return existingLoggingConfiguration;
-    }
-
-    private void storeOrUpdateLoggingConfiguration(ProcessContext context, LoggingConfiguration loggingConfiguration,
-                                                   LoggingConfiguration existingLoggingConfiguration) {
         if (existingLoggingConfiguration == null) {
-            cloudLoggingServiceConfigurationAuditLog.logCreateLoggingConfiguration(context.getVariable(Variables.USER),
-                                                                                   context.getVariable(Variables.SPACE_GUID),
-                                                                                   loggingConfiguration);
-            cloudLoggingServiceConfigurationService.storeCloudLoggingServiceConfiguration(loggingConfiguration);
+            persistLoggingConfiguration(context, newLoggingConfiguration);
         } else {
-            cloudLoggingServiceConfigurationAuditLog.logUpdateLoggingConfiguration(context.getVariable(Variables.USER),
+            updateLoggingConfiguration(context, newLoggingConfiguration);
+        }
+        return newLoggingConfiguration;
+    }
+
+    private void deleteExistingLoggingConfigurationIfExists(ProcessContext context, LoggingConfiguration existingLoggingConfiguration) {
+        if (existingLoggingConfiguration != null) {
+            cloudLoggingServiceConfigurationAuditLog.logDeleteLoggingConfiguration(context.getVariable(Variables.USER),
                                                                                    context.getVariable(Variables.SPACE_GUID),
-                                                                                   loggingConfiguration);
-            cloudLoggingServiceConfigurationService.updateCloudLoggingServiceConfiguration(loggingConfiguration);
+                                                                                   existingLoggingConfiguration);
+            cloudLoggingServiceConfigurationService.deleteCloudLoggingServiceConfiguration(existingLoggingConfiguration.getId());
         }
-    }
-
-    private LoggingConfiguration getExistingLoggingConfiguration(ProcessContext context) {
-
-        LoggingConfiguration loggingConfiguration = cloudLoggingServiceConfigurationService.getCloudLoggingServiceConfiguration(
-            context.getVariable(Variables.SPACE_NAME), context.getVariable(Variables.MTA_ID), context.getVariable(Variables.MTA_NAMESPACE));
-
-        if (loggingConfiguration != null) {
-            cloudLoggingServiceConfigurationAuditLog.logGetLoggingConfiguration(context.getVariable(Variables.USER),
-                                                                                context.getVariable(Variables.SPACE_GUID),
-                                                                                loggingConfiguration);
-        }
-        return loggingConfiguration;
-    }
-
-    @Override
-    protected String getStepErrorMessage(ProcessContext context) {
-        return "Well, failed! Deal with it!";
-    }
-
-    protected boolean isRootProcess(DelegateExecution execution) {
-        String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
-        String processInstanceId = execution.getProcessInstanceId();
-        return processInstanceId.equals(correlationId);
-    }
-
-    protected LoggingConfiguration setExternalLoggingServiceConfigurationIfRequired(ProcessContext context,
-                                                                                    DeploymentDescriptor deploymentDescriptor) {
-        ExternalLoggingServiceConfigurationsCalculator calculator = new ExternalLoggingServiceConfigurationsCalculator(clientFactory,
-                                                                                                                       context,
-                                                                                                                       tokenService);
-        Resource resource = getLoggingServiceResource(deploymentDescriptor.getResources());
-        return calculator.exportOperationLogsToExternalSystem(resource);
-    }
-
-    protected LoggingConfiguration setExternalLoggingServiceConfigurationIfRequired(ProcessContext context,
-                                                                                    LoggingConfiguration loggingConfiguration) {
-        ExternalLoggingServiceConfigurationsCalculator calculator = new ExternalLoggingServiceConfigurationsCalculator(clientFactory,
-                                                                                                                       context,
-                                                                                                                       tokenService);
-        return calculator.exportOperationLogsToExternalSystem(loggingConfiguration, context);
     }
 
     private boolean isCloudLoggingEnabled(DeploymentDescriptor deploymentDescriptor) {
-        if (deploymentDescriptor.getResources()
-                                .isEmpty()) {
-            return false;
-        }
-
-        return deploymentDescriptor.getResources()
+        return !deploymentDescriptor.getResources()
+                                    .isEmpty()
+            && deploymentDescriptor.getResources()
                                    .stream()
                                    .anyMatch(CollectCloudLoggingServiceParametersStep::isCloudLoggingServiceResource);
     }
 
-    private Resource getLoggingServiceResource(List<Resource> resources) {
+    protected LoggingConfiguration setExternalLoggingServiceConfigurationIfRequired(ProcessContext context,
+                                                                                    DeploymentDescriptor deploymentDescriptor) {
+        LoggingConfigurationBuilder builder = new LoggingConfigurationBuilder(clientFactory, context, tokenService);
+        Resource resource = findCloudLoggingServiceResource(deploymentDescriptor.getResources());
+        return builder.exportOperationLogsToExternalSystem(resource);
+    }
+
+    protected LoggingConfiguration setExternalLoggingServiceConfigurationIfRequired(ProcessContext context,
+                                                                                    LoggingConfiguration loggingConfiguration) {
+        LoggingConfigurationBuilder builder = new LoggingConfigurationBuilder(clientFactory, context, tokenService);
+        return builder.exportOperationLogsToExternalSystem(loggingConfiguration, context);
+    }
+
+    private void persistLoggingConfiguration(ProcessContext context, LoggingConfiguration newLoggingConfiguration) {
+        cloudLoggingServiceConfigurationAuditLog.logCreateLoggingConfiguration(context.getVariable(Variables.USER),
+                                                                               context.getVariable(Variables.SPACE_GUID),
+                                                                               newLoggingConfiguration);
+        cloudLoggingServiceConfigurationService.storeCloudLoggingServiceConfiguration(newLoggingConfiguration);
+    }
+
+    private void updateLoggingConfiguration(ProcessContext context, LoggingConfiguration newLoggingConfiguration) {
+        cloudLoggingServiceConfigurationAuditLog.logUpdateLoggingConfiguration(context.getVariable(Variables.USER),
+                                                                               context.getVariable(Variables.SPACE_GUID),
+                                                                               newLoggingConfiguration);
+        cloudLoggingServiceConfigurationService.updateCloudLoggingServiceConfiguration(newLoggingConfiguration);
+    }
+
+    private Resource findCloudLoggingServiceResource(List<Resource> resources) {
         return resources.stream()
                         .filter(CollectCloudLoggingServiceParametersStep::isCloudLoggingServiceResource)
                         .findFirst()
@@ -177,12 +167,11 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
     }
 
     private static boolean isCloudLoggingServiceResource(Resource resource) {
-        String resourceType = resource.getType()
-                                      .replace("org.cloudfoundry.", EMPTY);
-        ResourceType resourceType1 = ResourceType.get(resourceType);
-        if (resourceType1 == null) {
-            return false;
-        }
-        return ResourceType.CLOUD_LOGGING_SERVICE.equals(resourceType1);
+        ResourceType resourceType = ResourceType.get(stripCloudfoundryPrefix(resource.getType()));
+        return ResourceType.CLOUD_LOGGING_SERVICE.equals(resourceType);
+    }
+
+    private static String stripCloudfoundryPrefix(String resourceType) {
+        return resourceType.replace(CLOUDFOUNDRY_RESOURCE_TYPE_PREFIX, EMPTY);
     }
 }

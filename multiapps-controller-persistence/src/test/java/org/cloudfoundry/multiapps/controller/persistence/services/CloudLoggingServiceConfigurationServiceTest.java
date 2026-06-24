@@ -2,11 +2,12 @@ package org.cloudfoundry.multiapps.controller.persistence.services;
 
 import java.util.List;
 
-import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableLoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.LogLevel;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
-import org.cloudfoundry.multiapps.controller.persistence.test.TestDataSourceProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,8 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 class CloudLoggingServiceConfigurationServiceTest {
 
-    private static final String LIQUIBASE_CHANGELOG_LOCATION = "org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog.xml";
-
     private static final String SPACE_ID_1 = "space-id-1";
     private static final String SPACE_ID_2 = "space-id-2";
     private static final String MTA_SPACE_1 = "mta-space-1";
@@ -27,12 +26,13 @@ class CloudLoggingServiceConfigurationServiceTest {
     private static final String ID_1 = "id-1";
     private static final String ID_2 = "id-2";
 
+    private EntityManagerFactory entityManagerFactory;
     private CloudLoggingServiceConfigurationService service;
 
     @BeforeEach
-    void setUp() throws Exception {
-        DataSourceWithDialect dataSource = new DataSourceWithDialect(TestDataSourceProvider.getDataSource(LIQUIBASE_CHANGELOG_LOCATION));
-        service = new CloudLoggingServiceConfigurationService(dataSource);
+    void setUp() {
+        entityManagerFactory = Persistence.createEntityManagerFactory("TestDefault");
+        service = new CloudLoggingServiceConfigurationService(entityManagerFactory);
     }
 
     @AfterEach
@@ -41,6 +41,7 @@ class CloudLoggingServiceConfigurationServiceTest {
                .forEach(config -> service.deleteCloudLoggingServiceConfiguration(config.getId()));
         service.getAllCloudLoggingServiceConfigurationsFromSpace(SPACE_ID_2)
                .forEach(config -> service.deleteCloudLoggingServiceConfiguration(config.getId()));
+        entityManagerFactory.close();
     }
 
     @Test

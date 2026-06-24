@@ -299,7 +299,7 @@ public class FlowableFacade {
                      .setVariable(parentProcessId, variableName, value);
     }
 
-    public void setVariableInParentProcessXSA(DelegateExecution execution, String variableName, Object value) {
+    public void setVariableInParentProcessUsingParentProcessInstanceId(DelegateExecution execution, String variableName, Object value) {
         String parentProcessInstanceId = VariableHandling.get(execution, Variables.PARENT_PROCESS_INSTANCE_ID);
         processEngine.getRuntimeService()
                      .setVariable(parentProcessInstanceId, variableName, value);

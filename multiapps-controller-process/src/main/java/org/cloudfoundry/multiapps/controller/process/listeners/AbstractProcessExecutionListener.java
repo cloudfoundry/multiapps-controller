@@ -129,14 +129,13 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
         flowableFacade.setVariableInParentProcess(execution, variableName, value);
     }
 
-    protected void setVariableInParentProcessXSA(DelegateExecution execution, String variableName, Object value) {
-        flowableFacade.setVariableInParentProcessXSA(execution, variableName, value);
+    protected void setVariableInParentProcessUsingParentProcessInstanceId(DelegateExecution execution, String variableName, Object value) {
+        flowableFacade.setVariableInParentProcessUsingParentProcessInstanceId(execution, variableName, value);
     }
 
     protected boolean hasSuperExecution(DelegateExecution execution) {
-        return execution.getParentId() != null
-            && flowableFacade.getParentExecution(execution.getParentId())
-                             .getSuperExecutionId() != null;
+        return execution.getParentId() != null && flowableFacade.getParentExecution(execution.getParentId())
+                                                                .getSuperExecutionId() != null;
     }
 
     protected abstract void notifyInternal(DelegateExecution execution) throws Exception;

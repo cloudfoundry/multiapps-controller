@@ -110,7 +110,7 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="deleteDiscontinuedServicesFlow" sourceRef="sid-1B34E2BF-18FD-49A5-9083-4892F4E2BA5C" targetRef="deleteServicesCallActivity"></sequenceFlow>
-    <callActivity id="deleteServiceKeysSubProcess" name="Delete Service Keys Sub Process" flowable:async="true" flowable:exclusive="false" calledElement="deleteServiceKeySubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+    <callActivity id="deleteServiceKeysSubProcess" name="Delete Service Keys Sub Process" flowable:async="true" flowable:exclusive="false" calledElement="deleteServiceKeySubProcess" flowable:calledElementType="key" flowable:inheritVariables="false" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="serviceKeysToDelete" flowable:elementVariable="serviceKeyToProcess">
         <extensionElements></extensionElements>
       </multiInstanceLoopCharacteristics>

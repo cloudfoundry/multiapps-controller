@@ -40,7 +40,6 @@
         <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
         <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
-        <flowable:in source="isLogCacheCleared" target="isLogCacheCleared"></flowable:in>
         <flowable:in source="externalLoggingServiceConfigurations" target="externalLoggingServiceConfigurations"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToCreate" flowable:elementVariable="serviceToProcess">
