@@ -15,6 +15,6 @@ public class OperationLogStorageException extends SLException {
     }
 
     public OperationLogStorageException(String message, Throwable cause) {
-        super(message, cause);
+        super(cause, message);
     }
 }
