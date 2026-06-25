@@ -15,6 +15,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.JCloudsObjectS
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
+import org.cloudfoundry.multiapps.controller.web.configuration.service.ImmutableObjectStoreServiceInfo;
 import org.cloudfoundry.multiapps.controller.web.configuration.service.ObjectStoreServiceInfo;
 import org.cloudfoundry.multiapps.controller.web.configuration.service.ObjectStoreServiceInfoCreator;
 import org.jclouds.blobstore.BlobStoreContext;
@@ -58,6 +59,9 @@ class ObjectStoreFileStorageFactoryBeanTest {
 
     @Mock
     private AzureObjectStoreFileStorage azureObjectStoreFileStorage;
+
+    private ObjectStoreServiceInfo capturedGcpServiceInfo;
+    private ObjectStoreServiceInfo capturedAzureServiceInfo;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -150,6 +154,61 @@ class ObjectStoreFileStorageFactoryBeanTest {
     }
 
     @Test
+    void testGcpFactoryReceivesPopulatedCredentialsWhenEnvIsGcp() {
+        mockCfService();
+        when(applicationConfiguration.getObjectStoreClientType()).thenReturn(Constants.GCP);
+
+        objectStoreFileStorageFactoryBean.afterPropertiesSet();
+
+        assertNotNull(capturedGcpServiceInfo);
+        assertEquals(Constants.GOOGLE_CLOUD_STORAGE, capturedGcpServiceInfo.getProvider());
+        assertNotNull(capturedGcpServiceInfo.getCredentials(),
+                      "GCP factory must receive an ObjectStoreServiceInfo carrying the bound credentials map");
+        assertEquals(ACCESS_KEY_ID_VALUE, capturedGcpServiceInfo.getCredentials()
+                                                                .get(Constants.ACCESS_KEY_ID));
+        assertEquals(BUCKET_VALUE, capturedGcpServiceInfo.getCredentials()
+                                                         .get(Constants.BUCKET));
+    }
+
+    @Test
+    void testAzureFactoryReceivesPopulatedCredentialsWhenEnvIsAzure() {
+        mockCfService();
+        when(applicationConfiguration.getObjectStoreClientType()).thenReturn(Constants.AZURE);
+
+        objectStoreFileStorageFactoryBean.afterPropertiesSet();
+
+        assertNotNull(capturedAzureServiceInfo);
+        assertEquals(Constants.AZUREBLOB, capturedAzureServiceInfo.getProvider());
+        assertNotNull(capturedAzureServiceInfo.getCredentials(),
+                      "Azure factory must receive an ObjectStoreServiceInfo carrying the bound credentials map");
+        assertEquals(SECRET_ACCESS_KEY_VALUE, capturedAzureServiceInfo.getCredentials()
+                                                                      .get(Constants.SECRET_ACCESS_KEY));
+    }
+
+    @Test
+    void testGcpEnvWithNoMatchingProviderInfoFallsThroughToNoValidStore() {
+        mockCfService();
+        when(applicationConfiguration.getObjectStoreClientType()).thenReturn(Constants.GCP);
+
+        ObjectStoreFileStorageFactoryBean bean = new ObjectStoreFileStorageFactoryBean("deploy-service-os", environmentServicesFinder,
+                                                                                       applicationConfiguration) {
+            @Override
+            public List<ObjectStoreServiceInfo> getProvidersServiceInfo() {
+                return List.of(ImmutableObjectStoreServiceInfo.builder()
+                                                              .provider(Constants.AWS_S_3)
+                                                              .identity(ACCESS_KEY_ID_VALUE)
+                                                              .credential(SECRET_ACCESS_KEY_VALUE)
+                                                              .container(BUCKET_VALUE)
+                                                              .build());
+            }
+        };
+
+        Exception exception = assertThrows(IllegalStateException.class, bean::afterPropertiesSet);
+        assertEquals(Messages.NO_VALID_OBJECT_STORE_CONFIGURATION_FOUND, exception.getMessage());
+        assertNull(capturedGcpServiceInfo, "GCP factory must not be invoked when no matching provider info is bound");
+    }
+
+    @Test
     void testObjectStoreCreationWhenEnvProviderFailsToConnect() {
         mockCfService();
         when(applicationConfiguration.getObjectStoreClientType()).thenReturn(Constants.AWS);
@@ -203,11 +262,13 @@ class ObjectStoreFileStorageFactoryBeanTest {
 
         @Override
         protected GcpObjectStoreFileStorage createGcpFileStorage(ObjectStoreServiceInfo credentials) {
+            ObjectStoreFileStorageFactoryBeanTest.this.capturedGcpServiceInfo = credentials;
             return ObjectStoreFileStorageFactoryBeanTest.this.gcpObjectStoreFileStorage;
         }
 
         @Override
         protected AzureObjectStoreFileStorage createAzureFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
+            ObjectStoreFileStorageFactoryBeanTest.this.capturedAzureServiceInfo = objectStoreServiceInfo;
             return ObjectStoreFileStorageFactoryBeanTest.this.azureObjectStoreFileStorage;
         }
 
