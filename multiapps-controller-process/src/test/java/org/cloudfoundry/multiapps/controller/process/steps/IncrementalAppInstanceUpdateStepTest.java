@@ -22,6 +22,7 @@ import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaAppl
 import org.cloudfoundry.multiapps.controller.core.model.IncrementalAppInstanceUpdateConfiguration;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,6 +49,7 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
 
     private CloudControllerClientFactory clientFactory;
     private TokenService tokenService;
+    private OperationLogsExporter operationLogsExporter;
 
     @BeforeEach
     public void setUp() {
@@ -259,6 +261,6 @@ class IncrementalAppInstanceUpdateStepTest extends SyncFlowableStepTest<Incremen
     protected IncrementalAppInstancesUpdateStep createStep() {
         clientFactory = Mockito.mock(CloudControllerClientFactory.class);
         tokenService = Mockito.mock(TokenService.class);
-        return new IncrementalAppInstancesUpdateStep(clientFactory, tokenService);
+        return new IncrementalAppInstancesUpdateStep(clientFactory, tokenService, operationLogsExporter);
     }
 }

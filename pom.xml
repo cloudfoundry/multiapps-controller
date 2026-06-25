@@ -870,6 +870,16 @@
                 <artifactId>reactor-netty</artifactId>
                 <version>${reactor-netty.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.projectreactor.netty</groupId>
+                <artifactId>reactor-netty-http</artifactId>
+                <version>${reactor-netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.projectreactor.netty</groupId>
+                <artifactId>reactor-netty-core</artifactId>
+                <version>${reactor-netty.version}</version>
+            </dependency>
             <!-- https://mvnrepository.com/artifact/org.cloudfoundry.multiapps/multiapps-common -->
             <dependency>
                 <groupId>org.cloudfoundry.multiapps</groupId>

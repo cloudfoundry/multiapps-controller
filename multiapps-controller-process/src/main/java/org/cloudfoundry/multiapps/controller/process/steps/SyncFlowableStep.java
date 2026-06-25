@@ -1,5 +1,8 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+
 import io.netty.handler.timeout.TimeoutException;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -14,6 +17,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvid
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.LoggingUtil;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
@@ -32,9 +36,6 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
 
 public abstract class SyncFlowableStep implements JavaDelegate {
 
@@ -66,6 +67,8 @@ public abstract class SyncFlowableStep implements JavaDelegate {
     private StepLogger stepLogger;
     @Inject
     private ProcessHelper processHelper;
+    @Inject
+    private OperationLogsExporter operationLogsExporter;
 
     @Override
     public void execute(DelegateExecution execution) {
@@ -209,7 +212,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
     }
 
     protected void initializeStepLogger(DelegateExecution execution) {
-        stepLogger = stepLoggerFactory.create(execution, progressMessageService, processLoggerProvider, logger);
+        stepLogger = stepLoggerFactory.create(execution, progressMessageService, processLoggerProvider, logger, operationLogsExporter);
     }
 
     protected Exception getWithProperMessage(Exception e) {
@@ -225,6 +228,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
                                                    .progressMessageService(getProgressMessageService())
                                                    .stepLogger(getStepLogger())
                                                    .processLoggerPersister(processLoggerPersister)
+                                                   .operationLogsExporter(operationLogsExporter)
                                                    .processEngineConfiguration(processEngineConfiguration)
                                                    .processHelper(processHelper)
                                                    .build();

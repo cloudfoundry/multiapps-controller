@@ -10,6 +10,7 @@ import org.cloudfoundry.multiapps.controller.core.model.ErrorType;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableProgressMessage;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage.ProgressMessageType;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
@@ -36,9 +37,9 @@ public abstract class ProcessStepHelper {
     }
 
     protected void postExecuteStep(ProcessContext context, StepPhase state) {
-        logDebug(MessageFormat.format(Messages.STEP_FINISHED, context.getExecution()
-                                                                     .getCurrentFlowElement()
-                                                                     .getName()));
+        logDebug(context, MessageFormat.format(Messages.STEP_FINISHED, context.getExecution()
+                                                                              .getCurrentFlowElement()
+                                                                              .getName()));
 
         getProcessLoggerPersister().persistLogs(context.getVariable(Variables.CORRELATION_ID), context.getVariable(Variables.TASK_ID));
         context.setVariable(Variables.STEP_EXECUTION, state.toString());
@@ -72,8 +73,13 @@ public abstract class ProcessStepHelper {
 
     private void logException(ProcessContext context, Throwable t) {
         LOGGER.error(Messages.EXCEPTION_CAUGHT, t);
-        getProcessLogger().error(Messages.EXCEPTION_CAUGHT, t);
+        ProcessLogger a = getProcessLogger();
+        a.error(Messages.EXCEPTION_CAUGHT, t);
 
+        if (context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION) != null) {
+            getOperationLogsExporter().sendLogsToCloudLoggingService(context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION),
+                                                                     a.getLogMessage());
+        }
         if (t instanceof ContentException) {
             context.setVariable(Variables.ERROR_TYPE, ErrorType.CONTENT_ERROR);
         } else {
@@ -90,7 +96,14 @@ public abstract class ProcessStepHelper {
                                                                     .text(throwable.getMessage())
                                                                     .build());
         } catch (SLException e) {
-            getProcessLogger().error(Messages.SAVING_ERROR_MESSAGE_FAILED, e);
+            ProcessLogger a = getProcessLogger();
+            a.error(Messages.SAVING_ERROR_MESSAGE_FAILED, e);
+
+            if (context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION) != null) {
+                getOperationLogsExporter().sendLogsToCloudLoggingService(
+                    context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION),
+                    a.getLogMessage());
+            }
         }
     }
 
@@ -112,8 +125,14 @@ public abstract class ProcessStepHelper {
                                                .getActivityId();
     }
 
-    private void logDebug(String message) {
-        getProcessLogger().debug(message);
+    private void logDebug(ProcessContext context, String message) {
+        ProcessLogger a = getProcessLogger();
+        a.debug(message);
+
+        if (context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION) != null) {
+            getOperationLogsExporter().sendLogsToCloudLoggingService(context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION),
+                                                                     a.getLogMessage());
+        }
     }
 
     private ProcessLogger getProcessLogger() {
@@ -133,6 +152,8 @@ public abstract class ProcessStepHelper {
     public abstract StepLogger getStepLogger();
 
     public abstract ProcessLoggerPersister getProcessLoggerPersister();
+
+    public abstract OperationLogsExporter getOperationLogsExporter();
 
     public abstract ProcessEngineConfiguration getProcessEngineConfiguration();
 

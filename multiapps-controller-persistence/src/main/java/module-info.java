@@ -58,6 +58,7 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires org.bouncycastle.fips.core;
     requires org.bouncycastle.fips.pkix;
     requires org.cloudfoundry.multiapps.common;
+    requires spring.webflux;
     requires org.eclipse.persistence.core;
     requires org.slf4j;
     requires spring.beans;
@@ -66,4 +67,8 @@ open module org.cloudfoundry.multiapps.controller.persistence {
 
     requires static java.compiler;
     requires static org.immutables.value;
+    requires io.netty.handler;
+    requires reactor.netty.http;
+    requires reactor.netty.core;
+    requires reactor.core;
 }

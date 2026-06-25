@@ -1,16 +1,17 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableOperationLogEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
 import org.springframework.scheduling.annotation.Async;
-
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @Named("processLoggerPersister")
 public class ProcessLoggerPersister {
@@ -27,12 +28,47 @@ public class ProcessLoggerPersister {
 
     @Async("asyncExecutor")
     public void persistLogs(String correlationId, String taskId) {
-        List<ProcessLogger> processLoggers = processLoggerProvider.getExistingLoggers(correlationId, taskId);
-        Map<String, StringBuilder> processLogsMessages = new HashMap<>();
 
-        if (processLoggers.isEmpty()) {
+        List<ProcessLogger> processLoggers = processLoggerProvider.getExistingLoggers(correlationId, taskId);
+        Map<String, StringBuilder> processLogsMessages = getProcessLogsMessages(processLoggers);
+        if (processLogsMessages.isEmpty()) {
             return;
         }
+
+        OperationLogEntry operationLogEntryWithExistingData = processLoggers.getFirst()
+                                                                            .getOperationLogEntry();
+
+        for (var processLogsMessage : processLogsMessages.entrySet()) {
+            OperationLogEntry operationLogEntry = ImmutableOperationLogEntry.copyOf(operationLogEntryWithExistingData)
+                                                                            .withId(UUID.randomUUID()
+                                                                                        .toString())
+                                                                            .withOperationLogName(processLogsMessage.getKey())
+                                                                            .withOperationLog(processLogsMessage.getValue()
+                                                                                                                .toString())
+                                                                            .withModified(LocalDateTime.now());
+
+            processLogsPersistenceService.persistLog(operationLogEntry);
+        }
+    }
+
+    public List<String> getApplicationProcessLogsMessages(String correlationId, String taskId) {
+        List<ProcessLogger> processLoggers = processLoggerProvider.getExistingLoggers(correlationId, taskId);
+        Map<String, StringBuilder> processLogsMessages = getProcessLogsMessages(processLoggers);
+
+        processLogsMessages.remove("OPERATION.log");
+
+        return processLogsMessages.values()
+                                  .stream()
+                                  .map(StringBuilder::toString)
+                                  .toList();
+    }
+
+    public Map<String, StringBuilder> getProcessLogsMessages(List<ProcessLogger> processLoggers) {
+        if (processLoggers.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        Map<String, StringBuilder> processLogsMessages = new HashMap<>();
 
         for (ProcessLogger processLogger : processLoggers) {
             if (processLogsMessages.containsKey(processLogger.getOperationLogEntry()
@@ -49,19 +85,6 @@ public class ProcessLoggerPersister {
 
             processLoggerProvider.removeProcessLoggerFromCache(processLogger);
         }
-
-        OperationLogEntry operationLogEntryWithExistingData = processLoggers.get(0)
-                                                                            .getOperationLogEntry();
-
-        for (var processLogsMessage : processLogsMessages.entrySet()) {
-            OperationLogEntry operationLogEntry = ImmutableOperationLogEntry.copyOf(operationLogEntryWithExistingData)
-                                                                            .withId(UUID.randomUUID()
-                                                                                        .toString())
-                                                                            .withOperationLogName(processLogsMessage.getKey())
-                                                                            .withOperationLog(processLogsMessage.getValue()
-                                                                                                                .toString())
-                                                                            .withModified(LocalDateTime.now());
-            processLogsPersistenceService.persistLog(operationLogEntry);
-        }
+        return processLogsMessages;
     }
 }

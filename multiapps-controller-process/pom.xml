@@ -110,5 +110,10 @@
             <groupId>org.cloudfoundry.multiapps</groupId>
             <artifactId>multiapps-controller-shutdown-client</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>13.0</version>
+        </dependency>
     </dependencies>
 </project>

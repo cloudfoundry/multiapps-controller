@@ -14,6 +14,7 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,8 @@ class PollStartLiveAppExecutionTest {
     private TokenService tokenService;
     @Mock
     private ProcessContext context;
+    @Mock
+    private OperationLogsExporter operationLogsExporter;
 
     private PollStartLiveAppExecution pollStartLiveAppExecution;
 
@@ -42,7 +45,7 @@ class PollStartLiveAppExecutionTest {
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        pollStartLiveAppExecution = new PollStartLiveAppExecution(clientFactory, tokenService);
+        pollStartLiveAppExecution = new PollStartLiveAppExecution(clientFactory, tokenService, operationLogsExporter);
     }
 
     @Test

@@ -9,6 +9,7 @@ import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationStager;
 import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
@@ -24,6 +25,8 @@ public class StageAppStep extends TimeoutAsyncFlowableStep {
     protected CloudControllerClientFactory clientFactory;
     @Inject
     protected TokenService tokenService;
+    @Inject
+    protected OperationLogsExporter operationLogsExporter;
 
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) {
@@ -40,7 +43,7 @@ public class StageAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
-        return List.of(new PollStageAppStatusExecution(new ApplicationStager(context), clientFactory, tokenService));
+        return List.of(new PollStageAppStatusExecution(new ApplicationStager(context), clientFactory, tokenService, operationLogsExporter));
     }
 
     @Override
