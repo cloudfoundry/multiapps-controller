@@ -11,6 +11,8 @@ class DatabaseTypeSetterFactoryTest {
     private static final String BOOL_TYPE = "bool";
     private static final String LONG_TYPE = "int8";
     private static final String STRING_TYPE = "varchar";
+    private static final String BYTES_TYPE = "bytea";
+    private static final String TIMESTAMP_TYPE = "timestamp";
 
     @Test
     void testGetWithNullStringParameter() {
@@ -67,6 +69,16 @@ class DatabaseTypeSetterFactoryTest {
         resultDatabaseTypeSetter = databaseTypeSetterFactory.get(STRING_TYPE);
         Assertions.assertTrue(resultDatabaseTypeSetter.getSupportedTypes()
                                                       .contains(STRING_TYPE));
+
+        resultDatabaseTypeSetter = databaseTypeSetterFactory.get(BYTES_TYPE);
+        Assertions.assertTrue(resultDatabaseTypeSetter.getSupportedTypes()
+                                                      .contains(BYTES_TYPE));
+        Assertions.assertInstanceOf(BytesDatabaseTypeSetter.class, resultDatabaseTypeSetter);
+
+        resultDatabaseTypeSetter = databaseTypeSetterFactory.get(TIMESTAMP_TYPE);
+        Assertions.assertTrue(resultDatabaseTypeSetter.getSupportedTypes()
+                                                      .contains(TIMESTAMP_TYPE));
+        Assertions.assertInstanceOf(TimestampDatabaseTypeSetter.class, resultDatabaseTypeSetter);
     }
 
 }
