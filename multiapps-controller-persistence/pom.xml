@@ -54,7 +54,7 @@
                                     <pluginExecutionFilter>
                                         <groupId>de.empulse.eclipselink</groupId>
                                         <artifactId>staticweave-maven-plugin</artifactId>
-                                        <versionRange>[1.0.0,)</versionRange>
+                                        <versionRange>[1.0.0]</versionRange>
                                         <goals>
                                             <goal>weave</goal>
                                         </goals>
