@@ -12,6 +12,7 @@ import org.cloudfoundry.multiapps.controller.api.model.ImmutableAsyncUploadResul
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableFileMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.UserCredentials;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.FilesApiServiceAuditLog;
+import org.cloudfoundry.multiapps.controller.core.util.LogSanitizer;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry.State;
@@ -110,8 +111,8 @@ public class FilesApiServiceImpl implements FilesApiService {
             FileMetadata file = parseFileEntry(fileEntry);
             filesApiServiceAuditLog.logUploadFile(SecurityContextUtil.getUsername(), spaceGuid, file);
             var endTime = LocalDateTime.now();
-            LOGGER.trace(Messages.UPLOADED_FILE, file.getId(), file.getName(), file.getSize(), file.getSpace(), file.getDigest(),
-                         file.getDigestAlgorithm(), ChronoUnit.MILLIS.between(startTime, endTime));
+            LOGGER.trace(Messages.UPLOADED_FILE, file.getId(), LogSanitizer.sanitize(file.getName()), file.getSize(), file.getSpace(),
+                         file.getDigest(), file.getDigestAlgorithm(), ChronoUnit.MILLIS.between(startTime, endTime));
             return ResponseEntity.status(HttpStatus.CREATED)
                                  .body(file);
         } catch (Exception e) {

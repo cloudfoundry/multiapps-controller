@@ -20,6 +20,7 @@ import org.cloudfoundry.multiapps.controller.api.model.UserCredentials;
 import org.cloudfoundry.multiapps.controller.client.util.CheckedSupplier;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.core.util.LogSanitizer;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
@@ -82,7 +83,7 @@ public class DeployFromUrlRemoteClient {
             LOGGER.debug(Messages.CALLING_REMOTE_MTAR_ENDPOINT_FOR_JOB_WITH_ID, getMaskedUri(urlDecodeUrl(decodedUrl)), jobId);
             var response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
             if (response.statusCode() / 100 != 2) {
-                String error = readErrorBodyFromResponse(response);
+                String error = LogSanitizer.sanitize(readErrorBodyFromResponse(response));
                 LOGGER.error(error);
                 if (response.statusCode() == HttpStatus.UNAUTHORIZED.value()) {
                     String errorMessage = MessageFormat.format(Messages.DEPLOY_FROM_URL_WRONG_CREDENTIALS_FOR_JOB_WITH_ID,
