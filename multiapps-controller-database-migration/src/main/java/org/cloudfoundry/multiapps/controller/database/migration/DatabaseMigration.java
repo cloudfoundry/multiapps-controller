@@ -70,7 +70,6 @@ public class DatabaseMigration {
 
     private static DatabaseServiceKey getServiceKeyFromEnvironment() {
         String databaseTargetServiceKey = System.getenv(DATABASE_TARGET_SERVICE_KEY);
-        LOGGER.error("TTEEEE" + JsonUtil.convertJsonToMap(databaseTargetServiceKey));
         return new DatabaseServiceKey(JsonUtil.convertJsonToMap(databaseTargetServiceKey));
     }
 
