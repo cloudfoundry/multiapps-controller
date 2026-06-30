@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.IOUtils;
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.core.util.LogSanitizer;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
@@ -102,10 +103,10 @@ public class LazyArchiveInputStream extends InputStream {
 
     private BufferedInputStream openBufferedInputStream(FileEntry archiveFileEntry) {
         try {
-            stepLogger.debug(Messages.OPENING_A_NEW_INPUT_STREAM_FOR_FILE_WITH_ID_0_AND_NAME_1, archiveFileEntry.getId(),
-                             archiveFileEntry.getName());
+            String sanitizedName = LogSanitizer.sanitize(archiveFileEntry.getName());
+            stepLogger.debug(Messages.OPENING_A_NEW_INPUT_STREAM_FOR_FILE_WITH_ID_0_AND_NAME_1, archiveFileEntry.getId(), sanitizedName);
             LOGGER.info(MessageFormat.format(Messages.OPENING_A_NEW_INPUT_STREAM_FOR_FILE_WITH_ID_0_AND_NAME_1, archiveFileEntry.getId(),
-                                             archiveFileEntry.getName()));
+                                             sanitizedName));
             InputStream inputStream = fileService.openInputStream(archiveFileEntry.getSpace(), archiveFileEntry.getId());
             return new BufferedInputStream(inputStream, BUFFERED_SIZE);
         } catch (FileStorageException e) {

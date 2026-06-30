@@ -25,6 +25,7 @@ import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecu
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
+import org.cloudfoundry.multiapps.controller.core.util.LogSanitizer;
 import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableAsyncUploadJobEntry;
@@ -80,7 +81,7 @@ public class AsyncUploadJobOrchestrator {
     public AsyncUploadJobEntry executeUploadFromUrl(String spaceGuid, String namespace, String urlWithoutUserInfo, String decodedUrl,
                                                     UserCredentials userCredentials) {
         var entry = createJobEntry(spaceGuid, namespace, urlWithoutUserInfo);
-        LOGGER.info(Messages.CREATING_ASYNC_UPLOAD_JOB, urlWithoutUserInfo, entry.getId());
+        LOGGER.info(Messages.CREATING_ASYNC_UPLOAD_JOB, LogSanitizer.sanitize(urlWithoutUserInfo), entry.getId());
         asyncUploadJobService.add(entry);
         try {
             deployFromUrlExecutor.submit(() -> deployFromUrl(entry, decodedUrl, userCredentials));
@@ -107,7 +108,7 @@ public class AsyncUploadJobOrchestrator {
     }
 
     private void deployFromUrl(AsyncUploadJobEntry jobEntry, String fileUrl, UserCredentials userCredentials) {
-        LOGGER.info(Messages.STARTING_DOWNLOAD_OF_MTAR_WITH_JOB_ID, jobEntry.getUrl(), jobEntry.getId());
+        LOGGER.info(Messages.STARTING_DOWNLOAD_OF_MTAR_WITH_JOB_ID, LogSanitizer.sanitize(jobEntry.getUrl()), jobEntry.getId());
         var startTime = LocalDateTime.now();
         Lock lock = new ReentrantLock();
         AtomicLong counterRef = new AtomicLong();
@@ -187,7 +188,7 @@ public class AsyncUploadJobOrchestrator {
         // JClods library: https://issues.apache.org/jira/browse/JCLOUDS-1623
         try (CountingInputStream source = new CountingInputStream(fileFromUrlData.fileInputStream(), uploadFromUrlContext.getCounterRef());
             BufferedInputStream bufferedContent = new BufferedInputStream(source, INPUT_STREAM_BUFFER_SIZE)) {
-            LOGGER.debug(Messages.UPLOADING_MTAR_STREAM_FROM_REMOTE_ENDPOINT_WITH_JOB_ID, fileFromUrlData.uri(),
+            LOGGER.debug(Messages.UPLOADING_MTAR_STREAM_FROM_REMOTE_ENDPOINT_WITH_JOB_ID, LogSanitizer.sanitize(fileFromUrlData.uri()),
                          uploadFromUrlContext.getJobEntry()
                                              .getId());
             return fileService.addFile(ImmutableFileEntry.builder()
