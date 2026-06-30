@@ -9,7 +9,9 @@ public class DatabaseTypeSetterFactory {
 
     private static final List<DatabaseTypeSetter> DEFAULT_REGISTERED_TYPE_SETTERS = Arrays.asList(new StringDatabaseTypeSetter(),
                                                                                                   new BooleanDatabaseTypeSetter(),
-                                                                                                  new LongDatabaseTypeSetter());
+                                                                                                  new LongDatabaseTypeSetter(),
+                                                                                                  new BytesDatabaseTypeSetter(),
+                                                                                                  new TimestampDatabaseTypeSetter());
     private final List<DatabaseTypeSetter> registeredTypeSetters;
 
     public DatabaseTypeSetterFactory() {
