@@ -9,6 +9,7 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.runtime.Execution;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
 
 import static org.mockito.Mockito.times;
 
@@ -37,5 +38,19 @@ class ResumeProcessActionTest extends ProcessActionTest {
     @Override
     protected ProcessAction createProcessAction() {
         return new ResumeProcessAction(flowableFacade, Collections.emptyList(), operationService, cloudControllerClientProvider);
+    }
+
+    @Test
+    void testResumeActionWithUserGuidAndOriginButNotUsername() {
+        Logger logger = Mockito.mock(Logger.class);
+        ProcessAction resumeAction = new ResumeProcessAction(flowableFacade, Collections.emptyList(), operationService,
+                                                             cloudControllerClientProvider) {
+            @Override
+            protected Logger getLogger() {
+                return logger;
+            }
+        };
+        resumeAction.execute(USER_INFO, PROCESS_GUID);
+        assertUserInfoLogContent(logger, Action.RESUME);
     }
 }

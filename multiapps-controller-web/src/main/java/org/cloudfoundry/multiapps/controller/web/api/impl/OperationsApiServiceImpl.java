@@ -1,5 +1,19 @@
 package org.cloudfoundry.multiapps.controller.web.api.impl;
 
+import java.text.MessageFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.persistence.NoResultException;
@@ -49,20 +63,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.text.MessageFormat;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static org.cloudfoundry.multiapps.controller.persistence.Constants.VARIABLE_NAME_SERVICE_ID;
 import static org.cloudfoundry.multiapps.controller.web.Constants.NAMES_OF_SERVICE_PARAMETERS;
@@ -181,6 +181,13 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         operation = addParameterValues(operation, predefinedParameters);
         ensureRequiredParametersSet(operation, predefinedParameters);
         ProcessInstance processInstance = flowableFacade.startProcess(processDefinitionKey, operation.getParameters());
+        LOGGER.info(
+            MessageFormat.format(
+                Messages.STARTED_NEW_DEPLOYMENT_PROCESS, processInstance.getProcessInstanceId(), authenticatedUser.getToken()
+                                                                                                                  .getAdditionalInfo()
+                                                                                                                  .get(
+                                                                                                                      Constants.AUTH_TOKEN_ORIGIN_FIELD),
+                authenticatedUser.getId()));
 
         return ResponseEntity.accepted()
                              .header("Location", getLocationHeader(processInstance.getProcessInstanceId(), spaceGuid))

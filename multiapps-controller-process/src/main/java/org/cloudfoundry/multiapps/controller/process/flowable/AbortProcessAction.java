@@ -90,7 +90,8 @@ public class AbortProcessAction extends ProcessAction {
         return Action.ABORT;
     }
 
-    private Logger getLogger() {
+    @Override
+    protected Logger getLogger() {
         return LOGGER;
     }
 

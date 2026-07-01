@@ -54,6 +54,11 @@ public class ResumeProcessAction extends ProcessAction {
     }
 
     @Override
+    protected Logger getLogger() {
+        return LOGGER;
+    }
+
+    @Override
     public Action getAction() {
         return Action.RESUME;
     }

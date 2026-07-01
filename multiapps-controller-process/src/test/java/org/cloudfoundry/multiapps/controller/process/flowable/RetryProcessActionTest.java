@@ -10,6 +10,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessag
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
 
 class RetryProcessActionTest extends ProcessActionTest {
 
@@ -46,6 +47,21 @@ class RetryProcessActionTest extends ProcessActionTest {
                .executeJob(SUBPROCESS_1_ID);
         Mockito.verify(flowableFacade)
                .executeJob(SUBPROCESS_2_ID);
+    }
+
+    @Test
+    void testRetryActionWithUserGuidAndOriginButNotUsername() {
+        Logger logger = Mockito.mock(Logger.class);
+        ProcessAction retryAction = new RetryProcessAction(flowableFacade, List.of(), historicOperationEventService,
+                                                           operationService, cloudControllerClientProvider) {
+            @Override
+            protected Logger getLogger() {
+                return logger;
+            }
+        };
+
+        retryAction.execute(USER_INFO, PROCESS_GUID);
+        assertUserInfoLogContent(logger, Action.RETRY);
     }
 
     @Override

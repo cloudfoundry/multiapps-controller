@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
 
 class AbortProcessActionTest extends ProcessActionTest {
 
@@ -46,6 +47,7 @@ class AbortProcessActionTest extends ProcessActionTest {
                                                                  .processType(ProcessType.DEPLOY)
                                                                  .state(Operation.State.RUNNING)
                                                                  .build();
+
     @BeforeEach
     void setUp() {
         prepareOperationService();
@@ -84,6 +86,23 @@ class AbortProcessActionTest extends ProcessActionTest {
         processAction.execute(null, PROCESS_GUID);
         Mockito.verify(dynatracePublisher, Mockito.never())
                .publishProcessEvent(Mockito.any(), Mockito.any());
+    }
+
+    @Test
+    void testAbortActionWithUserGuidAndOriginButNotUsername() {
+        Logger logger = Mockito.mock(Logger.class);
+        ProcessAction abortAction = new AbortProcessAction(flowableFacade, Collections.emptyList(),
+                                                           historicOperationEventService, operationService,
+                                                           cloudControllerClientProvider, progressMessageService,
+                                                           dynatracePublisher) {
+            @Override
+            protected Logger getLogger() {
+                return logger;
+            }
+        };
+
+        abortAction.execute(USER_INFO, PROCESS_GUID);
+        assertUserInfoLogContent(logger, Action.ABORT);
     }
 
     private void prepareOperationService() {

@@ -71,6 +71,7 @@ public final class Messages {
     public static final String OBJECT_STORE_WITH_PROVIDER_0_CREATED = "Object store with provider: {0} created";
     public static final String JOB_WITH_ID_WAS_NOT_UPDATED_WITHIN_SECONDS = "Job with ID: {} was not updated within: {} seconds";
     public static final String CLEARING_OLD_ENTRY = "Clearing old entry with id: {0}";
+    public static final String STARTED_NEW_DEPLOYMENT_PROCESS = "Started new MTA deployment process with process instance id: \"{0}\" and origin of: \"{1}\", by user with user GUID: \"{2}\".";
 
     // DEBUG log messages
     public static final String RECEIVED_UPLOAD_REQUEST = "Received upload request on URI: {}";

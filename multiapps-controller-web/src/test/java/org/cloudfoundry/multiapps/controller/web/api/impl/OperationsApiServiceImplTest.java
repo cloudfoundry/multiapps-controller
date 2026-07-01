@@ -25,6 +25,7 @@ import org.cloudfoundry.multiapps.controller.client.util.TokenProperties;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.OperationsApiServiceAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
 import org.cloudfoundry.multiapps.controller.persistence.query.OperationQuery;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
@@ -348,8 +349,11 @@ class OperationsApiServiceImplTest {
             org.springframework.security.core.context.SecurityContext.class);
         SecurityContextHolder.setContext(securityContextMock);
         if (shouldReturnAuthorizedClient) {
-            org.cloudfoundry.multiapps.controller.core.util.UserInfo userInfo = new org.cloudfoundry.multiapps.controller.core.util.UserInfo(
-                USER_GUID, EXAMPLE_USER, new OAuth2AccessTokenWithAdditionalInfo(null, Map.of(TokenProperties.USER_ID_KEY, USER_GUID)));
+            UserInfo userInfo = new UserInfo(USER_GUID, EXAMPLE_USER, new OAuth2AccessTokenWithAdditionalInfo(null,
+                                                                                                              Map.of(
+                                                                                                                  TokenProperties.USER_ID_KEY,
+                                                                                                                  USER_GUID, "origin",
+                                                                                                                  "test-origin")));
             OAuth2AuthenticationToken auth = Mockito.mock(OAuth2AuthenticationToken.class);
             Map<String, Object> attributes = Map.of(USER_INFO, userInfo);
             OAuth2User principal = Mockito.mock(OAuth2User.class);

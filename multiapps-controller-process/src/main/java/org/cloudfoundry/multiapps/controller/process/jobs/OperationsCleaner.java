@@ -1,14 +1,12 @@
 package org.cloudfoundry.multiapps.controller.process.jobs;
 
-import static java.text.MessageFormat.format;
-
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
@@ -18,10 +16,11 @@ import org.cloudfoundry.multiapps.controller.process.flowable.Action;
 import org.cloudfoundry.multiapps.controller.process.flowable.ProcessAction;
 import org.cloudfoundry.multiapps.controller.process.flowable.ProcessActionRegistry;
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
+
+import static java.text.MessageFormat.format;
 
 @Named
 @Order(10)
@@ -59,7 +58,7 @@ public class OperationsCleaner implements Cleaner {
 
     private int abortActiveOperations(LocalDateTime expirationTime) {
         int abortedOperations = 0;
-        for (int pageIndex = 0;; pageIndex++) {
+        for (int pageIndex = 0; ; pageIndex++) {
             List<Operation> operationsPage = getOperationsPage(expirationTime, pageIndex);
             for (Operation operation : operationsPage) {
                 if (inFinalState(operation)) {
@@ -107,6 +106,7 @@ public class OperationsCleaner implements Cleaner {
         ProcessAction abortAction = processActionRegistry.getAction(Action.ABORT);
         String processId = operation.getProcessId();
         LOGGER.debug(CleanUpJob.LOG_MARKER, format(Messages.ABORTING_OPERATION_0, processId));
+        LOGGER.info(MessageFormat.format(Messages.AUTO_ABORTING_PROCESS_0, processId, Action.ABORT.toString()));
         abortAction.execute(null, processId);
     }
 
