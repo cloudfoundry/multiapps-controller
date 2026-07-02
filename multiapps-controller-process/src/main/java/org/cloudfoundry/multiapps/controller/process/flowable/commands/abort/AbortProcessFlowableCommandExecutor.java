@@ -23,7 +23,7 @@ public class AbortProcessFlowableCommandExecutor implements FlowableCommandExecu
 
     @Override
     public void executeCommand() {
-        LOGGER.info(MessageFormat.format(Messages.AUTO_ABORTING_PROCESS_0, processInstanceId, Action.ABORT.toString()));
+        LOGGER.info(MessageFormat.format(Messages.AUTO_ABORTING_PROCESS_0, processInstanceId));
         ProcessAction abortProcessAction = processActionRegistry.getAction(Action.ABORT);
         abortProcessAction.execute(null, processInstanceId);
     }

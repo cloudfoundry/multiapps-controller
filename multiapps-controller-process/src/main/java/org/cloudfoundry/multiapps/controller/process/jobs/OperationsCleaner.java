@@ -106,7 +106,7 @@ public class OperationsCleaner implements Cleaner {
         ProcessAction abortAction = processActionRegistry.getAction(Action.ABORT);
         String processId = operation.getProcessId();
         LOGGER.debug(CleanUpJob.LOG_MARKER, format(Messages.ABORTING_OPERATION_0, processId));
-        LOGGER.info(MessageFormat.format(Messages.AUTO_ABORTING_PROCESS_0, processId, Action.ABORT.toString()));
+        LOGGER.info(MessageFormat.format(Messages.AUTO_ABORTING_PROCESS_0, processId));
         abortAction.execute(null, processId);
     }
 
