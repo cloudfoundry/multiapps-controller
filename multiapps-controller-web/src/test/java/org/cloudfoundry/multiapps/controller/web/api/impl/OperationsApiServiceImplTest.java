@@ -44,6 +44,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -210,6 +211,39 @@ class OperationsApiServiceImplTest {
         operationsApiService.startOperation(SPACE_GUID, operation, httpServletRequestMock);
         Mockito.verify(flowableFacade)
                .startProcess(Mockito.any(), Mockito.anyMap());
+    }
+
+    @Test
+    void testStartOperationLogsUserGuidAndOriginButNotUsername() {
+        String processInstanceId = "process-instance-id-1";
+        ProcessInstance processInstance = Mockito.mock(ProcessInstance.class);
+        Mockito.when(processInstance.getProcessInstanceId())
+               .thenReturn(processInstanceId);
+        Mockito.when(flowableFacade.startProcess(Mockito.any(), Mockito.anyMap()))
+               .thenReturn(processInstance);
+
+        Map<String, Object> parameters = Map.of(Variables.MTA_ID.getName(), "test");
+        Operation operation = createOperation(null, null, parameters);
+        Mockito.when(operationsHelper.getProcessDefinitionKey(operation))
+               .thenReturn("deploy");
+        HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(httpServletRequestMock.getRequestURL())
+               .thenReturn(new StringBuffer("test/api/path"));
+
+        OperationsApiServiceImpl operationsApiServiceSpy = Mockito.spy(operationsApiService);
+        operationsApiServiceSpy.startOperation(SPACE_GUID, operation, httpServletRequestMock);
+
+        ArgumentCaptor<UserInfo> userInfoCaptor = ArgumentCaptor.forClass(UserInfo.class);
+        Mockito.verify(operationsApiServiceSpy)
+               .logStartOperation(Mockito.eq(processInstanceId), userInfoCaptor.capture());
+        UserInfo authenticatedUser = userInfoCaptor.getValue();
+        assertEquals(USER_GUID, authenticatedUser.getId(), "logStartOperation must receive the user GUID");
+        assertEquals("test-origin", authenticatedUser.getToken()
+                                                     .getAdditionalInfo()
+                                                     .get("origin"),
+                     "logStartOperation must receive a UserInfo whose token has the origin");
+        Assertions.assertNotEquals(EXAMPLE_USER, authenticatedUser.getId(),
+                                   "logStartOperation must receive the user GUID and not the their username");
     }
 
     @Test
