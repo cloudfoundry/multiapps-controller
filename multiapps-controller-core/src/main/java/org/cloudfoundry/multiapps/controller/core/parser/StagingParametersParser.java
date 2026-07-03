@@ -37,6 +37,8 @@ public class StagingParametersParser implements ParametersParser<Staging> {
         Integer healthCheckInvocationTimeout = (Integer) PropertiesUtil.getPropertyValue(parametersList,
                                                                                          SupportedParameters.HEALTH_CHECK_INVOCATION_TIMEOUT,
                                                                                          null);
+        Integer healthCheckInterval = (Integer) PropertiesUtil.getPropertyValue(parametersList,
+                                                                                SupportedParameters.HEALTH_CHECK_INTERVAL, null);
         String healthCheckType = (String) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.HEALTH_CHECK_TYPE, null);
         String healthCheckHttpEndpoint = (String) PropertiesUtil.getPropertyValue(parametersList,
                                                                                   SupportedParameters.HEALTH_CHECK_HTTP_ENDPOINT,
@@ -69,6 +71,7 @@ public class StagingParametersParser implements ParametersParser<Staging> {
                                .invocationTimeout(healthCheckInvocationTimeout)
                                .healthCheckType(healthCheckType)
                                .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
+                               .healthCheckInterval(healthCheckInterval)
                                .readinessHealthCheckType(readinessHealthCheckType)
                                .readinessHealthCheckHttpEndpoint(readinessHealthCheckHttpEndpoint)
                                .readinessHealthCheckInvocationTimeout(readinessHealthCheckInvocationTimeout)
