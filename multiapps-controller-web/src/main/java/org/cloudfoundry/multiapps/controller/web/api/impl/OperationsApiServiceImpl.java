@@ -172,6 +172,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     public ResponseEntity<Operation> startOperation(String spaceGuid, Operation operation, HttpServletRequest httpServletRequest) {
         apiUsageLogger.logOperationsMutatingCall(spaceGuid, Constants.ApiEndpointsNames.START_OPERATION, null,
                                                  operation.getNamespace(), httpServletRequest);
+        operationsApiServiceAuditLog.logStartOperation(SecurityContextUtil.getUsername(), spaceGuid, operation);
         UserInfo authenticatedUser = getAuthenticatedUser();
         String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
         Set<ParameterMetadata> predefinedParameters = operationMetadataMapper.getOperationMetadata(operation.getProcessType())
@@ -180,7 +181,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         operation = addParameterValues(operation, predefinedParameters);
         ensureRequiredParametersSet(operation, predefinedParameters);
         ProcessInstance processInstance = flowableFacade.startProcess(processDefinitionKey, operation.getParameters());
-        logStartOperation(spaceGuid, operation, authenticatedUser, processInstance);
+        logStartOperation(processInstance.getProcessInstanceId(), authenticatedUser);
 
         return ResponseEntity.accepted()
                              .header("Location", getLocationHeader(processInstance.getProcessInstanceId(), spaceGuid))
@@ -192,11 +193,6 @@ public class OperationsApiServiceImpl implements OperationsApiService {
                                          authenticatedUser.getId(), authenticatedUser.getToken()
                                                                                      .getAdditionalInfo()
                                                                                      .get(Constants.AUTH_TOKEN_ORIGIN_FIELD)));
-    }
-
-    private void logStartOperation(String spaceGuid, Operation operation, UserInfo authenticatedUser, ProcessInstance processInstance) {
-        operationsApiServiceAuditLog.logStartOperation(SecurityContextUtil.getUsername(), spaceGuid, operation);
-        logStartOperation(processInstance.getProcessInstanceId(), authenticatedUser);
     }
 
     @Override

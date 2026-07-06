@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.jobs;
 
-import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -105,8 +104,7 @@ public class OperationsCleaner implements Cleaner {
     private void abort(Operation operation) {
         ProcessAction abortAction = processActionRegistry.getAction(Action.ABORT);
         String processId = operation.getProcessId();
-        LOGGER.debug(CleanUpJob.LOG_MARKER, format(Messages.ABORTING_OPERATION_0, processId));
-        LOGGER.info(MessageFormat.format(Messages.AUTO_ABORTING_PROCESS_0, processId));
+        LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.AUTO_ABORTING_PROCESS_0, processId));
         abortAction.execute(null, processId);
     }
 
