@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.persistence.services;
+package org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -9,6 +9,7 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableLoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.LogLevel;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -131,13 +132,13 @@ class CloudLoggingServiceMessageConverterTest {
     }
 
     @Test
-    void getLogsFromOperationLogEntry_unknownLogLevel_throwsNpe() {
-        // Production bug: LogLevel.get("FATAL") returns null, and the result EnumMap<LogLevel, …>
-        // rejects null keys, so computeIfAbsent(null, …) throws NPE. The map type should either
-        // be HashMap or LogLevel.get should fall back to a default; flag for follow-up.
+    void getLogsFromOperationLogEntry_unknownLogLevel_throwsIllegalArgument() {
+        // LogLevel.get rejects unknown level strings with IllegalArgumentException; the malformed
+        // input is not silenced by failSafe here because the throw happens before the parallel-list
+        // consistency check.
         String input = logLine(DATE, "FATAL", "deploy-app.svc", "[t] unknown level");
 
-        assertThrows(NullPointerException.class, () -> converter.getLogsFromOperationLogEntry(buildConfig(true), input));
+        assertThrows(IllegalArgumentException.class, () -> converter.getLogsFromOperationLogEntry(buildConfig(true), input));
     }
 
     // --- failSafe behavior on malformed input ---

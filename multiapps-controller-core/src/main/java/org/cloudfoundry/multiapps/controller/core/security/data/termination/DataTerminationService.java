@@ -22,7 +22,7 @@ import org.cloudfoundry.multiapps.controller.persistence.dto.BackupDescriptor;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
-import org.cloudfoundry.multiapps.controller.persistence.services.CloudLoggingServiceConfigurationService;
+import org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging.CloudLoggingServiceConfigurationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;

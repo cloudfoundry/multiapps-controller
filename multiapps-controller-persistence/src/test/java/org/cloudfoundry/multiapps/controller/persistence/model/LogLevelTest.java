@@ -11,7 +11,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LogLevelTest {
@@ -28,16 +28,6 @@ class LogLevelTest {
     }
 
     @Test
-    void testGet_returnsNullForUnknownValue() {
-        assertNull(LogLevel.get("UNKNOWN"));
-    }
-
-    @Test
-    void testGet_returnsNullForNull() {
-        assertNull(LogLevel.get(null));
-    }
-
-    @Test
     void testIsValid_ValidInput() {
         assertTrue(LogLevel.isValid("INFO"));
     }
@@ -49,8 +39,7 @@ class LogLevelTest {
 
     @Test
     void testGet_isCaseSensitive() {
-        assertNull(LogLevel.get("info"));
-        assertNull(LogLevel.get("Info"));
+        assertThrows(IllegalArgumentException.class, () -> LogLevel.get("info"));
     }
 
     static Stream<Arguments> testLogLevelLoggingType() {

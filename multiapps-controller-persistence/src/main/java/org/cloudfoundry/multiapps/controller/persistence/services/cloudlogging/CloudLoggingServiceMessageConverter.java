@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.persistence.services;
+package org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -15,6 +15,7 @@ import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.LogLevel;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.util.CloudLoggingServiceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,6 @@ public class CloudLoggingServiceMessageConverter {
     private static final Pattern MESSAGE_LOG_LEVEL_PATTERN = Pattern.compile("^#[^#\\r\\n]*#[^#\\r\\n]*#([^#\\r\\n]*)#", Pattern.MULTILINE);
     private static final Pattern MESSAGE_LOG_NAME = Pattern.compile("^#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#([^#\\r\\n]*)#",
                                                                     Pattern.MULTILINE);
-
     private static final String MESSAGE_SPLITTING_REGEX = "(?m)^#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#(?:\\r?\\n)?";
 
     public Optional<String> extractLogName(String message) {

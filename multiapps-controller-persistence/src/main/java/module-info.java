@@ -14,6 +14,7 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     exports org.cloudfoundry.multiapps.controller.persistence.query.impl;
     exports org.cloudfoundry.multiapps.controller.persistence.query.providers;
     exports org.cloudfoundry.multiapps.controller.persistence.services;
+    exports org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging;
     exports org.cloudfoundry.multiapps.controller.persistence.util;
     exports org.cloudfoundry.multiapps.controller.persistence.stream;
     exports org.cloudfoundry.multiapps.controller.persistence.query.options;

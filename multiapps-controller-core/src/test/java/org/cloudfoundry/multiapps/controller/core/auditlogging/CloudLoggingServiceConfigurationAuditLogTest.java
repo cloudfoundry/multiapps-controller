@@ -49,8 +49,6 @@ class CloudLoggingServiceConfigurationAuditLogTest {
         auditLog = new CloudLoggingServiceConfigurationAuditLog(auditLoggingFacade);
     }
 
-    // --- logCreateLoggingConfiguration ---
-
     @Test
     void testLogCreateLoggingConfiguration_invokesFacadeWithCreateAction() {
         auditLog.logCreateLoggingConfiguration(USERNAME, SPACE_ID, buildLoggingConfiguration());
@@ -108,8 +106,6 @@ class CloudLoggingServiceConfigurationAuditLogTest {
         assertEquals("null", identifiersFromCreate().get("logLevel"));
     }
 
-    // --- logUpdateLoggingConfiguration ---
-
     @Test
     void testLogUpdateLoggingConfiguration_invokesFacadeWithUpdateAction() {
         auditLog.logUpdateLoggingConfiguration(USERNAME, SPACE_ID, buildLoggingConfiguration());
@@ -136,8 +132,6 @@ class CloudLoggingServiceConfigurationAuditLogTest {
         assertEquals(MTA_ID, identifiers.get("mtaId"));
         assertEquals(NAMESPACE, identifiers.get("namespace"));
     }
-
-    // --- logDeleteLoggingConfiguration ---
 
     @Test
     void testLogDeleteLoggingConfiguration_invokesFacadeWithDeleteAction() {
@@ -183,8 +177,6 @@ class CloudLoggingServiceConfigurationAuditLogTest {
         }
     }
 
-    // --- logGetLoggingConfiguration ---
-
     @Test
     void testLogGetLoggingConfiguration_invokesDataAccessFacade() {
         auditLog.logGetLoggingConfiguration(USERNAME, SPACE_ID, buildLoggingConfiguration());
@@ -211,8 +203,6 @@ class CloudLoggingServiceConfigurationAuditLogTest {
         // The "get" variant logs the full set of configuration identifiers
         assertEquals(12, countNonReservedIdentifiers(captureDataAccess()));
     }
-
-    // --- Helpers ---
 
     private AuditLogConfiguration captureCreate() {
         ArgumentCaptor<AuditLogConfiguration> captor = ArgumentCaptor.forClass(AuditLogConfiguration.class);

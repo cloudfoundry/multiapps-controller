@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.persistence.services;
+package org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging;
 
 import java.io.IOException;
 import java.util.List;
@@ -40,14 +40,6 @@ class CloudLoggingServiceHttpClientTest {
         client = new CloudLoggingServiceHttpClient();
     }
 
-    // --- createWebClientWithMtls: SSL context construction failure paths ---
-    //
-    // The success path (valid PEM material) is exercised end-to-end in higher-level
-    // integration tests that own real test certificates. Unit-testing it here would
-    // require generating an X.509 cert at runtime, which adds a non-trivial dependency
-    // for marginal value. We cover the two failure branches that route through
-    // CloudLoggingServiceUtil.
-
     @Test
     void createWebClientWithMtls_failSafeTrue_returnsNullOnInvalidCredentials() {
         LoggingConfiguration config = configBuilder(true).serverCa("not a pem")
@@ -69,8 +61,6 @@ class CloudLoggingServiceHttpClientTest {
 
         assertThrows(SLException.class, () -> client.createWebClientWithMtls(config));
     }
-
-    // --- sendLogsToCloudLoggingService: happy path ---
 
     @Test
     void sendLogs_2xxResponse_doesNotThrow() {
@@ -94,12 +84,8 @@ class CloudLoggingServiceHttpClientTest {
         assertEquals(1, calls.get());
     }
 
-    // --- sendLogsToCloudLoggingService: failure modes ---
-
     @Test
     void sendLogs_non2xxNonRetryable_failSafeTrue_doesNotThrow() {
-        // 404 is not in RETRYABLE_STATUS_CODES — the retry filter rejects it,
-        // and failSafe=true swallows the resulting WebClientResponseException.
         WebClient webClient = stubWebClient(req -> response(HttpStatus.NOT_FOUND));
 
         assertDoesNotThrow(() -> client.sendLogsToCloudLoggingService(configBuilder(true).build(), webClient, sampleBatch()));
@@ -112,8 +98,6 @@ class CloudLoggingServiceHttpClientTest {
         assertThrows(SLException.class,
                      () -> client.sendLogsToCloudLoggingService(configBuilder(false).build(), webClient, sampleBatch()));
     }
-
-    // --- sendLogsToCloudLoggingService: retry behavior ---
 
     @ParameterizedTest
     @ValueSource(ints = { 408, 425, 429, 500, 502, 503, 504 })
@@ -138,7 +122,6 @@ class CloudLoggingServiceHttpClientTest {
         });
 
         assertDoesNotThrow(() -> client.sendLogsToCloudLoggingService(configBuilder(true).build(), webClient, sampleBatch()));
-        // 1 initial + up to 4 retries
         assertTrue(attempts.get() >= 2, "expected at least one retry, got " + attempts.get());
     }
 
@@ -188,8 +171,6 @@ class CloudLoggingServiceHttpClientTest {
                      () -> client.sendLogsToCloudLoggingService(configBuilder(false).build(), webClient, sampleBatch()));
     }
 
-    // --- helpers ---
-
     private static WebClient stubWebClient(Function<ClientRequest, Mono<ClientResponse>> handler) {
         ExchangeFunction exchange = handler::apply;
         return WebClient.builder()
@@ -205,13 +186,13 @@ class CloudLoggingServiceHttpClientTest {
 
     private static List<ExternalOperationLogEntry> sampleBatch() {
         return List.of(ImmutableExternalOperationLogEntry.builder()
-                                                          .id("id-1")
-                                                          .timestamp("2024-01-15T10:30:00Z")
-                                                          .message("hello")
-                                                          .operationLogName("svc")
-                                                          .correlationId("op-1")
-                                                          .level(LogLevel.INFO.name())
-                                                          .build());
+                                                         .id("id-1")
+                                                         .timestamp("2024-01-15T10:30:00Z")
+                                                         .message("hello")
+                                                         .operationLogName("svc")
+                                                         .correlationId("op-1")
+                                                         .level(LogLevel.INFO.name())
+                                                         .build());
     }
 
     private static ImmutableLoggingConfiguration.Builder configBuilder(boolean failSafe) {

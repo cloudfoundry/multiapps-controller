@@ -11,7 +11,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableOperatio
 import org.cloudfoundry.multiapps.controller.persistence.model.LogLevel;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
-import org.cloudfoundry.multiapps.controller.persistence.services.CloudLoggingServiceConfigurationService;
+import org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging.CloudLoggingServiceConfigurationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;

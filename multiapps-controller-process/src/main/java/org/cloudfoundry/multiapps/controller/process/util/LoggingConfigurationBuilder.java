@@ -138,7 +138,8 @@ public class LoggingConfigurationBuilder {
     private CloudServiceKey getCloudLoggingServiceKey(String serviceInstanceName, String serviceKeyName, String destinationOrg,
                                                       String destinationSpace, boolean isFailSafe) {
         if (areCloudLoggingParametersInvalid(serviceInstanceName, serviceKeyName)) {
-            return handleMissingServiceKey(isFailSafe, null);
+            throwExceptionIfIsNotFailSafe(isFailSafe, getCloudLoggingServiceKeyErrorMessage());
+            return null;
         }
         CloudControllerClient client = calculateExternalLoggingServiceConfiguration(destinationOrg, destinationSpace);
         try {
@@ -146,21 +147,23 @@ public class LoggingConfigurationBuilder {
             if (loggingServiceKey != null) {
                 return loggingServiceKey;
             }
-            return handleMissingServiceKey(isFailSafe, null);
+            throwExceptionIfIsNotFailSafe(isFailSafe, getCloudLoggingServiceKeyErrorMessage());
+            return null;
         } catch (CloudOperationException e) {
-            return handleMissingServiceKey(isFailSafe, e);
+            throwExceptionIfIsNotFailSafe(isFailSafe, e.getMessage());
+            return null;
         }
     }
 
-    private CloudServiceKey handleMissingServiceKey(boolean isFailSafe, CloudOperationException cause) {
-        if (isFailSafe) {
-            return null;
+    private void throwExceptionIfIsNotFailSafe(boolean isFailSafe, String message) {
+        if (!isFailSafe) {
+            throw new SLException(message);
         }
-        if (cause != null) {
-            throw new SLException(cause);
-        }
-        throw new SLException(MessageFormat.format(Messages.NO_CLOUD_LOGGING_SERVICE_KEY_FOUND_FOR_OPERATION_0_SKIPPING_LOG_EXPORT,
-                                                   context.getVariable(Variables.CORRELATION_ID)));
+    }
+
+    private String getCloudLoggingServiceKeyErrorMessage() {
+        return MessageFormat.format(Messages.NO_CLOUD_LOGGING_SERVICE_KEY_FOUND_FOR_OPERATION_0_SKIPPING_LOG_EXPORT,
+                                    context.getVariable(Variables.CORRELATION_ID));
     }
 
     private LoggingConfiguration getCredentialsFromServiceKey(Resource resource) {

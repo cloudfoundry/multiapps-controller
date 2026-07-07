@@ -25,14 +25,4 @@ public class AsyncProcessLoggerConfiguration {
         executor.initialize();
         return executor;
     }
-
-    @Bean("cloudLoggingServiceAsyncExecutor")
-    public Executor getCloudLoggingServiceAsyncExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(configuration.getCloudLoggingServiceExecutorCoreThreads());
-        executor.setMaxPoolSize(configuration.getCloudLoggingServiceExecutorMaxThreads());
-        executor.setQueueCapacity(configuration.getCloudLoggingServiceExecutorQueueCapacity());
-        executor.initialize();
-        return executor;
-    }
 }

@@ -5,11 +5,13 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.controller.persistence.Messages;
+
 public enum LogLevel {
 
     INFO, WARN, DEBUG, ERROR, TRACE;
 
-    private static final Map<LogLevel, List<LogLevel>> logLevelLoggingType = setupLogLevels();
+    private static final Map<LogLevel, List<LogLevel>> LOG_LEVEL_LOGGING_TYPES = setupLogLevels();
 
     public static LogLevel get(String value) {
         for (LogLevel logLevel : values()) {
@@ -18,11 +20,11 @@ public enum LogLevel {
                 return logLevel;
             }
         }
-        return null;
+        throw new IllegalArgumentException(Messages.INVALID_LOG_LEVEL);
     }
 
     public static Map<LogLevel, List<LogLevel>> getLogLevelLoggingType() {
-        return logLevelLoggingType;
+        return LOG_LEVEL_LOGGING_TYPES;
     }
 
     private static Map<LogLevel, List<LogLevel>> setupLogLevels() {
