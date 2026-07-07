@@ -46,9 +46,6 @@ public class ApplicationConfiguration {
     static final String CFG_PLATFORM = "PLATFORM"; // Mandatory
     static final String CFG_MAX_UPLOAD_SIZE = "MAX_UPLOAD_SIZE";
     static final String OBJECTSTORE_REGIONS = "OBJECTSTORE_REGIONS";
-    static final String CFG_CF_REGION = "CF_REGION";
-    static final String CFG_METERING_SERVICE_ID = "METERING_SERVICE_ID";
-    static final String CFG_METERING_SERVICE_PLAN = "METERING_SERVICE_PLAN";
     static final String CFG_MAX_MTA_DESCRIPTOR_SIZE = "MAX_MTA_DESCRIPTOR_SIZE";
     static final String CFG_MAX_MANIFEST_SIZE = "DEFAULT_MAX_MANIFEST_SIZE";
     static final String CFG_MAX_RESOURCE_FILE_SIZE = "DEFAULT_MAX_RESOURCE_FILE_SIZE";
@@ -103,8 +100,6 @@ public class ApplicationConfiguration {
     static final String CFG_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER = "THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER";
     static final String CFG_THREADS_FOR_FILE_STORAGE_UPLOAD = "THREADS_FOR_FILE_STORAGE_UPLOAD";
     static final String CFG_IS_HEALTH_CHECK_ENABLED = "IS_HEALTH_CHECK_ENABLED";
-    static final String VCAP_SERVICES = "VCAP_SERVICES";
-    static final String METERING_SERVICE_ENV_NAME = "metering-service";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = List.of("full_application_uris", "application_uris", "uris");
 
@@ -195,7 +190,6 @@ public class ApplicationConfiguration {
     private String objectStoreClientType;
     private HealthCheckConfiguration healthCheckConfiguration;
     private String applicationGuid;
-    private Map<String, Object> meteringCredentials;
     private Integer applicationInstanceIndex;
     private Integer flowableJobExecutorCoreThreads;
     private Integer flowableJobExecutorMaxThreads;
@@ -272,7 +266,6 @@ public class ApplicationConfiguration {
         getFilesAsyncUploadExecutorMaxThreads();
         getDeployFromUrlExecutorMaxThreads();
         getObjectStoreRegions();
-        getMeteringCredentials();
     }
 
     public Map<String, String> getNotSensitiveVariables() {
@@ -625,13 +618,6 @@ public class ApplicationConfiguration {
         return dbTransactionTimeoutInSeconds;
     }
 
-    public Map<String, Object> getMeteringCredentials() {
-        if (meteringCredentials == null) {
-            meteringCredentials = getMeteringCredentialsFromEnvironment();
-        }
-        return meteringCredentials;
-    }
-
     public Integer getSnakeyamlMaxAliasesForCollections() {
         if (snakeyamlMaxAliasesForCollections == null) {
             snakeyamlMaxAliasesForCollections = getSnakeyamlMaxAliasesForCollectionsFromEnvironment();
@@ -742,19 +728,6 @@ public class ApplicationConfiguration {
         Long value = environment.getLong(CFG_MAX_RESOURCE_FILE_SIZE, DEFAULT_MAX_RESOURCE_FILE_SIZE);
         logEnvironmentVariable(CFG_MAX_RESOURCE_FILE_SIZE, Messages.MAX_RESOURCE_FILE_SIZE, value);
         return value;
-    }
-
-    private Map<String, Object> getMeteringCredentialsFromEnvironment() {
-        Map<String, Object> meteringCredentials = getEnvironmentVariablesFromVcapServices(METERING_SERVICE_ENV_NAME);
-        logEnvironmentVariable(METERING_SERVICE_ENV_NAME, Messages.METERING_CREDENTIALS, meteringCredentials);
-        return meteringCredentials;
-    }
-
-    private Map<String, Object> getEnvironmentVariablesFromVcapServices(String variableName) {
-        Map<String, Object> value = environment.getVariable(VCAP_SERVICES, JsonUtil::convertJsonToMap);
-        List<Object> meteringCredentialsList = MiscUtil.cast(value.get(variableName));
-
-        return MiscUtil.cast(meteringCredentialsList.get(0));
     }
 
     private Long getMaxResolvedExternalContentSizeFromEnvironment() {
@@ -872,18 +845,6 @@ public class ApplicationConfiguration {
 
     private String getGlobalAuditorPasswordFromEnvironment() {
         return environment.getString(CFG_GLOBAL_AUDITOR_PASSWORD);
-    }
-
-    public String getCfRegion() {
-        return environment.getString(CFG_CF_REGION);
-    }
-
-    public String getMeteringServiceId() {
-        return environment.getString(CFG_METERING_SERVICE_ID);
-    }
-
-    public String getMeteringServicePlan() {
-        return environment.getString(CFG_METERING_SERVICE_PLAN);
     }
 
     private String getGlobalAuditorOriginFromEnvironment() {
