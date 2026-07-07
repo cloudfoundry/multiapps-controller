@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.persistence.services;
+package org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging;
 
 import java.util.List;
 

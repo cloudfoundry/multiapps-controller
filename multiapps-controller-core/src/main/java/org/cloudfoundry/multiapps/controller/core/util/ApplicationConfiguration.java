@@ -75,9 +75,6 @@ public class ApplicationConfiguration {
     static final String CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS = "FLOWABLE_JOB_EXECUTOR_CORE_THREADS";
     static final String CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS = "FLOWABLE_JOB_EXECUTOR_MAX_THREADS";
     static final String CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY = "FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY";
-    static final String CFG_CLOUD_LOGGING_SERVICE_EXECUTOR_CORE_THREADS = "CLOUD_LOGGING_SERVICE_EXECUTOR_CORE_THREADS";
-    static final String CFG_CLOUD_LOGGING_SERVICE_EXECUTOR_MAX_THREADS = "CLOUD_LOGGING_SERVICE_EXECUTOR_MAX_THREADS";
-    static final String CFG_CLOUD_LOGGING_SERVICE_EXECUTOR_QUEUE_CAPACITY = "CLOUD_LOGGING_SERVICE_EXECUTOR_QUEUE_CAPACITY";
     static final String CFG_FSS_CACHE_UPDATE_TIMEOUT_MINUTES = "FSS_CACHE_UPDATE_TIMEOUT_MINUTES";
     static final String CFG_THREAD_MONITOR_CACHE_UPDATE_IN_SECONDS = "THREAD_MONITOR_CACHE_UPDATE_IN_SECONDS";
     static final String CFG_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS = "SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS";
@@ -133,9 +130,6 @@ public class ApplicationConfiguration {
     public static final Integer DEFAULT_FLOWABLE_JOB_EXECUTOR_CORE_THREADS = 8;
     public static final Integer DEFAULT_FLOWABLE_JOB_EXECUTOR_MAX_THREADS = 32;
     public static final Integer DEFAULT_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY = 16;
-    public static final Integer DEFAULT_CLOUD_LOGGING_SERVICE_EXECUTOR_CORE_THREADS = 2;
-    public static final Integer DEFAULT_CLOUD_LOGGING_SERVICE_EXECUTOR_MAX_THREADS = 8;
-    public static final Integer DEFAULT_CLOUD_LOGGING_SERVICE_EXECUTOR_QUEUE_CAPACITY = 100;
     public static final Integer DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES = 30;
     public static final Integer DEFAULT_THREAD_MONITOR_CACHE_UPDATE_IN_SECONDS = 1;
     public static final Integer DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS = 20;
@@ -200,9 +194,6 @@ public class ApplicationConfiguration {
     private Integer flowableJobExecutorCoreThreads;
     private Integer flowableJobExecutorMaxThreads;
     private Integer flowableJobExecutorQueueCapacity;
-    private Integer cloudLoggingServiceExecutorCoreThreads;
-    private Integer cloudLoggingServiceExecutorMaxThreads;
-    private Integer cloudLoggingServiceExecutorQueueCapacity;
     private Integer fssCacheUpdateTimeoutMinutes;
     private Integer threadMonitorCacheUpdateInSeconds;
     private Integer spaceDeveloperCacheTimeInSeconds;
@@ -292,8 +283,7 @@ public class ApplicationConfiguration {
                       CFG_STEP_POLLING_INTERVAL_IN_SECONDS, CFG_SKIP_SSL_VALIDATION, CFG_VERSION, CFG_CHANGE_LOG_LOCK_POLL_RATE,
                       CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE,
                       CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS, CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS,
-                      CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY, CFG_CLOUD_LOGGING_SERVICE_EXECUTOR_CORE_THREADS,
-                      CFG_CLOUD_LOGGING_SERVICE_EXECUTOR_MAX_THREADS, CFG_CLOUD_LOGGING_SERVICE_EXECUTOR_QUEUE_CAPACITY,
+                      CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY,
                       CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE,
                       CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE, CFG_CONTROLLER_CLIENT_RESPONSE_TIMEOUT, CFG_DB_TRANSACTION_TIMEOUT_IN_SECONDS,
                       CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS, CFG_SERVICE_HANDLING_MAX_PARALLEL_THREADS);
@@ -550,27 +540,6 @@ public class ApplicationConfiguration {
             flowableJobExecutorQueueCapacity = getFlowableJobExecutorQueueCapacityFromEnvironment();
         }
         return flowableJobExecutorQueueCapacity;
-    }
-
-    public Integer getCloudLoggingServiceExecutorCoreThreads() {
-        if (cloudLoggingServiceExecutorCoreThreads == null) {
-            cloudLoggingServiceExecutorCoreThreads = getCloudLoggingServiceExecutorCoreThreadsFromEnvironment();
-        }
-        return cloudLoggingServiceExecutorCoreThreads;
-    }
-
-    public Integer getCloudLoggingServiceExecutorMaxThreads() {
-        if (cloudLoggingServiceExecutorMaxThreads == null) {
-            cloudLoggingServiceExecutorMaxThreads = getCloudLoggingServiceExecutorMaxThreadsFromEnvironment();
-        }
-        return cloudLoggingServiceExecutorMaxThreads;
-    }
-
-    public Integer getCloudLoggingServiceExecutorQueueCapacity() {
-        if (cloudLoggingServiceExecutorQueueCapacity == null) {
-            cloudLoggingServiceExecutorQueueCapacity = getCloudLoggingServiceExecutorQueueCapacityFromEnvironment();
-        }
-        return cloudLoggingServiceExecutorQueueCapacity;
     }
 
     public Integer getFssCacheUpdateTimeoutMinutes() {
@@ -998,28 +967,6 @@ public class ApplicationConfiguration {
         Integer value = environment.getPositiveInteger(CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY,
                                                        DEFAULT_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY);
         logEnvironmentVariable(CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY, Messages.FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY, value);
-        return value;
-    }
-
-    private Integer getCloudLoggingServiceExecutorCoreThreadsFromEnvironment() {
-        Integer value = environment.getPositiveInteger(CFG_CLOUD_LOGGING_SERVICE_EXECUTOR_CORE_THREADS,
-                                                       DEFAULT_CLOUD_LOGGING_SERVICE_EXECUTOR_CORE_THREADS);
-        logEnvironmentVariable(CFG_CLOUD_LOGGING_SERVICE_EXECUTOR_CORE_THREADS, Messages.CLOUD_LOGGING_SERVICE_EXECUTOR_CORE_THREADS, value);
-        return value;
-    }
-
-    private Integer getCloudLoggingServiceExecutorMaxThreadsFromEnvironment() {
-        Integer value = environment.getPositiveInteger(CFG_CLOUD_LOGGING_SERVICE_EXECUTOR_MAX_THREADS,
-                                                       DEFAULT_CLOUD_LOGGING_SERVICE_EXECUTOR_MAX_THREADS);
-        logEnvironmentVariable(CFG_CLOUD_LOGGING_SERVICE_EXECUTOR_MAX_THREADS, Messages.CLOUD_LOGGING_SERVICE_EXECUTOR_MAX_THREADS, value);
-        return value;
-    }
-
-    private Integer getCloudLoggingServiceExecutorQueueCapacityFromEnvironment() {
-        Integer value = environment.getPositiveInteger(CFG_CLOUD_LOGGING_SERVICE_EXECUTOR_QUEUE_CAPACITY,
-                                                       DEFAULT_CLOUD_LOGGING_SERVICE_EXECUTOR_QUEUE_CAPACITY);
-        logEnvironmentVariable(CFG_CLOUD_LOGGING_SERVICE_EXECUTOR_QUEUE_CAPACITY, Messages.CLOUD_LOGGING_SERVICE_EXECUTOR_QUEUE_CAPACITY,
-                               value);
         return value;
     }
 

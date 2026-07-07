@@ -1,16 +1,12 @@
-package org.cloudfoundry.multiapps.controller.persistence.services;
+package org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
@@ -21,11 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.netty.http.client.HttpClient;
 import reactor.netty.http.client.PrematureCloseException;
 import reactor.util.retry.Retry;
 
@@ -41,6 +35,32 @@ public class CloudLoggingServiceHttpClient {
     private static final Duration MAX_RETRY_BACKOFF = Duration.ofSeconds(10);
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(30);
     private static final Set<Integer> RETRYABLE_STATUS_CODES = Set.of(408, 425, 429, 500, 502, 503, 504);
+
+    private final CloudLoggingServiceWebClientFactory webClientFactory;
+    private final CloudLoggingServiceWebClientCache webClientCache;
+
+    public CloudLoggingServiceHttpClient() {
+        this(new CloudLoggingServiceWebClientFactory(), new CloudLoggingServiceWebClientCache());
+    }
+
+    @Inject
+    public CloudLoggingServiceHttpClient(CloudLoggingServiceWebClientFactory webClientFactory,
+                                         CloudLoggingServiceWebClientCache webClientCache) {
+        this.webClientFactory = webClientFactory;
+        this.webClientCache = webClientCache;
+    }
+
+    public void sendLogs(LoggingConfiguration loggingConfiguration, List<ExternalOperationLogEntry> logEntryBatch) {
+        WebClient webClient = webClientCache.getOrCreate(loggingConfiguration, this::createWebClientWithMtls);
+        if (webClient == null) {
+            return;
+        }
+        sendLogsToCloudLoggingService(loggingConfiguration, webClient, logEntryBatch);
+    }
+
+    public void removeClientFromCache(String operationId) {
+        webClientCache.evict(operationId);
+    }
 
     public void sendLogsToCloudLoggingService(LoggingConfiguration loggingConfiguration, WebClient webClient,
                                               List<ExternalOperationLogEntry> logEntryBatch) {
@@ -58,38 +78,7 @@ public class CloudLoggingServiceHttpClient {
     }
 
     public WebClient createWebClientWithMtls(LoggingConfiguration loggingConfiguration) {
-        SslContext sslContext = getSslContext(loggingConfiguration);
-        if (sslContext == null) {
-            return null;
-        }
-        HttpClient httpClient = HttpClient.create()
-                                          .secure(sslSpec -> sslSpec.sslContext(sslContext));
-
-        return WebClient.builder()
-                        .baseUrl(loggingConfiguration.getEndpointUrl())
-                        .clientConnector(new ReactorClientHttpConnector(httpClient))
-                        .build();
-    }
-
-    private SslContext getSslContext(LoggingConfiguration loggingConfiguration) {
-        try (InputStream serverCaStream = getCredentialInputStream(loggingConfiguration.getServerCa());
-            InputStream clientCertStream = getCredentialInputStream(loggingConfiguration.getClientCert());
-            InputStream clientKeyStream = getCredentialInputStream(loggingConfiguration.getClientKey())) {
-            return SslContextBuilder.forClient()
-                                    .keyManager(clientCertStream, clientKeyStream)
-                                    .trustManager(serverCaStream)
-                                    .build();
-        } catch (IOException | IllegalArgumentException e) {
-            // Netty's SslContextBuilder throws IllegalArgumentException for malformed PEM material
-            // (e.g. "Input stream not contain valid certificates."). Catch it alongside IOException
-            // so cert-format errors honor failSafe instead of bubbling up as an unchecked exception.
-            CloudLoggingServiceUtil.logErrorOrThrowExceptionBasedOnFailSafe(loggingConfiguration, LOGGER, e.getMessage());
-            return null;
-        }
-    }
-
-    private InputStream getCredentialInputStream(String credential) {
-        return new ByteArrayInputStream((credential.getBytes(StandardCharsets.UTF_8)));
+        return webClientFactory.createWebClientWithMtls(loggingConfiguration);
     }
 
     private ResponseEntity<Void> executeSendLogHttpRequest(WebClient webClient, List<ExternalOperationLogEntry> logEntryBatch) {

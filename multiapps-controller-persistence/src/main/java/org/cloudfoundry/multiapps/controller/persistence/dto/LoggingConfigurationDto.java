@@ -5,28 +5,24 @@ import java.time.LocalDateTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
-
 import org.cloudfoundry.multiapps.controller.persistence.model.LogLevel;
 import org.cloudfoundry.multiapps.controller.persistence.model.PersistenceMetadata.TableColumnNames;
 import org.cloudfoundry.multiapps.controller.persistence.model.PersistenceMetadata.TableNames;
 
 @Entity
 @Table(name = TableNames.CLOUD_LOGGING_SERVICE_CONFIGURATION_TABLE)
-@NamedQuery(name = LoggingConfigurationDto.NamedQueries.FIND_BY_MTA_SPACE_ID_NAMESPACE, query = "SELECT c FROM LoggingConfigurationDto c WHERE c.mtaSpace = :mtaSpace AND c.mtaId = :mtaId AND c.namespace = :namespace")
-@NamedQuery(name = LoggingConfigurationDto.NamedQueries.FIND_BY_MTA_SPACE_ID_NULL_NAMESPACE, query = "SELECT c FROM LoggingConfigurationDto c WHERE c.mtaSpace = :mtaSpace AND c.mtaId = :mtaId AND c.namespace IS NULL")
-@NamedQuery(name = LoggingConfigurationDto.NamedQueries.FIND_ALL_BY_MTA_SPACE_ID, query = "SELECT c FROM LoggingConfigurationDto c WHERE c.mtaSpaceId = :mtaSpaceId")
 public class LoggingConfigurationDto implements DtoWithPrimaryKey<String> {
 
-    public static class NamedQueries {
+    public static final class AttributeNames {
 
-        private NamedQueries() {
+        private AttributeNames() {
         }
 
-        public static final String FIND_BY_MTA_SPACE_ID_NAMESPACE = "LoggingConfigurationDto.findByMtaSpaceIdNamespace";
-        public static final String FIND_BY_MTA_SPACE_ID_NULL_NAMESPACE = "LoggingConfigurationDto.findByMtaSpaceIdNullNamespace";
-        public static final String FIND_ALL_BY_MTA_SPACE_ID = "LoggingConfigurationDto.findAllByMtaSpaceId";
+        public static final String MTA_ID = "mtaId";
+        public static final String MTA_SPACE = "mtaSpace";
+        public static final String MTA_SPACE_ID = "mtaSpaceId";
+        public static final String NAMESPACE = "namespace";
     }
 
     @Id
@@ -54,13 +50,13 @@ public class LoggingConfigurationDto implements DtoWithPrimaryKey<String> {
     @Column(name = TableColumnNames.CLOUD_LOGGING_NAMESPACE)
     private String namespace;
 
-    @Column(name = TableColumnNames.CLOUD_LOGGING_SERVICE_INSTANCE_NAME, nullable = false, length = 50)
+    @Column(name = TableColumnNames.CLOUD_LOGGING_SERVICE_INSTANCE_NAME, nullable = false)
     private String serviceInstanceName;
 
-    @Column(name = TableColumnNames.CLOUD_LOGGING_SERVICE_KEY_NAME, nullable = false, length = 63)
+    @Column(name = TableColumnNames.CLOUD_LOGGING_SERVICE_KEY_NAME, nullable = false)
     private String serviceKeyName;
 
-    @Column(name = TableColumnNames.CLOUD_LOGGING_LOG_LEVEL, nullable = false, length = 5)
+    @Column(name = TableColumnNames.CLOUD_LOGGING_LOG_LEVEL, nullable = false)
     private String logLevel;
 
     @Column(name = TableColumnNames.CLOUD_LOGGING_IS_FAILSAFE, nullable = false)

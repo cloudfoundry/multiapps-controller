@@ -41,6 +41,8 @@ public final class Messages {
     public static final String GENERATING_KEY_FILE_FAILED = "Generating key failed: {0}";
     public static final String ASYNC_UPLOAD_JOB_NOT_FOUND = "Async upload job entry with ID \"{0}\" not found";
     public static final String ASYNC_UPLOAD_JOB_ALREADY_EXISTS = "Async upload job entry with ID \"{0}\" already exists";
+    public static final String CLOUD_LOGGING_CONFIGURATION_NOT_FOUND = "Cloud logging configuration with ID \"{0}\" does not exist";
+    public static final String CLOUD_LOGGING_CONFIGURATION_ALREADY_EXISTS = "Cloud logging configuration with ID \"{0}\" already exists";
     public static final String ERROR_GETTING_FILES_CREATED_AFTER_0_AND_BEFORE_1 = "Error getting files created after {0} and before {1]";
     public static final String BACKUP_DESCRIPTOR_FOR_MTA_ID_0_AND_ID_1_ALREADY_EXIST = "Backup descriptor for mta id \"{0}\" and id \"{1}\" already exist";
     public static final String SECRET_TOKEN_FOR_VARIABLE_NAME_0_AND_ID_1_ALREADY_EXIST = "Secret token for variable name \"{0}\" and id \"{1}\" already exists";
@@ -50,6 +52,7 @@ public final class Messages {
     public static final String SECRET_TOKEN_WITH_ID_NOT_EXIST = "Secret token with ID \"{0}\" does not exist";
     public static final String DATABASE_HEALTH_CHECK_FAILED = "Database health check failed";
     public static final String FAILED_TO_SEND_LOG_MESSAGE_TO_CLS = "Failed to send log message to Cloud Logging service";
+    public static final String INVALID_LOG_LEVEL = "Invalid log level";
 
     // ERROR log messages:
     public static final String UPLOAD_STREAM_FAILED_TO_CLOSE = "Cannot close file upload stream";
