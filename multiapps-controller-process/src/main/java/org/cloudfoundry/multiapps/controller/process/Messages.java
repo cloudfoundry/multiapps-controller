@@ -295,7 +295,8 @@ public class Messages {
     public static final String UNBINDING_SERVICE_INSTANCE_FROM_APP = "Unbinding service instance \"{0}\" from application \"{1}\"...";
     public static final String UNBINDING_SERVICE_INSTANCE_FROM_APP_FINISHED = "Unbinding service instance \"{0}\" from application \"{1}\" finished";
     public static final String POLLING_SERVICE_OPERATIONS = "Polling service operations...";
-    public static final String AUTO_ABORTING_PROCESS_0 = "Auto-aborting process \"{0}\"...";
+    public static final String AUTO_ABORTING_PROCESS_0 = "Auto-aborting process with processId: \"{0}\", action: ABORT, actor: system ...";
+    public static final String DEPLOYMENT_PROCESS_ACTION_EXECUTED_FOR_PROCESS_0_ACTION_1_USER_2_ORIGIN_3 = "MTA deployment process action executed - processId: \"{0}\", action: \"{1}\", userGUID: \"{2}\", origin: \"{3}\"";
     public static final String SOME_INSTANCES_ARE_DOWN = "Some instances are down. Check the application logs of your application for details.";
     public static final String SOME_INSTANCES_HAVE_CRASHED = "Some instances have crashed. Check the application logs of your application for details.";
     public static final String CLEAN_UP_JOB_STARTED_BY_APPLICATION_INSTANCE_0_AT_1 = "Clean-up job started by application instance {0} at: {1}";

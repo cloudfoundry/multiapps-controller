@@ -7,6 +7,7 @@ import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
 
 import static org.mockito.Mockito.times;
 
@@ -23,5 +24,20 @@ class StartProcessActionTest extends ProcessActionTest {
     @Override
     protected ProcessAction createProcessAction() {
         return new StartProcessAction(flowableFacade, Collections.emptyList(), operationService, cloudControllerClientProvider);
+    }
+
+    @Test
+    void testStartActionWithUserGuidAndOriginButNotUsername() {
+        Logger logger = Mockito.mock(Logger.class);
+        ProcessAction startAction = new StartProcessAction(flowableFacade, Collections.emptyList(), operationService,
+                                                           cloudControllerClientProvider) {
+            @Override
+            protected Logger getLogger() {
+                return logger;
+            }
+        };
+
+        startAction.execute(USER_INFO, PROCESS_GUID);
+        assertUserInfoLogContent(logger, Action.START);
     }
 }

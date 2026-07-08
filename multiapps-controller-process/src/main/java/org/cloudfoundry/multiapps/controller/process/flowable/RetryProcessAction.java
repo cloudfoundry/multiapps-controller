@@ -60,4 +60,9 @@ public class RetryProcessAction extends ProcessAction {
         return Action.RETRY;
     }
 
+    @Override
+    protected Logger getLogger() {
+        return LOGGER;
+    }
+
 }

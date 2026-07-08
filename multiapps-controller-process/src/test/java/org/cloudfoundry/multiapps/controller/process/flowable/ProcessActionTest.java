@@ -2,11 +2,13 @@ package org.cloudfoundry.multiapps.controller.process.flowable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
+import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
 import org.cloudfoundry.multiapps.controller.persistence.query.impl.OperationQueryImpl;
@@ -17,10 +19,14 @@ import org.flowable.engine.RuntimeService;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.variable.api.history.HistoricVariableInstanceQuery;
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 
 abstract class ProcessActionTest {
@@ -31,7 +37,8 @@ abstract class ProcessActionTest {
     static final String PROCESS_GUID = RANDOM_UUID_SUPPLIER.get();
     static final String SUBPROCESS_1_ID = RANDOM_UUID_SUPPLIER.get();
     static final String SUBPROCESS_2_ID = RANDOM_UUID_SUPPLIER.get();
-    static final UserInfo USER_INFO = new UserInfo("fake-user-guid", "fake-user", null);
+    static final OAuth2AccessTokenWithAdditionalInfo token = mockToken();
+    static final UserInfo USER_INFO = new UserInfo("fake-user-guid", "fake-user", token);
 
     protected ProcessAction processAction;
     @Mock
@@ -124,5 +131,36 @@ abstract class ProcessActionTest {
                .update(operation, operation);
     }
 
+    protected void assertUserInfoLogContent(Logger logger, Action expectedAction) {
+        ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(logger, Mockito.atLeastOnce())
+               .info(argumentCaptor.capture());
+        String logMessageToVerify = argumentCaptor.getAllValues()
+                                                  .stream()
+                                                  .filter(message -> message != null && message.contains(
+                                                      "MTA deployment process action executed"))
+                                                  .findFirst()
+                                                  .orElseThrow(
+                                                      () -> new AssertionError("No log line was printed. Captured logs: "
+                                                                                   + argumentCaptor.getAllValues()));
+        assertTrue(logMessageToVerify.contains("processId: \"" + PROCESS_GUID + "\""),
+                   "Must contain the processId. Actual: " + logMessageToVerify);
+        assertTrue(logMessageToVerify.contains("action: \"" + expectedAction + "\""),
+                   "Must contain the action. Actual: " + logMessageToVerify);
+        assertTrue(logMessageToVerify.contains("userGUID: \"fake-user-guid\""),
+                   "Must contain the userGUID. Actual: " + logMessageToVerify);
+        assertTrue(logMessageToVerify.contains("origin: \"test-origin\""),
+                   "Must contain the origin. Actual: " + logMessageToVerify);
+        assertFalse(logMessageToVerify.contains("fake-user\""),
+                    "Must NOT contain the username. Actual: " + logMessageToVerify);
+    }
+
     protected abstract ProcessAction createProcessAction();
+
+    private static OAuth2AccessTokenWithAdditionalInfo mockToken() {
+        OAuth2AccessTokenWithAdditionalInfo token = Mockito.mock(OAuth2AccessTokenWithAdditionalInfo.class);
+        Mockito.when(token.getAdditionalInfo())
+               .thenReturn(Map.of("origin", "test-origin"));
+        return token;
+    }
 }

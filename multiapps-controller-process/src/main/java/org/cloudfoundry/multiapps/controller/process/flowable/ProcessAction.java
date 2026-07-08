@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.flowable;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -9,11 +10,14 @@ import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
+import org.cloudfoundry.multiapps.controller.process.Constants;
+import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ClientReleaser;
 import org.cloudfoundry.multiapps.controller.process.util.HistoryUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.RuntimeService;
+import org.slf4j.Logger;
 
 public abstract class ProcessAction {
 
@@ -38,6 +42,10 @@ public abstract class ProcessAction {
     }
 
     public void execute(UserInfo userInfo, String superProcessInstanceId) {
+        if (userInfo != null) {
+            logLifecycle(userInfo, superProcessInstanceId);
+        }
+
         for (AdditionalProcessAction additionalProcessAction : filterAdditionalActionsForThisAction()) {
             additionalProcessAction.executeAdditionalProcessAction(superProcessInstanceId);
         }
@@ -86,4 +94,15 @@ public abstract class ProcessAction {
                                       .build();
         operationService.update(operation, operation);
     }
+
+    protected abstract Logger getLogger();
+
+    protected void logLifecycle(UserInfo userInfo, String processId) {
+        getLogger().info(MessageFormat.format(
+            Messages.DEPLOYMENT_PROCESS_ACTION_EXECUTED_FOR_PROCESS_0_ACTION_1_USER_2_ORIGIN_3,
+            processId, getAction().toString(), userInfo.getId(), userInfo.getToken()
+                                                                         .getAdditionalInfo()
+                                                                         .get(Constants.AUTH_TOKEN_ORIGIN_FIELD)));
+    }
+
 }

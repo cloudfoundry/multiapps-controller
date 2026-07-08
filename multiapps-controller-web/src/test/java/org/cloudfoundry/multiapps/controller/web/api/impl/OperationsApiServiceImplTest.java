@@ -25,6 +25,7 @@ import org.cloudfoundry.multiapps.controller.client.util.TokenProperties;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.OperationsApiServiceAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
 import org.cloudfoundry.multiapps.controller.persistence.query.OperationQuery;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
@@ -43,6 +44,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -212,6 +214,39 @@ class OperationsApiServiceImplTest {
     }
 
     @Test
+    void testStartOperationLogsUserGuidAndOriginButNotUsername() {
+        String processInstanceId = "process-instance-id-1";
+        ProcessInstance processInstance = Mockito.mock(ProcessInstance.class);
+        Mockito.when(processInstance.getProcessInstanceId())
+               .thenReturn(processInstanceId);
+        Mockito.when(flowableFacade.startProcess(Mockito.any(), Mockito.anyMap()))
+               .thenReturn(processInstance);
+
+        Map<String, Object> parameters = Map.of(Variables.MTA_ID.getName(), "test");
+        Operation operation = createOperation(null, null, parameters);
+        Mockito.when(operationsHelper.getProcessDefinitionKey(operation))
+               .thenReturn("deploy");
+        HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(httpServletRequestMock.getRequestURL())
+               .thenReturn(new StringBuffer("test/api/path"));
+
+        OperationsApiServiceImpl operationsApiServiceSpy = Mockito.spy(operationsApiService);
+        operationsApiServiceSpy.startOperation(SPACE_GUID, operation, httpServletRequestMock);
+
+        ArgumentCaptor<UserInfo> userInfoCaptor = ArgumentCaptor.forClass(UserInfo.class);
+        Mockito.verify(operationsApiServiceSpy)
+               .logStartOperation(Mockito.eq(processInstanceId), userInfoCaptor.capture());
+        UserInfo authenticatedUser = userInfoCaptor.getValue();
+        assertEquals(USER_GUID, authenticatedUser.getId(), "logStartOperation must receive the user GUID");
+        assertEquals("test-origin", authenticatedUser.getToken()
+                                                     .getAdditionalInfo()
+                                                     .get("origin"),
+                     "logStartOperation must receive a UserInfo whose token has the origin");
+        Assertions.assertNotEquals(EXAMPLE_USER, authenticatedUser.getId(),
+                                   "logStartOperation must receive the user GUID and not the their username");
+    }
+
+    @Test
     void testStartOperationWithInvalidParametersForTheProcess() {
         Map<String, Object> parameters = Map.of(Variables.MTA_ID.getName(), "test", Variables.EXT_DESCRIPTOR_FILE_ID.getName(), "ext_test",
                                                 Variables.CTS_PROCESS_ID.getName(), "cts_test", Variables.DEPLOY_URI.getName(),
@@ -348,8 +383,11 @@ class OperationsApiServiceImplTest {
             org.springframework.security.core.context.SecurityContext.class);
         SecurityContextHolder.setContext(securityContextMock);
         if (shouldReturnAuthorizedClient) {
-            org.cloudfoundry.multiapps.controller.core.util.UserInfo userInfo = new org.cloudfoundry.multiapps.controller.core.util.UserInfo(
-                USER_GUID, EXAMPLE_USER, new OAuth2AccessTokenWithAdditionalInfo(null, Map.of(TokenProperties.USER_ID_KEY, USER_GUID)));
+            UserInfo userInfo = new UserInfo(USER_GUID, EXAMPLE_USER, new OAuth2AccessTokenWithAdditionalInfo(null,
+                                                                                                              Map.of(
+                                                                                                                  TokenProperties.USER_ID_KEY,
+                                                                                                                  USER_GUID, "origin",
+                                                                                                                  "test-origin")));
             OAuth2AuthenticationToken auth = Mockito.mock(OAuth2AuthenticationToken.class);
             Map<String, Object> attributes = Map.of(USER_INFO, userInfo);
             OAuth2User principal = Mockito.mock(OAuth2User.class);
