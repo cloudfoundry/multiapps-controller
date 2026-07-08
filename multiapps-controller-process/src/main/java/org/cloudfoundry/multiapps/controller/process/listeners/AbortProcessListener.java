@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -63,7 +62,7 @@ public class AbortProcessListener extends AbstractFlowableEngineEventListener {
         }
         ProcessType processType = processTypeParser.getProcessType(execution, false);
         eventHandler.handle(execution, processType, Operation.State.ABORTED);
-        meteringEventPublisher.publishFinalState(execution, processType, Operation.State.ABORTED);
+        meteringEventPublisher.publishFinalState(execution, processType);
     }
 
     private static boolean hasCorrectEntityType(FlowableEngineEntityEvent event) {

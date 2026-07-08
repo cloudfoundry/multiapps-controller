@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.process.listeners;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
@@ -57,7 +56,7 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
             ProcessType processType = processTypeParser.getProcessType(execution, false);
             eventHandler.handle(execution, processType, Operation.State.FINISHED);
             publishDynatraceEvent(execution, processType);
-            meteringEventPublisher.publishFinalState(execution, processType, Operation.State.FINISHED);
+            meteringEventPublisher.publishFinalState(execution, processType);
         }
     }
 
@@ -66,7 +65,8 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
                                                                             .processId(VariableHandling.get(execution,
                                                                                                             Variables.CORRELATION_ID))
                                                                             .mtaId(VariableHandling.get(execution, Variables.MTA_ID))
-                                                                            .createdBy(VariableHandling.get(execution, Variables.MTA_ARCHIVE_CREATED_BY))
+                                                                            .createdBy(VariableHandling.get(execution,
+                                                                                                            Variables.MTA_ARCHIVE_CREATED_BY))
                                                                             .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
                                                                             .eventType(DynatraceProcessEvent.EventType.FINISHED)
                                                                             .processType(processType)
