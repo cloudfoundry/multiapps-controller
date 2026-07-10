@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging;
+package org.cloudfoundry.multiapps.controller.core.cloudlogging;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -15,7 +15,7 @@ import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.LogLevel;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
+import org.cloudfoundry.multiapps.controller.persistence.model.OperationLog;
 import org.cloudfoundry.multiapps.controller.persistence.util.CloudLoggingServiceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,7 @@ public class CloudLoggingServiceMessageConverter {
         return Optional.of(raw.substring(raw.indexOf(".") + 1));
     }
 
-    public Map<LogLevel, List<OperationLogsExporter.OperationLog>> getLogsFromOperationLogEntry(
+    public Map<LogLevel, List<OperationLog>> getLogsFromOperationLogEntry(
         LoggingConfiguration loggingConfiguration, String log) {
 
         List<String> logLevels = getLogLevels(log);
@@ -67,21 +67,21 @@ public class CloudLoggingServiceMessageConverter {
         return messages.size() <= logLevels.size() && messages.size() <= logDates.size();
     }
 
-    private Map<LogLevel, List<OperationLogsExporter.OperationLog>> groupByLogLevel(List<String> messages,
-                                                                                    List<String> logLevels,
-                                                                                    List<LocalDateTime> logDates) {
-        Map<LogLevel, List<OperationLogsExporter.OperationLog>> result = new EnumMap<>(LogLevel.class);
+    private Map<LogLevel, List<OperationLog>> groupByLogLevel(List<String> messages,
+                                                              List<String> logLevels,
+                                                              List<LocalDateTime> logDates) {
+        Map<LogLevel, List<OperationLog>> result = new EnumMap<>(LogLevel.class);
         for (int i = 0; i < messages.size(); i++) {
             LogLevel level = LogLevel.get(logLevels.get(i));
-            OperationLogsExporter.OperationLog entry = buildOperationLog(messages.get(i), logDates.get(i));
+            OperationLog entry = buildOperationLog(messages.get(i), logDates.get(i));
             result.computeIfAbsent(level, k -> new ArrayList<>())
                   .add(entry);
         }
         return result;
     }
 
-    private OperationLogsExporter.OperationLog buildOperationLog(String rawMessage, LocalDateTime date) {
-        return new OperationLogsExporter.OperationLog(extractMessage(rawMessage), date);
+    private OperationLog buildOperationLog(String rawMessage, LocalDateTime date) {
+        return new OperationLog(extractMessage(rawMessage), date);
     }
 
     private List<String> getLogLevels(String log) {
@@ -114,8 +114,7 @@ public class CloudLoggingServiceMessageConverter {
                                 .trim();
         if (trimmed.isEmpty()) {
             return message;
-        } else {
-            return trimmed.substring(0, trimmed.length() - 1);
         }
+        return trimmed.substring(0, trimmed.length() - 1);
     }
 }

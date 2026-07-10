@@ -30,7 +30,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBack
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
+import org.cloudfoundry.multiapps.controller.core.cloudlogging.CloudLoggingServiceHttpClient;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessDuration;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
@@ -106,7 +106,7 @@ class OperationInFinalStateHandlerTest {
     @Mock
     private CloudControllerClient cloudControllerClient;
     @Mock
-    private OperationLogsExporter operationLogsExporter;
+    private CloudLoggingServiceHttpClient cloudLoggingServiceHttpClient;
     @Mock
     private HistoricOperationEventService historicOperationEventService;
     @Mock
@@ -280,7 +280,7 @@ class OperationInFinalStateHandlerTest {
 
         eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
 
-        verify(operationLogsExporter).removeClientFromCache(PROCESS_ID);
+        verify(cloudLoggingServiceHttpClient).removeClientFromCache(PROCESS_ID);
     }
 
     @Test
@@ -340,7 +340,7 @@ class OperationInFinalStateHandlerTest {
 
         eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
 
-        verify(cloudLoggingServiceConfigurationService, never()).deleteCloudLoggingServiceConfiguration(anyString());
+        verify(cloudLoggingServiceConfigurationService, never()).deleteLoggingConfiguration(anyString());
         verify(cloudLoggingServiceConfigurationAuditLog, never()).logDeleteLoggingConfiguration(anyString(), anyString(), any());
     }
 
@@ -355,7 +355,7 @@ class OperationInFinalStateHandlerTest {
 
         eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
 
-        verify(cloudLoggingServiceConfigurationService, never()).deleteCloudLoggingServiceConfiguration(anyString());
+        verify(cloudLoggingServiceConfigurationService, never()).deleteLoggingConfiguration(anyString());
         verify(cloudLoggingServiceConfigurationAuditLog, never()).logDeleteLoggingConfiguration(anyString(), anyString(), any());
     }
 
@@ -372,7 +372,7 @@ class OperationInFinalStateHandlerTest {
 
         eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
 
-        verify(cloudLoggingServiceConfigurationService, never()).deleteCloudLoggingServiceConfiguration(anyString());
+        verify(cloudLoggingServiceConfigurationService, never()).deleteLoggingConfiguration(anyString());
         verify(cloudLoggingServiceConfigurationAuditLog, never()).logDeleteLoggingConfiguration(anyString(), anyString(), any());
     }
 
@@ -390,7 +390,7 @@ class OperationInFinalStateHandlerTest {
 
         eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
 
-        verify(cloudLoggingServiceConfigurationService).deleteCloudLoggingServiceConfiguration(LOGGING_CONFIG_ID);
+        verify(cloudLoggingServiceConfigurationService).deleteLoggingConfiguration(LOGGING_CONFIG_ID);
         verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration(USER_NAME, SPACE_ID, loggingConfiguration);
     }
 

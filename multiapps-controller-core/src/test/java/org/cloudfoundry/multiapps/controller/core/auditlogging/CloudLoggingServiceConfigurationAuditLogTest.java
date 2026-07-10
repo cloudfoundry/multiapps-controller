@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.controller.core.auditlogging.impl.DefaultCloudLoggingServiceConfigurationAuditLog;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.model.AuditLogConfiguration;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.model.ConfigurationChangeActions;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableLoggingConfiguration;
@@ -46,7 +47,7 @@ class CloudLoggingServiceConfigurationAuditLogTest {
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        auditLog = new CloudLoggingServiceConfigurationAuditLog(auditLoggingFacade);
+        auditLog = new DefaultCloudLoggingServiceConfigurationAuditLog(auditLoggingFacade);
     }
 
     @Test

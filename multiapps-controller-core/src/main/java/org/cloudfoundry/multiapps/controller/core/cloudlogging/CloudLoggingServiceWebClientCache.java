@@ -1,12 +1,11 @@
-package org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging;
+package org.cloudfoundry.multiapps.controller.core.cloudlogging;
 
 import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.Duration;
 import java.util.function.Function;
 
 import jakarta.inject.Named;
+import org.cloudfoundry.multiapps.controller.core.model.CachedMap;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.slf4j.Logger;
@@ -17,7 +16,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class CloudLoggingServiceWebClientCache {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudLoggingServiceWebClientCache.class);
-    private final Map<String, WebClient> CLIENT_CACHE = Collections.synchronizedMap(new HashMap<>());
+    private final CachedMap<String, WebClient> CLIENT_CACHE = new CachedMap<>(Duration.ofHours(1));
 
     public WebClient getOrCreate(LoggingConfiguration loggingConfiguration,
                                  Function<LoggingConfiguration, WebClient> webClientSupplier) {
@@ -35,7 +34,7 @@ public class CloudLoggingServiceWebClientCache {
         return created;
     }
 
-    public void evict(String operationId) {
+    public void remove(String operationId) {
         CLIENT_CACHE.remove(operationId);
     }
 }

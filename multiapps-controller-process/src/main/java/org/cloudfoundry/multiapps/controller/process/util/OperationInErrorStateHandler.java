@@ -13,6 +13,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
+import org.cloudfoundry.multiapps.controller.core.cloudlogging.CloudLoggingServiceHttpClient;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableProgressMessage;
@@ -37,16 +38,18 @@ public class OperationInErrorStateHandler {
     private final ProgressMessageService progressMessageService;
     private final HistoricOperationEventService historicOperationEventService;
     private final ClientReleaser clientReleaser;
+    private final CloudLoggingServiceHttpClient cloudLoggingServiceHttpClient;
 
     @Inject
     public OperationInErrorStateHandler(ProgressMessageService progressMessageService, FlowableFacade flowableFacade,
                                         HistoricOperationEventService historicOperationEventService, ClientReleaser clientReleaser,
-                                        OperationService operationService) {
+                                        OperationService operationService, CloudLoggingServiceHttpClient cloudLoggingServiceHttpClient) {
         this.progressMessageService = progressMessageService;
         this.flowableFacade = flowableFacade;
         this.historicOperationEventService = historicOperationEventService;
         this.clientReleaser = clientReleaser;
         this.operationService = operationService;
+        this.cloudLoggingServiceHttpClient = cloudLoggingServiceHttpClient;
     }
 
     public void handle(FlowableEngineEvent event, String errorMessage) {
@@ -63,6 +66,7 @@ public class OperationInErrorStateHandler {
         persistError(event, errorMessage);
         persistErrorState(event);
         releaseCloudControllerClient(event);
+        removeCloudLoggingClientFromCache(event);
     }
 
     HistoricOperationEvent.EventType toEventType(Throwable throwable) {
@@ -171,6 +175,10 @@ public class OperationInErrorStateHandler {
     private void releaseCloudControllerClient(FlowableEngineEvent event) {
         HistoryService historyService = getProcessEngineConfiguration().getHistoryService();
         clientReleaser.releaseClientFor(historyService, event.getProcessInstanceId());
+    }
+
+    private void removeCloudLoggingClientFromCache(FlowableEngineEvent event) {
+        cloudLoggingServiceHttpClient.removeClientFromCache(flowableFacade.getProcessInstanceId(event.getExecutionId()));
     }
 
 }

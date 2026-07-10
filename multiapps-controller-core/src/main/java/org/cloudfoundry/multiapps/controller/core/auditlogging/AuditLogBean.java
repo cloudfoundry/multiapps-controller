@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.core.auditlogging;
 import javax.sql.DataSource;
 
 import org.cloudfoundry.multiapps.controller.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.impl.DefaultCloudLoggingServiceConfigurationAuditLog;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -61,6 +62,6 @@ public class AuditLogBean {
 
     @Bean
     public CloudLoggingServiceConfigurationAuditLog buildCloudLoggingServiceConfigurationAuditLog(AuditLoggingFacade auditLoggingFacade) {
-        return new CloudLoggingServiceConfigurationAuditLog(auditLoggingFacade);
+        return new DefaultCloudLoggingServiceConfigurationAuditLog(auditLoggingFacade);
     }
 }

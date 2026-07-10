@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging;
+package org.cloudfoundry.multiapps.controller.core.cloudlogging;
 
 import java.io.IOException;
 import java.util.List;
@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
 class CloudLoggingServiceHttpClientTest {
 
@@ -171,6 +172,32 @@ class CloudLoggingServiceHttpClientTest {
                      () -> client.sendLogsToCloudLoggingService(configBuilder(false).build(), webClient, sampleBatch()));
     }
 
+    @Test
+    void sendLogs_cachedClientReusedOnSubsequentCalls() {
+        CountingHttpClient countingClient = new CountingHttpClient();
+        LoggingConfiguration config = configBuilder(true).build();
+
+        countingClient.sendLogs(config, sampleBatch());
+        int creationsAfterFirst = countingClient.clientCreations;
+        countingClient.sendLogs(config, sampleBatch());
+
+        assertEquals(creationsAfterFirst, countingClient.clientCreations);
+    }
+
+    @Test
+    void removeClientFromCache_newClientCreatedOnNextSend() {
+        CountingHttpClient countingClient = new CountingHttpClient();
+        LoggingConfiguration config = configBuilder(true).build();
+
+        countingClient.sendLogs(config, sampleBatch());
+        int creationsAfterFirst = countingClient.clientCreations;
+
+        countingClient.removeClientFromCache(config.getOperationId());
+        countingClient.sendLogs(config, sampleBatch());
+
+        assertEquals(creationsAfterFirst + 1, countingClient.clientCreations);
+    }
+
     private static WebClient stubWebClient(Function<ClientRequest, Mono<ClientResponse>> handler) {
         ExchangeFunction exchange = handler::apply;
         return WebClient.builder()
@@ -205,5 +232,22 @@ class CloudLoggingServiceHttpClientTest {
                                             .serverCa("server-ca")
                                             .clientCert("client-cert")
                                             .clientKey("client-key");
+    }
+
+    private static class CountingHttpClient extends CloudLoggingServiceHttpClient {
+
+        int clientCreations = 0;
+
+        @Override
+        public WebClient createWebClientWithMtls(LoggingConfiguration loggingConfiguration) {
+            clientCreations++;
+            return mock(WebClient.class);
+        }
+
+        @Override
+        public void sendLogsToCloudLoggingService(LoggingConfiguration loggingConfiguration, WebClient webClient,
+                                                  List<ExternalOperationLogEntry> logEntryBatch) {
+            // no-op: this test only exercises client caching, not the HTTP exchange
+        }
     }
 }

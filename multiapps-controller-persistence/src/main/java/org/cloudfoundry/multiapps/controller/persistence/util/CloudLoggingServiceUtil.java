@@ -8,8 +8,8 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ExternalOperation
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableExternalOperationLogEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.LogLevel;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.model.OperationLog;
 import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
 import org.slf4j.Logger;
 
 public class CloudLoggingServiceUtil {
@@ -26,7 +26,7 @@ public class CloudLoggingServiceUtil {
     }
 
     public static ExternalOperationLogEntry convertToExternalLogEntry(OperationLogEntry operationLogEntry,
-                                                                      OperationLogsExporter.OperationLog operationLog,
+                                                                      OperationLog operationLog,
                                                                       LogLevel level, String operationId) {
         return ImmutableExternalOperationLogEntry.builder()
                                                  .timestamp(String.valueOf(operationLog.dateTime()
@@ -41,7 +41,7 @@ public class CloudLoggingServiceUtil {
     }
 
     public static ExternalOperationLogEntry convertToExternalLogEntry(LoggingConfiguration loggingConfiguration,
-                                                                      OperationLogsExporter.OperationLog operationLog,
+                                                                      OperationLog operationLog,
                                                                       LogLevel level, String logName) {
         return ImmutableExternalOperationLogEntry.builder()
                                                  .timestamp(String.valueOf(operationLog.dateTime()

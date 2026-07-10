@@ -19,6 +19,7 @@ import org.cloudfoundry.multiapps.common.ParsingException;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
+import org.cloudfoundry.multiapps.controller.core.cloudlogging.CloudLoggingServiceHttpClient;
 import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableProgressMessage;
@@ -60,6 +61,8 @@ class OperationInErrorStateHandlerTest {
     private OperationService operationService;
     @Mock
     private OperationQueryImpl operationQuery;
+    @Mock
+    private CloudLoggingServiceHttpClient cloudLoggingServiceHttpClient;
 
     private final Date now = DateTime.now()
                                      .toDate();
@@ -172,6 +175,8 @@ class OperationInErrorStateHandlerTest {
                                             .timestamp(now)
                                             .build());
         assertErrorStateSet();
+        Mockito.verify(cloudLoggingServiceHttpClient)
+               .removeClientFromCache("foo");
     }
 
     private void getExecutionEntityMock(boolean shouldUseExecutionEntity, ExecutionQuery executionQueryMock) {
@@ -220,7 +225,8 @@ class OperationInErrorStateHandlerTest {
                                                     flowableFacadeMock,
                                                     historicOperationEventServiceMock,
                                                     clientReleaserMock,
-                                                    operationService).withProcessEngineConfiguration(processEngineConfigurationMock);
+                                                    operationService,
+                                                    cloudLoggingServiceHttpClient).withProcessEngineConfiguration(processEngineConfigurationMock);
     }
 
     private class OperationInErrorStateHandlerMock extends OperationInErrorStateHandler {
@@ -229,8 +235,10 @@ class OperationInErrorStateHandlerTest {
 
         public OperationInErrorStateHandlerMock(ProgressMessageService progressMessageService, FlowableFacade flowableFacade,
                                                 HistoricOperationEventService historicOperationEventService,
-                                                ClientReleaser clientReleaser, OperationService operationService) {
-            super(progressMessageService, flowableFacade, historicOperationEventService, clientReleaser, operationService);
+                                                ClientReleaser clientReleaser, OperationService operationService,
+                                                CloudLoggingServiceHttpClient cloudLoggingServiceHttpClient) {
+            super(progressMessageService, flowableFacade, historicOperationEventService, clientReleaser, operationService,
+                  cloudLoggingServiceHttpClient);
         }
 
         public OperationInErrorStateHandlerMock withProcessEngineConfiguration(ProcessEngineConfiguration processEngineConfiguration) {

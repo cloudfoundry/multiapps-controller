@@ -107,10 +107,9 @@ public class MtaConfigurationPurger {
     }
 
     private void purgeCloudLoggingServiceConfigurations(String spaceId, String userName) {
-        List<LoggingConfiguration> loggingConfigurations = cloudLoggingServiceConfigurationService.getAllCloudLoggingServiceConfigurationsFromSpace(
-            spaceId);
+        List<LoggingConfiguration> loggingConfigurations = cloudLoggingServiceConfigurationService.getLoggingConfigurationsBySpace(spaceId);
         for (LoggingConfiguration loggingConfiguration : loggingConfigurations) {
-            cloudLoggingServiceConfigurationService.deleteCloudLoggingServiceConfiguration(loggingConfiguration.getId());
+            cloudLoggingServiceConfigurationService.deleteLoggingConfiguration(loggingConfiguration.getId());
             cloudLoggingServiceConfigurationAuditLog.logDeleteLoggingConfiguration(userName, spaceId, loggingConfiguration);
         }
     }
