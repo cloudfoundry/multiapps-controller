@@ -21,32 +21,28 @@ import org.cloudfoundry.multiapps.mta.model.Module;
 @Named
 public class TimeoutValueResolver {
 
-@FunctionalInterface
-    private interface TimeoutResolver {
-        Optional<TimeoutResolution> resolve(ProcessContext context, TimeoutType timeoutType, StepLogger logger);
-    }
-
     public record TimeoutResolution(Duration timeout, String parameterName) {
     }
 
-    private final List<TimeoutResolver> moduleTimeoutSources = List.of(
-        this::resolveProcessVariableTimeout,
-        this::extractTimeoutFromModuleDescriptorParameters,
-        this::extractTimeoutFromAppAttributes,
-        this::extractTimeoutFromDescriptorParameters);
-
-    private final List<TimeoutResolver> serviceTimeoutSources = List.of(
-        this::resolveProcessVariableTimeout,
-        this::extractTimeoutFromServiceObject,
-        this::extractTimeoutFromDescriptorParameters);
-
     public TimeoutResolution resolveTimeout(ProcessContext context, TimeoutType timeoutType, StepLogger logger) {
-        return getTimeoutSources(timeoutType).stream()
-                                             .map(source -> source.resolve(context, timeoutType, logger))
-                                             .flatMap(Optional::stream)
-                                             .findFirst()
-                                             .orElseGet(() -> new TimeoutResolution(timeoutType.getProcessVariable()
-                                                                                               .getDefaultValue(), timeoutType.getGlobalLevelParamName()));
+        return timeoutType.isModuleScoped()
+            ? resolveModuleTimeout(context, timeoutType, logger)
+            : resolveServiceTimeout(context, timeoutType, logger);
+    }
+
+    private TimeoutResolution resolveModuleTimeout(ProcessContext context, TimeoutType timeoutType, StepLogger logger) {
+        return resolveProcessVariableTimeout(context, timeoutType, logger)
+            .or(() -> extractTimeoutFromModuleDescriptorParameters(context, timeoutType, logger))
+            .or(() -> extractTimeoutFromAppAttributes(context, timeoutType, logger))
+            .or(() -> extractTimeoutFromDescriptorParameters(context, timeoutType, logger))
+            .orElseGet(() -> new TimeoutResolution(timeoutType.getProcessVariable().getDefaultValue(), timeoutType.getGlobalLevelParamName()));
+    }
+
+    private TimeoutResolution resolveServiceTimeout(ProcessContext context, TimeoutType timeoutType, StepLogger logger) {
+        return resolveProcessVariableTimeout(context, timeoutType, logger)
+            .or(() -> extractTimeoutFromServiceObject(context, timeoutType, logger))
+            .or(() -> extractTimeoutFromDescriptorParameters(context, timeoutType, logger))
+            .orElseGet(() -> new TimeoutResolution(timeoutType.getProcessVariable().getDefaultValue(), timeoutType.getGlobalLevelParamName()));
     }
 
     private Optional<TimeoutResolution> resolveProcessVariableTimeout(ProcessContext context, TimeoutType timeoutType, StepLogger logger) {
@@ -136,10 +132,6 @@ public class TimeoutValueResolver {
                          .stream()
                          .filter(m -> appName.equals(m.getName()))
                          .findFirst();
-    }
-
-    private List<TimeoutResolver> getTimeoutSources(TimeoutType timeoutType) {
-        return timeoutType.isModuleScoped() ? moduleTimeoutSources : serviceTimeoutSources;
     }
 
     public DeploymentDescriptor getDeploymentDescriptor(ProcessContext context, StepLogger stepLogger) {
