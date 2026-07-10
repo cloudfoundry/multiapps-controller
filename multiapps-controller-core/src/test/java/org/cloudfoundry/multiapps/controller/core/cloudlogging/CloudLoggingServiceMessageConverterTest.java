@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging;
+package org.cloudfoundry.multiapps.controller.core.cloudlogging;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -9,7 +9,7 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableLoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.LogLevel;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
+import org.cloudfoundry.multiapps.controller.persistence.model.OperationLog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,8 +28,6 @@ class CloudLoggingServiceMessageConverterTest {
     void setUp() {
         converter = new CloudLoggingServiceMessageConverter();
     }
-
-    // --- extractLogName ---
 
     @Test
     void extractLogName_extractsSuffixAfterFirstDot() {
@@ -59,20 +57,15 @@ class CloudLoggingServiceMessageConverterTest {
         assertEquals(Optional.empty(), result);
     }
 
-    // --- getLogsFromOperationLogEntry: happy path ---
-
     @Test
     void getLogsFromOperationLogEntry_singleInfoLine_groupedByLevel() {
         String input = logLine(DATE, "INFO", "deploy-app.svc", "[main] hello");
 
-        Map<LogLevel, List<OperationLogsExporter.OperationLog>> result = converter.getLogsFromOperationLogEntry(buildConfig(true),
-                                                                                                                       input);
+        Map<LogLevel, List<OperationLog>> result = converter.getLogsFromOperationLogEntry(buildConfig(true),
+                                                                                          input);
 
-        List<OperationLogsExporter.OperationLog> infos = result.get(LogLevel.INFO);
+        List<OperationLog> infos = result.get(LogLevel.INFO);
         assertEquals(1, infos.size());
-        // NOTE: extractMessage strips one trailing character after .trim() — likely a bug
-        // (the -1 was probably meant to handle a trailing newline that .trim() already removes).
-        // The test pins current behavior; flag for follow-up.
         assertEquals("hell", infos.get(0)
                                   .log());
         assertEquals(EXPECTED_DATE, infos.get(0)
@@ -85,8 +78,8 @@ class CloudLoggingServiceMessageConverterTest {
             + logLine(DATE, "WARN", "deploy-app.svc", "[t] w")
             + logLine(DATE, "ERROR", "deploy-app.svc", "[t] e");
 
-        Map<LogLevel, List<OperationLogsExporter.OperationLog>> result = converter.getLogsFromOperationLogEntry(buildConfig(true),
-                                                                                                                       input);
+        Map<LogLevel, List<OperationLog>> result = converter.getLogsFromOperationLogEntry(buildConfig(true),
+                                                                                          input);
 
         assertEquals(1, result.get(LogLevel.INFO)
                               .size());
@@ -101,51 +94,39 @@ class CloudLoggingServiceMessageConverterTest {
         String input = logLine(DATE, "INFO", "deploy-app.svc", "[t] one")
             + logLine(DATE, "INFO", "deploy-app.svc", "[t] two");
 
-        Map<LogLevel, List<OperationLogsExporter.OperationLog>> result = converter.getLogsFromOperationLogEntry(buildConfig(true),
-                                                                                                                       input);
+        Map<LogLevel, List<OperationLog>> result = converter.getLogsFromOperationLogEntry(buildConfig(true),
+                                                                                          input);
 
-        List<OperationLogsExporter.OperationLog> infos = result.get(LogLevel.INFO);
+        List<OperationLog> infos = result.get(LogLevel.INFO);
         assertEquals(2, infos.size());
-        // See note in singleInfoLine_groupedByLevel about the trailing-character chop.
         assertEquals("on", infos.get(0)
                                 .log());
         assertEquals("tw", infos.get(1)
                                 .log());
     }
 
-    // --- getLogsFromOperationLogEntry: edge cases ---
-
     @Test
     void getLogsFromOperationLogEntry_emptyInput_returnsEmptyMap() {
-        Map<LogLevel, List<OperationLogsExporter.OperationLog>> result = converter.getLogsFromOperationLogEntry(buildConfig(true),
-                                                                                                                       "");
+        Map<LogLevel, List<OperationLog>> result = converter.getLogsFromOperationLogEntry(buildConfig(true),
+                                                                                          "");
 
         assertTrue(result.isEmpty());
     }
 
     @Test
     void getLogsFromOperationLogEntry_noHeaderLines_returnsEmptyMap() {
-        Map<LogLevel, List<OperationLogsExporter.OperationLog>> result = converter.getLogsFromOperationLogEntry(buildConfig(true),
-                                                                                                                       "free text without any header\n");
+        Map<LogLevel, List<OperationLog>> result = converter.getLogsFromOperationLogEntry(buildConfig(true),
+                                                                                          "free text without any header\n");
 
         assertTrue(result.isEmpty());
     }
 
     @Test
     void getLogsFromOperationLogEntry_unknownLogLevel_throwsIllegalArgument() {
-        // LogLevel.get rejects unknown level strings with IllegalArgumentException; the malformed
-        // input is not silenced by failSafe here because the throw happens before the parallel-list
-        // consistency check.
         String input = logLine(DATE, "FATAL", "deploy-app.svc", "[t] unknown level");
 
         assertThrows(IllegalArgumentException.class, () -> converter.getLogsFromOperationLogEntry(buildConfig(true), input));
     }
-
-    // --- failSafe behavior on malformed input ---
-    //
-    // The "more messages than levels" branch fires when the split produces more non-blank
-    // chunks than the header-line regex matches. Putting body text BEFORE the first header
-    // line (so the split's leading chunk has no header to pair with) reliably triggers it.
 
     @Test
     void getLogsFromOperationLogEntry_moreMessagesThanLevels_failSafeTrue_returnsEmptyMap() {
@@ -153,10 +134,9 @@ class CloudLoggingServiceMessageConverterTest {
             + "#" + DATE + "#org.example.Logger#INFO#deploy-app.svc#main#\n"
             + "[t] body\n";
 
-        Map<LogLevel, List<OperationLogsExporter.OperationLog>> result = converter.getLogsFromOperationLogEntry(buildConfig(true),
-                                                                                                                       malformed);
+        Map<LogLevel, List<OperationLog>> result = converter.getLogsFromOperationLogEntry(buildConfig(true),
+                                                                                          malformed);
 
-        // failSafe=true: util logs and returns; converter then returns Map.of()
         assertTrue(result.isEmpty());
     }
 
@@ -168,8 +148,6 @@ class CloudLoggingServiceMessageConverterTest {
 
         assertThrows(SLException.class, () -> converter.getLogsFromOperationLogEntry(buildConfig(false), malformed));
     }
-
-    // --- helpers ---
 
     private static String logLine(String date, String level, String logName, String text) {
         return "#" + date + "#org.example.Logger#" + level + "#" + logName + "#main#\n" + text + "\n";

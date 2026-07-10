@@ -1,10 +1,11 @@
-package org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging;
+package org.cloudfoundry.multiapps.controller.core.cloudlogging;
 
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -18,8 +19,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.Exceptions;
 import reactor.netty.http.client.PrematureCloseException;
 import reactor.util.retry.Retry;
 
@@ -52,14 +55,11 @@ public class CloudLoggingServiceHttpClient {
 
     public void sendLogs(LoggingConfiguration loggingConfiguration, List<ExternalOperationLogEntry> logEntryBatch) {
         WebClient webClient = webClientCache.getOrCreate(loggingConfiguration, this::createWebClientWithMtls);
-        if (webClient == null) {
-            return;
-        }
         sendLogsToCloudLoggingService(loggingConfiguration, webClient, logEntryBatch);
     }
 
     public void removeClientFromCache(String operationId) {
-        webClientCache.evict(operationId);
+        webClientCache.remove(operationId);
     }
 
     public void sendLogsToCloudLoggingService(LoggingConfiguration loggingConfiguration, WebClient webClient,
@@ -70,11 +70,22 @@ public class CloudLoggingServiceHttpClient {
                 CloudLoggingServiceUtil.logErrorOrThrowExceptionBasedOnFailSafe(loggingConfiguration, LOGGER,
                                                                                 Messages.FAILED_TO_SEND_LOG_MESSAGE_TO_CLS);
             }
-        } catch (RuntimeException e) {
-            CloudLoggingServiceUtil.logErrorOrThrowExceptionBasedOnFailSafe(loggingConfiguration, LOGGER,
-                                                                            Messages.FAILED_TO_SEND_LOG_MESSAGE_TO_CLS + ": "
-                                                                                + describeFailure(e));
+        } catch (WebClientException e) {
+            if (!isTransportFailure(Exceptions.unwrap(e))) {
+                throw e;
+            }
+            handleSendLogFailure(loggingConfiguration, e);
         }
+    }
+
+    private boolean isTransportFailure(Throwable throwable) {
+        return throwable instanceof IOException || throwable instanceof TimeoutException;
+    }
+
+    private void handleSendLogFailure(LoggingConfiguration loggingConfiguration, Throwable failure) {
+        CloudLoggingServiceUtil.logErrorOrThrowExceptionBasedOnFailSafe(loggingConfiguration, LOGGER,
+                                                                        Messages.FAILED_TO_SEND_LOG_MESSAGE_TO_CLS + ": "
+                                                                            + describeFailure(failure));
     }
 
     public WebClient createWebClientWithMtls(LoggingConfiguration loggingConfiguration) {

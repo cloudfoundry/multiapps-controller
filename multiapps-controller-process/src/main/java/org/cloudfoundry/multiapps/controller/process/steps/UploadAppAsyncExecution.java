@@ -25,7 +25,7 @@ import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
+import org.cloudfoundry.multiapps.controller.core.cloudlogging.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.context.ApplicationToUploadContext;

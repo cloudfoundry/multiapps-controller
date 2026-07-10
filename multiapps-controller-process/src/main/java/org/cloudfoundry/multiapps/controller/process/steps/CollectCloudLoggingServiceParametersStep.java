@@ -11,6 +11,7 @@ import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging.CloudLoggingServiceConfigurationService;
+import org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging.UnsentProcessLogsProvider;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.LoggingConfigurationBuilder;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
@@ -33,16 +34,19 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
     private final CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService;
     private final ProcessTypeParser processTypeParser;
     private final CloudLoggingServiceConfigurationAuditLog cloudLoggingServiceConfigurationAuditLog;
+    private final UnsentProcessLogsProvider unsentProcessLogsProvider;
 
     public CollectCloudLoggingServiceParametersStep(TokenService tokenService, CloudControllerClientFactory clientFactory,
                                                     CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService,
                                                     ProcessTypeParser processTypeParser,
-                                                    CloudLoggingServiceConfigurationAuditLog cloudLoggingServiceConfigurationAuditLog) {
+                                                    CloudLoggingServiceConfigurationAuditLog cloudLoggingServiceConfigurationAuditLog,
+                                                    UnsentProcessLogsProvider unsentProcessLogsProvider) {
         this.tokenService = tokenService;
         this.clientFactory = clientFactory;
         this.cloudLoggingServiceConfigurationService = cloudLoggingServiceConfigurationService;
         this.processTypeParser = processTypeParser;
         this.cloudLoggingServiceConfigurationAuditLog = cloudLoggingServiceConfigurationAuditLog;
+        this.unsentProcessLogsProvider = unsentProcessLogsProvider;
     }
 
     @Override
@@ -51,7 +55,7 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
         if (loggingConfiguration == null) {
             return StepPhase.DONE;
         }
-        List<OperationLogEntry> operationLogEntries = operationLogsExporter.getUnsendProcessLogs(loggingConfiguration);
+        List<OperationLogEntry> operationLogEntries = unsentProcessLogsProvider.getUnsentProcessLogs(loggingConfiguration);
 
         for (OperationLogEntry operationLogEntry : operationLogEntries) {
             operationLogsExporter.sendLogsToCloudLoggingService(loggingConfiguration, operationLogEntry);
@@ -76,14 +80,12 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
     }
 
     private LoggingConfiguration getExistingLoggingConfiguration(ProcessContext context) {
-        LoggingConfiguration loggingConfiguration = cloudLoggingServiceConfigurationService.getCloudLoggingServiceConfiguration(
+        LoggingConfiguration loggingConfiguration = cloudLoggingServiceConfigurationService.getLoggingConfiguration(
             context.getVariable(Variables.SPACE_NAME), context.getVariable(Variables.MTA_ID), context.getVariable(Variables.MTA_NAMESPACE));
 
-        if (loggingConfiguration != null) {
-            cloudLoggingServiceConfigurationAuditLog.logGetLoggingConfiguration(context.getVariable(Variables.USER),
-                                                                                context.getVariable(Variables.SPACE_GUID),
-                                                                                loggingConfiguration);
-        }
+        cloudLoggingServiceConfigurationAuditLog.logGetLoggingConfiguration(context.getVariable(Variables.USER),
+                                                                            context.getVariable(Variables.SPACE_GUID),
+                                                                            loggingConfiguration);
         return loggingConfiguration;
     }
 
@@ -110,7 +112,7 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
         if (existingLoggingConfiguration == null) {
             persistLoggingConfiguration(context, newLoggingConfiguration);
         } else {
-            updateLoggingConfiguration(context, newLoggingConfiguration);
+            updateLoggingConfiguration(context, existingLoggingConfiguration, newLoggingConfiguration);
         }
         return newLoggingConfiguration;
     }
@@ -120,7 +122,7 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
             cloudLoggingServiceConfigurationAuditLog.logDeleteLoggingConfiguration(context.getVariable(Variables.USER),
                                                                                    context.getVariable(Variables.SPACE_GUID),
                                                                                    existingLoggingConfiguration);
-            cloudLoggingServiceConfigurationService.deleteCloudLoggingServiceConfiguration(existingLoggingConfiguration.getId());
+            cloudLoggingServiceConfigurationService.deleteLoggingConfiguration(existingLoggingConfiguration.getId());
         }
     }
 
@@ -149,14 +151,15 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
         cloudLoggingServiceConfigurationAuditLog.logCreateLoggingConfiguration(context.getVariable(Variables.USER),
                                                                                context.getVariable(Variables.SPACE_GUID),
                                                                                newLoggingConfiguration);
-        cloudLoggingServiceConfigurationService.storeCloudLoggingServiceConfiguration(newLoggingConfiguration);
+        cloudLoggingServiceConfigurationService.add(newLoggingConfiguration);
     }
 
-    private void updateLoggingConfiguration(ProcessContext context, LoggingConfiguration newLoggingConfiguration) {
+    private void updateLoggingConfiguration(ProcessContext context, LoggingConfiguration existingLoggingConfiguration,
+                                            LoggingConfiguration newLoggingConfiguration) {
         cloudLoggingServiceConfigurationAuditLog.logUpdateLoggingConfiguration(context.getVariable(Variables.USER),
                                                                                context.getVariable(Variables.SPACE_GUID),
                                                                                newLoggingConfiguration);
-        cloudLoggingServiceConfigurationService.updateCloudLoggingServiceConfiguration(newLoggingConfiguration);
+        cloudLoggingServiceConfigurationService.update(existingLoggingConfiguration, newLoggingConfiguration);
     }
 
     private Resource findCloudLoggingServiceResource(List<Resource> resources) {

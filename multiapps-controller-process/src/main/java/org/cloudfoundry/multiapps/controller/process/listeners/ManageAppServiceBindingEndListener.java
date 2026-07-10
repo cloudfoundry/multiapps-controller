@@ -6,7 +6,7 @@ import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
+import org.cloudfoundry.multiapps.controller.core.cloudlogging.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;

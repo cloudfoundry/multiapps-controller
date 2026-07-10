@@ -23,7 +23,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoric
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
+import org.cloudfoundry.multiapps.controller.core.cloudlogging.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;

@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging;
+package org.cloudfoundry.multiapps.controller.core.cloudlogging;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

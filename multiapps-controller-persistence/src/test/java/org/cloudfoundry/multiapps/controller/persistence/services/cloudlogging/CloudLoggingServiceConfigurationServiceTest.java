@@ -4,7 +4,6 @@ import java.util.List;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
-
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableLoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.LogLevel;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
@@ -37,19 +36,27 @@ class CloudLoggingServiceConfigurationServiceTest {
 
     @AfterEach
     void tearDown() {
-        service.getAllCloudLoggingServiceConfigurationsFromSpace(SPACE_ID_1)
-               .forEach(config -> service.deleteCloudLoggingServiceConfiguration(config.getId()));
-        service.getAllCloudLoggingServiceConfigurationsFromSpace(SPACE_ID_2)
-               .forEach(config -> service.deleteCloudLoggingServiceConfiguration(config.getId()));
+        service.createQuery()
+               .mtaSpaceId(SPACE_ID_1)
+               .list()
+               .forEach(config -> service.createQuery()
+                                         .id(config.getId())
+                                         .delete());
+        service.createQuery()
+               .mtaSpaceId(SPACE_ID_2)
+               .list()
+               .forEach(config -> service.createQuery()
+                                         .id(config.getId())
+                                         .delete());
         entityManagerFactory.close();
     }
 
     @Test
     void testStoreAndGetConfiguration() {
         LoggingConfiguration config = buildConfiguration(ID_1, SPACE_ID_1, MTA_SPACE_1, MTA_ID_1, "ns-1");
-        service.storeCloudLoggingServiceConfiguration(config);
+        service.add(config);
 
-        LoggingConfiguration result = service.getCloudLoggingServiceConfiguration(MTA_SPACE_1, MTA_ID_1, "ns-1");
+        LoggingConfiguration result = getConfiguration(MTA_SPACE_1, MTA_ID_1, "ns-1");
 
         assertNotNull(result);
         assertEquals(ID_1, result.getId());
@@ -62,9 +69,9 @@ class CloudLoggingServiceConfigurationServiceTest {
     @Test
     void testGetConfiguration_withNullNamespace() {
         LoggingConfiguration config = buildConfiguration(ID_1, SPACE_ID_1, MTA_SPACE_1, MTA_ID_1, null);
-        service.storeCloudLoggingServiceConfiguration(config);
+        service.add(config);
 
-        LoggingConfiguration result = service.getCloudLoggingServiceConfiguration(MTA_SPACE_1, MTA_ID_1, null);
+        LoggingConfiguration result = getConfiguration(MTA_SPACE_1, MTA_ID_1, null);
 
         assertNotNull(result);
         assertEquals(ID_1, result.getId());
@@ -72,7 +79,7 @@ class CloudLoggingServiceConfigurationServiceTest {
 
     @Test
     void testGetConfiguration_returnsNullWhenNotFound() {
-        LoggingConfiguration result = service.getCloudLoggingServiceConfiguration("nonexistent-space", "nonexistent-mta", "ns");
+        LoggingConfiguration result = getConfiguration("nonexistent-space", "nonexistent-mta", "ns");
 
         assertNull(result);
     }
@@ -80,31 +87,37 @@ class CloudLoggingServiceConfigurationServiceTest {
     @Test
     void testDeleteConfiguration() {
         LoggingConfiguration config = buildConfiguration(ID_1, SPACE_ID_1, MTA_SPACE_1, MTA_ID_1, "ns-2");
-        service.storeCloudLoggingServiceConfiguration(config);
+        service.add(config);
 
-        service.deleteCloudLoggingServiceConfiguration(ID_1);
+        service.createQuery()
+               .id(ID_1)
+               .delete();
 
-        assertNull(service.getCloudLoggingServiceConfiguration(MTA_SPACE_1, MTA_ID_1, "ns-2"));
+        assertNull(getConfiguration(MTA_SPACE_1, MTA_ID_1, "ns-2"));
     }
 
     @Test
     void testDeleteConfiguration_nonExistentIdDoesNotThrow() {
-        service.deleteCloudLoggingServiceConfiguration("nonexistent-id");
+        int deletedCount = service.createQuery()
+                                  .id("nonexistent-id")
+                                  .delete();
+
+        assertEquals(0, deletedCount);
     }
 
     @Test
     void testUpdateConfiguration() {
         LoggingConfiguration config = buildConfiguration(ID_1, SPACE_ID_1, MTA_SPACE_1, MTA_ID_1, "ns-3");
-        service.storeCloudLoggingServiceConfiguration(config);
+        service.add(config);
 
         LoggingConfiguration updated = ImmutableLoggingConfiguration.builder()
                                                                     .from(config)
                                                                     .logLevel(LogLevel.ERROR)
                                                                     .serviceInstanceName("updated-instance")
                                                                     .build();
-        service.updateCloudLoggingServiceConfiguration(updated);
+        service.update(config, updated);
 
-        LoggingConfiguration result = service.getCloudLoggingServiceConfiguration(MTA_SPACE_1, MTA_ID_1, "ns-3");
+        LoggingConfiguration result = getConfiguration(MTA_SPACE_1, MTA_ID_1, "ns-3");
         assertNotNull(result);
         assertEquals(LogLevel.ERROR, result.getLogLevel());
         assertEquals("updated-instance", result.getServiceInstanceName());
@@ -113,46 +126,63 @@ class CloudLoggingServiceConfigurationServiceTest {
     @Test
     void testUpdateConfiguration_withNullNamespace() {
         LoggingConfiguration config = buildConfiguration(ID_1, SPACE_ID_1, MTA_SPACE_1, MTA_ID_1, null);
-        service.storeCloudLoggingServiceConfiguration(config);
+        service.add(config);
 
         LoggingConfiguration updated = ImmutableLoggingConfiguration.builder()
                                                                     .from(config)
                                                                     .logLevel(LogLevel.WARN)
                                                                     .build();
-        service.updateCloudLoggingServiceConfiguration(updated);
+        service.update(config, updated);
 
-        LoggingConfiguration result = service.getCloudLoggingServiceConfiguration(MTA_SPACE_1, MTA_ID_1, null);
+        LoggingConfiguration result = getConfiguration(MTA_SPACE_1, MTA_ID_1, null);
         assertNotNull(result);
         assertEquals(LogLevel.WARN, result.getLogLevel());
     }
 
     @Test
     void testGetAllConfigurationsFromSpace_returnsAllForSpace() {
-        service.storeCloudLoggingServiceConfiguration(buildConfiguration(ID_1, SPACE_ID_1, MTA_SPACE_1, MTA_ID_1, "ns-4"));
-        service.storeCloudLoggingServiceConfiguration(buildConfiguration(ID_2, SPACE_ID_1, MTA_SPACE_1, MTA_ID_2, "ns-5"));
+        service.add(buildConfiguration(ID_1, SPACE_ID_1, MTA_SPACE_1, MTA_ID_1, "ns-4"));
+        service.add(buildConfiguration(ID_2, SPACE_ID_1, MTA_SPACE_1, MTA_ID_2, "ns-5"));
 
-        List<LoggingConfiguration> results = service.getAllCloudLoggingServiceConfigurationsFromSpace(SPACE_ID_1);
+        List<LoggingConfiguration> results = service.createQuery()
+                                                    .mtaSpaceId(SPACE_ID_1)
+                                                    .list();
 
         assertEquals(2, results.size());
     }
 
     @Test
     void testGetAllConfigurationsFromSpace_returnsEmptyListWhenNoneExist() {
-        List<LoggingConfiguration> results = service.getAllCloudLoggingServiceConfigurationsFromSpace("unknown-space");
+        List<LoggingConfiguration> results = service.createQuery()
+                                                    .mtaSpaceId("unknown-space")
+                                                    .list();
 
         assertEquals(0, results.size());
     }
 
     @Test
     void testGetAllConfigurationsFromSpace_doesNotReturnConfigurationsFromOtherSpaces() {
-        service.storeCloudLoggingServiceConfiguration(buildConfiguration(ID_1, SPACE_ID_1, MTA_SPACE_1, MTA_ID_1, "ns-6"));
-        service.storeCloudLoggingServiceConfiguration(buildConfiguration(ID_2, SPACE_ID_2, "mta-space-2", MTA_ID_2, "ns-7"));
+        service.add(buildConfiguration(ID_1, SPACE_ID_1, MTA_SPACE_1, MTA_ID_1, "ns-6"));
+        service.add(buildConfiguration(ID_2, SPACE_ID_2, "mta-space-2", MTA_ID_2, "ns-7"));
 
-        List<LoggingConfiguration> results = service.getAllCloudLoggingServiceConfigurationsFromSpace(SPACE_ID_1);
+        List<LoggingConfiguration> results = service.createQuery()
+                                                    .mtaSpaceId(SPACE_ID_1)
+                                                    .list();
 
         assertEquals(1, results.size());
         assertEquals(ID_1, results.get(0)
                                   .getId());
+    }
+
+    private LoggingConfiguration getConfiguration(String mtaSpace, String mtaId, String namespace) {
+        return service.createQuery()
+                      .mtaSpace(mtaSpace)
+                      .mtaId(mtaId)
+                      .namespace(namespace)
+                      .list()
+                      .stream()
+                      .findFirst()
+                      .orElse(null);
     }
 
     private LoggingConfiguration buildConfiguration(String id, String mtaSpaceId, String mtaSpace, String mtaId, String namespace) {

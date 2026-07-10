@@ -5,20 +5,15 @@ import java.util.List;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 import org.cloudfoundry.multiapps.common.ConflictException;
 import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.dto.LoggingConfigurationDto;
-import org.cloudfoundry.multiapps.controller.persistence.dto.LoggingConfigurationDto.AttributeNames;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableLoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.query.LoggingConfigurationQuery;
+import org.cloudfoundry.multiapps.controller.persistence.query.impl.LoggingConfigurationQueryImpl;
 import org.cloudfoundry.multiapps.controller.persistence.services.PersistenceObjectMapper;
 import org.cloudfoundry.multiapps.controller.persistence.services.PersistenceService;
 
@@ -32,78 +27,28 @@ public class CloudLoggingServiceConfigurationService extends PersistenceService<
         super(entityManagerFactory);
     }
 
-    public void storeCloudLoggingServiceConfiguration(LoggingConfiguration loggingConfiguration) {
-        add(loggingConfiguration);
+    public LoggingConfigurationQuery createQuery() {
+        return new LoggingConfigurationQueryImpl(createEntityManager(), mapper);
     }
 
-    public LoggingConfiguration getCloudLoggingServiceConfiguration(String mtaSpace, String mtaId, String namespace) {
-        try (EntityManager manager = createEntityManager()) {
-            return findByMtaSpaceIdAndNamespace(manager, mtaSpace, mtaId, namespace).getResultStream()
-                                                                                    .findFirst()
-                                                                                    .map(mapper::fromDto)
-                                                                                    .orElse(null);
-        }
+    public LoggingConfiguration getLoggingConfiguration(String mtaSpace, String mtaId, String namespace) {
+        return createQuery().mtaSpace(mtaSpace)
+                            .mtaId(mtaId)
+                            .namespace(namespace)
+                            .list()
+                            .stream()
+                            .findFirst()
+                            .orElse(null);
     }
 
-    public void deleteCloudLoggingServiceConfiguration(String id) {
-        try (EntityManager manager = createEntityManager()) {
-            manager.getTransaction()
-                   .begin();
-            LoggingConfigurationDto dto = manager.find(LoggingConfigurationDto.class, id);
-            if (dto != null) {
-                manager.remove(dto);
-            }
-            manager.getTransaction()
-                   .commit();
-        }
+    public List<LoggingConfiguration> getLoggingConfigurationsBySpace(String mtaSpaceId) {
+        return createQuery().mtaSpaceId(mtaSpaceId)
+                            .list();
     }
 
-    public void updateCloudLoggingServiceConfiguration(LoggingConfiguration loggingConfiguration) {
-        try (EntityManager manager = createEntityManager()) {
-            manager.getTransaction()
-                   .begin();
-            findByMtaSpaceIdAndNamespace(manager, loggingConfiguration.getMtaSpace(), loggingConfiguration.getMtaId(),
-                                         loggingConfiguration.getNamespace()).getResultStream()
-                                                                             .findFirst()
-                                                                             .ifPresent(existing -> {
-                                                                                 existing.setTargetSpace(
-                                                                                     loggingConfiguration.getTargetSpace());
-                                                                                 existing.setTargetOrg(loggingConfiguration.getTargetOrg());
-                                                                                 existing.setServiceInstanceName(
-                                                                                     loggingConfiguration.getServiceInstanceName());
-                                                                                 existing.setServiceKeyName(
-                                                                                     loggingConfiguration.getServiceKeyName());
-                                                                                 existing.setLogLevel(loggingConfiguration.getLogLevel());
-                                                                                 existing.setFailSafe(Boolean.TRUE.equals(
-                                                                                     loggingConfiguration.isFailSafe()));
-                                                                                 existing.setAddedAt(LocalDateTime.now());
-                                                                             });
-            manager.getTransaction()
-                   .commit();
-        }
-    }
-
-    public List<LoggingConfiguration> getAllCloudLoggingServiceConfigurationsFromSpace(String spaceId) {
-        try (EntityManager manager = createEntityManager()) {
-            return manager.createQuery("SELECT c FROM LoggingConfigurationDto c WHERE c.mtaSpaceId = :mtaSpaceId",
-                                       LoggingConfigurationDto.class)
-                          .setParameter(AttributeNames.MTA_SPACE_ID, spaceId)
-                          .getResultStream()
-                          .map(mapper::fromDto)
-                          .toList();
-        }
-    }
-
-    private TypedQuery<LoggingConfigurationDto> findByMtaSpaceIdAndNamespace(EntityManager manager, String mtaSpace, String mtaId,
-                                                                             String namespace) {
-        CriteriaBuilder builder = manager.getCriteriaBuilder();
-        CriteriaQuery<LoggingConfigurationDto> query = builder.createQuery(LoggingConfigurationDto.class);
-        Root<LoggingConfigurationDto> root = query.from(LoggingConfigurationDto.class);
-        Predicate namespacePredicate = namespace == null ? builder.isNull(root.get(AttributeNames.NAMESPACE))
-            : builder.equal(root.get(AttributeNames.NAMESPACE), namespace);
-        return manager.createQuery(query.select(root)
-                                        .where(builder.equal(root.get(AttributeNames.MTA_SPACE), mtaSpace),
-                                               builder.equal(root.get(AttributeNames.MTA_ID), mtaId), namespacePredicate));
+    public void deleteLoggingConfiguration(String id) {
+        createQuery().id(id)
+                     .delete();
     }
 
     @Override
@@ -121,7 +66,7 @@ public class CloudLoggingServiceConfigurationService extends PersistenceService<
         throw new NotFoundException(Messages.CLOUD_LOGGING_CONFIGURATION_NOT_FOUND, primaryKey);
     }
 
-    private static class LoggingConfigurationMapper implements PersistenceObjectMapper<LoggingConfiguration, LoggingConfigurationDto> {
+    public static class LoggingConfigurationMapper implements PersistenceObjectMapper<LoggingConfiguration, LoggingConfigurationDto> {
 
         @Override
         public LoggingConfigurationDto toDto(LoggingConfiguration config) {

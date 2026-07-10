@@ -85,6 +85,7 @@ class MtaConfigurationPurgerTest {
         initApplicationsMock();
         initConfigurationEntriesMock();
         initConfigurationSubscriptionsMock();
+        when(cloudLoggingServiceConfigurationService.getLoggingConfigurationsBySpace(Mockito.anyString())).thenReturn(List.of());
     }
 
     @Test
@@ -167,15 +168,14 @@ class MtaConfigurationPurgerTest {
         String spaceId = "00000000-0000-0000-0000-000000000001";
         LoggingConfiguration config1 = createLoggingConfiguration("id-1", spaceId, "mta-1");
         LoggingConfiguration config2 = createLoggingConfiguration("id-2", spaceId, "mta-2");
-        when(cloudLoggingServiceConfigurationService.getAllCloudLoggingServiceConfigurationsFromSpace(spaceId)).thenReturn(List.of(config1,
-                                                                                                                                  config2));
+        stubLoggingConfigurationsForSpace(spaceId, List.of(config1, config2));
         when(spaceClient.getSpace(TARGET_ORG, TARGET_SPACE)).thenReturn(createCloudSpace(spaceId));
 
         MtaConfigurationPurger purger = createPurger();
         purger.purge(TARGET_ORG, TARGET_SPACE, "test-user");
 
-        verify(cloudLoggingServiceConfigurationService).deleteCloudLoggingServiceConfiguration("id-1");
-        verify(cloudLoggingServiceConfigurationService).deleteCloudLoggingServiceConfiguration("id-2");
+        verify(cloudLoggingServiceConfigurationService).deleteLoggingConfiguration("id-1");
+        verify(cloudLoggingServiceConfigurationService).deleteLoggingConfiguration("id-2");
         verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration("test-user", spaceId, config1);
         verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration("test-user", spaceId, config2);
     }
@@ -183,13 +183,13 @@ class MtaConfigurationPurgerTest {
     @Test
     void testPurgeCloudLoggingServiceConfigurations_doesNothingWhenNoConfigurationsExist() {
         String spaceId = "00000000-0000-0000-0000-000000000002";
-        when(cloudLoggingServiceConfigurationService.getAllCloudLoggingServiceConfigurationsFromSpace(spaceId)).thenReturn(List.of());
+        stubLoggingConfigurationsForSpace(spaceId, List.of());
         when(spaceClient.getSpace(TARGET_ORG, TARGET_SPACE)).thenReturn(createCloudSpace(spaceId));
 
         MtaConfigurationPurger purger = createPurger();
         purger.purge(TARGET_ORG, TARGET_SPACE, "test-user");
 
-        verify(cloudLoggingServiceConfigurationService, never()).deleteCloudLoggingServiceConfiguration(Mockito.anyString());
+        verify(cloudLoggingServiceConfigurationService, never()).deleteLoggingConfiguration(Mockito.anyString());
         verify(cloudLoggingServiceConfigurationAuditLog, never()).logDeleteLoggingConfiguration(Mockito.anyString(), Mockito.anyString(),
                                                                                                 Mockito.any());
     }
@@ -198,14 +198,18 @@ class MtaConfigurationPurgerTest {
     void testPurgeCloudLoggingServiceConfigurations_deletesSingleConfiguration() {
         String spaceId = "00000000-0000-0000-0000-000000000003";
         LoggingConfiguration config = createLoggingConfiguration("id-1", spaceId, "mta-1");
-        when(cloudLoggingServiceConfigurationService.getAllCloudLoggingServiceConfigurationsFromSpace(spaceId)).thenReturn(List.of(config));
+        stubLoggingConfigurationsForSpace(spaceId, List.of(config));
         when(spaceClient.getSpace(TARGET_ORG, TARGET_SPACE)).thenReturn(createCloudSpace(spaceId));
 
         MtaConfigurationPurger purger = createPurger();
         purger.purge(TARGET_ORG, TARGET_SPACE, "test-user");
 
-        verify(cloudLoggingServiceConfigurationService).deleteCloudLoggingServiceConfiguration("id-1");
+        verify(cloudLoggingServiceConfigurationService).deleteLoggingConfiguration("id-1");
         verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration("test-user", spaceId, config);
+    }
+
+    private void stubLoggingConfigurationsForSpace(String spaceId, List<LoggingConfiguration> configurations) {
+        when(cloudLoggingServiceConfigurationService.getLoggingConfigurationsBySpace(spaceId)).thenReturn(configurations);
     }
 
     private MtaConfigurationPurger createPurger() {

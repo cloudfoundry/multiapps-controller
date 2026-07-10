@@ -22,13 +22,13 @@ import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfigurat
 import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationEntryQuery;
 import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationSubscriptionQuery;
 import org.cloudfoundry.multiapps.controller.persistence.query.OperationQuery;
-import org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging.CloudLoggingServiceConfigurationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
+import org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging.CloudLoggingServiceConfigurationService;
 import org.cloudfoundry.multiapps.mta.model.Version;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.verification.VerificationMode;
@@ -86,7 +85,6 @@ class DataTerminationServiceTest {
     private CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService;
     @Mock
     private CloudLoggingServiceConfigurationAuditLog cloudLoggingServiceConfigurationAuditLog;
-    @InjectMocks
     private DataTerminationService dataTerminationService;
 
     @BeforeEach
@@ -148,6 +146,7 @@ class DataTerminationServiceTest {
         List<ConfigurationEntry> configurationEntries = generatedConfigurationEntries(isExistConfigurationEntryData);
         deletedSpaceIds.forEach(deletedSpace -> initializeServiceMocks(subscriptions, configurationEntries, deletedSpace));
         when(operationService.createQuery()).thenReturn(operationQuery);
+        when(cloudLoggingServiceConfigurationService.getLoggingConfigurationsBySpace(anyString())).thenReturn(List.of());
     }
 
     private List<ConfigurationSubscription> generateSubscriptions(boolean isExistSubscriptionData) {
@@ -236,6 +235,7 @@ class DataTerminationServiceTest {
         when(configurationEntryService.createQuery()).thenReturn(configurationEntryQuery);
         when(configurationSubscriptionService.createQuery()).thenReturn(configurationSubscriptionQuery);
         when(operationService.createQuery()).thenReturn(operationQuery);
+        when(cloudLoggingServiceConfigurationService.getLoggingConfigurationsBySpace(anyString())).thenReturn(List.of());
         when(fileService.deleteBySpaceIds(anyList())).thenThrow(new FileStorageException(""));
 
         assertDoesNotThrow(() -> dataTerminationService.deleteOrphanUserData());
@@ -246,8 +246,7 @@ class DataTerminationServiceTest {
         String spaceId = "space-1";
         LoggingConfiguration config1 = createLoggingConfiguration("id-1", spaceId, "mta-1");
         LoggingConfiguration config2 = createLoggingConfiguration("id-2", spaceId, "mta-2");
-        when(cloudLoggingServiceConfigurationService.getAllCloudLoggingServiceConfigurationsFromSpace(spaceId)).thenReturn(
-            List.of(config1, config2));
+        stubLoggingConfigurationsForSpace(spaceId, List.of(config1, config2));
         prepareGlobalAuditorCredentials();
         prepareCfOptimizedEventsGetter(List.of(spaceId));
         when(configurationSubscriptionService.createQuery()).thenReturn(configurationSubscriptionQuery);
@@ -256,8 +255,8 @@ class DataTerminationServiceTest {
 
         dataTerminationService.deleteOrphanUserData();
 
-        verify(cloudLoggingServiceConfigurationService).deleteCloudLoggingServiceConfiguration("id-1");
-        verify(cloudLoggingServiceConfigurationService).deleteCloudLoggingServiceConfiguration("id-2");
+        verify(cloudLoggingServiceConfigurationService).deleteLoggingConfiguration("id-1");
+        verify(cloudLoggingServiceConfigurationService).deleteLoggingConfiguration("id-2");
         verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration("", spaceId, config1);
         verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration("", spaceId, config2);
     }
@@ -265,7 +264,7 @@ class DataTerminationServiceTest {
     @Test
     void testDeleteExistingCloudLoggingServiceConfiguration_doesNothingWhenNoConfigurationsExist() {
         String spaceId = "space-2";
-        when(cloudLoggingServiceConfigurationService.getAllCloudLoggingServiceConfigurationsFromSpace(spaceId)).thenReturn(List.of());
+        stubLoggingConfigurationsForSpace(spaceId, List.of());
         prepareGlobalAuditorCredentials();
         prepareCfOptimizedEventsGetter(List.of(spaceId));
         when(configurationSubscriptionService.createQuery()).thenReturn(configurationSubscriptionQuery);
@@ -274,7 +273,7 @@ class DataTerminationServiceTest {
 
         dataTerminationService.deleteOrphanUserData();
 
-        verify(cloudLoggingServiceConfigurationService, never()).deleteCloudLoggingServiceConfiguration(anyString());
+        verify(cloudLoggingServiceConfigurationService, never()).deleteLoggingConfiguration(anyString());
         verify(cloudLoggingServiceConfigurationAuditLog, never()).logDeleteLoggingConfiguration(anyString(), anyString(), any());
     }
 
@@ -282,7 +281,7 @@ class DataTerminationServiceTest {
     void testDeleteExistingCloudLoggingServiceConfiguration_deletesSingleConfiguration() {
         String spaceId = "space-3";
         LoggingConfiguration config = createLoggingConfiguration("id-1", spaceId, "mta-1");
-        when(cloudLoggingServiceConfigurationService.getAllCloudLoggingServiceConfigurationsFromSpace(spaceId)).thenReturn(List.of(config));
+        stubLoggingConfigurationsForSpace(spaceId, List.of(config));
         prepareGlobalAuditorCredentials();
         prepareCfOptimizedEventsGetter(List.of(spaceId));
         when(configurationSubscriptionService.createQuery()).thenReturn(configurationSubscriptionQuery);
@@ -291,7 +290,7 @@ class DataTerminationServiceTest {
 
         dataTerminationService.deleteOrphanUserData();
 
-        verify(cloudLoggingServiceConfigurationService).deleteCloudLoggingServiceConfiguration("id-1");
+        verify(cloudLoggingServiceConfigurationService).deleteLoggingConfiguration("id-1");
         verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration("", spaceId, config);
     }
 
@@ -301,10 +300,8 @@ class DataTerminationServiceTest {
         String spaceId2 = "space-5";
         LoggingConfiguration config1 = createLoggingConfiguration("id-1", spaceId1, "mta-1");
         LoggingConfiguration config2 = createLoggingConfiguration("id-2", spaceId2, "mta-2");
-        when(cloudLoggingServiceConfigurationService.getAllCloudLoggingServiceConfigurationsFromSpace(spaceId1)).thenReturn(
-            List.of(config1));
-        when(cloudLoggingServiceConfigurationService.getAllCloudLoggingServiceConfigurationsFromSpace(spaceId2)).thenReturn(
-            List.of(config2));
+        stubLoggingConfigurationsForSpace(spaceId1, List.of(config1));
+        stubLoggingConfigurationsForSpace(spaceId2, List.of(config2));
         prepareGlobalAuditorCredentials();
         prepareCfOptimizedEventsGetter(List.of(spaceId1, spaceId2));
         when(configurationSubscriptionService.createQuery()).thenReturn(configurationSubscriptionQuery);
@@ -313,10 +310,14 @@ class DataTerminationServiceTest {
 
         dataTerminationService.deleteOrphanUserData();
 
-        verify(cloudLoggingServiceConfigurationService).deleteCloudLoggingServiceConfiguration("id-1");
-        verify(cloudLoggingServiceConfigurationService).deleteCloudLoggingServiceConfiguration("id-2");
+        verify(cloudLoggingServiceConfigurationService).deleteLoggingConfiguration("id-1");
+        verify(cloudLoggingServiceConfigurationService).deleteLoggingConfiguration("id-2");
         verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration("", spaceId1, config1);
         verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration("", spaceId2, config2);
+    }
+
+    private void stubLoggingConfigurationsForSpace(String spaceId, List<LoggingConfiguration> configurations) {
+        when(cloudLoggingServiceConfigurationService.getLoggingConfigurationsBySpace(spaceId)).thenReturn(configurations);
     }
 
     private LoggingConfiguration createLoggingConfiguration(String id, String spaceId, String mtaId) {

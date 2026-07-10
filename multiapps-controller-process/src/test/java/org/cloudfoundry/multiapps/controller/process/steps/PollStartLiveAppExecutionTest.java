@@ -14,7 +14,7 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
+import org.cloudfoundry.multiapps.controller.core.cloudlogging.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

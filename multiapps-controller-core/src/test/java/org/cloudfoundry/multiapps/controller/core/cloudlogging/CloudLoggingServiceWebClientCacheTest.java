@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging;
+package org.cloudfoundry.multiapps.controller.core.cloudlogging;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -99,7 +99,7 @@ class CloudLoggingServiceWebClientCacheTest {
         };
 
         cache.getOrCreate(config("op-1"), supplier);
-        cache.evict("op-1");
+        cache.remove("op-1");
         cache.getOrCreate(config("op-1"), supplier);
 
         assertEquals(2, calls.get());
@@ -107,7 +107,7 @@ class CloudLoggingServiceWebClientCacheTest {
 
     @Test
     void evict_unknownOperationId_doesNotThrow() {
-        cache.evict("never-cached");
+        cache.remove("never-cached");
     }
 
     private static LoggingConfiguration config(String operationId) {

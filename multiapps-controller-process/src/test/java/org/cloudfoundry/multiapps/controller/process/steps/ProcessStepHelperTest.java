@@ -10,7 +10,7 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.model.ErrorType;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
+import org.cloudfoundry.multiapps.controller.core.cloudlogging.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;

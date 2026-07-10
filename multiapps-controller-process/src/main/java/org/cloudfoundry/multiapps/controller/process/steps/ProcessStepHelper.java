@@ -10,7 +10,7 @@ import org.cloudfoundry.multiapps.controller.core.model.ErrorType;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableProgressMessage;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage.ProgressMessageType;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
+import org.cloudfoundry.multiapps.controller.core.cloudlogging.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;

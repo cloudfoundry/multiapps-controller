@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.persistence.services;
+package org.cloudfoundry.multiapps.controller.core.cloudlogging;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,16 +12,12 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableOperatio
 import org.cloudfoundry.multiapps.controller.persistence.model.LogLevel;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
-import org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging.CloudLoggingServiceHttpClient;
-import org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging.CloudLoggingServiceMessageConverter;
 import org.cloudfoundry.multiapps.controller.persistence.util.CloudLoggingServiceUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -34,7 +30,6 @@ import static org.mockito.Mockito.mock;
 class OperationLogsExporterTest {
 
     private static final String OPERATION_ID = "op-123";
-    private static final String SPACE_ID = "space-1";
     private static final String LOG_DATE = "2024 01 15 10:30:00.000";
     private static final String INFO_LOG = logLine(LOG_DATE, "INFO", "deploy-app.hello-backend",
                                                    "[main] Starting deployment");
@@ -47,20 +42,16 @@ class OperationLogsExporterTest {
     private static final String TRACE_LOG = logLine(LOG_DATE, "TRACE", "deploy-app.hello-backend",
                                                     "[main] Trace info");
 
-    @Mock
-    private ProcessLogsPersistenceService processLogsPersistenceService;
-
     private CapturingHttpClient httpClient;
     private OperationLogsExporter exporter;
 
     @BeforeEach
-    void setUp() throws Exception {
-        MockitoAnnotations.openMocks(this)
-                          .close();
+    void setUp() {
         httpClient = new CapturingHttpClient();
-        exporter = new OperationLogsExporter(processLogsPersistenceService, httpClient,
-                                             new CloudLoggingServiceMessageConverter());
-        exporter.removeClientFromCache(OPERATION_ID);
+        CloudLoggingServiceMessageConverter messageConverter = new CloudLoggingServiceMessageConverter();
+        exporter = new OperationLogsExporter(httpClient,
+                                             new ExternalOperationLogEntryFactory(messageConverter),
+                                             new ExternalOperationLogEntryBatcher());
     }
 
     @Test
@@ -219,8 +210,6 @@ class OperationLogsExporterTest {
                                   .size());
     }
 
-    // --- failSafe behavior ---
-
     @Test
     void testSendLogs_failSafeTrue_doesNotThrowOnHttpError() {
         LoggingConfiguration config = buildConfig(LogLevel.INFO, true);
@@ -252,58 +241,6 @@ class OperationLogsExporterTest {
     }
 
     @Test
-    void testGetUnsendProcessLogs_returnsLogsFromService() throws FileStorageException {
-        LoggingConfiguration config = buildConfig(LogLevel.INFO);
-        OperationLogEntry entry = buildEntry(INFO_LOG);
-        org.mockito.Mockito.when(
-                              processLogsPersistenceService.listOperationLogsBySpaceAndOperationId(SPACE_ID, OPERATION_ID))
-                          .thenReturn(List.of(entry));
-
-        List<OperationLogEntry> result = exporter.getUnsendProcessLogs(config);
-
-        assertEquals(1, result.size());
-        assertEquals(entry, result.get(0));
-    }
-
-    @Test
-    void testGetUnsendProcessLogs_failSafeTrue_returnsEmptyListOnStorageException() throws FileStorageException {
-        LoggingConfiguration config = buildConfig(LogLevel.INFO, true);
-        org.mockito.Mockito.when(
-                              processLogsPersistenceService.listOperationLogsBySpaceAndOperationId(
-                                  org.mockito.ArgumentMatchers.anyString(),
-                                  org.mockito.ArgumentMatchers.anyString()))
-                          .thenThrow(new FileStorageException("db error"));
-
-        List<OperationLogEntry> result = exporter.getUnsendProcessLogs(config);
-
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    void testGetUnsendProcessLogs_failSafeFalse_throwsOnStorageException() throws FileStorageException {
-        LoggingConfiguration config = buildConfig(LogLevel.INFO, false);
-        org.mockito.Mockito.when(
-                              processLogsPersistenceService.listOperationLogsBySpaceAndOperationId(
-                                  org.mockito.ArgumentMatchers.anyString(),
-                                  org.mockito.ArgumentMatchers.anyString()))
-                          .thenThrow(new FileStorageException("db error"));
-
-        assertThrows(SLException.class, () -> exporter.getUnsendProcessLogs(config));
-    }
-
-    @Test
-    void testRemoveClientFromCache_newClientCreatedOnNextSend() {
-        LoggingConfiguration config = buildConfig(LogLevel.INFO);
-        exporter.sendLogsToCloudLoggingService(config, INFO_LOG);
-        int clientCreationsAfterFirst = httpClient.clientCreations;
-
-        exporter.removeClientFromCache(OPERATION_ID);
-        exporter.sendLogsToCloudLoggingService(config, INFO_LOG);
-
-        assertEquals(clientCreationsAfterFirst + 1, httpClient.clientCreations);
-    }
-
-    @Test
     void testSendLogs_cachedClientReusedOnSubsequentCalls() {
         LoggingConfiguration config = buildConfig(LogLevel.INFO);
         exporter.sendLogsToCloudLoggingService(config, INFO_LOG);
@@ -325,7 +262,7 @@ class OperationLogsExporterTest {
     private static LoggingConfiguration buildConfig(LogLevel logLevel, boolean failSafe) {
         return ImmutableLoggingConfiguration.builder()
                                             .operationId(OPERATION_ID)
-                                            .mtaSpaceId(SPACE_ID)
+                                            .mtaSpaceId("space-1")
                                             .logLevel(logLevel)
                                             .isFailSafe(failSafe)
                                             .endpointUrl("https://cls.example.com")

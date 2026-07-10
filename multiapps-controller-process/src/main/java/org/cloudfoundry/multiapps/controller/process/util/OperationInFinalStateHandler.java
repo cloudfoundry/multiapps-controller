@@ -30,7 +30,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBack
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
-import org.cloudfoundry.multiapps.controller.persistence.services.OperationLogsExporter;
+import org.cloudfoundry.multiapps.controller.core.cloudlogging.CloudLoggingServiceHttpClient;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessDuration;
@@ -69,7 +69,7 @@ public class OperationInFinalStateHandler {
     @Inject
     private SecretTokenStoreFactory secretTokenStoreFactory;
     @Inject
-    private OperationLogsExporter operationLogsExporter;
+    private CloudLoggingServiceHttpClient cloudLoggingServiceHttpClient;
     @Inject
     private CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService;
     @Inject
@@ -94,7 +94,7 @@ public class OperationInFinalStateHandler {
         safeExecutor.execute(() -> deleteSecretTokensForProcess(correlationId));
         safeExecutor.execute(() -> trackOperationDuration(correlationId, execution, processType, state));
         safeExecutor.execute(() -> deleteCloudLoggingServiceConfiguration(execution));
-        operationLogsExporter.removeClientFromCache(correlationId);
+        cloudLoggingServiceHttpClient.removeClientFromCache(correlationId);
     }
 
     protected void deleteDeploymentFiles(String correlationId, DelegateExecution execution) throws FileStorageException {
@@ -213,7 +213,7 @@ public class OperationInFinalStateHandler {
         ProcessType processType = processTypeParser.getProcessType(execution);
         if (processType.equals(ProcessType.UNDEPLOY)) {
 
-            cloudLoggingServiceConfigurationService.deleteCloudLoggingServiceConfiguration(loggingConfiguration.getId());
+            cloudLoggingServiceConfigurationService.deleteLoggingConfiguration(loggingConfiguration.getId());
             cloudLoggingServiceConfigurationAuditLog.logDeleteLoggingConfiguration(VariableHandling.get(execution, Variables.USER),
                                                                                    VariableHandling.get(execution, Variables.SPACE_GUID),
                                                                                    loggingConfiguration);

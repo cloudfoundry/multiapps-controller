@@ -11,8 +11,9 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableOperatio
 import org.cloudfoundry.multiapps.controller.persistence.model.LogLevel;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
-import org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging.CloudLoggingServiceConfigurationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
+import org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging.CloudLoggingServiceConfigurationService;
+import org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging.UnsentProcessLogsProvider;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -40,12 +41,8 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
     private CloudLoggingServiceConfigurationService configurationService;
     private ProcessTypeParser processTypeParser;
     private CloudLoggingServiceConfigurationAuditLog auditLog;
+    private UnsentProcessLogsProvider unsentProcessLogsProvider;
 
-    /**
-     * Production path goes through new LoggingConfigurationBuilder(...).exportOperationLogsToExternalSystem(...) which needs a real
-     * TokenService + CloudControllerClientFactory + an HTTP call. We override both protected hooks so the test pins the step's branching
-     * logic without dragging the builder into the unit test.
-     */
     static class TestableStep extends CollectCloudLoggingServiceParametersStep {
 
         LoggingConfiguration nextBuiltFromDescriptor;
@@ -53,8 +50,8 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
 
         TestableStep(TokenService tokenService, CloudControllerClientFactory clientFactory,
                      CloudLoggingServiceConfigurationService configurationService, ProcessTypeParser processTypeParser,
-                     CloudLoggingServiceConfigurationAuditLog auditLog) {
-            super(tokenService, clientFactory, configurationService, processTypeParser, auditLog);
+                     CloudLoggingServiceConfigurationAuditLog auditLog, UnsentProcessLogsProvider unsentProcessLogsProvider) {
+            super(tokenService, clientFactory, configurationService, processTypeParser, auditLog, unsentProcessLogsProvider);
         }
 
         @Override
@@ -83,105 +80,96 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
         configurationService = Mockito.mock(CloudLoggingServiceConfigurationService.class);
         processTypeParser = Mockito.mock(ProcessTypeParser.class);
         auditLog = Mockito.mock(CloudLoggingServiceConfigurationAuditLog.class);
-        // operationLogsExporter is supplied by the parent harness as a @Mock so the parent's StepLogger setup keeps working.
-        return new TestableStep(tokenService, clientFactory, configurationService, processTypeParser, auditLog);
+        unsentProcessLogsProvider = Mockito.mock(UnsentProcessLogsProvider.class);
+        return new TestableStep(tokenService, clientFactory, configurationService, processTypeParser, auditLog,
+                                unsentProcessLogsProvider);
     }
-
-    // --- UNDEPLOY ---
 
     @Test
     void undeploy_noExistingConfig_finishesWithoutSettingVariable() {
         when(processTypeParser.getProcessType(any())).thenReturn(ProcessType.UNDEPLOY);
-        when(configurationService.getCloudLoggingServiceConfiguration(SPACE_NAME, MTA_ID, NAMESPACE)).thenReturn(null);
 
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
         assertNull(context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION));
         verify(auditLog, never()).logGetLoggingConfiguration(any(), any(), any());
-        verify(operationLogsExporter, never()).getUnsendProcessLogs(any());
+        verify(unsentProcessLogsProvider, never()).getUnsentProcessLogs(any());
     }
 
     @Test
     void undeploy_existingConfig_setsVariableAndAuditsGet() throws FileStorageException {
         LoggingConfiguration existing = buildConfig();
         when(processTypeParser.getProcessType(any())).thenReturn(ProcessType.UNDEPLOY);
-        when(configurationService.getCloudLoggingServiceConfiguration(SPACE_NAME, MTA_ID, NAMESPACE)).thenReturn(existing);
-        when(operationLogsExporter.getUnsendProcessLogs(existing)).thenReturn(List.of());
+        when(configurationService.getLoggingConfiguration(any(), any(), any())).thenReturn(existing);
+        when(unsentProcessLogsProvider.getUnsentProcessLogs(existing)).thenReturn(List.of());
 
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
         assertEquals(existing, context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION));
         verify(auditLog).logGetLoggingConfiguration(USER_NAME, SPACE_GUID, existing);
-        verify(configurationService, never()).storeCloudLoggingServiceConfiguration(any());
-        verify(configurationService, never()).updateCloudLoggingServiceConfiguration(any());
-        verify(configurationService, never()).deleteCloudLoggingServiceConfiguration(any());
+        verify(configurationService, never()).add(any());
+        verify(configurationService, never()).update(any(), any());
+        verify(configurationService, never()).deleteLoggingConfiguration(any());
     }
-
-    // --- DEPLOY: descriptor has no cloud-logging resource ---
 
     @Test
     void deploy_noCloudLoggingResource_noExistingConfig_finishesWithoutSideEffects() {
         prepareDeployContext(descriptorWithoutCloudLogging());
-        when(configurationService.getCloudLoggingServiceConfiguration(SPACE_NAME, MTA_ID, NAMESPACE)).thenReturn(null);
 
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
         assertNull(context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION));
-        verify(configurationService, never()).deleteCloudLoggingServiceConfiguration(any());
+        verify(configurationService, never()).deleteLoggingConfiguration(any());
         verify(auditLog, never()).logDeleteLoggingConfiguration(any(), any(), any());
-        verify(operationLogsExporter, never()).getUnsendProcessLogs(any());
+        verify(unsentProcessLogsProvider, never()).getUnsentProcessLogs(any());
     }
 
     @Test
     void deploy_noCloudLoggingResource_existingConfig_deletesAndAudits() {
         LoggingConfiguration existing = buildConfig();
         prepareDeployContext(descriptorWithoutCloudLogging());
-        when(configurationService.getCloudLoggingServiceConfiguration(SPACE_NAME, MTA_ID, NAMESPACE)).thenReturn(existing);
+        when(configurationService.getLoggingConfiguration(any(), any(), any())).thenReturn(existing);
 
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
         assertNull(context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION));
         verify(auditLog).logDeleteLoggingConfiguration(USER_NAME, SPACE_GUID, existing);
-        verify(configurationService).deleteCloudLoggingServiceConfiguration(CONFIG_ID);
-        verify(operationLogsExporter, never()).getUnsendProcessLogs(any());
+        verify(configurationService).deleteLoggingConfiguration(existing.getId());
+        verify(unsentProcessLogsProvider, never()).getUnsentProcessLogs(any());
     }
-
-    // --- DEPLOY: descriptor has a cloud-logging resource ---
 
     @Test
     void deploy_cloudLoggingResource_builderReturnsNull_finishesWithoutPersistingOrSettingVariable() {
         prepareDeployContext(descriptorWithCloudLogging());
-        when(configurationService.getCloudLoggingServiceConfiguration(SPACE_NAME, MTA_ID, NAMESPACE)).thenReturn(null);
         step.nextBuiltFromDescriptor = null;
 
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
         assertNull(context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION));
-        verify(configurationService, never()).storeCloudLoggingServiceConfiguration(any());
-        verify(configurationService, never()).updateCloudLoggingServiceConfiguration(any());
-        verify(operationLogsExporter, never()).getUnsendProcessLogs(any());
+        verify(configurationService, never()).add(any());
+        verify(configurationService, never()).update(any(), any());
+        verify(unsentProcessLogsProvider, never()).getUnsentProcessLogs(any());
     }
 
     @Test
     void deploy_cloudLoggingResource_noExistingConfig_storesAndAuditsCreate() throws FileStorageException {
         LoggingConfiguration newConfig = buildConfig();
         prepareDeployContext(descriptorWithCloudLogging());
-        when(configurationService.getCloudLoggingServiceConfiguration(SPACE_NAME, MTA_ID, NAMESPACE)).thenReturn(null);
         step.nextBuiltFromDescriptor = newConfig;
-        when(operationLogsExporter.getUnsendProcessLogs(newConfig)).thenReturn(List.of());
+        when(unsentProcessLogsProvider.getUnsentProcessLogs(newConfig)).thenReturn(List.of());
 
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
         assertEquals(newConfig, context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION));
         verify(auditLog).logCreateLoggingConfiguration(USER_NAME, SPACE_GUID, newConfig);
-        verify(configurationService).storeCloudLoggingServiceConfiguration(newConfig);
-        verify(configurationService, never()).updateCloudLoggingServiceConfiguration(any());
+        verify(configurationService).add(newConfig);
+        verify(configurationService, never()).update(any(), any());
     }
 
     @Test
@@ -192,9 +180,9 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
                                                                     .logLevel(LogLevel.ERROR)
                                                                     .build();
         prepareDeployContext(descriptorWithCloudLogging());
-        when(configurationService.getCloudLoggingServiceConfiguration(SPACE_NAME, MTA_ID, NAMESPACE)).thenReturn(existing);
+        when(configurationService.getLoggingConfiguration(any(), any(), any())).thenReturn(existing);
         step.nextBuiltFromDescriptor = rebuilt;
-        when(operationLogsExporter.getUnsendProcessLogs(rebuilt)).thenReturn(List.of());
+        when(unsentProcessLogsProvider.getUnsentProcessLogs(rebuilt)).thenReturn(List.of());
 
         step.execute(execution);
 
@@ -202,29 +190,26 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
         assertEquals(rebuilt, context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION));
         verify(auditLog).logGetLoggingConfiguration(USER_NAME, SPACE_GUID, existing);
         verify(auditLog).logUpdateLoggingConfiguration(USER_NAME, SPACE_GUID, rebuilt);
-        verify(configurationService).updateCloudLoggingServiceConfiguration(rebuilt);
-        verify(configurationService, never()).storeCloudLoggingServiceConfiguration(any());
+        verify(configurationService).update(existing, rebuilt);
+        verify(configurationService, never()).add(any());
     }
-
-    // --- log forwarding ---
 
     @Test
     void deploy_cloudLoggingResource_forwardsEveryUnsentEntry() throws FileStorageException {
         LoggingConfiguration newConfig = buildConfig();
         OperationLogEntry entry1 = ImmutableOperationLogEntry.builder()
-                                                              .operationId("op-1")
-                                                              .operationLog("log-1")
-                                                              .operationLogName("svc-1")
-                                                              .build();
+                                                             .operationId("op-1")
+                                                             .operationLog("log-1")
+                                                             .operationLogName("svc-1")
+                                                             .build();
         OperationLogEntry entry2 = ImmutableOperationLogEntry.builder()
-                                                              .operationId("op-2")
-                                                              .operationLog("log-2")
-                                                              .operationLogName("svc-2")
-                                                              .build();
+                                                             .operationId("op-2")
+                                                             .operationLog("log-2")
+                                                             .operationLogName("svc-2")
+                                                             .build();
         prepareDeployContext(descriptorWithCloudLogging());
-        when(configurationService.getCloudLoggingServiceConfiguration(SPACE_NAME, MTA_ID, NAMESPACE)).thenReturn(null);
         step.nextBuiltFromDescriptor = newConfig;
-        when(operationLogsExporter.getUnsendProcessLogs(newConfig)).thenReturn(List.of(entry1, entry2));
+        when(unsentProcessLogsProvider.getUnsentProcessLogs(newConfig)).thenReturn(List.of(entry1, entry2));
 
         step.execute(execution);
 
@@ -237,17 +222,14 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
     void deploy_cloudLoggingResource_noUnsentEntries_doesNotForward() throws FileStorageException {
         LoggingConfiguration newConfig = buildConfig();
         prepareDeployContext(descriptorWithCloudLogging());
-        when(configurationService.getCloudLoggingServiceConfiguration(SPACE_NAME, MTA_ID, NAMESPACE)).thenReturn(null);
         step.nextBuiltFromDescriptor = newConfig;
-        when(operationLogsExporter.getUnsendProcessLogs(newConfig)).thenReturn(List.of());
+        when(unsentProcessLogsProvider.getUnsentProcessLogs(newConfig)).thenReturn(List.of());
 
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
-        verify(operationLogsExporter, never()).sendLogsToCloudLoggingService(any(), Mockito.<OperationLogEntry>any());
+        verify(operationLogsExporter, never()).sendLogsToCloudLoggingService(any(), Mockito.<OperationLogEntry> any());
     }
-
-    // --- helpers ---
 
     private void prepareDeployContext(DeploymentDescriptor descriptor) {
         when(processTypeParser.getProcessType(any())).thenReturn(ProcessType.DEPLOY);
@@ -257,15 +239,15 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
     private static DeploymentDescriptor descriptorWithCloudLogging() {
         return DeploymentDescriptor.createV3()
                                    .setResources(List.of(Resource.createV3()
-                                                                  .setName("my-cls")
-                                                                  .setType(CLOUD_LOGGING_RESOURCE_TYPE)));
+                                                                 .setName("my-cls")
+                                                                 .setType(CLOUD_LOGGING_RESOURCE_TYPE)));
     }
 
     private static DeploymentDescriptor descriptorWithoutCloudLogging() {
         return DeploymentDescriptor.createV3()
                                    .setResources(List.of(Resource.createV3()
-                                                                  .setName("not-cls")
-                                                                  .setType("org.cloudfoundry.managed-service")));
+                                                                 .setName("not-cls")
+                                                                 .setType("org.cloudfoundry.managed-service")));
     }
 
     private static LoggingConfiguration buildConfig() {

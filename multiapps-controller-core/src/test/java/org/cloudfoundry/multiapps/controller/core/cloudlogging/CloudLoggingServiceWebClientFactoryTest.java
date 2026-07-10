@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging;
+package org.cloudfoundry.multiapps.controller.core.cloudlogging;
 
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableLoggingConfiguration;

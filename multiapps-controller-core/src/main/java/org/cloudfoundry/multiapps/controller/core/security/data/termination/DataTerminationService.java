@@ -179,10 +179,9 @@ public class DataTerminationService {
     }
 
     private void deleteExistingCloudLoggingServiceConfiguration(String spaceId) {
-        List<LoggingConfiguration> loggingConfigurations = cloudLoggingServiceConfigurationService.getAllCloudLoggingServiceConfigurationsFromSpace(
-            spaceId);
+        List<LoggingConfiguration> loggingConfigurations = cloudLoggingServiceConfigurationService.getLoggingConfigurationsBySpace(spaceId);
         for (LoggingConfiguration loggingConfiguration : loggingConfigurations) {
-            cloudLoggingServiceConfigurationService.deleteCloudLoggingServiceConfiguration(loggingConfiguration.getId());
+            cloudLoggingServiceConfigurationService.deleteLoggingConfiguration(loggingConfiguration.getId());
             cloudLoggingServiceConfigurationAuditLog.logDeleteLoggingConfiguration("", spaceId, loggingConfiguration);
         }
     }
