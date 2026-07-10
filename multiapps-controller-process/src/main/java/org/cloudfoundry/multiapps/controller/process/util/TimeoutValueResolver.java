@@ -22,20 +22,20 @@ import org.cloudfoundry.multiapps.mta.model.Module;
 public class TimeoutValueResolver {
 
 @FunctionalInterface
-    private interface TimeoutSource {
+    private interface TimeoutResolver {
         Optional<TimeoutResolution> resolve(ProcessContext context, TimeoutType timeoutType, StepLogger logger);
     }
 
     public record TimeoutResolution(Duration timeout, String parameterName) {
     }
 
-    private final List<TimeoutSource> moduleTimeoutSources = List.of(
+    private final List<TimeoutResolver> moduleTimeoutSources = List.of(
         this::resolveProcessVariableTimeout,
         this::extractTimeoutFromModuleDescriptorParameters,
         this::extractTimeoutFromAppAttributes,
         this::extractTimeoutFromDescriptorParameters);
 
-    private final List<TimeoutSource> serviceTimeoutSources = List.of(
+    private final List<TimeoutResolver> serviceTimeoutSources = List.of(
         this::resolveProcessVariableTimeout,
         this::extractTimeoutFromServiceObject,
         this::extractTimeoutFromDescriptorParameters);
@@ -138,7 +138,7 @@ public class TimeoutValueResolver {
                          .findFirst();
     }
 
-    private List<TimeoutSource> getTimeoutSources(TimeoutType timeoutType) {
+    private List<TimeoutResolver> getTimeoutSources(TimeoutType timeoutType) {
         return timeoutType.isModuleScoped() ? moduleTimeoutSources : serviceTimeoutSources;
     }
 

@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -14,8 +13,11 @@ import org.springframework.context.annotation.Scope;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class GlobalTimeoutSettingStep extends SyncFlowableStep {
 
-    @Inject
-    private TimeoutValueResolver timeoutValueResolver;
+    private final TimeoutValueResolver timeoutValueResolver;
+
+    public GlobalTimeoutSettingStep(TimeoutValueResolver timeoutValueResolver) {
+        this.timeoutValueResolver = timeoutValueResolver;
+    }
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {

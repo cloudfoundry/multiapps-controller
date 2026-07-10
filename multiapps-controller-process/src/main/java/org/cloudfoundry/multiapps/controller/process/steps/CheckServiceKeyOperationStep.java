@@ -56,6 +56,6 @@ public class CheckServiceKeyOperationStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public Duration getTimeout(ProcessContext context) {
-        return calculateTimeout(context, TimeoutType.BIND_SERVICE);
+        return calculateTimeout(context, TimeoutType.CREATE_SERVICE_KEY);
     }
 }
