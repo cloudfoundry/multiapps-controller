@@ -552,10 +552,7 @@ public class Messages {
     public static final String REMAINING_SERVICES_TO_POLL = "Remaining services to poll: {0}";
     public static final String LAST_OPERATION_FOR_SERVICE = "Last operation for service \"{0}\": {1}";
     public static final String DELETING_ERROR_TYPE_O_FOR_PROCESS_1 = "Deleting error type \"{0}\" for process \"{1}\"";
-    public static final String TIMEOUT_MESSAGE = "Application {0} timeout is set by \"{1}\" parameter to {2} seconds";
-    public static final String TIMEOUT_DEFAULT_VALUE_MESSAGE = "Application {0} timeout is default one: {1} seconds";
     public static final String OPERATION_TIMEOUT_MESSAGE = "{0} timeout is set by \"{1}\" parameter to {2} seconds";
-    public static final String OPERATION_TIMEOUT_DEFAULT_VALUE_MESSAGE = "{0} timeout is default one: {1} seconds";
     public static final String PROVIDED_EXTENSION_DESCRIPTORS = "Provided extension descriptors: {0}";
     public static final String CREATED_SUBSCRIPTION = "Created subscription with ID: {0}";
     public static final String UPDATING_SUBSCRIBER_0 = "Updating subscriber: {0} ";
@@ -834,7 +831,6 @@ public class Messages {
     public static final String COULD_NOT_FIND_RESOURCE_0_IN_DESCRIPTOR_FOR_TIMEOUT_TYPE_1 = "Could not find resource {0} in deployment descriptor for timeout type {1}";
     public static final String EXTRACTING_ALL_TIMEOUT_PARAMETERS_FROM_DESCRIPTOR = "Extracting all timeout parameters from descriptor";
     public static final String NO_DESCRIPTOR_FOUND_USING_DEFAULT_TIMEOUTS = "No descriptor found; sub-processes will use default timeouts";
-    public static final String SUCCESSFULLY_EXTRACTED_0_TIMEOUT_PARAMETERS = "Successfully extracted {0} timeout parameters from descriptor";
     public static final String TIMEOUT_0_EQUALS_1_SECONDS_FROM_2 = "Timeout {0} = {1}s (from {2})";
     public static final String FAILED_TO_RESOLVE_TIMEOUT_FOR_0_1 = "Failed to resolve timeout for {0}: {1}";
     public static final String ERROR_EXTRACTING_GLOBAL_TIMEOUTS_FROM_DESCRIPTOR = "Error while extracting global timeouts from deployment descriptor";

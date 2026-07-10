@@ -27,20 +27,13 @@ public class GlobalTimeoutSettingStep extends SyncFlowableStep {
             return StepPhase.DONE;
         }
 
-        int successCount = 0;
         for (TimeoutType timeoutType : TimeoutType.values()) {
-            if (isAlreadySetFromOperationParams(context, timeoutType)) {
+            if (context.getVariableIfSet(timeoutType.getProcessVariable()) != null) {
                 logExistingTimeout(context, timeoutType);
-                successCount++;
             }
         }
 
-        getStepLogger().debug(Messages.SUCCESSFULLY_EXTRACTED_0_TIMEOUT_PARAMETERS, successCount);
         return StepPhase.DONE;
-    }
-
-    private boolean isAlreadySetFromOperationParams(ProcessContext context, TimeoutType timeoutType) {
-        return context.getVariableIfSet(timeoutType.getProcessVariable()) != null;
     }
 
     private void logExistingTimeout(ProcessContext context, TimeoutType timeoutType) {
