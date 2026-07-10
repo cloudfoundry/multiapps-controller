@@ -12,13 +12,11 @@ public enum TimeoutType {
            Variables.APPS_UPLOAD_TIMEOUT_PROCESS_VARIABLE,
            10800,
            null,
-           null,
            null),
 
     STAGE(new TimeoutParameterNames(SupportedParameters.STAGE_TIMEOUT, null, SupportedParameters.APPS_STAGE_TIMEOUT),
           Variables.APPS_STAGE_TIMEOUT_PROCESS_VARIABLE,
           10800,
-          null,
           null,
           null),
 
@@ -26,13 +24,11 @@ public enum TimeoutType {
           Variables.APPS_START_TIMEOUT_PROCESS_VARIABLE,
           10800,
           null,
-          null,
           null),
 
     TASK(new TimeoutParameterNames(SupportedParameters.TASK_EXECUTION_TIMEOUT, null, SupportedParameters.APPS_TASK_EXECUTION_TIMEOUT),
          Variables.APPS_TASK_EXECUTION_TIMEOUT_PROCESS_VARIABLE,
          86400,
-         null,
          null,
          null),
 
@@ -41,26 +37,21 @@ public enum TimeoutType {
         Variables.CREATE_SERVICE_TIMEOUT_PROCESS_VARIABLE,
         7200,
         Variables.SERVICE_TO_PROCESS,
-        CloudServiceInstanceExtended::getCreateServiceTimeout,
-        Variables.CREATE_SERVICE_TIMEOUT_FROM_OPERATION_PARAMS),
-
+        CloudServiceInstanceExtended::getCreateServiceTimeout),
 
     BIND_SERVICE(
         new TimeoutParameterNames(null, SupportedParameters.BIND_SERVICE_TIMEOUT, SupportedParameters.SERVICES_BIND_SERVICE_TIMEOUT),
         Variables.BIND_SERVICE_TIMEOUT_PROCESS_VARIABLE,
         7200,
         Variables.SERVICE_TO_UNBIND_BIND,
-        CloudServiceInstanceExtended::getBindServiceTimeout,
-        Variables.BIND_SERVICE_TIMEOUT_FROM_OPERATION_PARAMS),
-
+        CloudServiceInstanceExtended::getBindServiceTimeout),
 
     CREATE_SERVICE_KEY(new TimeoutParameterNames(null, SupportedParameters.CREATE_SERVICE_KEY_TIMEOUT,
                                                  SupportedParameters.SERVICES_CREATE_SERVICE_KEY_TIMEOUT),
                        Variables.CREATE_SERVICE_KEY_TIMEOUT_PROCESS_VARIABLE,
                        7200,
                        Variables.SERVICE_TO_PROCESS,
-                       CloudServiceInstanceExtended::getCreateServiceKeyTimeout,
-                       Variables.CREATE_SERVICE_KEY_TIMEOUT_FROM_OPERATION_PARAMS);
+                       CloudServiceInstanceExtended::getCreateServiceKeyTimeout);
 
     @FunctionalInterface
     public interface ServiceTimeoutGetter {
@@ -72,20 +63,17 @@ public enum TimeoutType {
     private final Integer maxAllowedValue;
     private final Variable<?> serviceContextVariable;
     private final ServiceTimeoutGetter serviceTimeoutGetter;
-    private final Variable<Boolean> operationParamsFlag;
 
     TimeoutType(TimeoutParameterNames parameterNames,
                 Variable<Duration> processVariable,
                 Integer maxAllowedValue,
                 Variable<?> serviceContextVariable,
-                ServiceTimeoutGetter serviceTimeoutGetter,
-                Variable<Boolean> operationParamsFlag) {
+                ServiceTimeoutGetter serviceTimeoutGetter) {
         this.parameterNames = parameterNames;
         this.processVariable = processVariable;
         this.maxAllowedValue = maxAllowedValue;
         this.serviceContextVariable = serviceContextVariable;
         this.serviceTimeoutGetter = serviceTimeoutGetter;
-        this.operationParamsFlag = operationParamsFlag;
     }
 
     public String getModuleLevelParamName() {
@@ -114,10 +102,6 @@ public enum TimeoutType {
 
     public ServiceTimeoutGetter getServiceTimeoutGetter() {
         return serviceTimeoutGetter;
-    }
-
-    public Variable<Boolean> getOperationParamsFlag() {
-        return operationParamsFlag;
     }
 
     public TimeoutScope getTimeoutScope() {
