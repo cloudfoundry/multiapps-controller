@@ -134,22 +134,13 @@ public class TimeoutValueResolver {
                          .findFirst();
     }
 
-    public DeploymentDescriptor getDeploymentDescriptor(ProcessContext context, StepLogger stepLogger) {
+    private DeploymentDescriptor getDeploymentDescriptor(ProcessContext context) {
         return Stream.of(Variables.DEPLOYMENT_DESCRIPTOR,
                          Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS,
                          Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR)
                      .map(context::getVariable)
                      .filter(Objects::nonNull)
                      .findFirst()
-                     .orElseGet(() -> {
-                         if (stepLogger != null) {
-                             stepLogger.debug(Messages.NO_DEPLOYMENT_DESCRIPTOR_FOUND_IN_CONTEXT);
-                         }
-                         return null;
-                     });
-    }
-
-    private DeploymentDescriptor getDeploymentDescriptor(ProcessContext context) {
-        return getDeploymentDescriptor(context, null);
+                     .orElse(null);
     }
 }

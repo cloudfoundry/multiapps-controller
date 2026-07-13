@@ -6,7 +6,6 @@ import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -129,51 +128,6 @@ class TimeoutValueResolverTest {
         Duration duration = timeoutValueResolver.toDuration(null, "testParam", 3600);
 
         assertNull(duration);
-    }
-
-    @Test
-    void testGetDeploymentDescriptorReturnsFirstAvailable() {
-        DeploymentDescriptor descriptor = DeploymentDescriptor.createV3();
-        when(context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR)).thenReturn(descriptor);
-
-        DeploymentDescriptor result = timeoutValueResolver.getDeploymentDescriptor(context, stepLogger);
-
-        assertEquals(descriptor, result);
-    }
-
-    @Test
-    void testGetDeploymentDescriptorReturnsFallbackDescriptor() {
-        DeploymentDescriptor fallbackDescriptor = DeploymentDescriptor.createV3();
-        when(context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR)).thenReturn(null);
-        when(context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS))
-            .thenReturn(fallbackDescriptor);
-
-        DeploymentDescriptor result = timeoutValueResolver.getDeploymentDescriptor(context, stepLogger);
-
-        assertEquals(fallbackDescriptor, result);
-    }
-
-    @Test
-    void testGetDeploymentDescriptorReturnsCompleteDescriptor() {
-        DeploymentDescriptor completeDescriptor = DeploymentDescriptor.createV3();
-        when(context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR)).thenReturn(null);
-        when(context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS)).thenReturn(null);
-        when(context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR)).thenReturn(completeDescriptor);
-
-        DeploymentDescriptor result = timeoutValueResolver.getDeploymentDescriptor(context, stepLogger);
-
-        assertEquals(completeDescriptor, result);
-    }
-
-    @Test
-    void testGetDeploymentDescriptorReturnsNullWhenAllUnavailable() {
-        when(context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR)).thenReturn(null);
-        when(context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS)).thenReturn(null);
-        when(context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR)).thenReturn(null);
-
-        DeploymentDescriptor result = timeoutValueResolver.getDeploymentDescriptor(context, stepLogger);
-
-        assertNull(result);
     }
 
     @Test
