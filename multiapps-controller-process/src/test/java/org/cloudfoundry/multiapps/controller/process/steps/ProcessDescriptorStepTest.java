@@ -15,6 +15,7 @@ import org.cloudfoundry.multiapps.controller.core.model.ImmutableDynamicResolvab
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.test.DescriptorTestUtil;
 import org.cloudfoundry.multiapps.controller.process.Constants;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutValueResolver;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
@@ -58,6 +59,8 @@ class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescriptorSt
     private MtaDescriptorPropertiesResolver resolver;
     @Mock
     private ModuleToDeployHelper moduleToDeployHelper;
+    @Mock
+    private TimeoutValueResolver timeoutValueResolver;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -153,7 +156,9 @@ class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescriptorSt
 
     @Override
     protected ProcessDescriptorStep createStep() {
-        return new ProcessDescriptorStepMock(moduleToDeployHelper);
+        ProcessDescriptorStep step = new ProcessDescriptorStepMock(moduleToDeployHelper);
+        step.timeoutValueResolver = timeoutValueResolver;
+        return step;
     }
 
 }

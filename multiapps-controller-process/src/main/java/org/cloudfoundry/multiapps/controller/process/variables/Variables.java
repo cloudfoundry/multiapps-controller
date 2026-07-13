@@ -984,4 +984,16 @@ public interface Variables {
                                                                                             .defaultValue(Duration.ofHours(1))
                                                                                             .build();
 
+    Variable<Duration> CREATE_SERVICE_TIMEOUT_GLOBAL_FALLBACK = ImmutableSimpleVariable.<Duration> builder()
+                                                                                       .name("servicesCreateServiceTimeoutGlobalFallback")
+                                                                                       .build();
+
+    Variable<Duration> BIND_SERVICE_TIMEOUT_GLOBAL_FALLBACK = ImmutableSimpleVariable.<Duration> builder()
+                                                                                     .name("servicesBindServiceTimeoutGlobalFallback")
+                                                                                     .build();
+
+    Variable<Duration> CREATE_SERVICE_KEY_TIMEOUT_GLOBAL_FALLBACK = ImmutableSimpleVariable.<Duration> builder()
+                                                                                           .name("servicesCreateServiceKeyTimeoutGlobalFallback")
+                                                                                           .build();
+
 }

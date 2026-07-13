@@ -14,6 +14,7 @@ import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
 import org.cloudfoundry.multiapps.controller.core.util.DurationUtil;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
+import org.cloudfoundry.multiapps.controller.process.variables.Variable;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
@@ -41,6 +42,7 @@ public class TimeoutValueResolver {
     private TimeoutResolution resolveServiceTimeout(ProcessContext context, TimeoutType timeoutType, StepLogger logger) {
         return resolveProcessVariableTimeout(context, timeoutType, logger)
             .or(() -> extractTimeoutFromServiceObject(context, timeoutType, logger))
+            .or(() -> extractTimeoutFromGlobalFallback(context, timeoutType))
             .or(() -> extractTimeoutFromDescriptorParameters(context, timeoutType, logger))
             .orElseGet(() -> new TimeoutResolution(timeoutType.getProcessVariable().getDefaultValue(), timeoutType.getGlobalLevelParamName()));
     }
@@ -74,6 +76,15 @@ public class TimeoutValueResolver {
                        .map(app -> ApplicationAttributes.fromApplication(app, app.getEnv()))
                        .map(attrs -> attrs.get(paramName, Number.class))
                        .flatMap(value -> toResolution(value, timeoutType.getGlobalLevelParamName(), timeoutType));
+    }
+
+    private Optional<TimeoutResolution> extractTimeoutFromGlobalFallback(ProcessContext context, TimeoutType timeoutType) {
+        Variable<Duration> fallbackVar = timeoutType.getGlobalFallbackVariable();
+        if (fallbackVar == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(context.getVariableIfSet(fallbackVar))
+                       .map(d -> new TimeoutResolution(d, timeoutType.getGlobalLevelParamName()));
     }
 
     private Optional<TimeoutResolution> extractTimeoutFromServiceObject(ProcessContext context, TimeoutType timeoutType,
@@ -120,7 +131,7 @@ public class TimeoutValueResolver {
         return parameters != null ? parameters.get(parameterName) : null;
     }
 
-    protected Duration toDuration(Object timeout, String timeoutParameterName, Integer maxAllowedValue) {
+    public Duration toDuration(Object timeout, String timeoutParameterName, Integer maxAllowedValue) {
         return DurationUtil.parseDuration(timeout, timeoutParameterName, maxAllowedValue);
     }
 
