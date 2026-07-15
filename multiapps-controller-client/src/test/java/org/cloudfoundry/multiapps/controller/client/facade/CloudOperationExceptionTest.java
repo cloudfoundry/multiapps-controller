@@ -58,5 +58,16 @@ class CloudOperationExceptionTest {
 
         Assertions.assertEquals(60L, e.getRetryAfterSeconds());
     }
+
+    @Test
+    void testFourArgConstructorLeavesRetryAfterSecondsNull() {
+        Throwable cause = new RuntimeException("boom");
+
+        CloudOperationException e = new CloudOperationException(HttpStatus.TOO_MANY_REQUESTS,
+                                                               HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(), "throttled", cause);
+
+        Assertions.assertNull(e.getRetryAfterSeconds());
+        Assertions.assertSame(cause, e.getCause());
+    }
 }
 

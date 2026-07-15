@@ -109,6 +109,22 @@ class CloudControllerResponseErrorHandlerTest {
         }
     }
 
+    @Test
+    void testWith429RetainsRetryAfterAndDescriptionWhenBodyPresent() throws IOException {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.RETRY_AFTER, "30");
+        ClientHttpResponseMock response = new ClientHttpResponseMock(HttpStatus.TOO_MANY_REQUESTS,
+                                                                     toInputStream("{\"description\":\"rate limit exceeded\"}"), headers);
+        try {
+            handler.handleError(response);
+            fail("Expected an exception");
+        } catch (CloudOperationException e) {
+            assertEquals(HttpStatus.TOO_MANY_REQUESTS, e.getStatusCode());
+            assertEquals(30L, e.getRetryAfterSeconds());
+            assertEquals("rate limit exceeded", e.getDescription());
+        }
+    }
+
     private void testWithError(ClientHttpResponseMock response, CloudOperationException expectedException) throws IOException {
         try {
             handler.handleError(response);

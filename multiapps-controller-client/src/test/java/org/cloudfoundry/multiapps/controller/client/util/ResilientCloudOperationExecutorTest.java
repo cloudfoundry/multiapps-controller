@@ -119,6 +119,27 @@ class ResilientCloudOperationExecutorTest {
     }
 
     @Test
+    void testRetryAfterHeaderAtCapIsNotReduced() {
+        List<Long> sleepCalls = new ArrayList<>();
+        executor = new ResilientCloudOperationExecutor().withRetryCount(3)
+                                                        .withSleeper(sleepCalls::add);
+        AtomicInteger attempts = new AtomicInteger();
+        Supplier<String> operation = () -> {
+            if (attempts.incrementAndGet() == 1) {
+                throw new CloudOperationException(HttpStatus.TOO_MANY_REQUESTS,
+                                                  HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(),
+                                                  null, null, 120L);
+            }
+            return "ok";
+        };
+
+        executor.execute(operation);
+
+        Assertions.assertEquals(1, sleepCalls.size());
+        Assertions.assertEquals(120_000L, sleepCalls.get(0));
+    }
+
+    @Test
     void testRateLimitFallbackWhenRetryAfterAbsent() {
         List<Long> sleepCalls = new ArrayList<>();
         executor = new ResilientCloudOperationExecutor().withRetryCount(3)
@@ -180,6 +201,44 @@ class ResilientCloudOperationExecutorTest {
         Assertions.assertEquals(2, sleepCalls.size());
         Assertions.assertEquals(0L, sleepCalls.get(0));
         Assertions.assertEquals(deterministicDelay, sleepCalls.get(1));
+    }
+
+    @Test
+    void testRetryableOperationThatNeverSucceedsIsEventuallyRethrown() {
+        List<Long> sleepCalls = new ArrayList<>();
+        executor = new ResilientCloudOperationExecutor().withRetryCount(3)
+                                                        .withWaitTimeBetweenRetriesInMillis(0)
+                                                        .withSleeper(sleepCalls::add)
+                                                        .withRandomDelaySupplier(() -> 0L);
+        AtomicInteger attempts = new AtomicInteger();
+        Supplier<String> operation = () -> {
+            attempts.incrementAndGet();
+            throw new CloudOperationException(HttpStatus.BAD_GATEWAY);
+        };
+
+        Assertions.assertThrows(CloudOperationException.class, () -> executor.execute(operation));
+        Assertions.assertEquals(3, attempts.get());
+        Assertions.assertEquals(2, sleepCalls.size());
+    }
+
+    @Test
+    void testRunnableOverloadIsRetriedThroughOverriddenExecute() {
+        List<Long> sleepCalls = new ArrayList<>();
+        executor = new ResilientCloudOperationExecutor().withRetryCount(3)
+                                                        .withWaitTimeBetweenRetriesInMillis(7_000L)
+                                                        .withSleeper(sleepCalls::add);
+        AtomicInteger attempts = new AtomicInteger();
+        Runnable operation = () -> {
+            if (attempts.incrementAndGet() < 2) {
+                throw new CloudOperationException(HttpStatus.SERVICE_UNAVAILABLE);
+            }
+        };
+
+        executor.execute(operation);
+
+        Assertions.assertEquals(2, attempts.get());
+        Assertions.assertEquals(1, sleepCalls.size());
+        Assertions.assertEquals(7_000L, sleepCalls.get(0));
     }
 }
 
