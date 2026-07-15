@@ -131,7 +131,7 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
             if (cloudException.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS) {
                 Long retryAfterSeconds = cloudException.getRetryAfterSeconds();
                 if (retryAfterSeconds != null) {
-                    long cappedSeconds = Math.min(retryAfterSeconds, RATE_LIMIT_RETRY_AFTER_CAP_IN_SECONDS);
+                    long cappedSeconds = Math.max(1L, Math.min(retryAfterSeconds, RATE_LIMIT_RETRY_AFTER_CAP_IN_SECONDS));
                     long waitMillis = cappedSeconds * 1000L;
                     LOGGER.info(Messages.RATE_LIMITED_BY_CC_WAITING_S, retryAfterSeconds, cappedSeconds);
                     return waitMillis;

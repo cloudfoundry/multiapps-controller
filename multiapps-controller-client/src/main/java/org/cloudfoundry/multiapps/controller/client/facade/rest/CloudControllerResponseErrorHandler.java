@@ -45,7 +45,8 @@ public class CloudControllerResponseErrorHandler extends DefaultResponseErrorHan
             return null;
         }
         try {
-            return Long.parseLong(headerValue);
+            long parsed = Long.parseLong(headerValue);
+            return parsed > 0 ? parsed : null;
         } catch (NumberFormatException e) {
             return null;
         }
