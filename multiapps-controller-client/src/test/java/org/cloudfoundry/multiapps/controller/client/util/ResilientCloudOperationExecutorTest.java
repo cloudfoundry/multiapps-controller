@@ -1,5 +1,7 @@
 package org.cloudfoundry.multiapps.controller.client.util;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
@@ -73,4 +75,111 @@ class ResilientCloudOperationExecutorTest {
                                                                                        .withStatusesToIgnore(HttpStatus.I_AM_A_TEAPOT);
         Assertions.assertNotNull(chained);
     }
+
+    @Test
+    void testRetryAfterHeaderIsHonouredOnRateLimit() {
+        List<Long> sleepCalls = new ArrayList<>();
+        executor = new ResilientCloudOperationExecutor().withRetryCount(3)
+                                                        .withSleeper(sleepCalls::add);
+        AtomicInteger attempts = new AtomicInteger();
+        Supplier<String> operation = () -> {
+            if (attempts.incrementAndGet() == 1) {
+                throw new CloudOperationException(HttpStatus.TOO_MANY_REQUESTS,
+                                                  HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(),
+                                                  null, null, 2L);
+            }
+            return "ok";
+        };
+
+        executor.execute(operation);
+
+        Assertions.assertEquals(1, sleepCalls.size());
+        Assertions.assertEquals(2_000L, sleepCalls.get(0));
+    }
+
+    @Test
+    void testRetryAfterHeaderCappedAtMaximum() {
+        List<Long> sleepCalls = new ArrayList<>();
+        executor = new ResilientCloudOperationExecutor().withRetryCount(3)
+                                                        .withSleeper(sleepCalls::add);
+        AtomicInteger attempts = new AtomicInteger();
+        Supplier<String> operation = () -> {
+            if (attempts.incrementAndGet() == 1) {
+                throw new CloudOperationException(HttpStatus.TOO_MANY_REQUESTS,
+                                                  HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(),
+                                                  null, null, 300L);
+            }
+            return "ok";
+        };
+
+        executor.execute(operation);
+
+        Assertions.assertEquals(1, sleepCalls.size());
+        Assertions.assertEquals(120_000L, sleepCalls.get(0));
+    }
+
+    @Test
+    void testRateLimitFallbackWhenRetryAfterAbsent() {
+        List<Long> sleepCalls = new ArrayList<>();
+        executor = new ResilientCloudOperationExecutor().withRetryCount(3)
+                                                        .withSleeper(sleepCalls::add);
+        AtomicInteger attempts = new AtomicInteger();
+        Supplier<String> operation = () -> {
+            if (attempts.incrementAndGet() == 1) {
+                throw new CloudOperationException(HttpStatus.TOO_MANY_REQUESTS,
+                                                  HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(),
+                                                  null, null, null);
+            }
+            return "ok";
+        };
+
+        executor.execute(operation);
+
+        Assertions.assertEquals(1, sleepCalls.size());
+        Assertions.assertEquals(60_000L, sleepCalls.get(0));
+    }
+
+    @Test
+    void testNon429UsesExistingFixedDelay() {
+        List<Long> sleepCalls = new ArrayList<>();
+        executor = new ResilientCloudOperationExecutor().withRetryCount(3)
+                                                        .withWaitTimeBetweenRetriesInMillis(5_000L)
+                                                        .withSleeper(sleepCalls::add);
+        AtomicInteger attempts = new AtomicInteger();
+        Supplier<String> operation = () -> {
+            if (attempts.incrementAndGet() == 1) {
+                throw new CloudOperationException(HttpStatus.BAD_GATEWAY);
+            }
+            return "ok";
+        };
+
+        executor.execute(operation);
+
+        Assertions.assertEquals(1, sleepCalls.size());
+        Assertions.assertEquals(5_000L, sleepCalls.get(0));
+    }
+
+    @Test
+    void testRandomDelayAppliedForNon429AfterFirstRetry() {
+        long deterministicDelay = 45_000L;
+        List<Long> sleepCalls = new ArrayList<>();
+        executor = new ResilientCloudOperationExecutor().withRetryCount(4)
+                                                        .withWaitTimeBetweenRetriesInMillis(0)
+                                                        .withSleeper(sleepCalls::add)
+                                                        .withRandomDelaySupplier(() -> deterministicDelay);
+        AtomicInteger attempts = new AtomicInteger();
+        Supplier<String> operation = () -> {
+            if (attempts.incrementAndGet() < 3) {
+                throw new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            return "ok";
+        };
+
+        executor.execute(operation);
+
+        Assertions.assertEquals(2, sleepCalls.size());
+        Assertions.assertEquals(0L, sleepCalls.get(0));
+        Assertions.assertEquals(deterministicDelay, sleepCalls.get(1));
+    }
 }
+

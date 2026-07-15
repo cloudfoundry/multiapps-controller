@@ -42,4 +42,21 @@ class CloudOperationExceptionTest {
 
         Assertions.assertSame(cause, e.getCause());
     }
+
+    @Test
+    void testRetryAfterSecondsNullByDefault() {
+        CloudOperationException e = new CloudOperationException(HttpStatus.TOO_MANY_REQUESTS);
+
+        Assertions.assertNull(e.getRetryAfterSeconds());
+    }
+
+    @Test
+    void testRetryAfterSecondsStoredWhenProvided() {
+        CloudOperationException e = new CloudOperationException(HttpStatus.TOO_MANY_REQUESTS,
+                                                                HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(),
+                                                                null, null, 60L);
+
+        Assertions.assertEquals(60L, e.getRetryAfterSeconds());
+    }
 }
+

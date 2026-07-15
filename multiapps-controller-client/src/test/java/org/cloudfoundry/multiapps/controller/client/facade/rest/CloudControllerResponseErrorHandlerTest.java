@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
@@ -56,6 +57,58 @@ class CloudControllerResponseErrorHandlerTest {
         testWithError(response, expectedException);
     }
 
+    @Test
+    void testWith429AndRetryAfterHeader() throws IOException {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.RETRY_AFTER, "60");
+        ClientHttpResponseMock response = new ClientHttpResponseMock(HttpStatus.TOO_MANY_REQUESTS, toInputStream("{}"), headers);
+        try {
+            handler.handleError(response);
+            fail("Expected an exception");
+        } catch (CloudOperationException e) {
+            assertEquals(HttpStatus.TOO_MANY_REQUESTS, e.getStatusCode());
+            assertEquals(60L, e.getRetryAfterSeconds());
+        }
+    }
+
+    @Test
+    void testWith429WithoutRetryAfterHeader() throws IOException {
+        ClientHttpResponseMock response = new ClientHttpResponseMock(HttpStatus.TOO_MANY_REQUESTS, toInputStream("{}"));
+        try {
+            handler.handleError(response);
+            fail("Expected an exception");
+        } catch (CloudOperationException e) {
+            assertEquals(HttpStatus.TOO_MANY_REQUESTS, e.getStatusCode());
+            assertNull(e.getRetryAfterSeconds());
+        }
+    }
+
+    @Test
+    void testWith429AndNonNumericRetryAfterHeader() throws IOException {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.RETRY_AFTER, "not-a-number");
+        ClientHttpResponseMock response = new ClientHttpResponseMock(HttpStatus.TOO_MANY_REQUESTS, toInputStream("{}"), headers);
+        try {
+            handler.handleError(response);
+            fail("Expected an exception");
+        } catch (CloudOperationException e) {
+            assertEquals(HttpStatus.TOO_MANY_REQUESTS, e.getStatusCode());
+            assertNull(e.getRetryAfterSeconds());
+        }
+    }
+
+    @Test
+    void testNon429DoesNotSetRetryAfterSeconds() throws IOException {
+        ClientHttpResponseMock response = new ClientHttpResponseMock(HttpStatus.INTERNAL_SERVER_ERROR, toInputStream("{}"));
+        try {
+            handler.handleError(response);
+            fail("Expected an exception");
+        } catch (CloudOperationException e) {
+            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, e.getStatusCode());
+            assertNull(e.getRetryAfterSeconds());
+        }
+    }
+
     private void testWithError(ClientHttpResponseMock response, CloudOperationException expectedException) throws IOException {
         try {
             handler.handleError(response);
@@ -87,10 +140,16 @@ class CloudControllerResponseErrorHandlerTest {
 
         private final HttpStatus statusCode;
         private final InputStream body;
+        private final HttpHeaders headers;
 
         public ClientHttpResponseMock(HttpStatus statusCode, InputStream body) {
+            this(statusCode, body, new HttpHeaders());
+        }
+
+        public ClientHttpResponseMock(HttpStatus statusCode, InputStream body, HttpHeaders headers) {
             this.statusCode = statusCode;
             this.body = body;
+            this.headers = headers;
         }
 
         @Override
@@ -100,7 +159,7 @@ class CloudControllerResponseErrorHandlerTest {
 
         @Override
         public HttpHeaders getHeaders() {
-            throw new UnsupportedOperationException();
+            return headers;
         }
 
         @Override
@@ -126,3 +185,4 @@ class CloudControllerResponseErrorHandlerTest {
     }
 
 }
+

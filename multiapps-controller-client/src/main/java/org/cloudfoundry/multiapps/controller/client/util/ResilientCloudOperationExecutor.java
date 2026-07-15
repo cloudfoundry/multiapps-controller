@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.function.LongConsumer;
+import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
 import org.apache.commons.collections4.SetUtils;
@@ -42,6 +43,9 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
 
     private Set<HttpStatus> additionalStatusesToIgnore = Collections.emptySet();
     private LongConsumer sleeper = MiscUtil::sleep;
+    private LongSupplier randomDelaySupplier = () -> ThreadLocalRandom.current()
+                                                                       .nextLong(RANDOM_RETRY_MIN_WAIT_IN_MILLIS,
+                                                                                 RANDOM_RETRY_MAX_WAIT_IN_MILLIS + 1);
 
     @Override
     public ResilientCloudOperationExecutor withRetryCount(long retryCount) {
@@ -60,6 +64,11 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
 
     ResilientCloudOperationExecutor withSleeper(LongConsumer sleeper) {
         this.sleeper = sleeper;
+        return this;
+    }
+
+    ResilientCloudOperationExecutor withRandomDelaySupplier(LongSupplier randomDelaySupplier) {
+        this.randomDelaySupplier = randomDelaySupplier;
         return this;
     }
 
@@ -132,8 +141,7 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
             }
         }
         if (attemptIndex >= 2) {
-            long waitMillis = ThreadLocalRandom.current()
-                                               .nextLong(RANDOM_RETRY_MIN_WAIT_IN_MILLIS, RANDOM_RETRY_MAX_WAIT_IN_MILLIS + 1);
+            long waitMillis = randomDelaySupplier.getAsLong();
             LOGGER.info(Messages.RANDOM_WAIT_BEFORE_RETRY_S, waitMillis);
             return waitMillis;
         }
