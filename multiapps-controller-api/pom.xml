@@ -173,7 +173,10 @@ Step 5 (optional) — Execute an action:
             </plugin>
             <!-- Quotes integer response-code keys (e.g. 200: -> "200":) in generated YAML.
                  Required because Kongchen swagger-maven-plugin 3.1.8 emits bare integers,
-                 but the Swagger 2.0 spec and SAP API Metadata Validator require string keys. -->
+                 but the Swagger 2.0 spec requires string keys for response codes.
+                 This transformation is idempotent: already-quoted keys (e.g. "200":) do not
+                 match the bare-integer regex, so running mvn compile on a clean checkout with
+                 pre-quoted source files leaves the working tree unmodified. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
