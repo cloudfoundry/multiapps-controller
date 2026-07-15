@@ -4,6 +4,7 @@ import java.util.List;
 
 import jakarta.inject.Inject;
 
+import org.cloudfoundry.multiapps.controller.api.Constants.HttpResponses;
 import org.cloudfoundry.multiapps.controller.api.Constants.PathVariables;
 import org.cloudfoundry.multiapps.controller.api.Constants.RequestVariables;
 import org.cloudfoundry.multiapps.controller.api.Constants.Resources;
@@ -37,10 +38,10 @@ public class MtasApiV2 {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Mta.class, responseContainer = "List"),
-        @ApiResponse(code = 401, message = "Unauthorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = HttpResponses.OK, response = Mta.class, responseContainer = "List"),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<List<Mta>>
            getMtas(@ApiParam(value = "GUID of space with mtas") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
                    @ApiParam(value = "Filter mtas by namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace,

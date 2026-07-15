@@ -5,6 +5,7 @@ import java.util.List;
 import jakarta.inject.Inject;
 
 import org.cloudfoundry.multiapps.controller.api.Constants.Endpoints;
+import org.cloudfoundry.multiapps.controller.api.Constants.HttpResponses;
 import org.cloudfoundry.multiapps.controller.api.Constants.PathVariables;
 import org.cloudfoundry.multiapps.controller.api.Constants.RequestVariables;
 import org.cloudfoundry.multiapps.controller.api.Constants.Resources;
@@ -43,10 +44,10 @@ public class FilesApi {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = FileMetadata.class, responseContainer = "List"),
-        @ApiResponse(code = 401, message = "Unauthorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = HttpResponses.OK, response = FileMetadata.class, responseContainer = "List"),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<List<FileMetadata>>
            getFiles(@ApiParam(value = "GUID of space with mtas") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
                     @ApiParam(value = "Filter mtas by namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace) {
@@ -58,13 +59,13 @@ public class FilesApi {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = FileMetadata.class),
-        @ApiResponse(code = 400, message = "Bad Request"),
-        @ApiResponse(code = 401, message = "Unauthorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 413, message = "Request Entity Too Large"),
-        @ApiResponse(code = 415, message = "Unsupported Media Type"),
-        @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiResponses(value = { @ApiResponse(code = 201, message = HttpResponses.CREATED, response = FileMetadata.class),
+        @ApiResponse(code = 400, message = HttpResponses.BAD_REQUEST),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 413, message = HttpResponses.REQUEST_ENTITY_TOO_LARGE),
+        @ApiResponse(code = 415, message = HttpResponses.UNSUPPORTED_MEDIA_TYPE),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<FileMetadata>
            uploadFile(MultipartHttpServletRequest request,
                       @ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
@@ -77,12 +78,12 @@ public class FilesApi {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted"),
-        @ApiResponse(code = 400, message = "Bad Request"),
-        @ApiResponse(code = 401, message = "Unauthorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 413, message = "Request Entity Too Large"),
-        @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiResponses(value = { @ApiResponse(code = 202, message = HttpResponses.ACCEPTED),
+        @ApiResponse(code = 400, message = HttpResponses.BAD_REQUEST),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 413, message = HttpResponses.REQUEST_ENTITY_TOO_LARGE),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<Void>
            startUploadFromUrl(@ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
                               @ApiParam(value = "file namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace,
@@ -95,12 +96,12 @@ public class FilesApi {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-        @ApiResponse(code = 201, message = "Created", response = AsyncUploadResult.class),
-        @ApiResponse(code = 401, message = "Unauthorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Not Found"),
-        @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = HttpResponses.OK),
+        @ApiResponse(code = 201, message = HttpResponses.CREATED, response = AsyncUploadResult.class),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 404, message = HttpResponses.NOT_FOUND),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<AsyncUploadResult>
            getUploadFromUrlJob(@ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
                                @ApiParam(value = "file namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace,

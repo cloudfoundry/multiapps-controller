@@ -11,6 +11,7 @@ import io.swagger.annotations.Authorization;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 import org.cloudfoundry.multiapps.controller.api.Constants.Endpoints;
+import org.cloudfoundry.multiapps.controller.api.Constants.HttpResponses;
 import org.cloudfoundry.multiapps.controller.api.Constants.PathVariables;
 import org.cloudfoundry.multiapps.controller.api.Constants.QueryVariables;
 import org.cloudfoundry.multiapps.controller.api.Constants.RequestVariables;
@@ -41,12 +42,12 @@ public class OperationsApi {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted"),
-        @ApiResponse(code = 400, message = "Bad Request"),
-        @ApiResponse(code = 401, message = "Unauthorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Not Found"),
-        @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiResponses(value = { @ApiResponse(code = 202, message = HttpResponses.ACCEPTED),
+        @ApiResponse(code = 400, message = HttpResponses.BAD_REQUEST),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 404, message = HttpResponses.NOT_FOUND),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<Void> executeOperationAction(@ApiParam(value = "GUID of the CF space containing the operation") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
                                                        @ApiParam(value = "Process ID of the MTA operation") @PathVariable(PathVariables.OPERATION_ID) String operationId,
                                                        @ApiParam(value = "Action to perform, e.g. abort or retry") @RequestParam(PathVariables.ACTION_ID) String actionId) {
@@ -58,11 +59,11 @@ public class OperationsApi {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Operation.class),
-        @ApiResponse(code = 401, message = "Unauthorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Not Found"),
-        @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = HttpResponses.OK, response = Operation.class),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 404, message = HttpResponses.NOT_FOUND),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<Operation>
     getOperation(@ApiParam(value = "GUID of the CF space containing the operation") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
                  @ApiParam(value = "Process ID of the MTA operation") @PathVariable(PathVariables.OPERATION_ID) String operationId,
@@ -75,11 +76,11 @@ public class OperationsApi {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Log.class, responseContainer = "List"),
-        @ApiResponse(code = 401, message = "Unauthorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Not Found"),
-        @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = HttpResponses.OK, response = Log.class, responseContainer = "List"),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 404, message = HttpResponses.NOT_FOUND),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<List<Log>> getOperationLogs(@ApiParam(value = "GUID of the CF space containing the operation") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
                                                       @ApiParam(value = "Process ID of the MTA operation") @PathVariable(PathVariables.OPERATION_ID) String operationId) {
         return delegate.getOperationLogs(spaceGuid, operationId);
@@ -90,11 +91,11 @@ public class OperationsApi {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
-        @ApiResponse(code = 401, message = "Unauthorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Not Found"),
-        @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = HttpResponses.OK, response = String.class),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 404, message = HttpResponses.NOT_FOUND),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<String> getOperationLogContent(@ApiParam(value = "GUID of the CF space containing the operation") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
                                                          @ApiParam(value = "Process ID of the MTA operation") @PathVariable(PathVariables.OPERATION_ID) String operationId,
                                                          @ApiParam(value = "ID of the log file to retrieve") @PathVariable(PathVariables.LOG_ID) String logId) {
@@ -106,10 +107,10 @@ public class OperationsApi {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Operation.class, responseContainer = "List"),
-        @ApiResponse(code = 401, message = "Unauthorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = HttpResponses.OK, response = Operation.class, responseContainer = "List"),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<List<Operation>> getOperations(@ApiParam(value = "GUID of the CF space") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
                                                          @ApiParam(value = "Filter operations by MTA ID") @RequestParam(name = RequestVariables.MTA_ID, required = false) String mtaId,
                                                          @ApiParam(value = "Return only the last N operations") @RequestParam(name = QueryVariables.LAST, required = false) Integer last,
@@ -122,11 +123,11 @@ public class OperationsApi {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List"),
-        @ApiResponse(code = 401, message = "Unauthorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Not Found"),
-        @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = HttpResponses.OK, response = String.class, responseContainer = "List"),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 404, message = HttpResponses.NOT_FOUND),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<List<String>> getOperationActions(@ApiParam(value = "GUID of the CF space containing the operation") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
                                                             @ApiParam(value = "Process ID of the MTA operation") @PathVariable(PathVariables.OPERATION_ID) String operationId) {
         return delegate.getOperationActions(spaceGuid, operationId);
@@ -137,12 +138,12 @@ public class OperationsApi {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted"),
-        @ApiResponse(code = 400, message = "Bad Request"),
-        @ApiResponse(code = 401, message = "Unauthorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 409, message = "Conflict"),
-        @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiResponses(value = { @ApiResponse(code = 202, message = HttpResponses.ACCEPTED),
+        @ApiResponse(code = 400, message = HttpResponses.BAD_REQUEST),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 409, message = HttpResponses.CONFLICT),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<Operation> startOperation(@ApiParam(value = "GUID of the CF space to deploy into") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
                                                     @ApiParam(value = "Operation descriptor specifying the process type and MTA parameters") @RequestBody Operation operation, HttpServletRequest httpServletRequest) {
         return delegate.startOperation(spaceGuid, operation, httpServletRequest);

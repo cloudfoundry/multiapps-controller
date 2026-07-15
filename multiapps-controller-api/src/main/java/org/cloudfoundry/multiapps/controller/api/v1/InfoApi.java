@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.api.v1;
 import jakarta.inject.Inject;
 
 import org.cloudfoundry.multiapps.controller.api.InfoApiService;
+import org.cloudfoundry.multiapps.controller.api.Constants.HttpResponses;
 import org.cloudfoundry.multiapps.controller.api.Constants.Resources;
 import org.cloudfoundry.multiapps.controller.api.model.Info;
 import org.springframework.http.MediaType;
@@ -30,10 +31,10 @@ public class InfoApi {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Info.class),
-        @ApiResponse(code = 401, message = "Unauthorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = HttpResponses.OK, response = Info.class),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<Info> getInfo() {
         return delegate.getInfo();
     }
