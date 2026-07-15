@@ -19,6 +19,7 @@ public class CloudControllerResponseErrorHandler extends DefaultResponseErrorHan
         HttpStatus statusCode = HttpStatus.valueOf(response.getStatusCode()
                                                            .value());
         String statusText = response.getStatusText();
+        Long retryAfterSeconds = extractRetryAfterSeconds(response, statusCode);
 
         ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally
 
@@ -26,12 +27,28 @@ public class CloudControllerResponseErrorHandler extends DefaultResponseErrorHan
             try {
                 @SuppressWarnings("unchecked") Map<String, Object> responseBody = mapper.readValue(response.getBody(), Map.class);
                 String description = getTrimmedDescription(responseBody);
-                return new CloudOperationException(statusCode, statusText, description);
+                return new CloudOperationException(statusCode, statusText, description, null, retryAfterSeconds);
             } catch (IOException e) {
                 // Fall through. Handled below.
             }
         }
-        return new CloudOperationException(statusCode, statusText);
+        return new CloudOperationException(statusCode, statusText, null, null, retryAfterSeconds);
+    }
+
+    private static Long extractRetryAfterSeconds(ClientHttpResponse response, HttpStatus statusCode) {
+        if (statusCode != HttpStatus.TOO_MANY_REQUESTS) {
+            return null;
+        }
+        String headerValue = response.getHeaders()
+                                     .getFirst(org.springframework.http.HttpHeaders.RETRY_AFTER);
+        if (headerValue == null) {
+            return null;
+        }
+        try {
+            return Long.parseLong(headerValue);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private static String getTrimmedDescription(Map<String, Object> responseBody) {
