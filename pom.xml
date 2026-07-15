@@ -25,7 +25,6 @@
         <commons-collections4.version>4.5.0</commons-collections4.version>
         <snakeyaml.version>2.6</snakeyaml.version>
         <httpclient.version>5.6.2</httpclient.version>
-        <httpcore.version>5.4.3</httpcore.version>
         <eclipselink.version>4.0.9</eclipselink.version>
         <flowable.version>7.2.0</flowable.version>
         <spring.version>6.2.19</spring.version>
@@ -511,12 +510,7 @@
                 <artifactId>commons-collections4</artifactId>
                 <version>${commons-collections4.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents.core5/httpcore5 -->
-            <dependency>
-                <groupId>org.apache.httpcomponents.core5</groupId>
-                <artifactId>httpcore5</artifactId>
-                <version>${httpcore.version}</version>
-            </dependency>
+
             <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
             <dependency>
                 <groupId>org.apache.httpcomponents.client5</groupId>
