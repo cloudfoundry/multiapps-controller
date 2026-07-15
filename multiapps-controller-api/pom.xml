@@ -120,7 +120,27 @@
                                     <swaggerFileName>mtarest</swaggerFileName>
                                     <info>
                                         <title>MTA REST API</title>
-                                        <description>This is the API of the Cloud Foundry MultiApps Controller
+                                        <description>This is the API of the Cloud Foundry MultiApps Controller.
+
+## Typical deploy sequence
+
+Step 1 (optional) — Obtain a CSRF token:
+  GET /api/v1/csrf-token
+
+Step 2 — Upload the MTA archive:
+  POST /api/v1/spaces/{spaceGuid}/files
+
+Step 3 — Start a deploy operation:
+  POST /api/v1/spaces/{spaceGuid}/operations
+  Request body: Operation object with processType=DEPLOY and mtaId.
+
+Step 4 — Poll operation status:
+  GET /api/v1/spaces/{spaceGuid}/operations/{operationId}
+  Repeat until state is one of: FINISHED, ERROR, ABORTED, ACTION_REQUIRED.
+
+Step 5 (optional) — Execute an action:
+  POST /api/v1/spaces/{spaceGuid}/operations/{operationId}?actionId=abort|retry
+  Use when state is ACTION_REQUIRED or to abort a running operation.
                                         </description>
                                         <version>1.4.0</version>
                                     </info>
@@ -147,6 +167,34 @@
                                     </info>
                                 </apiSource>
                             </apiSources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Quotes integer response-code keys (e.g. 200: -> "200":) in generated YAML.
+                 Required because Kongchen swagger-maven-plugin 3.1.8 emits bare integers,
+                 but the Swagger 2.0 spec and SAP API Metadata Validator require string keys. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>quote-yaml-response-codes</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <replaceregexp file="${project.basedir}/src/main/resources/mtarest.yaml"
+                                               match="^(\s+)([0-9]{3}):"
+                                               replace='\1"\2":'
+                                               byline="true"/>
+                                <replaceregexp file="${project.basedir}/src/main/resources/mtarest_v2.yaml"
+                                               match="^(\s+)([0-9]{3}):"
+                                               replace='\1"\2":'
+                                               byline="true"/>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>

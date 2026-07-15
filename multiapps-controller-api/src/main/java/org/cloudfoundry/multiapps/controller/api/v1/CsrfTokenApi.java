@@ -24,10 +24,13 @@ public class CsrfTokenApi {
     private CsrfTokenApiService delegate;
 
     @GetMapping
-    @ApiOperation(value = "", notes = "Retrieves a csrf-token header ", authorizations = { @Authorization(value = "oauth2", scopes = {
+    @ApiOperation(value = "Retrieves a CSRF token header", notes = "Retrieves a csrf-token header", authorizations = { @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 204, message = "No Content") })
+    @ApiResponses(value = { @ApiResponse(code = 204, message = "No Content"),
+        @ApiResponse(code = 401, message = "Unauthorized"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 500, message = "Internal Server Error") })
     public ResponseEntity<Void> getCsrfToken() {
         return delegate.getCsrfToken();
     }

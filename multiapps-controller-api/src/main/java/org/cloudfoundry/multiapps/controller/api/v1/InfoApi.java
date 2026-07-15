@@ -26,11 +26,14 @@ public class InfoApi {
     private InfoApiService delegate;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "", notes = "Retrieve information about the Deploy Service application ", response = Info.class, authorizations = {
+    @ApiOperation(value = "Retrieve information about the Deploy Service application", notes = "Retrieve information about the Deploy Service application", response = Info.class, authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Info.class) })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Info.class),
+        @ApiResponse(code = 401, message = "Unauthorized"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 500, message = "Internal Server Error") })
     public ResponseEntity<Info> getInfo() {
         return delegate.getInfo();
     }

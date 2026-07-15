@@ -33,22 +33,29 @@ public class MtasApi {
     private MtasApiService delegate;
 
     @GetMapping(path = Endpoints.MTA, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "", notes = "Retrieves Multi-Target Application in a space ", response = Mta.class, authorizations = {
+    @ApiOperation(value = "Retrieve a specific deployed MTA by ID", notes = "Retrieves Multi-Target Application in a space", response = Mta.class, authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Mta.class) })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Mta.class),
+        @ApiResponse(code = 401, message = "Unauthorized"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 404, message = "Not Found"),
+        @ApiResponse(code = 500, message = "Internal Server Error") })
     public ResponseEntity<Mta> getMta(@ApiParam(value = "GUID of space with mtas") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
                                       @ApiParam(value = "mtaID of requested mta") @PathVariable(RequestVariables.MTA_ID) String mtaId) {
         return delegate.getMta(spaceGuid, mtaId);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "", notes = "Retrieves all Multi-Target Applications in a space ", response = Mta.class, responseContainer = "List", authorizations = {
+    @ApiOperation(value = "Retrieve all deployed MTAs in a space", notes = "Retrieves all Multi-Target Applications in a space", response = Mta.class, responseContainer = "List", authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Mta.class, responseContainer = "List") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Mta.class, responseContainer = "List"),
+        @ApiResponse(code = 401, message = "Unauthorized"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 500, message = "Internal Server Error") })
     public ResponseEntity<List<Mta>>
            getMtas(@ApiParam(value = "GUID of space with mtas") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid) {
         return delegate.getMtas(spaceGuid);
