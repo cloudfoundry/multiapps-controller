@@ -75,6 +75,7 @@ public final class Messages {
     public static final String DELETED_0_FILES_WITH_SPACE_1_AND_NAMESPACE_2 = "Deleted {0} files with space \"{1}\" and namespace \"{2}\".";
     public static final String DELETED_0_FILES_MODIFIED_BEFORE_1 = "Deleted {0} files modified before \"{1}\".";
     public static final String DELETED_0_FILES_WITH_ID_1_AND_SPACE_2 = "Deleted {0} files with ID \"{1}\" and space \"{2}\".";
+    public static final String DELETED_FILE_WITH_ID_0_AND_SPACE_1 = "Deleted file with ID \"{0}\" and space \"{1}\".";
     public static final String DELETED_0_FILES_WITHOUT_CONTENT = "Deleted {0} files without content.";
     public static final String FAILED_TO_SAVE_OPERATION_LOG_IN_DATABASE = "Failed to save operation log in database.";
     public static final String STORED_SECRET_TOKEN_WITH_VARIABLE_NAME_0_FOR_PROCESS_WITH_ID_1 = "Stored secret token with a variable name \"{0}\" for process with id \"{1}\"";

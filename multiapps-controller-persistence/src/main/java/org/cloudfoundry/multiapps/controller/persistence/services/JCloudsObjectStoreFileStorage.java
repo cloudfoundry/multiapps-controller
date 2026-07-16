@@ -83,22 +83,28 @@ public class JCloudsObjectStoreFileStorage extends ObjectStoreFileStorage {
     @Override
     public void deleteFile(String id, String space) {
         blobStore.removeBlob(container, id);
+        LOGGER.debug(MessageFormat.format(Messages.DELETED_FILE_WITH_ID_0_AND_SPACE_1, id, space));
     }
 
     @Override
     public void deleteFilesBySpaceIds(List<String> spaceIds) {
-        removeBlobsByFilter(blob -> ObjectStoreFilter.filterBySpaceIds(blob.getUserMetadata(), spaceIds));
+        int deletedFiles = removeBlobsByFilter(blob -> ObjectStoreFilter.filterBySpaceIds(blob.getUserMetadata(), spaceIds));
+        LOGGER.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITH_SPACEIDS_1, deletedFiles, spaceIds));
     }
 
     @Override
     public void deleteFilesBySpaceAndNamespace(String space, String namespace) {
-        removeBlobsByFilter(blob -> ObjectStoreFilter.filterBySpaceAndNamespace(blob.getUserMetadata(), space, namespace));
+        int deletedFiles = removeBlobsByFilter(blob -> ObjectStoreFilter.filterBySpaceAndNamespace(blob.getUserMetadata(), space,
+                                                                                                  namespace));
+        LOGGER.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITH_SPACE_1_AND_NAMESPACE_2, deletedFiles, space, namespace));
     }
 
     @Override
     public int deleteFilesModifiedBefore(LocalDateTime modificationTime) {
-        return removeBlobsByFilter(
+        int deletedFiles = removeBlobsByFilter(
             blob -> ObjectStoreFilter.filterByModificationTime(blob.getUserMetadata(), blob.getName(), modificationTime));
+        LOGGER.debug(MessageFormat.format(Messages.DELETED_0_FILES_MODIFIED_BEFORE_1, deletedFiles, modificationTime));
+        return deletedFiles;
     }
 
     @Override

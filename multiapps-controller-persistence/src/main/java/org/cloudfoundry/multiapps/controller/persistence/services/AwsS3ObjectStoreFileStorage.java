@@ -172,21 +172,27 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
                                                  .bucket(bucketName)
                                                  .key(id)
                                                  .build());
+        LOGGER.debug(MessageFormat.format(Messages.DELETED_FILE_WITH_ID_0_AND_SPACE_1, id, space));
     }
 
     @Override
     public void deleteFilesBySpaceIds(List<String> spaceIds) {
-        deleteByFilterAndCount((key, metadata) -> ObjectStoreFilter.filterBySpaceIds(metadata, spaceIds));
+        int deletedFiles = deleteByFilterAndCount((key, metadata) -> ObjectStoreFilter.filterBySpaceIds(metadata, spaceIds));
+        LOGGER.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITH_SPACEIDS_1, deletedFiles, spaceIds));
     }
 
     @Override
     public void deleteFilesBySpaceAndNamespace(String space, String namespace) {
-        deleteByFilterAndCount((key, metadata) -> ObjectStoreFilter.filterBySpaceAndNamespace(metadata, space, namespace));
+        int deletedFiles = deleteByFilterAndCount((key, metadata) -> ObjectStoreFilter.filterBySpaceAndNamespace(metadata, space, namespace));
+        LOGGER.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITH_SPACE_1_AND_NAMESPACE_2, deletedFiles, space, namespace));
     }
 
     @Override
     public int deleteFilesModifiedBefore(LocalDateTime modificationTime) {
-        return deleteByFilterAndCount((key, metadata) -> ObjectStoreFilter.filterByModificationTime(metadata, key, modificationTime));
+        int deletedFiles = deleteByFilterAndCount((key, metadata) -> ObjectStoreFilter.filterByModificationTime(metadata, key,
+                                                                                                               modificationTime));
+        LOGGER.debug(MessageFormat.format(Messages.DELETED_0_FILES_MODIFIED_BEFORE_1, deletedFiles, modificationTime));
+        return deletedFiles;
     }
 
     private int deleteByFilterAndCount(BiPredicate<String, Map<String, String>> predicate) {

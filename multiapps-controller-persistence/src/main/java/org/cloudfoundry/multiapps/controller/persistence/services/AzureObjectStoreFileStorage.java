@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -31,9 +32,12 @@ import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreConstants;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreFilter;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AzureObjectStoreFileStorage extends ObjectStoreFileStorage {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AzureObjectStoreFileStorage.class);
     private static final String SAS_TOKEN = "sas_token";
     private static final String CONTAINER_NAME = "container_name";
     private static final String CONTAINER_URI = "container_uri";
@@ -62,6 +66,8 @@ public class AzureObjectStoreFileStorage extends ObjectStoreFileStorage {
 
             blobClient.uploadWithResponse(blobParallelUploadOptions,
                                           ObjectStoreConstants.AZURE_OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES, null);
+            LOGGER.debug(MessageFormat.format(Messages.STORED_FILE_0_WITH_SIZE_1, fileEntry.getId(), fileEntry.getSize()
+                                                                                                             .longValue()));
         } catch (BlobStorageException e) {
             throw new FileStorageException(e);
         }
@@ -86,6 +92,7 @@ public class AzureObjectStoreFileStorage extends ObjectStoreFileStorage {
         BlobClient blobClient = containerClient.getBlobClient(id);
         try {
             blobClient.deleteIfExists();
+            LOGGER.debug(MessageFormat.format(Messages.DELETED_FILE_WITH_ID_0_AND_SPACE_1, id, space));
         } catch (BlobStorageException e) {
             throw new FileStorageException(e);
         }
@@ -93,18 +100,22 @@ public class AzureObjectStoreFileStorage extends ObjectStoreFileStorage {
 
     @Override
     public void deleteFilesBySpaceIds(List<String> spaceIds) throws FileStorageException {
-        removeBlobsByFilter(blob -> ObjectStoreFilter.filterBySpaceIds(blob.getMetadata(), spaceIds));
+        int deletedFiles = removeBlobsByFilter(blob -> ObjectStoreFilter.filterBySpaceIds(blob.getMetadata(), spaceIds));
+        LOGGER.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITH_SPACEIDS_1, deletedFiles, spaceIds));
     }
 
     @Override
     public void deleteFilesBySpaceAndNamespace(String space, String namespace) {
-        removeBlobsByFilter(blob -> ObjectStoreFilter.filterBySpaceAndNamespace(blob.getMetadata(), space, namespace));
+        int deletedFiles = removeBlobsByFilter(blob -> ObjectStoreFilter.filterBySpaceAndNamespace(blob.getMetadata(), space, namespace));
+        LOGGER.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITH_SPACE_1_AND_NAMESPACE_2, deletedFiles, space, namespace));
     }
 
     @Override
     public int deleteFilesModifiedBefore(LocalDateTime modificationTime) throws FileStorageException {
-        return removeBlobsByFilter(
+        int deletedFiles = removeBlobsByFilter(
             blob -> ObjectStoreFilter.filterByModificationTime(blob.getMetadata(), blob.getName(), modificationTime));
+        LOGGER.debug(MessageFormat.format(Messages.DELETED_0_FILES_MODIFIED_BEFORE_1, deletedFiles, modificationTime));
+        return deletedFiles;
     }
 
     @Override

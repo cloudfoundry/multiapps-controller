@@ -16,6 +16,8 @@ import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreConstants;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreFilter;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 
 import java.io.ByteArrayInputStream;
@@ -34,6 +36,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class GcpObjectStoreFileStorage implements FileStorage {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GcpObjectStoreFileStorage.class);
 
     private final String bucketName;
     private final Storage storage;
@@ -83,6 +87,8 @@ public class GcpObjectStoreFileStorage implements FileStorage {
                                     .build();
 
         putBlob(blobInfo, content);
+        LOGGER.debug(MessageFormat.format(Messages.STORED_FILE_0_WITH_SIZE_1, fileEntry.getId(), fileEntry.getSize()
+                                                                                                          .longValue()));
     }
 
     private void putBlob(BlobInfo blobInfo, InputStream content) throws FileStorageException {
@@ -124,6 +130,7 @@ public class GcpObjectStoreFileStorage implements FileStorage {
     @Override
     public void deleteFile(String id, String space) {
         deleteFileWithGeneration(id);
+        LOGGER.debug(MessageFormat.format(Messages.DELETED_FILE_WITH_ID_0_AND_SPACE_1, id, space));
     }
 
     private boolean deleteFileWithGeneration(String id) {
@@ -140,18 +147,22 @@ public class GcpObjectStoreFileStorage implements FileStorage {
 
     @Override
     public void deleteFilesBySpaceIds(List<String> spaceIds) {
-        removeBlobsByFilter(blob -> ObjectStoreFilter.filterBySpaceIds(blob.getMetadata(), spaceIds));
+        int deletedFiles = removeBlobsByFilter(blob -> ObjectStoreFilter.filterBySpaceIds(blob.getMetadata(), spaceIds));
+        LOGGER.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITH_SPACEIDS_1, deletedFiles, spaceIds));
     }
 
     @Override
     public void deleteFilesBySpaceAndNamespace(String space, String namespace) {
-        removeBlobsByFilter(blob -> ObjectStoreFilter.filterBySpaceAndNamespace(blob.getMetadata(), space, namespace));
+        int deletedFiles = removeBlobsByFilter(blob -> ObjectStoreFilter.filterBySpaceAndNamespace(blob.getMetadata(), space, namespace));
+        LOGGER.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITH_SPACE_1_AND_NAMESPACE_2, deletedFiles, space, namespace));
     }
 
     @Override
     public int deleteFilesModifiedBefore(LocalDateTime modificationTime) {
-        return removeBlobsByFilter(
+        int deletedFiles = removeBlobsByFilter(
             blob -> ObjectStoreFilter.filterByModificationTime(blob.getMetadata(), blob.getName(), modificationTime));
+        LOGGER.debug(MessageFormat.format(Messages.DELETED_0_FILES_MODIFIED_BEFORE_1, deletedFiles, modificationTime));
+        return deletedFiles;
     }
 
     @Override
