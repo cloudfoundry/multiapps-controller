@@ -16,7 +16,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 public class CfMetadataValidator {
 
     private static final Pattern KEY_PATTERN = Pattern.compile(
-        "([a-zA-Z0-9][a-zA-Z0-9\\-_.]{0,251}[a-zA-Z0-9]/)?[a-zA-Z0-9][a-zA-Z0-9\\-_.]{0,61}[a-zA-Z0-9]|[a-zA-Z0-9]");
+        "([a-zA-Z0-9][a-zA-Z0-9\\-_.]{0,251}[a-zA-Z0-9]/)?([a-zA-Z0-9][a-zA-Z0-9\\-_.]{0,61}[a-zA-Z0-9]|[a-zA-Z0-9])");
 
     private static final Set<String> RESERVED_KEY_NAMES = Collections.unmodifiableSet(
         new HashSet<>(Arrays.asList(MtaMetadataLabels.MTA_ID,

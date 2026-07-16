@@ -220,8 +220,8 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
         Set<String> internalLabelKeys = Set.of(MtaMetadataLabels.MTA_ID, MtaMetadataLabels.MTA_NAMESPACE, MtaMetadataLabels.SPACE_GUID,
                                                MtaMetadataLabels.AUTOSCALER_LABEL);
-        Set<String> internalAnnotationKeys = Set.of(MtaMetadataAnnotations.MTA_ID, MtaMetadataAnnotations.MTA_VERSION,
-                                                    MtaMetadataAnnotations.MTA_NAMESPACE, MtaMetadataAnnotations.MTA_MODULE,
+        Set<String> internalAnnotationKeys = Set.of(MtaMetadataAnnotations.MTA_ID, MtaMetadataAnnotations.MTA_NAMESPACE,
+                                                    MtaMetadataAnnotations.MTA_MODULE,
                                                     MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES,
                                                     MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES,
                                                     MtaMetadataAnnotations.MTA_RESOURCE);
