@@ -1,6 +1,9 @@
 package org.cloudfoundry.multiapps.controller.core.validators.parameters;
 
 import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -15,17 +18,17 @@ public class CfMetadataValidator {
     private static final Pattern KEY_PATTERN = Pattern.compile(
         "([a-zA-Z0-9][a-zA-Z0-9\\-_.]{0,251}[a-zA-Z0-9]/)?[a-zA-Z0-9][a-zA-Z0-9\\-_.]{0,61}[a-zA-Z0-9]|[a-zA-Z0-9]");
 
-    private static final Set<String> RESERVED_KEY_NAMES = Set.of(
-        MtaMetadataLabels.MTA_ID,
-        MtaMetadataLabels.MTA_NAMESPACE,
-        MtaMetadataLabels.SPACE_GUID,
-        MtaMetadataAnnotations.MTA_ID,
-        MtaMetadataAnnotations.MTA_VERSION,
-        MtaMetadataAnnotations.MTA_NAMESPACE,
-        MtaMetadataAnnotations.MTA_MODULE,
-        MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES,
-        MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES,
-        MtaMetadataAnnotations.MTA_RESOURCE);
+    private static final Set<String> RESERVED_KEY_NAMES = Collections.unmodifiableSet(
+        new HashSet<>(Arrays.asList(MtaMetadataLabels.MTA_ID,
+                                   MtaMetadataLabels.MTA_NAMESPACE,
+                                   MtaMetadataLabels.SPACE_GUID,
+                                   MtaMetadataAnnotations.MTA_ID,
+                                   MtaMetadataAnnotations.MTA_VERSION,
+                                   MtaMetadataAnnotations.MTA_NAMESPACE,
+                                   MtaMetadataAnnotations.MTA_MODULE,
+                                   MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES,
+                                   MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES,
+                                   MtaMetadataAnnotations.MTA_RESOURCE)));
 
     private static final String MTA_KEY_PREFIX = "mta_";
     private static final int MAX_LABEL_VALUE_LENGTH = 63;
