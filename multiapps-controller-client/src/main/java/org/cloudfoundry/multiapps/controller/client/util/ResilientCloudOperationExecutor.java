@@ -74,10 +74,10 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
 
     @Override
     public <T> T execute(Supplier<T> operation) {
-        for (int i = 1; i < retryCount; i++) {
+        for (long i = 1; i < retryCount; i++) {
             try {
                 return operation.get();
-            } catch (RuntimeException e) {
+            } catch (CloudOperationException e) {
                 handle(e);
                 long waitMillis = computeWaitMillis(e, i);
                 sleeper.accept(waitMillis);
@@ -125,7 +125,7 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
                     e);
     }
 
-    private long computeWaitMillis(RuntimeException e, int attemptIndex) {
+    private long computeWaitMillis(RuntimeException e, long attemptIndex) {
         if (e instanceof CloudOperationException) {
             CloudOperationException cloudException = (CloudOperationException) e;
             if (cloudException.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS) {
