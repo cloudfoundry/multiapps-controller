@@ -1,7 +1,15 @@
 ---
 swagger: "2.0"
 info:
-  description: "This is the API of the Cloud Foundry MultiApps Controller"
+  description: "This is the API of the Cloud Foundry MultiApps Controller.\n\n## Typical\
+    \ deploy sequence\n\nStep 1 (optional) — Obtain a CSRF token:\n  GET /api/v1/csrf-token\n\
+    \nStep 2 — Upload the MTA archive:\n  POST /api/v1/spaces/{spaceGuid}/files\n\n\
+    Step 3 — Start a deploy operation:\n  POST /api/v1/spaces/{spaceGuid}/operations\n\
+    \  Request body: Operation object with processType=DEPLOY and mtaId.\n\nStep 4\
+    \ — Poll operation status:\n  GET /api/v1/spaces/{spaceGuid}/operations/{operationId}\n\
+    \  Repeat until state is one of: FINISHED, ERROR, ABORTED, ACTION_REQUIRED.\n\n\
+    Step 5 (optional) — Execute an action:\n  POST /api/v1/spaces/{spaceGuid}/operations/{operationId}?actionId=abort|retry\n\
+    \  Use when state is ACTION_REQUIRED or to abort a running operation."
   version: "1.4.0"
   title: "MTA REST API"
   contact: {}
@@ -13,34 +21,46 @@ schemes:
 paths:
   /api/v1/csrf-token:
     get:
-      summary: ""
-      description: "Retrieves a csrf-token header "
+      summary: "Retrieves a CSRF token header"
+      description: "Retrieves a csrf-token header"
       operationId: "getCsrfToken"
       parameters: []
       responses:
-        204:
+        "204":
           description: "No Content"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "500":
+          description: "Internal Server Error"
       security:
       - oauth2: []
   /api/v1/info:
     get:
-      summary: ""
-      description: "Retrieve information about the Deploy Service application "
+      summary: "Retrieve information about the Deploy Service application"
+      description: "Retrieve information about the Deploy Service application"
       operationId: "getInfo"
       produces:
       - "application/json"
       parameters: []
       responses:
-        200:
+        "200":
           description: "OK"
           schema:
             $ref: "#/definitions/Info"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "500":
+          description: "Internal Server Error"
       security:
       - oauth2: []
   /api/v1/spaces/{spaceGuid}/files:
     get:
-      summary: ""
-      description: "Retrieves all Multi-Target Application files "
+      summary: "Retrieve all uploaded MTA archive files in a space"
+      description: "Retrieves all Multi-Target Application files"
       operationId: "getMtaFiles"
       produces:
       - "application/json"
@@ -56,17 +76,23 @@ paths:
         required: false
         type: "string"
       responses:
-        200:
+        "200":
           description: "OK"
           schema:
             type: "array"
             items:
               $ref: "#/definitions/FileMetadata"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "500":
+          description: "Internal Server Error"
       security:
       - oauth2: []
     post:
-      summary: ""
-      description: "Uploads a Multi Target Application archive or an Extension Descriptor "
+      summary: "Upload an MTA archive or Extension Descriptor"
+      description: "Uploads a Multi Target Application archive or an Extension Descriptor"
       operationId: "uploadMtaFile"
       consumes:
       - "multipart/form-data"
@@ -84,19 +110,27 @@ paths:
         required: false
         type: "string"
       responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/FileMetadata"
-        201:
+        "201":
           description: "Created"
           schema:
             $ref: "#/definitions/FileMetadata"
+        "400":
+          description: "Bad Request"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "413":
+          description: "Request Entity Too Large"
+        "415":
+          description: "Unsupported Media Type"
+        "500":
+          description: "Internal Server Error"
       security:
       - oauth2: []
   /api/v1/spaces/{spaceGuid}/files/async:
     post:
-      summary: ""
+      summary: "Start an asynchronous MTA archive upload from a URL"
       description: "Uploads a Multi Target Application archive or an Extension Descriptor\
         \ from a remote endpoint"
       operationId: "startUploadFromUrl"
@@ -120,13 +154,23 @@ paths:
         schema:
           $ref: "#/definitions/FileUrl"
       responses:
-        202:
+        "202":
           description: "Accepted"
+        "400":
+          description: "Bad Request"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "413":
+          description: "Request Entity Too Large"
+        "500":
+          description: "Internal Server Error"
       security:
       - oauth2: []
   /api/v1/spaces/{spaceGuid}/files/jobs/{jobId}:
     get:
-      summary: ""
+      summary: "Get the status of an asynchronous URL upload job"
       description: "Gets the status of an async upload job"
       operationId: "getAsyncUploadJob"
       produces:
@@ -148,20 +192,28 @@ paths:
         required: true
         type: "string"
       responses:
-        200:
+        "200":
           description: "OK"
           schema:
             $ref: "#/definitions/AsyncUploadResult"
-        201:
+        "201":
           description: "Created"
           schema:
             $ref: "#/definitions/AsyncUploadResult"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "404":
+          description: "Not Found"
+        "500":
+          description: "Internal Server Error"
       security:
       - oauth2: []
   /api/v1/spaces/{spaceGuid}/mtas:
     get:
-      summary: ""
-      description: "Retrieves all Multi-Target Applications in a space "
+      summary: "Retrieve all deployed MTAs in a space"
+      description: "Retrieves all Multi-Target Applications in a space"
       operationId: "getMtas"
       produces:
       - "application/json"
@@ -172,18 +224,24 @@ paths:
         required: true
         type: "string"
       responses:
-        200:
+        "200":
           description: "OK"
           schema:
             type: "array"
             items:
               $ref: "#/definitions/Mta"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "500":
+          description: "Internal Server Error"
       security:
       - oauth2: []
   /api/v1/spaces/{spaceGuid}/mtas/{mtaId}:
     get:
-      summary: ""
-      description: "Retrieves Multi-Target Application in a space "
+      summary: "Retrieve a specific deployed MTA by ID"
+      description: "Retrieves Multi-Target Application in a space"
       operationId: "getMta"
       produces:
       - "application/json"
@@ -199,52 +257,70 @@ paths:
         required: true
         type: "string"
       responses:
-        200:
+        "200":
           description: "OK"
           schema:
             $ref: "#/definitions/Mta"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "404":
+          description: "Not Found"
+        "500":
+          description: "Internal Server Error"
       security:
       - oauth2: []
   /api/v1/spaces/{spaceGuid}/operations:
     get:
-      summary: ""
-      description: "Retrieves Multi-Target Application operations "
+      summary: "List MTA operations in a space"
+      description: "Retrieves Multi-Target Application operations"
       operationId: "getMtaOperations"
       produces:
       - "application/json"
       parameters:
       - name: "spaceGuid"
         in: "path"
+        description: "GUID of the CF space"
         required: true
         type: "string"
       - name: "mtaId"
         in: "query"
+        description: "Filter operations by MTA ID"
         required: false
         type: "string"
       - name: "last"
         in: "query"
+        description: "Return only the last N operations"
         required: false
         type: "integer"
         format: "int32"
       - name: "state"
         in: "query"
+        description: "Filter operations by state, e.g. RUNNING, FINISHED, ERROR, ABORTED"
         required: false
         type: "array"
         items:
           type: "string"
         collectionFormat: "multi"
       responses:
-        200:
+        "200":
           description: "OK"
           schema:
             type: "array"
             items:
               $ref: "#/definitions/Operation"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "500":
+          description: "Internal Server Error"
       security:
       - oauth2: []
     post:
-      summary: ""
-      description: "Starts execution of a Multi-Target Application operation "
+      summary: "Start a new MTA operation (deploy, undeploy, blue-green deploy)"
+      description: "Starts execution of a Multi-Target Application operation"
       operationId: "startMtaOperation"
       consumes:
       - "application/json"
@@ -253,147 +329,209 @@ paths:
       parameters:
       - name: "spaceGuid"
         in: "path"
+        description: "GUID of the CF space to deploy into"
         required: true
         type: "string"
       - in: "body"
         name: "body"
+        description: "Operation descriptor specifying the process type and MTA parameters"
         required: false
         schema:
           $ref: "#/definitions/Operation"
       responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/Operation"
-        202:
+        "202":
           description: "Accepted"
+        "400":
+          description: "Bad Request"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "409":
+          description: "Conflict"
+        "500":
+          description: "Internal Server Error"
       security:
       - oauth2: []
   /api/v1/spaces/{spaceGuid}/operations/{operationId}:
     get:
-      summary: ""
-      description: "Retrieves Multi-Target Application operation "
+      summary: "Retrieve a specific MTA operation"
+      description: "Retrieves Multi-Target Application operation"
       operationId: "getMtaOperation"
       produces:
       - "application/json"
       parameters:
       - name: "spaceGuid"
         in: "path"
+        description: "GUID of the CF space containing the operation"
         required: true
         type: "string"
       - name: "operationId"
         in: "path"
+        description: "Process ID of the MTA operation"
         required: true
         type: "string"
       - name: "embed"
         in: "query"
-        description: "Adds the specified property in the response body "
+        description: "Adds the specified property in the response body"
         required: false
         type: "string"
       responses:
-        200:
+        "200":
           description: "OK"
           schema:
             $ref: "#/definitions/Operation"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "404":
+          description: "Not Found"
+        "500":
+          description: "Internal Server Error"
       security:
       - oauth2: []
     post:
-      summary: ""
-      description: "Executes a particular action over Multi-Target Application operation "
+      summary: "Execute an action on an MTA operation"
+      description: "Executes a particular action over Multi-Target Application operation"
       operationId: "executeOperationAction"
       parameters:
       - name: "spaceGuid"
         in: "path"
+        description: "GUID of the CF space containing the operation"
         required: true
         type: "string"
       - name: "operationId"
         in: "path"
+        description: "Process ID of the MTA operation"
         required: true
         type: "string"
       - name: "actionId"
         in: "query"
+        description: "Action to perform, e.g. abort or retry"
         required: true
         type: "string"
       responses:
-        202:
+        "202":
           description: "Accepted"
+        "400":
+          description: "Bad Request"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "404":
+          description: "Not Found"
+        "500":
+          description: "Internal Server Error"
       security:
       - oauth2: []
   /api/v1/spaces/{spaceGuid}/operations/{operationId}/actions:
     get:
-      summary: ""
-      description: "Retrieves available actions for Multi-Target Application operation "
+      summary: "List available actions for an MTA operation"
+      description: "Retrieves available actions for Multi-Target Application operation"
       operationId: "getOperationActions"
       produces:
       - "application/json"
       parameters:
       - name: "spaceGuid"
         in: "path"
+        description: "GUID of the CF space containing the operation"
         required: true
         type: "string"
       - name: "operationId"
         in: "path"
+        description: "Process ID of the MTA operation"
         required: true
         type: "string"
       responses:
-        200:
+        "200":
           description: "OK"
           schema:
             type: "array"
             items:
               type: "string"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "404":
+          description: "Not Found"
+        "500":
+          description: "Internal Server Error"
       security:
       - oauth2: []
   /api/v1/spaces/{spaceGuid}/operations/{operationId}/logs:
     get:
-      summary: ""
-      description: "Retrieves the logs Multi-Target Application operation "
+      summary: "List log files for an MTA operation"
+      description: "Retrieves the logs Multi-Target Application operation"
       operationId: "getMtaOperationLogs"
       produces:
       - "application/json"
       parameters:
       - name: "spaceGuid"
         in: "path"
+        description: "GUID of the CF space containing the operation"
         required: true
         type: "string"
       - name: "operationId"
         in: "path"
+        description: "Process ID of the MTA operation"
         required: true
         type: "string"
       responses:
-        200:
+        "200":
           description: "OK"
           schema:
             type: "array"
             items:
               $ref: "#/definitions/Log"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "404":
+          description: "Not Found"
+        "500":
+          description: "Internal Server Error"
       security:
       - oauth2: []
   /api/v1/spaces/{spaceGuid}/operations/{operationId}/logs/{logId}/content:
     get:
-      summary: ""
-      description: "Retrieves the log content for Multi-Target Application operation "
+      summary: "Retrieve the content of a specific operation log"
+      description: "Retrieves the log content for Multi-Target Application operation"
       operationId: "getMtaOperationLogContent"
       produces:
       - "text/plain"
       parameters:
       - name: "spaceGuid"
         in: "path"
+        description: "GUID of the CF space containing the operation"
         required: true
         type: "string"
       - name: "operationId"
         in: "path"
+        description: "Process ID of the MTA operation"
         required: true
         type: "string"
       - name: "logId"
         in: "path"
+        description: "ID of the log file to retrieve"
         required: true
         type: "string"
       responses:
-        200:
+        "200":
           description: "OK"
           schema:
             type: "string"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "404":
+          description: "Not Found"
+        "500":
+          description: "Internal Server Error"
       security:
       - oauth2: []
 securityDefinitions:

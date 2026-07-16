@@ -5,6 +5,7 @@ import java.util.List;
 import jakarta.inject.Inject;
 
 import org.cloudfoundry.multiapps.controller.api.Constants.Endpoints;
+import org.cloudfoundry.multiapps.controller.api.Constants.HttpResponses;
 import org.cloudfoundry.multiapps.controller.api.Constants.PathVariables;
 import org.cloudfoundry.multiapps.controller.api.Constants.RequestVariables;
 import org.cloudfoundry.multiapps.controller.api.Constants.Resources;
@@ -39,11 +40,14 @@ public class FilesApi {
     private FilesApiService delegate;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "", nickname = "getMtaFiles", notes = "Retrieves all Multi-Target Application files ", response = FileMetadata.class, responseContainer = "List", authorizations = {
+    @ApiOperation(value = "Retrieve all uploaded MTA archive files in a space", nickname = "getMtaFiles", notes = "Retrieves all Multi-Target Application files", response = FileMetadata.class, responseContainer = "List", authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = FileMetadata.class, responseContainer = "List") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = HttpResponses.OK, response = FileMetadata.class, responseContainer = "List"),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<List<FileMetadata>>
            getFiles(@ApiParam(value = "GUID of space with mtas") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
                     @ApiParam(value = "Filter mtas by namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace) {
@@ -51,11 +55,17 @@ public class FilesApi {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "", nickname = "uploadMtaFile", notes = "Uploads a Multi Target Application archive or an Extension Descriptor ", response = FileMetadata.class, authorizations = {
+    @ApiOperation(value = "Upload an MTA archive or Extension Descriptor", nickname = "uploadMtaFile", notes = "Uploads a Multi Target Application archive or an Extension Descriptor", response = FileMetadata.class, authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = FileMetadata.class) })
+    @ApiResponses(value = { @ApiResponse(code = 201, message = HttpResponses.CREATED, response = FileMetadata.class),
+        @ApiResponse(code = 400, message = HttpResponses.BAD_REQUEST),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 413, message = HttpResponses.REQUEST_ENTITY_TOO_LARGE),
+        @ApiResponse(code = 415, message = HttpResponses.UNSUPPORTED_MEDIA_TYPE),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<FileMetadata>
            uploadFile(MultipartHttpServletRequest request,
                       @ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
@@ -64,11 +74,16 @@ public class FilesApi {
     }
 
     @PostMapping(path = Endpoints.ASYNC_UPLOAD, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "", nickname = "startUploadFromUrl", notes = "Uploads a Multi Target Application archive or an Extension Descriptor from a remote endpoint", authorizations = {
+    @ApiOperation(value = "Start an asynchronous MTA archive upload from a URL", nickname = "startUploadFromUrl", notes = "Uploads a Multi Target Application archive or an Extension Descriptor from a remote endpoint", authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted") })
+    @ApiResponses(value = { @ApiResponse(code = 202, message = HttpResponses.ACCEPTED),
+        @ApiResponse(code = 400, message = HttpResponses.BAD_REQUEST),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 413, message = HttpResponses.REQUEST_ENTITY_TOO_LARGE),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<Void>
            startUploadFromUrl(@ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
                               @ApiParam(value = "file namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace,
@@ -77,12 +92,16 @@ public class FilesApi {
     }
 
     @GetMapping(path = Endpoints.ASYNC_UPLOAD_JOB, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "", nickname = "getAsyncUploadJob", notes = "Gets the status of an async upload job", response = AsyncUploadResult.class, authorizations = {
+    @ApiOperation(value = "Get the status of an asynchronous URL upload job", nickname = "getAsyncUploadJob", notes = "Gets the status of an async upload job", response = AsyncUploadResult.class, authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-        @ApiResponse(code = 201, message = "Created", response = AsyncUploadResult.class) })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = HttpResponses.OK),
+        @ApiResponse(code = 201, message = HttpResponses.CREATED, response = AsyncUploadResult.class),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 404, message = HttpResponses.NOT_FOUND),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<AsyncUploadResult>
            getUploadFromUrlJob(@ApiParam(value = "GUID of space you wish to deploy in") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
                                @ApiParam(value = "file namespace") @RequestParam(name = RequestVariables.NAMESPACE, required = false) String namespace,

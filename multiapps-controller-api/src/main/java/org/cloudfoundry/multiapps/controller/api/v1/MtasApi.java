@@ -6,6 +6,7 @@ import jakarta.inject.Inject;
 
 import org.cloudfoundry.multiapps.controller.api.MtasApiService;
 import org.cloudfoundry.multiapps.controller.api.Constants.Endpoints;
+import org.cloudfoundry.multiapps.controller.api.Constants.HttpResponses;
 import org.cloudfoundry.multiapps.controller.api.Constants.PathVariables;
 import org.cloudfoundry.multiapps.controller.api.Constants.RequestVariables;
 import org.cloudfoundry.multiapps.controller.api.Constants.Resources;
@@ -33,22 +34,29 @@ public class MtasApi {
     private MtasApiService delegate;
 
     @GetMapping(path = Endpoints.MTA, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "", notes = "Retrieves Multi-Target Application in a space ", response = Mta.class, authorizations = {
+    @ApiOperation(value = "Retrieve a specific deployed MTA by ID", notes = "Retrieves Multi-Target Application in a space", response = Mta.class, authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Mta.class) })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = HttpResponses.OK, response = Mta.class),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 404, message = HttpResponses.NOT_FOUND),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<Mta> getMta(@ApiParam(value = "GUID of space with mtas") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
                                       @ApiParam(value = "mtaID of requested mta") @PathVariable(RequestVariables.MTA_ID) String mtaId) {
         return delegate.getMta(spaceGuid, mtaId);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "", notes = "Retrieves all Multi-Target Applications in a space ", response = Mta.class, responseContainer = "List", authorizations = {
+    @ApiOperation(value = "Retrieve all deployed MTAs in a space", notes = "Retrieves all Multi-Target Applications in a space", response = Mta.class, responseContainer = "List", authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Mta.class, responseContainer = "List") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = HttpResponses.OK, response = Mta.class, responseContainer = "List"),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<List<Mta>>
            getMtas(@ApiParam(value = "GUID of space with mtas") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid) {
         return delegate.getMtas(spaceGuid);

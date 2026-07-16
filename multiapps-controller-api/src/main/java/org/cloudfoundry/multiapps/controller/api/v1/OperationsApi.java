@@ -11,6 +11,7 @@ import io.swagger.annotations.Authorization;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 import org.cloudfoundry.multiapps.controller.api.Constants.Endpoints;
+import org.cloudfoundry.multiapps.controller.api.Constants.HttpResponses;
 import org.cloudfoundry.multiapps.controller.api.Constants.PathVariables;
 import org.cloudfoundry.multiapps.controller.api.Constants.QueryVariables;
 import org.cloudfoundry.multiapps.controller.api.Constants.RequestVariables;
@@ -37,85 +38,114 @@ public class OperationsApi {
     private OperationsApiService delegate;
 
     @PostMapping(path = Endpoints.OPERATION)
-    @ApiOperation(value = "", notes = "Executes a particular action over Multi-Target Application operation ", authorizations = {
+    @ApiOperation(value = "Execute an action on an MTA operation", notes = "Executes a particular action over Multi-Target Application operation", authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted") })
-    public ResponseEntity<Void> executeOperationAction(@PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                                                       @PathVariable(PathVariables.OPERATION_ID) String operationId,
-                                                       @RequestParam(PathVariables.ACTION_ID) String actionId) {
+    @ApiResponses(value = { @ApiResponse(code = 202, message = HttpResponses.ACCEPTED),
+        @ApiResponse(code = 400, message = HttpResponses.BAD_REQUEST),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 404, message = HttpResponses.NOT_FOUND),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
+    public ResponseEntity<Void> executeOperationAction(@ApiParam(value = "GUID of the CF space containing the operation") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+                                                       @ApiParam(value = "Process ID of the MTA operation") @PathVariable(PathVariables.OPERATION_ID) String operationId,
+                                                       @ApiParam(value = "Action to perform, e.g. abort or retry") @RequestParam(PathVariables.ACTION_ID) String actionId) {
         return delegate.executeOperationAction(spaceGuid, operationId, actionId);
     }
 
     @GetMapping(path = Endpoints.OPERATION, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "", nickname = "getMtaOperation", notes = "Retrieves Multi-Target Application operation ", response = Operation.class, authorizations = {
+    @ApiOperation(value = "Retrieve a specific MTA operation", nickname = "getMtaOperation", notes = "Retrieves Multi-Target Application operation", response = Operation.class, authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Operation.class) })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = HttpResponses.OK, response = Operation.class),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 404, message = HttpResponses.NOT_FOUND),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
     public ResponseEntity<Operation>
-    getOperation(@PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                 @PathVariable(PathVariables.OPERATION_ID) String operationId,
-                 @ApiParam(value = "Adds the specified property in the response body ") @RequestParam(name = "embed", required = false) String embed) {
+    getOperation(@ApiParam(value = "GUID of the CF space containing the operation") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+                 @ApiParam(value = "Process ID of the MTA operation") @PathVariable(PathVariables.OPERATION_ID) String operationId,
+                 @ApiParam(value = "Adds the specified property in the response body") @RequestParam(name = "embed", required = false) String embed) {
         return delegate.getOperation(spaceGuid, operationId, embed);
     }
 
     @GetMapping(path = Endpoints.OPERATION_LOGS, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "", nickname = "getMtaOperationLogs", notes = "Retrieves the logs Multi-Target Application operation ", response = Log.class, responseContainer = "List", authorizations = {
+    @ApiOperation(value = "List log files for an MTA operation", nickname = "getMtaOperationLogs", notes = "Retrieves the logs Multi-Target Application operation", response = Log.class, responseContainer = "List", authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Log.class, responseContainer = "List") })
-    public ResponseEntity<List<Log>> getOperationLogs(@PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                                                      @PathVariable(PathVariables.OPERATION_ID) String operationId) {
+    @ApiResponses(value = { @ApiResponse(code = 200, message = HttpResponses.OK, response = Log.class, responseContainer = "List"),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 404, message = HttpResponses.NOT_FOUND),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
+    public ResponseEntity<List<Log>> getOperationLogs(@ApiParam(value = "GUID of the CF space containing the operation") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+                                                      @ApiParam(value = "Process ID of the MTA operation") @PathVariable(PathVariables.OPERATION_ID) String operationId) {
         return delegate.getOperationLogs(spaceGuid, operationId);
     }
 
     @GetMapping(path = Endpoints.OPERATION_LOG_CONTENT, produces = MediaType.TEXT_PLAIN_VALUE)
-    @ApiOperation(value = "", nickname = "getMtaOperationLogContent", notes = "Retrieves the log content for Multi-Target Application operation ", response = String.class, authorizations = {
+    @ApiOperation(value = "Retrieve the content of a specific operation log", nickname = "getMtaOperationLogContent", notes = "Retrieves the log content for Multi-Target Application operation", response = String.class, authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class) })
-    public ResponseEntity<String> getOperationLogContent(@PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                                                         @PathVariable(PathVariables.OPERATION_ID) String operationId,
-                                                         @PathVariable(PathVariables.LOG_ID) String logId) {
+    @ApiResponses(value = { @ApiResponse(code = 200, message = HttpResponses.OK, response = String.class),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 404, message = HttpResponses.NOT_FOUND),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
+    public ResponseEntity<String> getOperationLogContent(@ApiParam(value = "GUID of the CF space containing the operation") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+                                                         @ApiParam(value = "Process ID of the MTA operation") @PathVariable(PathVariables.OPERATION_ID) String operationId,
+                                                         @ApiParam(value = "ID of the log file to retrieve") @PathVariable(PathVariables.LOG_ID) String logId) {
         return delegate.getOperationLogContent(spaceGuid, operationId, logId);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "", nickname = "getMtaOperations", notes = "Retrieves Multi-Target Application operations ", response = Operation.class, responseContainer = "List", authorizations = {
+    @ApiOperation(value = "List MTA operations in a space", nickname = "getMtaOperations", notes = "Retrieves Multi-Target Application operations", response = Operation.class, responseContainer = "List", authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Operation.class, responseContainer = "List") })
-    public ResponseEntity<List<Operation>> getOperations(@PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                                                         @RequestParam(name = RequestVariables.MTA_ID, required = false) String mtaId,
-                                                         @RequestParam(name = QueryVariables.LAST, required = false) Integer last,
-                                                         @RequestParam(name = QueryVariables.STATE, required = false) List<String> states) {
+    @ApiResponses(value = { @ApiResponse(code = 200, message = HttpResponses.OK, response = Operation.class, responseContainer = "List"),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
+    public ResponseEntity<List<Operation>> getOperations(@ApiParam(value = "GUID of the CF space") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+                                                         @ApiParam(value = "Filter operations by MTA ID") @RequestParam(name = RequestVariables.MTA_ID, required = false) String mtaId,
+                                                         @ApiParam(value = "Return only the last N operations") @RequestParam(name = QueryVariables.LAST, required = false) Integer last,
+                                                         @ApiParam(value = "Filter operations by state, e.g. RUNNING, FINISHED, ERROR, ABORTED") @RequestParam(name = QueryVariables.STATE, required = false) List<String> states) {
         return delegate.getOperations(spaceGuid, mtaId, states, last);
     }
 
     @GetMapping(path = Endpoints.OPERATION_ACTIONS, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "", notes = "Retrieves available actions for Multi-Target Application operation ", response = String.class, responseContainer = "List", authorizations = {
+    @ApiOperation(value = "List available actions for an MTA operation", notes = "Retrieves available actions for Multi-Target Application operation", response = String.class, responseContainer = "List", authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List") })
-    public ResponseEntity<List<String>> getOperationActions(@PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                                                            @PathVariable(PathVariables.OPERATION_ID) String operationId) {
+    @ApiResponses(value = { @ApiResponse(code = 200, message = HttpResponses.OK, response = String.class, responseContainer = "List"),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 404, message = HttpResponses.NOT_FOUND),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
+    public ResponseEntity<List<String>> getOperationActions(@ApiParam(value = "GUID of the CF space containing the operation") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+                                                            @ApiParam(value = "Process ID of the MTA operation") @PathVariable(PathVariables.OPERATION_ID) String operationId) {
         return delegate.getOperationActions(spaceGuid, operationId);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "", nickname = "startMtaOperation", notes = "Starts execution of a Multi-Target Application operation ", authorizations = {
+    @ApiOperation(value = "Start a new MTA operation (deploy, undeploy, blue-green deploy)", nickname = "startMtaOperation", notes = "Starts execution of a Multi-Target Application operation", authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted") })
-    public ResponseEntity<Operation> startOperation(@PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                                                    @RequestBody Operation operation, HttpServletRequest httpServletRequest) {
+    @ApiResponses(value = { @ApiResponse(code = 202, message = HttpResponses.ACCEPTED),
+        @ApiResponse(code = 400, message = HttpResponses.BAD_REQUEST),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 409, message = HttpResponses.CONFLICT),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
+    public ResponseEntity<Operation> startOperation(@ApiParam(value = "GUID of the CF space to deploy into") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+                                                    @ApiParam(value = "Operation descriptor specifying the process type and MTA parameters") @RequestBody Operation operation, HttpServletRequest httpServletRequest) {
         return delegate.startOperation(spaceGuid, operation, httpServletRequest);
     }
 
