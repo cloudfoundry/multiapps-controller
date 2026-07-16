@@ -51,7 +51,7 @@ class ExternalOperationLogEntryFactoryTest {
     void fromMessage_setsLogNameFromMessage() {
         List<ExternalOperationLogEntry> entries = factory.fromMessage(buildConfig(LogLevel.INFO), INFO_LOG);
 
-        assertEquals("hello-backend", entries.get(0)
+        assertEquals("deploy-app.hello-backend.log", entries.get(0)
                                              .getOperationLogName());
     }
 
@@ -122,7 +122,7 @@ class ExternalOperationLogEntryFactoryTest {
         ExternalOperationLogEntry entry = factory.fromLevelledMessage(buildConfig(LogLevel.INFO), INFO_LOG, LogLevel.INFO);
 
         assertEquals(OPERATION_ID, entry.getCorrelationId());
-        assertEquals("hello-backend", entry.getOperationLogName());
+        assertEquals("deploy-app.hello-backend.log", entry.getOperationLogName());
     }
 
     @Test

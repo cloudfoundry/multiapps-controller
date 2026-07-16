@@ -30,17 +30,17 @@ class CloudLoggingServiceMessageConverterTest {
     }
 
     @Test
-    void extractLogName_extractsSuffixAfterFirstDot() {
+    void extractLogName_appendsLogSuffixToMatchedName() {
         Optional<String> result = converter.extractLogName(logLine(DATE, "INFO", "deploy-app.hello-backend", "[main] msg"));
 
-        assertEquals(Optional.of("hello-backend"), result);
+        assertEquals(Optional.of("deploy-app.hello-backend.log"), result);
     }
 
     @Test
-    void extractLogName_returnsEverythingAfterFirstDotWhenMultiple() {
+    void extractLogName_appendsLogSuffixWhenNameHasMultipleDots() {
         Optional<String> result = converter.extractLogName(logLine(DATE, "INFO", "a.b.c", "[main] msg"));
 
-        assertEquals(Optional.of("b.c"), result);
+        assertEquals(Optional.of("a.b.c.log"), result);
     }
 
     @Test

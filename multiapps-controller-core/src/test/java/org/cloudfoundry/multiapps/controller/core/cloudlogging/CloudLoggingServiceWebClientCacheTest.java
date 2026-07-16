@@ -13,6 +13,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.Mockito.mock;
 
 class CloudLoggingServiceWebClientCacheTest {
 
@@ -25,7 +26,7 @@ class CloudLoggingServiceWebClientCacheTest {
 
     @Test
     void getOrCreate_cacheMiss_invokesSupplierAndReturnsResult() {
-        WebClient expected = WebClient.create();
+        WebClient expected = mock(WebClient.class);
         AtomicInteger calls = new AtomicInteger();
         Function<LoggingConfiguration, WebClient> supplier = cfg -> {
             calls.incrementAndGet();
@@ -40,7 +41,7 @@ class CloudLoggingServiceWebClientCacheTest {
 
     @Test
     void getOrCreate_cacheHit_doesNotInvokeSupplier() {
-        WebClient first = WebClient.create();
+        WebClient first = mock(WebClient.class);
         AtomicInteger calls = new AtomicInteger();
         Function<LoggingConfiguration, WebClient> supplier = cfg -> {
             calls.incrementAndGet();
@@ -74,8 +75,8 @@ class CloudLoggingServiceWebClientCacheTest {
 
     @Test
     void getOrCreate_differentOperationIds_areCachedSeparately() {
-        WebClient client1 = WebClient.create();
-        WebClient client2 = WebClient.create();
+        WebClient client1 = mock(WebClient.class);
+        WebClient client2 = mock(WebClient.class);
 
         WebClient a = cache.getOrCreate(config("op-1"), cfg -> client1);
         WebClient b = cache.getOrCreate(config("op-2"), cfg -> client2);
@@ -95,7 +96,7 @@ class CloudLoggingServiceWebClientCacheTest {
         AtomicInteger calls = new AtomicInteger();
         Function<LoggingConfiguration, WebClient> supplier = cfg -> {
             calls.incrementAndGet();
-            return WebClient.create();
+            return mock(WebClient.class);
         };
 
         cache.getOrCreate(config("op-1"), supplier);
