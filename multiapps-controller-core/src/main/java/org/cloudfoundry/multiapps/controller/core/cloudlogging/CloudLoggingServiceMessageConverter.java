@@ -29,6 +29,7 @@ public class CloudLoggingServiceMessageConverter {
     private static final Pattern MESSAGE_LOG_NAME = Pattern.compile("^#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#([^#\\r\\n]*)#",
                                                                     Pattern.MULTILINE);
     private static final String MESSAGE_SPLITTING_REGEX = "(?m)^#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#(?:\\r?\\n)?";
+    private static final String LOG_NAME_SUFFIX = ".log";
 
     public Optional<String> extractLogName(String message) {
         Matcher matcher = MESSAGE_LOG_NAME.matcher(message);
@@ -36,7 +37,8 @@ public class CloudLoggingServiceMessageConverter {
             return Optional.empty();
         }
         String raw = matcher.group(1);
-        return Optional.of(raw.substring(raw.indexOf(".") + 1));
+        raw += LOG_NAME_SUFFIX;
+        return Optional.of(raw);
     }
 
     public Map<LogLevel, List<OperationLog>> getLogsFromOperationLogEntry(

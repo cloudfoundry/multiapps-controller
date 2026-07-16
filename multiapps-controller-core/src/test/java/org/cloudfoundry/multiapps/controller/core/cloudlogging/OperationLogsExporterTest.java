@@ -111,12 +111,12 @@ class OperationLogsExporterTest {
     }
 
     @Test
-    void testSendLogs_withMessageString_extractsLogNameSuffix() {
+    void testSendLogs_withMessageString_appendsLogSuffixToLogName() {
         LoggingConfiguration config = buildConfig(LogLevel.INFO);
 
         exporter.sendLogsToCloudLoggingService(config, INFO_LOG);
 
-        assertEquals("hello-backend", httpClient.capturedEntries()
+        assertEquals("deploy-app.hello-backend.log", httpClient.capturedEntries()
                                                 .get(0)
                                                 .getOperationLogName());
     }

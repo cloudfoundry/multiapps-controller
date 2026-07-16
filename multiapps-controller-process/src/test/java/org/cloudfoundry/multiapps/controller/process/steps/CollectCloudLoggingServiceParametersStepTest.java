@@ -93,7 +93,7 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
 
         assertStepFinishedSuccessfully();
         assertNull(context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION));
-        verify(auditLog, never()).logGetLoggingConfiguration(any(), any(), any());
+        verify(auditLog).logGetLoggingConfiguration(any(), any(), any());
         verify(unsentProcessLogsProvider, never()).getUnsentProcessLogs(any());
     }
 

@@ -17,13 +17,16 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.PrematureCloseException;
+import reactor.util.retry.Retry;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,14 +34,20 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class CloudLoggingServiceHttpClientTest {
 
     private CloudLoggingServiceHttpClient client;
 
+    private static final int MAX_RETRY_ATTEMPTS = 4;
+
     @BeforeEach
     void setUp() {
         client = new CloudLoggingServiceHttpClient();
+        client.withRetrySpec(Retry.max(MAX_RETRY_ATTEMPTS)
+                                  .filter(client::isRetryableError)
+                                  .onRetryExhaustedThrow((spec, sig) -> sig.failure()));
     }
 
     @Test
@@ -207,8 +216,18 @@ class CloudLoggingServiceHttpClientTest {
     }
 
     private static Mono<ClientResponse> response(HttpStatus status) {
-        return Mono.just(ClientResponse.create(status)
-                                       .build());
+        if (status.is2xxSuccessful()) {
+            ClientResponse mock = mock(ClientResponse.class);
+            when(mock.statusCode()).thenReturn(status);
+            when(mock.headers()).thenReturn(mock(ClientResponse.Headers.class));
+            when(mock.releaseBody()).thenReturn(Mono.empty());
+            when(mock.bodyToMono(Void.class)).thenReturn(Mono.empty());
+            when(mock.toBodilessEntity()).thenReturn(Mono.just(org.springframework.http.ResponseEntity.ok()
+                                                                                                       .build()));
+            return Mono.just(mock);
+        }
+        return Mono.error(WebClientResponseException.create(status.value(), status.getReasonPhrase(),
+                                                            HttpHeaders.EMPTY, new byte[0], null));
     }
 
     private static List<ExternalOperationLogEntry> sampleBatch() {

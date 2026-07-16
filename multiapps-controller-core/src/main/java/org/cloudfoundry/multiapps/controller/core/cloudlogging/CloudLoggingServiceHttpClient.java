@@ -41,9 +41,15 @@ public class CloudLoggingServiceHttpClient {
 
     private final CloudLoggingServiceWebClientFactory webClientFactory;
     private final CloudLoggingServiceWebClientCache webClientCache;
+    private Retry retrySpec;
 
     public CloudLoggingServiceHttpClient() {
         this(new CloudLoggingServiceWebClientFactory(), new CloudLoggingServiceWebClientCache());
+    }
+
+    CloudLoggingServiceHttpClient withRetrySpec(Retry retrySpec) {
+        this.retrySpec = retrySpec;
+        return this;
     }
 
     @Inject
@@ -70,11 +76,14 @@ public class CloudLoggingServiceHttpClient {
                 CloudLoggingServiceUtil.logErrorOrThrowExceptionBasedOnFailSafe(loggingConfiguration, LOGGER,
                                                                                 Messages.FAILED_TO_SEND_LOG_MESSAGE_TO_CLS);
             }
+        } catch (IllegalStateException | WebClientResponseException e) {
+            handleSendLogFailure(loggingConfiguration, e);
         } catch (WebClientException e) {
-            if (!isTransportFailure(Exceptions.unwrap(e))) {
+            if (isTransportFailure(Exceptions.unwrap(e))) {
+                handleSendLogFailure(loggingConfiguration, e);
+            } else {
                 throw e;
             }
-            handleSendLogFailure(loggingConfiguration, e);
         }
     }
 
@@ -99,7 +108,7 @@ public class CloudLoggingServiceHttpClient {
                         .retrieve()
                         .toBodilessEntity()
                         .timeout(REQUEST_TIMEOUT)
-                        .retryWhen(buildRetrySpec())
+                        .retryWhen(retrySpec != null ? retrySpec : buildRetrySpec())
                         .block();
     }
 
@@ -113,7 +122,7 @@ public class CloudLoggingServiceHttpClient {
                     .onRetryExhaustedThrow((spec, retrySignal) -> retrySignal.failure());
     }
 
-    private boolean isRetryableError(Throwable throwable) {
+    boolean isRetryableError(Throwable throwable) {
         if (throwable instanceof WebClientResponseException responseException) {
             return RETRYABLE_STATUS_CODES.contains(responseException.getStatusCode()
                                                                     .value());
