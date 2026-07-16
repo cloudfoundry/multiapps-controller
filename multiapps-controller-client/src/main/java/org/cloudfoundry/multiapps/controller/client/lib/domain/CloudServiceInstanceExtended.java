@@ -53,4 +53,7 @@ public abstract class CloudServiceInstanceExtended extends CloudServiceInstance 
     @Nullable
     public abstract Boolean shouldFailOnTagsUpdateFailure();
 
+    @Nullable
+    public abstract CfUserMetadata getUserCfMetadata();
+
 }

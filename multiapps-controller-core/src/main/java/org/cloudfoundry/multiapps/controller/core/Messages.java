@@ -95,6 +95,11 @@ public final class Messages {
     public static final String UNSUPPORTED_FILE_FORMAT = "Unsupported file format! \"{0}\" detected";
     public static final String ENCRYPTION_HAS_FAILED = "Encryption has failed! Errored with \"{0}\"";
     public static final String DECRYPTION_HAS_FAILED = "Decryption has failed! Errored with \"{0}\"";
+    public static final String CF_METADATA_RESERVED_LABEL_KEY_0 = "Label key \"{0}\" in cf-metadata is reserved. Keys with the prefix \"mta_\" or the name segments used by the deploy service are managed internally and must not be set by the user.";
+    public static final String CF_METADATA_INVALID_LABEL_KEY_0 = "Label key \"{0}\" in cf-metadata is invalid. Keys must consist of an optional DNS prefix (up to 253 characters) followed by a '/' and a name segment (up to 63 alphanumeric, '-', '_', or '.' characters), or a bare name segment matching the same pattern.";
+    public static final String CF_METADATA_LABEL_VALUE_TOO_LONG_0 = "Label value for key \"{0}\" in cf-metadata exceeds the 63-character limit.";
+    public static final String CF_METADATA_ANNOTATION_VALUE_TOO_LONG_0 = "Annotation value for key \"{0}\" in cf-metadata exceeds the 5000-character limit.";
+    public static final String CF_METADATA_INVALID_TYPE = "Parameter \"cf-metadata\" must be a map with optional keys \"labels\" and \"annotations\", each a map of string to string.";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";

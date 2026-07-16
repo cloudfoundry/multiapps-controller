@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -26,6 +28,8 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKe
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ResourceType;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
@@ -211,10 +215,34 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     private boolean shouldUpdateMetadata(CloudServiceInstanceExtended service, CloudServiceInstance existingService) {
         Metadata existingMetadata = existingService.getV3Metadata();
         Metadata newMetadata = service.getV3Metadata();
-        if (existingMetadata != null && newMetadata != null) {
-            return !existingMetadata.equals(newMetadata);
+        if (newMetadata == null) {
+            return false;
         }
-        return newMetadata != null;
+        Set<String> internalLabelKeys = Set.of(MtaMetadataLabels.MTA_ID, MtaMetadataLabels.MTA_NAMESPACE, MtaMetadataLabels.SPACE_GUID,
+                                               MtaMetadataLabels.AUTOSCALER_LABEL);
+        Set<String> internalAnnotationKeys = Set.of(MtaMetadataAnnotations.MTA_ID, MtaMetadataAnnotations.MTA_VERSION,
+                                                    MtaMetadataAnnotations.MTA_NAMESPACE, MtaMetadataAnnotations.MTA_MODULE,
+                                                    MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES,
+                                                    MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES,
+                                                    MtaMetadataAnnotations.MTA_RESOURCE);
+
+        Map<String, String> existingLabels = existingMetadata != null
+            ? filterUserKeys(existingMetadata.getLabels(), internalLabelKeys)
+            : Map.of();
+        Map<String, String> newLabels = filterUserKeys(newMetadata.getLabels(), internalLabelKeys);
+        Map<String, String> existingAnnotations = existingMetadata != null
+            ? filterUserKeys(existingMetadata.getAnnotations(), internalAnnotationKeys)
+            : Map.of();
+        Map<String, String> newAnnotations = filterUserKeys(newMetadata.getAnnotations(), internalAnnotationKeys);
+
+        return !existingLabels.equals(newLabels) || !existingAnnotations.equals(newAnnotations);
+    }
+
+    private Map<String, String> filterUserKeys(Map<String, String> all, Set<String> internalKeys) {
+        return all.entrySet()
+                  .stream()
+                  .filter(e -> !internalKeys.contains(e.getKey()))
+                  .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     private CloudServiceInstanceExtended prepareServiceParameters(ProcessContext context, CloudServiceInstanceExtended service) {

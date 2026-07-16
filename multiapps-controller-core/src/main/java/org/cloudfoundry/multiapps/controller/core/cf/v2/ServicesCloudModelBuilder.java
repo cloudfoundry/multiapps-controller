@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceType;
 import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CfUserMetadata;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.Messages;
@@ -18,6 +19,7 @@ import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.core.util.SpecialResourceTypesRequiredParametersUtil;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Resource;
+import org.cloudfoundry.multiapps.controller.core.parser.CfMetadataParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +67,7 @@ public class ServicesCloudModelBuilder {
         String serviceName = commonServiceParameters.getServiceName();
         Map<String, Object> parameters = resource.getParameters();
         SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(serviceName, ResourceType.MANAGED_SERVICE, parameters);
+        CfUserMetadata userCfMetadata = new CfMetadataParser().parse(List.of(parameters));
 
         return ImmutableCloudServiceInstanceExtended.builder()
                                                     .name(serviceName)
@@ -88,7 +91,9 @@ public class ServicesCloudModelBuilder {
                                                         commonServiceParameters.failOnServiceParametersUpdateFailure())
                                                     .shouldFailOnPlanUpdateFailure(commonServiceParameters.failOnServicePlanUpdateFailure())
                                                     .shouldFailOnTagsUpdateFailure(commonServiceParameters.failOnServiceTagsUpdateFailure())
-                                                    .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource))
+                                                    .userCfMetadata(userCfMetadata)
+                                                    .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource,
+                                                                                             userCfMetadata))
                                                     .build();
     }
 
@@ -120,7 +125,8 @@ public class ServicesCloudModelBuilder {
                                                         commonServiceParameters.failOnServiceParametersUpdateFailure())
                                                     .shouldFailOnPlanUpdateFailure(commonServiceParameters.failOnServicePlanUpdateFailure())
                                                     .shouldFailOnTagsUpdateFailure(commonServiceParameters.failOnServiceTagsUpdateFailure())
-                                                    .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource))
+                                                    .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource,
+                                                                                             null))
                                                     .build();
     }
 
@@ -137,7 +143,8 @@ public class ServicesCloudModelBuilder {
                                                         commonServiceParameters.failOnServiceParametersUpdateFailure())
                                                     .shouldFailOnPlanUpdateFailure(commonServiceParameters.failOnServicePlanUpdateFailure())
                                                     .shouldFailOnTagsUpdateFailure(commonServiceParameters.failOnServiceTagsUpdateFailure())
-                                                    .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource))
+                                                    .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource,
+                                                                                             null))
                                                     .build();
     }
 

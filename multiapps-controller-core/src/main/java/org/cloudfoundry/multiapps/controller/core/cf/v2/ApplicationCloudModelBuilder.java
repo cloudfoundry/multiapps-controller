@@ -17,6 +17,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudTask;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.BindingDetails;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CfUserMetadata;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableBindingDetails;
@@ -32,6 +33,7 @@ import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication.ProductizationState;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.parser.ApplicationAttributeUpdateStrategyParser;
+import org.cloudfoundry.multiapps.controller.core.parser.CfMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.parser.DockerInfoParser;
 import org.cloudfoundry.multiapps.controller.core.parser.MemoryParametersParser;
 import org.cloudfoundry.multiapps.controller.core.parser.ParametersParser;
@@ -98,6 +100,7 @@ public class ApplicationCloudModelBuilder {
         ApplicationRoutesCloudModelBuilder routesCloudModelBuilder = getApplicationRoutesCloudModelBuilder(parametersList);
         Set<CloudRoute> routes = getApplicationRoutes(module);
         Set<CloudRoute> idleRoutes = routesCloudModelBuilder.getIdleApplicationRoutes(module, parametersList);
+        CfUserMetadata userCfMetadata = parseParameters(parametersList, new CfMetadataParser());
         return ImmutableCloudApplicationExtended.builder()
                                                 .name(getApplicationName(module))
                                                 .moduleName(module.getName())
@@ -117,8 +120,10 @@ public class ApplicationCloudModelBuilder {
                                                 .restartParameters(parseParameters(parametersList, new RestartParametersParser()))
                                                 .dockerInfo(parseParameters(parametersList, new DockerInfoParser()))
                                                 .attributesUpdateStrategy(getApplicationAttributesUpdateStrategy(parametersList))
+                                                .userCfMetadata(userCfMetadata)
                                                 .v3Metadata(ApplicationMetadataBuilder.build(deploymentDescriptor, namespace, module,
-                                                                                             getApplicationServices(module)))
+                                                                                             getApplicationServices(module),
+                                                                                             userCfMetadata))
                                                 .build();
     }
 
