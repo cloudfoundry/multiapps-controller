@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,6 +59,31 @@ class CfMetadataParserTest {
     void labelsValueNotAMapThrowsContentException() {
         Map<String, Object> params = Map.of(SupportedParameters.CF_METADATA,
                                             Map.of("labels", "not-a-map"));
+
+        assertThrows(ContentException.class, () -> parser.parse(List.of(params)));
+    }
+
+    @Test
+    void annotationsValueNotAMapThrowsContentException() {
+        Map<String, Object> params = Map.of(SupportedParameters.CF_METADATA,
+                                            Map.of("annotations", "not-a-map"));
+
+        assertThrows(ContentException.class, () -> parser.parse(List.of(params)));
+    }
+
+    @Test
+    void labelsWithNonStringValueThrowsContentException() {
+        Map<String, Object> labels = new HashMap<>();
+        labels.put("count", 42);
+        Map<String, Object> params = Map.of(SupportedParameters.CF_METADATA, Map.of("labels", labels));
+
+        assertThrows(ContentException.class, () -> parser.parse(List.of(params)));
+    }
+
+    @Test
+    void validStructureButReservedKeyIsRejectedByValidation() {
+        Map<String, Object> params = Map.of(SupportedParameters.CF_METADATA,
+                                            Map.of("labels", Map.of("mta_id", "custom")));
 
         assertThrows(ContentException.class, () -> parser.parse(List.of(params)));
     }
