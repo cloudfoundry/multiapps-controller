@@ -44,8 +44,8 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
     private Set<HttpStatus> additionalStatusesToIgnore = Collections.emptySet();
     private LongConsumer sleeper = MiscUtil::sleep;
     private LongSupplier randomDelaySupplier = () -> ThreadLocalRandom.current()
-                                                                       .nextLong(RANDOM_RETRY_MIN_WAIT_IN_MILLIS,
-                                                                                 RANDOM_RETRY_MAX_WAIT_IN_MILLIS + 1);
+                                                                      .nextLong(RANDOM_RETRY_MIN_WAIT_IN_MILLIS,
+                                                                                RANDOM_RETRY_MAX_WAIT_IN_MILLIS + 1);
 
     @Override
     public ResilientCloudOperationExecutor withRetryCount(long retryCount) {
@@ -126,19 +126,8 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
     }
 
     private long computeWaitMillis(RuntimeException e, long attemptIndex) {
-        if (e instanceof CloudOperationException) {
-            CloudOperationException cloudException = (CloudOperationException) e;
-            if (cloudException.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS) {
-                Long retryAfterSeconds = cloudException.getRetryAfterSeconds();
-                if (retryAfterSeconds != null) {
-                    long cappedSeconds = Math.max(1L, Math.min(retryAfterSeconds, RATE_LIMIT_RETRY_AFTER_CAP_IN_SECONDS));
-                    long waitMillis = cappedSeconds * 1000L;
-                    LOGGER.info(Messages.RATE_LIMITED_BY_CC_WAITING_S, retryAfterSeconds, cappedSeconds);
-                    return waitMillis;
-                }
-                LOGGER.info(Messages.RATE_LIMITED_BY_CC_NO_HEADER_WAITING_S, RATE_LIMIT_FALLBACK_WAIT_IN_MILLIS);
-                return RATE_LIMIT_FALLBACK_WAIT_IN_MILLIS;
-            }
+        if (isRateLimitException(e)) {
+            return computeRateLimitWaitMillis((CloudOperationException) e);
         }
         if (attemptIndex >= 2) {
             long waitMillis = randomDelaySupplier.getAsLong();
@@ -146,6 +135,22 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
             return waitMillis;
         }
         return waitTimeBetweenRetriesInMillis;
+    }
+
+    private boolean isRateLimitException(RuntimeException e) {
+        return e instanceof CloudOperationException cloudException
+            && cloudException.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS;
+    }
+
+    private long computeRateLimitWaitMillis(CloudOperationException e) {
+        Long retryAfterSeconds = e.getRetryAfterSeconds();
+        if (retryAfterSeconds == null) {
+            LOGGER.info(Messages.RATE_LIMITED_BY_CC_NO_HEADER_WAITING_S, RATE_LIMIT_FALLBACK_WAIT_IN_MILLIS);
+            return RATE_LIMIT_FALLBACK_WAIT_IN_MILLIS;
+        }
+        long cappedSeconds = Math.max(1L, Math.min(retryAfterSeconds, RATE_LIMIT_RETRY_AFTER_CAP_IN_SECONDS));
+        LOGGER.info(Messages.RATE_LIMITED_BY_CC_WAITING_S, retryAfterSeconds, cappedSeconds);
+        return cappedSeconds * 1000L;
     }
 
     private boolean shouldRetry(CloudOperationException e) {
