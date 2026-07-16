@@ -37,9 +37,7 @@
         <liquibase.version>4.33.0</liquibase.version>
         <liquibase-slf4j.version>5.1.0</liquibase-slf4j.version>
         <cloudfoundry-client.version>5.16.0.RELEASE</cloudfoundry-client.version>
-        <!-- reactor-netty 1.3.x direct-memory OOM (previously pinned to 1.2.x) resolved upstream in the 1.3.x release line -->
         <reactor-netty.version>1.3.6</reactor-netty.version>
-        <!-- Override Netty version; aligns with reactor-netty ${reactor-netty.version} and fixes CVE-2026-42583 (Lz4FrameDecoder resource exhaustion) -->
         <netty.version>4.2.15.Final</netty.version>
         <swagger.version>1.6.16</swagger.version>
         <jclouds.version>2.7.0</jclouds.version>
@@ -293,14 +291,6 @@
     </dependencies>
     <dependencyManagement>
         <dependencies>
-            <!-- Override Netty version to fix CVE-2026-42583 -->
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-bom</artifactId>
-                <version>${netty.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-bom</artifactId>
@@ -868,16 +858,6 @@
             <dependency>
                 <groupId>io.projectreactor.netty</groupId>
                 <artifactId>reactor-netty</artifactId>
-                <version>${reactor-netty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.projectreactor.netty</groupId>
-                <artifactId>reactor-netty-core</artifactId>
-                <version>${reactor-netty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.projectreactor.netty</groupId>
-                <artifactId>reactor-netty-http</artifactId>
                 <version>${reactor-netty.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.cloudfoundry.multiapps/multiapps-common -->
