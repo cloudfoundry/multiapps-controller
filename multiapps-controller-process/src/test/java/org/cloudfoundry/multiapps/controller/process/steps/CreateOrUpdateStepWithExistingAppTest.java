@@ -18,6 +18,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloud
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudProcess;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDockerData;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDockerInfo;
+import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDropletInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableLifecycle;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
@@ -504,6 +505,70 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
         verify(client).rename(idleAppName, APP_NAME);
         verify(subscriptionService)
             .update(any(), eq(new ConfigurationSubscription(0, "", "", APP_NAME, null, null, null, null, null)));
+    }
+
+    @Test
+    void userLabelChangeTriggersMetadataUpdate() {
+        Metadata existingMetadata = Metadata.builder()
+                                            .label("mta_id", "my-mta")
+                                            .label("env", "staging")
+                                            .build();
+        Metadata updatedMetadata = Metadata.builder()
+                                           .label("mta_id", "my-mta")
+                                           .label("env", "prod")
+                                           .build();
+        CloudApplication existingApplication = getApplicationBuilder(false).v3Metadata(existingMetadata)
+                                                                           .build();
+        CloudApplicationExtended application = getApplicationBuilder(false).v3Metadata(updatedMetadata)
+                                                                           .build();
+        prepareContext(application, false);
+        prepareClient(existingApplication, Set.of(), List.of(), Map.of(), DEFAULT_STAGING, null, null);
+
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
+        verify(client).updateApplicationMetadata(existingApplication.getGuid(), updatedMetadata);
+    }
+
+    @Test
+    void onlyMtaInternalLabelChangeDoesNotTriggerMetadataUpdate() {
+        Metadata existingMetadata = Metadata.builder()
+                                            .label("mta_id", "old-mta")
+                                            .label("env", "prod")
+                                            .build();
+        Metadata updatedMetadata = Metadata.builder()
+                                           .label("mta_id", "new-mta")
+                                           .label("env", "prod")
+                                           .build();
+        CloudApplication existingApplication = getApplicationBuilder(false).v3Metadata(existingMetadata)
+                                                                           .build();
+        CloudApplicationExtended application = getApplicationBuilder(false).v3Metadata(updatedMetadata)
+                                                                           .build();
+        prepareContext(application, false);
+        prepareClient(existingApplication, Set.of(), List.of(), Map.of(), DEFAULT_STAGING, null, null);
+
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
+        verify(client, never()).updateApplicationMetadata(any(), any());
+    }
+
+    @Test
+    void noExistingMetadataWithUserLabelTriggersMetadataUpdate() {
+        Metadata updatedMetadata = Metadata.builder()
+                                           .label("mta_id", "my-mta")
+                                           .label("env", "prod")
+                                           .build();
+        CloudApplication existingApplication = getApplicationBuilder(false).build();
+        CloudApplicationExtended application = getApplicationBuilder(false).v3Metadata(updatedMetadata)
+                                                                           .build();
+        prepareContext(application, false);
+        prepareClient(existingApplication, Set.of(), List.of(), Map.of(), DEFAULT_STAGING, null, null);
+
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
+        verify(client).updateApplicationMetadata(existingApplication.getGuid(), updatedMetadata);
     }
 
     @Override

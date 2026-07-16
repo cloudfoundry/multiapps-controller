@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceType;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
@@ -323,6 +324,124 @@ class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableSte
                                                     .metadata(metadata)
                                                     .tags(tags)
                                                     .build();
+    }
+
+    @Test
+    void userLabelChangeTriggersManagedServiceMetadataUpdateAction() {
+        CloudMetadata serviceMetadata = ImmutableCloudMetadata.of(UUID.randomUUID());
+        Metadata existingV3Metadata = Metadata.builder()
+                                              .label("mta_id", "my-mta")
+                                              .label("env", "staging")
+                                              .build();
+        Metadata updatedV3Metadata = Metadata.builder()
+                                             .label("mta_id", "my-mta")
+                                             .label("env", "prod")
+                                             .build();
+        var existingService = ImmutableCloudServiceInstanceExtended.builder()
+                                                                   .name(SERVICE_NAME)
+                                                                   .resourceName(SERVICE_NAME)
+                                                                   .metadata(serviceMetadata)
+                                                                   .v3Metadata(existingV3Metadata)
+                                                                   .tags(List.of())
+                                                                   .build();
+        var serviceToProcess = ImmutableCloudServiceInstanceExtended.builder()
+                                                                    .name(SERVICE_NAME)
+                                                                    .resourceName(SERVICE_NAME)
+                                                                    .metadata(serviceMetadata)
+                                                                    .v3Metadata(updatedV3Metadata)
+                                                                    .tags(List.of())
+                                                                    .build();
+
+        context.setVariable(Variables.SERVICE_TO_PROCESS, serviceToProcess);
+        context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, Map.of(SERVICE_NAME, Collections.emptyList()));
+        context.setVariable(Variables.DELETE_SERVICES, false);
+        context.setVariable(Variables.DELETE_SERVICE_KEYS, false);
+        context.setVariable(Variables.SHOULD_BACKUP_PREVIOUS_VERSION, false);
+        Mockito.when(client.getServiceInstance(SERVICE_NAME, false))
+               .thenReturn(existingService);
+
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
+        List<ServiceAction> actions = context.getVariable(Variables.SERVICE_ACTIONS_TO_EXCECUTE);
+        assertTrue(actions.contains(ServiceAction.UPDATE_METADATA), "Actions should contain UPDATE_METADATA");
+    }
+
+    @Test
+    void onlyMtaInternalLabelChangeDoesNotTriggerManagedServiceMetadataUpdateAction() {
+        CloudMetadata serviceMetadata = ImmutableCloudMetadata.of(UUID.randomUUID());
+        Metadata existingV3Metadata = Metadata.builder()
+                                              .label("mta_id", "old-mta")
+                                              .label("env", "prod")
+                                              .build();
+        Metadata updatedV3Metadata = Metadata.builder()
+                                             .label("mta_id", "new-mta")
+                                             .label("env", "prod")
+                                             .build();
+        var existingService = ImmutableCloudServiceInstanceExtended.builder()
+                                                                   .name(SERVICE_NAME)
+                                                                   .resourceName(SERVICE_NAME)
+                                                                   .metadata(serviceMetadata)
+                                                                   .v3Metadata(existingV3Metadata)
+                                                                   .tags(List.of())
+                                                                   .build();
+        var serviceToProcess = ImmutableCloudServiceInstanceExtended.builder()
+                                                                    .name(SERVICE_NAME)
+                                                                    .resourceName(SERVICE_NAME)
+                                                                    .metadata(serviceMetadata)
+                                                                    .v3Metadata(updatedV3Metadata)
+                                                                    .tags(List.of())
+                                                                    .build();
+
+        context.setVariable(Variables.SERVICE_TO_PROCESS, serviceToProcess);
+        context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, Map.of(SERVICE_NAME, Collections.emptyList()));
+        context.setVariable(Variables.DELETE_SERVICES, false);
+        context.setVariable(Variables.DELETE_SERVICE_KEYS, false);
+        context.setVariable(Variables.SHOULD_BACKUP_PREVIOUS_VERSION, false);
+        Mockito.when(client.getServiceInstance(SERVICE_NAME, false))
+               .thenReturn(existingService);
+
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
+        List<ServiceAction> actions = context.getVariable(Variables.SERVICE_ACTIONS_TO_EXCECUTE);
+        assertFalse(actions.contains(ServiceAction.UPDATE_METADATA), "Actions should not contain UPDATE_METADATA");
+    }
+
+    @Test
+    void noExistingV3MetadataWithUserLabelTriggersManagedServiceMetadataUpdateAction() {
+        CloudMetadata serviceMetadata = ImmutableCloudMetadata.of(UUID.randomUUID());
+        Metadata updatedV3Metadata = Metadata.builder()
+                                             .label("mta_id", "my-mta")
+                                             .label("env", "prod")
+                                             .build();
+        var existingService = ImmutableCloudServiceInstanceExtended.builder()
+                                                                   .name(SERVICE_NAME)
+                                                                   .resourceName(SERVICE_NAME)
+                                                                   .metadata(serviceMetadata)
+                                                                   .tags(List.of())
+                                                                   .build();
+        var serviceToProcess = ImmutableCloudServiceInstanceExtended.builder()
+                                                                    .name(SERVICE_NAME)
+                                                                    .resourceName(SERVICE_NAME)
+                                                                    .metadata(serviceMetadata)
+                                                                    .v3Metadata(updatedV3Metadata)
+                                                                    .tags(List.of())
+                                                                    .build();
+
+        context.setVariable(Variables.SERVICE_TO_PROCESS, serviceToProcess);
+        context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, Map.of(SERVICE_NAME, Collections.emptyList()));
+        context.setVariable(Variables.DELETE_SERVICES, false);
+        context.setVariable(Variables.DELETE_SERVICE_KEYS, false);
+        context.setVariable(Variables.SHOULD_BACKUP_PREVIOUS_VERSION, false);
+        Mockito.when(client.getServiceInstance(SERVICE_NAME, false))
+               .thenReturn(existingService);
+
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
+        List<ServiceAction> actions = context.getVariable(Variables.SERVICE_ACTIONS_TO_EXCECUTE);
+        assertTrue(actions.contains(ServiceAction.UPDATE_METADATA), "Actions should contain UPDATE_METADATA");
     }
 
     @Override

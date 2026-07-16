@@ -239,6 +239,9 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     }
 
     private Map<String, String> filterUserKeys(Map<String, String> all, Set<String> internalKeys) {
+        if (all == null) {
+            return Map.of();
+        }
         return all.entrySet()
                   .stream()
                   .filter(e -> !internalKeys.contains(e.getKey()))
