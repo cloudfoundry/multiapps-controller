@@ -18,16 +18,20 @@ import org.springframework.http.HttpStatus;
 class ResilientCloudOperationExecutorTest {
 
     private ResilientCloudOperationExecutor executor;
+    private List<Long> sleepCalls;
+    private AtomicInteger attempts;
 
     @BeforeEach
     void setUp() {
+        sleepCalls = new ArrayList<>();
+        attempts = new AtomicInteger();
         executor = new ResilientCloudOperationExecutor().withRetryCount(3)
-                                                        .withWaitTimeBetweenRetriesInMillis(0);
+                                                        .withWaitTimeBetweenRetriesInMillis(0)
+                                                        .withSleeper(sleepCalls::add);
     }
 
     @Test
     void testRetriesOnDefaultIgnoredStatuses() {
-        AtomicInteger attempts = new AtomicInteger();
         Supplier<String> operation = () -> {
             if (attempts.incrementAndGet() < 2) {
                 throw new CloudOperationException(HttpStatus.BAD_GATEWAY);
@@ -43,7 +47,6 @@ class ResilientCloudOperationExecutorTest {
 
     @Test
     void testThrowsImmediatelyOnNonIgnoredStatus() {
-        AtomicInteger attempts = new AtomicInteger();
         Supplier<String> operation = () -> {
             attempts.incrementAndGet();
             throw new CloudOperationException(HttpStatus.NOT_FOUND);
@@ -56,7 +59,6 @@ class ResilientCloudOperationExecutorTest {
 
     @Test
     void testWithStatusesToIgnoreAddsAdditionalRetryableStatuses() {
-        AtomicInteger attempts = new AtomicInteger();
         Supplier<String> operation = () -> {
             if (attempts.incrementAndGet() < 2) {
                 throw new CloudOperationException(HttpStatus.NOT_FOUND);
@@ -89,10 +91,6 @@ class ResilientCloudOperationExecutorTest {
     @ParameterizedTest(name = "{0}: retryAfter={1}s → sleep={2}ms")
     @MethodSource("retryAfterHeaderCappingCases")
     void testRetryAfterHeaderCapping(String description, long retryAfterSeconds, long expectedSleepMillis) {
-        List<Long> sleepCalls = new ArrayList<>();
-        executor = new ResilientCloudOperationExecutor().withRetryCount(3)
-                                                        .withSleeper(sleepCalls::add);
-        AtomicInteger attempts = new AtomicInteger();
         Supplier<String> operation = () -> {
             if (attempts.incrementAndGet() == 1) {
                 throw new CloudOperationException(HttpStatus.TOO_MANY_REQUESTS,
@@ -110,10 +108,6 @@ class ResilientCloudOperationExecutorTest {
 
     @Test
     void testRateLimitFallbackWhenRetryAfterAbsent() {
-        List<Long> sleepCalls = new ArrayList<>();
-        executor = new ResilientCloudOperationExecutor().withRetryCount(3)
-                                                        .withSleeper(sleepCalls::add);
-        AtomicInteger attempts = new AtomicInteger();
         Supplier<String> operation = () -> {
             if (attempts.incrementAndGet() == 1) {
                 throw new CloudOperationException(HttpStatus.TOO_MANY_REQUESTS,
@@ -131,11 +125,9 @@ class ResilientCloudOperationExecutorTest {
 
     @Test
     void testNon429UsesExistingFixedDelay() {
-        List<Long> sleepCalls = new ArrayList<>();
         executor = new ResilientCloudOperationExecutor().withRetryCount(3)
                                                         .withWaitTimeBetweenRetriesInMillis(5_000L)
                                                         .withSleeper(sleepCalls::add);
-        AtomicInteger attempts = new AtomicInteger();
         Supplier<String> operation = () -> {
             if (attempts.incrementAndGet() == 1) {
                 throw new CloudOperationException(HttpStatus.BAD_GATEWAY);
@@ -152,12 +144,10 @@ class ResilientCloudOperationExecutorTest {
     @Test
     void testRandomDelayAppliedForNon429AfterFirstRetry() {
         long deterministicDelay = 45_000L;
-        List<Long> sleepCalls = new ArrayList<>();
         executor = new ResilientCloudOperationExecutor().withRetryCount(4)
                                                         .withWaitTimeBetweenRetriesInMillis(0)
                                                         .withSleeper(sleepCalls::add)
                                                         .withRandomDelaySupplier(() -> deterministicDelay);
-        AtomicInteger attempts = new AtomicInteger();
         Supplier<String> operation = () -> {
             if (attempts.incrementAndGet() < 3) {
                 throw new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -174,12 +164,10 @@ class ResilientCloudOperationExecutorTest {
 
     @Test
     void testRetryableOperationThatNeverSucceedsIsEventuallyRethrown() {
-        List<Long> sleepCalls = new ArrayList<>();
         executor = new ResilientCloudOperationExecutor().withRetryCount(3)
                                                         .withWaitTimeBetweenRetriesInMillis(0)
                                                         .withSleeper(sleepCalls::add)
                                                         .withRandomDelaySupplier(() -> 0L);
-        AtomicInteger attempts = new AtomicInteger();
         Supplier<String> operation = () -> {
             attempts.incrementAndGet();
             throw new CloudOperationException(HttpStatus.BAD_GATEWAY);
@@ -192,11 +180,9 @@ class ResilientCloudOperationExecutorTest {
 
     @Test
     void testRunnableOverloadIsRetriedThroughOverriddenExecute() {
-        List<Long> sleepCalls = new ArrayList<>();
         executor = new ResilientCloudOperationExecutor().withRetryCount(3)
                                                         .withWaitTimeBetweenRetriesInMillis(7_000L)
                                                         .withSleeper(sleepCalls::add);
-        AtomicInteger attempts = new AtomicInteger();
         Runnable operation = () -> {
             if (attempts.incrementAndGet() < 2) {
                 throw new CloudOperationException(HttpStatus.SERVICE_UNAVAILABLE);
