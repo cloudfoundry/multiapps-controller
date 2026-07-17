@@ -1,17 +1,18 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
-import org.cloudfoundry.multiapps.controller.client.facade.util.CloudUtil;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.web.client.DefaultResponseErrorHandler;
-import org.springframework.web.client.RestClientException;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.util.CloudUtil;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.web.client.DefaultResponseErrorHandler;
+import org.springframework.web.client.RestClientException;
 
 public class CloudControllerResponseErrorHandler extends DefaultResponseErrorHandler {
 
@@ -40,14 +41,14 @@ public class CloudControllerResponseErrorHandler extends DefaultResponseErrorHan
             return null;
         }
         String headerValue = response.getHeaders()
-                                     .getFirst(org.springframework.http.HttpHeaders.RETRY_AFTER);
+                                     .getFirst(HttpHeaders.RETRY_AFTER);
         if (headerValue == null) {
             return null;
         }
         try {
             long parsed = Long.parseLong(headerValue);
             return parsed > 0 ? parsed : null;
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException _) {
             return null;
         }
     }

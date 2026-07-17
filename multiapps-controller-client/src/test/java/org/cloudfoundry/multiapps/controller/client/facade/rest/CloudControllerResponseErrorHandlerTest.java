@@ -1,28 +1,26 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.RestClientException;
 
-import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CloudControllerResponseErrorHandlerTest {
 
     private final CloudControllerResponseErrorHandler handler = new CloudControllerResponseErrorHandler();
 
     @Test
-    void testWithV2Error() throws IOException {
+    void testWithV2Error() {
         HttpStatus statusCode = HttpStatus.UNPROCESSABLE_ENTITY;
         ClientHttpResponseMock response = new ClientHttpResponseMock(statusCode, getClass().getResourceAsStream("v2-error.json"));
         CloudOperationException expectedException = new CloudOperationException(statusCode,
@@ -32,7 +30,7 @@ class CloudControllerResponseErrorHandlerTest {
     }
 
     @Test
-    void testWithV3Error() throws IOException {
+    void testWithV3Error() {
         HttpStatus statusCode = HttpStatus.BAD_REQUEST;
         ClientHttpResponseMock response = new ClientHttpResponseMock(statusCode, getClass().getResourceAsStream("v3-error.json"));
         CloudOperationException expectedException = new CloudOperationException(statusCode,
@@ -42,7 +40,7 @@ class CloudControllerResponseErrorHandlerTest {
     }
 
     @Test
-    void testWithInvalidError() throws IOException {
+    void testWithInvalidError() {
         HttpStatus statusCode = HttpStatus.BAD_REQUEST;
         ClientHttpResponseMock response = new ClientHttpResponseMock(statusCode, toInputStream("blabla"));
         CloudOperationException expectedException = new CloudOperationException(statusCode, statusCode.getReasonPhrase());
@@ -50,7 +48,7 @@ class CloudControllerResponseErrorHandlerTest {
     }
 
     @Test
-    void testWithEmptyResponse() throws IOException {
+    void testWithEmptyResponse() {
         HttpStatus statusCode = HttpStatus.BAD_REQUEST;
         ClientHttpResponseMock response = new ClientHttpResponseMock(statusCode, toInputStream("{    }"));
         CloudOperationException expectedException = new CloudOperationException(statusCode, statusCode.getReasonPhrase());
@@ -58,94 +56,66 @@ class CloudControllerResponseErrorHandlerTest {
     }
 
     @Test
-    void testWith429AndRetryAfterHeader() throws IOException {
+    void testWith429AndRetryAfterHeader() {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.RETRY_AFTER, "60");
         ClientHttpResponseMock response = new ClientHttpResponseMock(HttpStatus.TOO_MANY_REQUESTS, toInputStream("{}"), headers);
-        try {
-            handler.handleError(response);
-            fail("Expected an exception");
-        } catch (CloudOperationException e) {
-            assertEquals(HttpStatus.TOO_MANY_REQUESTS, e.getStatusCode());
-            assertEquals(60L, e.getRetryAfterSeconds());
-        }
+        CloudOperationException e = assertThrows(CloudOperationException.class, () -> handler.handleError(response));
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS, e.getStatusCode());
+        assertEquals(60L, e.getRetryAfterSeconds());
     }
 
     @Test
-    void testWith429WithoutRetryAfterHeader() throws IOException {
+    void testWith429WithoutRetryAfterHeader() {
         ClientHttpResponseMock response = new ClientHttpResponseMock(HttpStatus.TOO_MANY_REQUESTS, toInputStream("{}"));
-        try {
-            handler.handleError(response);
-            fail("Expected an exception");
-        } catch (CloudOperationException e) {
-            assertEquals(HttpStatus.TOO_MANY_REQUESTS, e.getStatusCode());
-            assertNull(e.getRetryAfterSeconds());
-        }
+        CloudOperationException e = assertThrows(CloudOperationException.class, () -> handler.handleError(response));
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS, e.getStatusCode());
+        assertNull(e.getRetryAfterSeconds());
     }
 
     @Test
-    void testWith429AndNonNumericRetryAfterHeader() throws IOException {
+    void testWith429AndNonNumericRetryAfterHeader() {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.RETRY_AFTER, "not-a-number");
         ClientHttpResponseMock response = new ClientHttpResponseMock(HttpStatus.TOO_MANY_REQUESTS, toInputStream("{}"), headers);
-        try {
-            handler.handleError(response);
-            fail("Expected an exception");
-        } catch (CloudOperationException e) {
-            assertEquals(HttpStatus.TOO_MANY_REQUESTS, e.getStatusCode());
-            assertNull(e.getRetryAfterSeconds());
-        }
+        CloudOperationException e = assertThrows(CloudOperationException.class, () -> handler.handleError(response));
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS, e.getStatusCode());
+        assertNull(e.getRetryAfterSeconds());
     }
 
     @Test
-    void testNon429DoesNotSetRetryAfterSeconds() throws IOException {
+    void testNon429DoesNotSetRetryAfterSeconds() {
         ClientHttpResponseMock response = new ClientHttpResponseMock(HttpStatus.INTERNAL_SERVER_ERROR, toInputStream("{}"));
-        try {
-            handler.handleError(response);
-            fail("Expected an exception");
-        } catch (CloudOperationException e) {
-            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, e.getStatusCode());
-            assertNull(e.getRetryAfterSeconds());
-        }
+        CloudOperationException e = assertThrows(CloudOperationException.class, () -> handler.handleError(response));
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, e.getStatusCode());
+        assertNull(e.getRetryAfterSeconds());
     }
 
     @Test
-    void testWith429RetainsRetryAfterAndDescriptionWhenBodyPresent() throws IOException {
+    void testWith429RetainsRetryAfterAndDescriptionWhenBodyPresent() {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.RETRY_AFTER, "30");
         ClientHttpResponseMock response = new ClientHttpResponseMock(HttpStatus.TOO_MANY_REQUESTS,
                                                                      toInputStream("{\"description\":\"rate limit exceeded\"}"), headers);
-        try {
-            handler.handleError(response);
-            fail("Expected an exception");
-        } catch (CloudOperationException e) {
-            assertEquals(HttpStatus.TOO_MANY_REQUESTS, e.getStatusCode());
-            assertEquals(30L, e.getRetryAfterSeconds());
-            assertEquals("rate limit exceeded", e.getDescription());
-        }
+        CloudOperationException e = assertThrows(CloudOperationException.class, () -> handler.handleError(response));
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS, e.getStatusCode());
+        assertEquals(30L, e.getRetryAfterSeconds());
+        assertEquals("rate limit exceeded", e.getDescription());
     }
 
-    private void testWithError(ClientHttpResponseMock response, CloudOperationException expectedException) throws IOException {
-        try {
-            handler.handleError(response);
-            fail("Expected an exception");
-        } catch (CloudOperationException exception) {
-            assertEquals(expectedException.getStatusCode(), exception.getStatusCode());
-            assertEquals(expectedException.getStatusText(), exception.getStatusText());
-            assertEquals(expectedException.getDescription(), exception.getDescription());
-        }
+    private void testWithError(ClientHttpResponseMock response, CloudOperationException expectedException) {
+        CloudOperationException exception = assertThrows(CloudOperationException.class, () -> handler.handleError(response));
+        assertEquals(expectedException.getStatusCode(), exception.getStatusCode());
+        assertEquals(expectedException.getStatusText(), exception.getStatusText());
+        assertEquals(expectedException.getDescription(), exception.getDescription());
     }
 
     @Test
-    void testWithNonClientOrServerError() throws IOException {
+    void testWithNonClientOrServerError() {
         HttpStatus statusCode = HttpStatus.PERMANENT_REDIRECT;
         ClientHttpResponseMock response = new ClientHttpResponseMock(HttpStatus.PERMANENT_REDIRECT, null);
-        try {
-            handler.handleError(response);
-            fail("Expected an exception");
-        } catch (RestClientException exception) {
-            assertEquals("Unknown status code [" + statusCode + "]", exception.getMessage());
-        }
+        RestClientException exception = assertThrows(RestClientException.class, () -> handler.handleError(response));
+        assertEquals("Unknown status code [" + statusCode + "]", exception.getMessage());
     }
 
     private InputStream toInputStream(String string) {

@@ -77,7 +77,7 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
         for (long i = 1; i < retryCount; i++) {
             try {
                 return operation.get();
-            } catch (CloudOperationException e) {
+            } catch (RuntimeException e) {
                 handle(e);
                 long waitMillis = computeWaitMillis(e, i);
                 sleeper.accept(waitMillis);
@@ -145,10 +145,10 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
     private long computeRateLimitWaitMillis(CloudOperationException e) {
         Long retryAfterSeconds = e.getRetryAfterSeconds();
         if (retryAfterSeconds == null) {
-            LOGGER.info(Messages.RATE_LIMITED_BY_CC_NO_HEADER_WAITING_S, RATE_LIMIT_FALLBACK_WAIT_IN_MILLIS);
+            LOGGER.info(Messages.RATE_LIMITED_BY_CC_NO_HEADER_WAITING_MS, RATE_LIMIT_FALLBACK_WAIT_IN_MILLIS);
             return RATE_LIMIT_FALLBACK_WAIT_IN_MILLIS;
         }
-        long cappedSeconds = Math.max(1L, Math.min(retryAfterSeconds, RATE_LIMIT_RETRY_AFTER_CAP_IN_SECONDS));
+        long cappedSeconds = Math.clamp(retryAfterSeconds, 1L, RATE_LIMIT_RETRY_AFTER_CAP_IN_SECONDS);
         LOGGER.info(Messages.RATE_LIMITED_BY_CC_WAITING_S, retryAfterSeconds, cappedSeconds);
         return cappedSeconds * 1000L;
     }

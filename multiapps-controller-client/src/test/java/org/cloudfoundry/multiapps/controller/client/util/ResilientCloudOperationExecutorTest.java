@@ -4,11 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpStatus;
 
 class ResilientCloudOperationExecutorTest {
@@ -76,29 +80,15 @@ class ResilientCloudOperationExecutorTest {
         Assertions.assertNotNull(chained);
     }
 
-    @Test
-    void testRetryAfterHeaderIsHonouredOnRateLimit() {
-        List<Long> sleepCalls = new ArrayList<>();
-        executor = new ResilientCloudOperationExecutor().withRetryCount(3)
-                                                        .withSleeper(sleepCalls::add);
-        AtomicInteger attempts = new AtomicInteger();
-        Supplier<String> operation = () -> {
-            if (attempts.incrementAndGet() == 1) {
-                throw new CloudOperationException(HttpStatus.TOO_MANY_REQUESTS,
-                                                  HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(),
-                                                  null, null, 2L);
-            }
-            return "ok";
-        };
-
-        executor.execute(operation);
-
-        Assertions.assertEquals(1, sleepCalls.size());
-        Assertions.assertEquals(2_000L, sleepCalls.get(0));
+    static Stream<Arguments> retryAfterHeaderCappingCases() {
+        return Stream.of(Arguments.of("below cap", 2L, 2_000L),
+                         Arguments.of("above cap", 300L, 120_000L),
+                         Arguments.of("at cap", 120L, 120_000L));
     }
 
-    @Test
-    void testRetryAfterHeaderCappedAtMaximum() {
+    @ParameterizedTest(name = "{0}: retryAfter={1}s → sleep={2}ms")
+    @MethodSource("retryAfterHeaderCappingCases")
+    void testRetryAfterHeaderCapping(String description, long retryAfterSeconds, long expectedSleepMillis) {
         List<Long> sleepCalls = new ArrayList<>();
         executor = new ResilientCloudOperationExecutor().withRetryCount(3)
                                                         .withSleeper(sleepCalls::add);
@@ -107,7 +97,7 @@ class ResilientCloudOperationExecutorTest {
             if (attempts.incrementAndGet() == 1) {
                 throw new CloudOperationException(HttpStatus.TOO_MANY_REQUESTS,
                                                   HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(),
-                                                  null, null, 300L);
+                                                  null, null, retryAfterSeconds);
             }
             return "ok";
         };
@@ -115,28 +105,7 @@ class ResilientCloudOperationExecutorTest {
         executor.execute(operation);
 
         Assertions.assertEquals(1, sleepCalls.size());
-        Assertions.assertEquals(120_000L, sleepCalls.get(0));
-    }
-
-    @Test
-    void testRetryAfterHeaderAtCapIsNotReduced() {
-        List<Long> sleepCalls = new ArrayList<>();
-        executor = new ResilientCloudOperationExecutor().withRetryCount(3)
-                                                        .withSleeper(sleepCalls::add);
-        AtomicInteger attempts = new AtomicInteger();
-        Supplier<String> operation = () -> {
-            if (attempts.incrementAndGet() == 1) {
-                throw new CloudOperationException(HttpStatus.TOO_MANY_REQUESTS,
-                                                  HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(),
-                                                  null, null, 120L);
-            }
-            return "ok";
-        };
-
-        executor.execute(operation);
-
-        Assertions.assertEquals(1, sleepCalls.size());
-        Assertions.assertEquals(120_000L, sleepCalls.get(0));
+        Assertions.assertEquals(expectedSleepMillis, sleepCalls.get(0));
     }
 
     @Test
