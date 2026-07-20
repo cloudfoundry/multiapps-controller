@@ -131,7 +131,7 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
         }
         if (attemptIndex >= 2) {
             long waitMillis = randomDelaySupplier.getAsLong();
-            LOGGER.info(Messages.RANDOM_WAIT_BEFORE_RETRY_S, waitMillis);
+            LOGGER.info(Messages.RANDOM_WAIT_BEFORE_RETRY_MS, waitMillis);
             return waitMillis;
         }
         return waitTimeBetweenRetriesInMillis;

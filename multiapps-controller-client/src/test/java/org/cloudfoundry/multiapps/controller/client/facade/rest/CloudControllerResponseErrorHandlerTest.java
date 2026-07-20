@@ -74,6 +74,24 @@ class CloudControllerResponseErrorHandlerTest {
     }
 
     @Test
+    void testWith429AndZeroRetryAfterHeaderIsAccepted() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.RETRY_AFTER, "0");
+        ClientHttpResponseMock response = new ClientHttpResponseMock(HttpStatus.TOO_MANY_REQUESTS, toInputStream("{}"), headers);
+        CloudOperationException e = assertThrows(CloudOperationException.class, () -> handler.handleError(response));
+        assertEquals(0L, e.getRetryAfterSeconds());
+    }
+
+    @Test
+    void testWith429AndNegativeRetryAfterHeaderIsIgnored() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.RETRY_AFTER, "-1");
+        ClientHttpResponseMock response = new ClientHttpResponseMock(HttpStatus.TOO_MANY_REQUESTS, toInputStream("{}"), headers);
+        CloudOperationException e = assertThrows(CloudOperationException.class, () -> handler.handleError(response));
+        assertNull(e.getRetryAfterSeconds());
+    }
+
+    @Test
     void testWith429AndNonNumericRetryAfterHeader() {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.RETRY_AFTER, "not-a-number");
