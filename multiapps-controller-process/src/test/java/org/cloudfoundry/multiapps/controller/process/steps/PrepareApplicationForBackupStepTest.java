@@ -48,7 +48,7 @@ class PrepareApplicationForBackupStepTest extends SyncFlowableStepTest<PrepareAp
         verify(client).rename(applicationName, expectedNewApplicationName);
         verify(client).updateApplicationMetadata(applicationGuid, Metadata.builder()
                                                                           .label(MtaMetadataLabels.MTA_NAMESPACE,
-                                                                                 MtaMetadataUtil.getHashedLabel(expectedNamespace))
+                                                                                 MtaMetadataUtil.getSha256HashedLabel(expectedNamespace))
                                                                           .annotation(MtaMetadataAnnotations.MTA_NAMESPACE,
                                                                                       expectedNamespace)
                                                                           .build());

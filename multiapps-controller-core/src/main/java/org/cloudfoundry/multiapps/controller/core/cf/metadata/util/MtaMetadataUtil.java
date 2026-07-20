@@ -1,5 +1,9 @@
 package org.cloudfoundry.multiapps.controller.core.cf.metadata.util;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Set;
 
@@ -40,6 +44,21 @@ public class MtaMetadataUtil {
         }
 
         return DigestUtils.md5DigestAsHex(mtaLabel.getBytes());
+    }
+
+    public static String getSha256HashedLabel(String mtaLabel) {
+        if (StringUtils.isEmpty(mtaLabel)) {
+            return mtaLabel;
+        }
+        try {
+            byte[] digest = MessageDigest.getInstance("SHA-256")
+                                         .digest(mtaLabel.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of()
+                            .formatHex(digest)
+                            .substring(0, 63);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 not available", e);
+        }
     }
 
     public static Metadata getMetadataWithoutMtaFields(Metadata metadata) {

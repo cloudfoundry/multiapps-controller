@@ -37,10 +37,12 @@ public class CustomServiceKeysClient extends CustomControllerClient {
                                                          .hasValue(spaceGuid)
                                                          .and()
                                                          .label(MtaMetadataLabels.MTA_NAMESPACE)
-                                                         .hasValueOrIsntPresent(MtaMetadataUtil.getHashedLabel(mtaNamespace))
+                                                         .hasValueInOrDoesNotExist(MtaMetadataUtil.getSha256HashedLabel(mtaNamespace),
+                                                                                   MtaMetadataUtil.getHashedLabel(mtaNamespace))
                                                          .and()
                                                          .label(MtaMetadataLabels.MTA_ID)
-                                                         .hasValue(MtaMetadataUtil.getHashedLabel(mtaId))
+                                                         .hasValueIn(MtaMetadataUtil.getSha256HashedLabel(mtaId),
+                                                                     MtaMetadataUtil.getHashedLabel(mtaId))
                                                          .build()
                                                          .get();
 

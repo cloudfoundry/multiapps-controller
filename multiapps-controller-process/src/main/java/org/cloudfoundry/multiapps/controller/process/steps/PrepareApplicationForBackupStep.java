@@ -36,7 +36,7 @@ public class PrepareApplicationForBackupStep extends SyncFlowableStep {
 
         getStepLogger().info(Messages.RENAMING_APPLICATION_0_TO_1_TO_BE_USED_FOR_ROLLBACK, cloudApplication.getName(), newApplicationName);
         client.rename(cloudApplication.getName(), newApplicationName);
-        String hashedMtaNamespace = MtaMetadataUtil.getHashedLabel(mtaUserNamespaceWithSystemNamespace);
+        String hashedMtaNamespace = MtaMetadataUtil.getSha256HashedLabel(mtaUserNamespaceWithSystemNamespace);
         client.updateApplicationMetadata(cloudApplication.getGuid(), Metadata.builder()
                                                                              .from(cloudApplication.getV3Metadata())
                                                                              .label(MtaMetadataLabels.MTA_NAMESPACE, hashedMtaNamespace)

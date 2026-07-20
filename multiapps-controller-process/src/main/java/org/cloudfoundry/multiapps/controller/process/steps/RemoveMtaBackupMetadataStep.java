@@ -26,7 +26,7 @@ public class RemoveMtaBackupMetadataStep extends SyncFlowableStep {
         CloudControllerClient client = context.getControllerClient();
 
         String mtaNamespace = context.getVariable(Variables.MTA_NAMESPACE);
-        String hashedMtaNamespace = mtaNamespace != null ? MtaMetadataUtil.getHashedLabel(mtaNamespace) : null;
+        String hashedMtaNamespace = mtaNamespace != null ? MtaMetadataUtil.getSha256HashedLabel(mtaNamespace) : null;
 
         for (DeployedMtaApplication application : backupMta.getApplications()) {
             getStepLogger().debug(Messages.REMOVE_MTA_BACKUP_METADATA_FOR_APPLICATION_0, application.getName());

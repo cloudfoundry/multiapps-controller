@@ -23,13 +23,27 @@ public class LabelBuilder {
         if (StringUtils.isEmpty(value)) {
             return doesNotExist();
         }
-        
+
         return hasValue(value);
     }
 
-    public FinalizingBuilder hasValue(String value) {        
+    public FinalizingBuilder hasValueInOrDoesNotExist(String... values) {
+        if (values.length == 0 || StringUtils.isEmpty(values[0])) {
+            return doesNotExist();
+        }
+        return hasValueIn(values);
+    }
+
+    public FinalizingBuilder hasValue(String value) {
         MtaMetadataCriteriaValidator.validateLabelValue(value);
         return completeQuery(label + "=" + value);
+    }
+
+    public FinalizingBuilder hasValueIn(String... values) {
+        for (String value : values) {
+            MtaMetadataCriteriaValidator.validateLabelValue(value);
+        }
+        return completeQuery(label + " in (" + String.join(",", values) + ")");
     }
 
     private FinalizingBuilder completeQuery(String query) {

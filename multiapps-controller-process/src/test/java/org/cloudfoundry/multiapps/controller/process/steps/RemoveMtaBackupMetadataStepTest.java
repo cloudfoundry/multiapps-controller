@@ -53,7 +53,7 @@ class RemoveMtaBackupMetadataStepTest extends SyncFlowableStepTest<RemoveMtaBack
         assertStepFinishedSuccessfully();
         verify(client).updateApplicationMetadata(APP_GUID, Metadata.builder()
                                                                    .label(MtaMetadataLabels.MTA_NAMESPACE,
-                                                                          MtaMetadataUtil.getHashedLabel(userNamespace))
+                                                                          MtaMetadataUtil.getSha256HashedLabel(userNamespace))
                                                                    .annotation(MtaMetadataAnnotations.MTA_NAMESPACE, userNamespace)
                                                                    .build());
     }

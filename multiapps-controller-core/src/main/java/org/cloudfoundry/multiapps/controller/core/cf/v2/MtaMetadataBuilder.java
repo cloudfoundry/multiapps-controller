@@ -11,14 +11,14 @@ import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 public class MtaMetadataBuilder {
 
     public static Builder init(DeploymentDescriptor deploymentDescriptor, String namespace) {
-        String hashedMtaId = MtaMetadataUtil.getHashedLabel(deploymentDescriptor.getId());
+        String hashedMtaId = MtaMetadataUtil.getSha256HashedLabel(deploymentDescriptor.getId());
         Builder builder = Metadata.builder()
                                   .label(MtaMetadataLabels.MTA_ID, hashedMtaId)
                                   .annotation(MtaMetadataAnnotations.MTA_ID, deploymentDescriptor.getId())
                                   .annotation(MtaMetadataAnnotations.MTA_VERSION, deploymentDescriptor.getVersion());
 
         if (StringUtils.isNotEmpty(namespace)) {
-            String hashedMtaNamespace = MtaMetadataUtil.getHashedLabel(namespace);
+            String hashedMtaNamespace = MtaMetadataUtil.getSha256HashedLabel(namespace);
             builder.label(MtaMetadataLabels.MTA_NAMESPACE, hashedMtaNamespace)
                    .annotation(MtaMetadataAnnotations.MTA_NAMESPACE, namespace);
         }
