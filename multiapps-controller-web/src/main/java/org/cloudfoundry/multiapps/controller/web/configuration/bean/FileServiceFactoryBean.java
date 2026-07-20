@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.web.configuration.bean.factory;
+package org.cloudfoundry.multiapps.controller.web.configuration.bean;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;

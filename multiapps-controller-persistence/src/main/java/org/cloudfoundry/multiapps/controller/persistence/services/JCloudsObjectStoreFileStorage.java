@@ -1,5 +1,15 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.MessageFormat;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
@@ -18,17 +28,6 @@ import org.jclouds.io.Payload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.MessageFormat;
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class JCloudsObjectStoreFileStorage extends ObjectStoreFileStorage {
 
@@ -66,6 +65,7 @@ public class JCloudsObjectStoreFileStorage extends ObjectStoreFileStorage {
     }
 
     @Override
+    @Deprecated
     public List<FileEntry> getFileEntriesWithoutContent(List<FileEntry> fileEntries) {
         Set<String> existingFiles = getAllEntries(new ListContainerOptions()).stream()
                                                                              .map(StorageMetadata::getName)
@@ -83,22 +83,28 @@ public class JCloudsObjectStoreFileStorage extends ObjectStoreFileStorage {
     @Override
     public void deleteFile(String id, String space) {
         blobStore.removeBlob(container, id);
+        LOGGER.debug(MessageFormat.format(Messages.DELETED_FILE_WITH_ID_0_AND_SPACE_1, id, space));
     }
 
     @Override
     public void deleteFilesBySpaceIds(List<String> spaceIds) {
-        removeBlobsByFilter(blob -> ObjectStoreFilter.filterBySpaceIds(blob.getUserMetadata(), spaceIds));
+        int deletedFiles = removeBlobsByFilter(blob -> ObjectStoreFilter.filterBySpaceIds(blob.getUserMetadata(), spaceIds));
+        LOGGER.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITH_SPACEIDS_1, deletedFiles, spaceIds));
     }
 
     @Override
     public void deleteFilesBySpaceAndNamespace(String space, String namespace) {
-        removeBlobsByFilter(blob -> ObjectStoreFilter.filterBySpaceAndNamespace(blob.getUserMetadata(), space, namespace));
+        int deletedFiles = removeBlobsByFilter(blob -> ObjectStoreFilter.filterBySpaceAndNamespace(blob.getUserMetadata(), space,
+                                                                                                  namespace));
+        LOGGER.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITH_SPACE_1_AND_NAMESPACE_2, deletedFiles, space, namespace));
     }
 
     @Override
     public int deleteFilesModifiedBefore(LocalDateTime modificationTime) {
-        return removeBlobsByFilter(
+        int deletedFiles = removeBlobsByFilter(
             blob -> ObjectStoreFilter.filterByModificationTime(blob.getUserMetadata(), blob.getName(), modificationTime));
+        LOGGER.debug(MessageFormat.format(Messages.DELETED_0_FILES_MODIFIED_BEFORE_1, deletedFiles, modificationTime));
+        return deletedFiles;
     }
 
     @Override
@@ -176,7 +182,9 @@ public class JCloudsObjectStoreFileStorage extends ObjectStoreFileStorage {
 
     @Override
     public void testConnection() {
-        blobStore.blobExists(container, "test");
+        if (!blobStore.containerExists(container)) {
+            throw new IllegalStateException(MessageFormat.format(Messages.OBJECT_STORE_BUCKET_NOT_FOUND, container));
+        }
     }
 
     @Override

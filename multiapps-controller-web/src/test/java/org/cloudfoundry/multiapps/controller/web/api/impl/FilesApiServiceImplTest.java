@@ -1,5 +1,19 @@
 package org.cloudfoundry.multiapps.controller.web.api.impl;
 
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.FutureTask;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.cloudfoundry.multiapps.common.SLException;
@@ -25,7 +39,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,21 +47,6 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
-
-import java.io.InputStream;
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.FutureTask;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -56,6 +54,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_SELF;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class FilesApiServiceImplTest {
@@ -63,6 +63,8 @@ class FilesApiServiceImplTest {
     private static final String SPACE_GUID = "896e6be9-8217-4a1c-b938-09b30966157a";
     private static final String NAMESPACE = "custom-namespace";
     private static final String DIGEST_CHARACTER_TABLE = "123456789ABCDEF";
+    private static final LocalDateTime JOB_TIMESTAMP = LocalDateTime.of(2025, Month.JANUARY, 1, 0, 0);
+    private static final LocalDateTime ACTIVE_UPDATED_AT = LocalDateTime.of(9999, Month.DECEMBER, 31, 23, 59);
 
     private static final String FILE_URL = Base64.getUrlEncoder()
                                                  .encodeToString(
@@ -91,23 +93,23 @@ class FilesApiServiceImplTest {
     private FilesApiServiceImpl testedClass;
 
     @BeforeEach
-    public void initialize() throws Exception {
+    void initialize() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
         testedClass = new FilesApiServiceImpl(fileService, uploadJobService, filesApiServiceAuditLog, asyncUploadJobOrchestrator,
-                                             apiUsageLogger, fileStorageThreadPool, httpServletRequest);
+                                              apiUsageLogger, fileStorageThreadPool, httpServletRequest);
         SecurityContextHolder.clearContext();
         var user = new UserInfo("user1", "user1", null);
         var token = new DefaultOAuth2User(Collections.emptyList(), Map.of("user_info", user), "user_info");
         SecurityContextHolder.getContext()
                              .setAuthentication(new OAuth2AuthenticationToken(token, Collections.emptyList(), "id"));
-        Mockito.when(request.getRequestURI())
+        when(request.getRequestURI())
                .thenReturn("");
         prepareFileStorageThreadPool();
     }
 
     @AfterEach
-    public void cleanup() {
+    void cleanup() {
         SecurityContextHolder.clearContext();
     }
 
@@ -124,7 +126,7 @@ class FilesApiServiceImplTest {
     void testGetMtaFiles() throws Exception {
         FileEntry entryOne = createFileEntry("test.mtar");
         FileEntry entryTwo = createFileEntry("extension.mtaext");
-        Mockito.when(fileService.listFiles(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE)))
+        when(fileService.listFiles(SPACE_GUID, NAMESPACE))
                .thenReturn(List.of(entryOne, entryTwo));
         ResponseEntity<List<FileMetadata>> response = testedClass.getFiles(SPACE_GUID, NAMESPACE);
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -158,7 +160,7 @@ class FilesApiServiceImplTest {
 
     @Test
     void testGetMtaFilesError() throws Exception {
-        Mockito.when(fileService.listFiles(Mockito.eq(SPACE_GUID), Mockito.eq(null)))
+        when(fileService.listFiles(SPACE_GUID, null))
                .thenThrow(new FileStorageException("error"));
         assertThrows(SLException.class, () -> testedClass.getFiles(SPACE_GUID, null));
     }
@@ -170,16 +172,16 @@ class FilesApiServiceImplTest {
         long fileSize = fileEntry.getSize()
                                  .longValue();
 
-        Mockito.when(file.getSize())
+        when(file.getSize())
                .thenReturn(fileSize);
-        Mockito.when(file.getOriginalFilename())
+        when(file.getOriginalFilename())
                .thenReturn(fileName);
-        Mockito.when(file.getInputStream())
-               .thenReturn(Mockito.mock(InputStream.class));
-        Mockito.when(request.getFileMap())
+        when(file.getInputStream())
+               .thenReturn(mock(InputStream.class));
+        when(request.getFileMap())
                .thenReturn(Map.of("file", file));
 
-        Mockito.when(fileService.addFile(Mockito.eq(ImmutableFileEntry.builder()
+        when(fileService.addFile(eq(ImmutableFileEntry.builder()
                                                                       .space(SPACE_GUID)
                                                                       .namespace(NAMESPACE)
                                                                       .name(fileName)
@@ -189,10 +191,10 @@ class FilesApiServiceImplTest {
 
         ResponseEntity<FileMetadata> response = testedClass.uploadFile(request, SPACE_GUID, NAMESPACE);
 
-        Mockito.verify(file)
+        verify(file)
                .getInputStream();
-        Mockito.verify(fileService)
-               .addFile(Mockito.eq(ImmutableFileEntry.builder()
+        verify(fileService)
+               .addFile(eq(ImmutableFileEntry.builder()
                                                      .space(SPACE_GUID)
                                                      .namespace(NAMESPACE)
                                                      .name(fileName)
@@ -215,7 +217,7 @@ class FilesApiServiceImplTest {
             ImmutableAsyncUploadJobEntry.builder()
                                         .id(expectedJobId)
                                         .url(DECODED_URL_WITH_CREDENTIALS_IN_THE_URL)
-                                        .startedAt(LocalDateTime.now())
+                                        .startedAt(JOB_TIMESTAMP)
                                         .state(State.INITIAL)
                                         .user("user1")
                                         .spaceGuid(SPACE_GUID)
@@ -228,7 +230,7 @@ class FilesApiServiceImplTest {
         assertEquals("spaces/" + SPACE_GUID + "/files/jobs/" + expectedJobId, response.getHeaders()
                                                                                       .getLocation()
                                                                                       .toString());
-        Mockito.verify(asyncUploadJobOrchestrator)
+        verify(asyncUploadJobOrchestrator)
                .executeUploadFromUrl(eq(SPACE_GUID), eq(NAMESPACE), any(String.class), any(String.class), eq(null));
     }
 
@@ -252,10 +254,10 @@ class FilesApiServiceImplTest {
         assertEquals("30", response.getHeaders()
                                    .getFirst("Retry-After"));
 
-        Mockito.verify(asyncUploadJobOrchestrator)
+        verify(asyncUploadJobOrchestrator)
                .executeUploadFromUrl(eq(SPACE_GUID), eq(NAMESPACE), any(String.class), any(String.class), eq(null));
 
-        Mockito.verify(asyncUploadJobsQuery)
+        verify(asyncUploadJobsQuery)
                .delete();
     }
 
@@ -269,10 +271,8 @@ class FilesApiServiceImplTest {
         AsyncUploadJobEntry stuckJob = ImmutableAsyncUploadJobEntry.builder()
                                                                    .id(existingJobId)
                                                                    .url(DECODED_URL_WITH_CREDENTIALS_IN_THE_URL)
-                                                                   .startedAt(LocalDateTime.now()
-                                                                                           .minusMinutes(5))
-                                                                   .updatedAt(LocalDateTime.now()
-                                                                                           .minusMinutes(2))
+                                                                   .startedAt(JOB_TIMESTAMP)
+                                                                   .updatedAt(JOB_TIMESTAMP)
                                                                    .state(State.RUNNING)
                                                                    .user("user1")
                                                                    .spaceGuid(SPACE_GUID)
@@ -288,7 +288,7 @@ class FilesApiServiceImplTest {
             ImmutableAsyncUploadJobEntry.builder()
                                         .id(newJobId)
                                         .url(DECODED_URL_WITH_CREDENTIALS_IN_THE_URL)
-                                        .startedAt(LocalDateTime.now())
+                                        .startedAt(JOB_TIMESTAMP)
                                         .state(State.INITIAL)
                                         .user("user1")
                                         .spaceGuid(SPACE_GUID)
@@ -304,11 +304,11 @@ class FilesApiServiceImplTest {
                                                                                  .getLocation()
                                                                                  .toString());
 
-        Mockito.verify(asyncUploadJobsQuery)
+        verify(asyncUploadJobsQuery)
                .id(existingJobId);
-        Mockito.verify(asyncUploadJobsQuery)
+        verify(asyncUploadJobsQuery)
                .delete();
-        Mockito.verify(asyncUploadJobOrchestrator)
+        verify(asyncUploadJobOrchestrator)
                .executeUploadFromUrl(eq(SPACE_GUID), eq(NAMESPACE), any(String.class), any(String.class), eq(null));
     }
 
@@ -322,10 +322,8 @@ class FilesApiServiceImplTest {
         AsyncUploadJobEntry activeJob = ImmutableAsyncUploadJobEntry.builder()
                                                                     .id(existingJobId)
                                                                     .url(DECODED_URL_WITH_CREDENTIALS_IN_THE_URL)
-                                                                    .startedAt(LocalDateTime.now()
-                                                                                            .minusMinutes(1))
-                                                                    .updatedAt(LocalDateTime.now()
-                                                                                            .minusSeconds(10))
+                                                                    .startedAt(JOB_TIMESTAMP)
+                                                                    .updatedAt(ACTIVE_UPDATED_AT)
                                                                     .state(State.RUNNING)
                                                                     .user("user1")
                                                                     .spaceGuid(SPACE_GUID)
@@ -343,11 +341,11 @@ class FilesApiServiceImplTest {
                                                                                       .getLocation()
                                                                                       .toString());
 
-        Mockito.verify(asyncUploadJobsQuery, Mockito.never())
+        verify(asyncUploadJobsQuery, never())
                .id(any());
-        Mockito.verify(asyncUploadJobsQuery, Mockito.never())
+        verify(asyncUploadJobsQuery, never())
                .delete();
-        Mockito.verify(asyncUploadJobOrchestrator, Mockito.never())
+        verify(asyncUploadJobOrchestrator, never())
                .executeUploadFromUrl(any(), any(), any(), any(), any());
     }
 
@@ -361,13 +359,13 @@ class FilesApiServiceImplTest {
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 
-        Mockito.verify(asyncUploadJobsQuery)
+        verify(asyncUploadJobsQuery)
                .id("non-existent-job-id");
-        Mockito.verify(asyncUploadJobsQuery)
+        verify(asyncUploadJobsQuery)
                .spaceGuid(SPACE_GUID);
-        Mockito.verify(asyncUploadJobsQuery)
+        verify(asyncUploadJobsQuery)
                .user("user1");
-        Mockito.verify(asyncUploadJobsQuery)
+        verify(asyncUploadJobsQuery)
                .namespace(NAMESPACE);
     }
 
@@ -382,10 +380,8 @@ class FilesApiServiceImplTest {
         AsyncUploadJobEntry successfulJob = ImmutableAsyncUploadJobEntry.builder()
                                                                         .id(jobId)
                                                                         .url(DECODED_URL_WITH_CREDENTIALS_IN_THE_URL)
-                                                                        .startedAt(LocalDateTime.now()
-                                                                                                .minusMinutes(5))
-                                                                        .updatedAt(LocalDateTime.now()
-                                                                                                .minusMinutes(1))
+                                                                        .startedAt(JOB_TIMESTAMP)
+                                                                        .updatedAt(JOB_TIMESTAMP)
                                                                         .state(State.FINISHED)
                                                                         .user("user1")
                                                                         .spaceGuid(SPACE_GUID)
@@ -421,10 +417,8 @@ class FilesApiServiceImplTest {
         AsyncUploadJobEntry stuckJob = ImmutableAsyncUploadJobEntry.builder()
                                                                    .id(jobId)
                                                                    .url(DECODED_URL_WITH_CREDENTIALS_IN_THE_URL)
-                                                                   .startedAt(LocalDateTime.now()
-                                                                                           .minusMinutes(5))
-                                                                   .updatedAt(LocalDateTime.now()
-                                                                                           .minusMinutes(2))
+                                                                   .startedAt(JOB_TIMESTAMP)
+                                                                   .updatedAt(JOB_TIMESTAMP)
                                                                    .state(State.RUNNING)
                                                                    .user("user1")
                                                                    .spaceGuid(SPACE_GUID)
@@ -454,10 +448,8 @@ class FilesApiServiceImplTest {
         AsyncUploadJobEntry runningJob = ImmutableAsyncUploadJobEntry.builder()
                                                                      .id(jobId)
                                                                      .url(DECODED_URL_WITH_CREDENTIALS_IN_THE_URL)
-                                                                     .startedAt(LocalDateTime.now()
-                                                                                             .minusMinutes(1))
-                                                                     .updatedAt(LocalDateTime.now()
-                                                                                             .minusSeconds(10))
+                                                                     .startedAt(JOB_TIMESTAMP)
+                                                                     .updatedAt(ACTIVE_UPDATED_AT)
                                                                      .state(State.RUNNING)
                                                                      .user("user1")
                                                                      .spaceGuid(SPACE_GUID)
@@ -486,10 +478,8 @@ class FilesApiServiceImplTest {
         AsyncUploadJobEntry errorJob = ImmutableAsyncUploadJobEntry.builder()
                                                                    .id(jobId)
                                                                    .url(DECODED_URL_WITH_CREDENTIALS_IN_THE_URL)
-                                                                   .startedAt(LocalDateTime.now()
-                                                                                           .minusMinutes(5))
-                                                                   .updatedAt(LocalDateTime.now()
-                                                                                           .minusMinutes(1))
+                                                                   .startedAt(JOB_TIMESTAMP)
+                                                                   .updatedAt(JOB_TIMESTAMP)
                                                                    .state(State.ERROR)
                                                                    .user("user1")
                                                                    .spaceGuid(SPACE_GUID)

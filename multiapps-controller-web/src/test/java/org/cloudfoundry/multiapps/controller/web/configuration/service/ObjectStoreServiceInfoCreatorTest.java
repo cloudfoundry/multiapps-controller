@@ -12,9 +12,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class ObjectStoreServiceInfoCreatorTest {
@@ -24,7 +24,10 @@ class ObjectStoreServiceInfoCreatorTest {
     private static final String BUCKET_VALUE = "bucket_value";
     private static final String REGION_VALUE = "region_value";
     private static final String ENDPOINT_VALUE = "endpoint_value";
-    private static final Map<String, Object> CREDENTIALS = Map.of("test", "test1");
+    private static final String SAS_TOKEN_VALUE = "sas_token_value";
+    private static final String BASE64_PRIVATE_KEY_VALUE = "base64EncodedPrivateKeyDataValue";
+    private static final Map<String, Object> AZURE_CREDENTIALS = Map.of(Constants.SAS_TOKEN, SAS_TOKEN_VALUE);
+    private static final Map<String, Object> GCP_CREDENTIALS = Map.of(Constants.BASE_64_ENCODED_PRIVATE_KEY_DATA, BASE64_PRIVATE_KEY_VALUE);
 
     private ObjectStoreServiceInfoCreator objectStoreServiceInfoCreator;
 
@@ -36,8 +39,9 @@ class ObjectStoreServiceInfoCreatorTest {
     static Stream<Arguments> testDifferentProviders() {
         return Stream.of(Arguments.of(buildCfService(buildAliCloudCredentials()), buildAliCloudObjectStoreServiceInfo()),
                          Arguments.of(buildCfService(buildAwsCredentials()), buildAwsObjectStoreServiceInfo()),
-                         Arguments.of(buildCfService(buildSdkCredentials()), buildAzureObjectStoreServiceInfo()),
-                         Arguments.of(buildCfService(buildSdkCredentials()), buildGcpObjectStoreServiceInfo()));
+                         Arguments.of(buildCfService(buildCceeCredentials()), buildCceeObjectStoreServiceInfo()),
+                         Arguments.of(buildCfService(AZURE_CREDENTIALS), buildAzureObjectStoreServiceInfo()),
+                         Arguments.of(buildCfService(GCP_CREDENTIALS), buildGcpObjectStoreServiceInfo()));
     }
 
     @ParameterizedTest
@@ -50,8 +54,8 @@ class ObjectStoreServiceInfoCreatorTest {
     }
 
     private static CfService buildCfService(Map<String, Object> credentials) {
-        CfService cfService = Mockito.mock(CfService.class);
-        CfCredentials cfCredentials = Mockito.mock(CfCredentials.class);
+        CfService cfService = mock(CfService.class);
+        CfCredentials cfCredentials = mock(CfCredentials.class);
         when(cfCredentials.getMap()).thenReturn(credentials);
         when(cfService.getCredentials()).thenReturn(cfCredentials);
         return cfService;
@@ -70,11 +74,7 @@ class ObjectStoreServiceInfoCreatorTest {
     private static ObjectStoreServiceInfo buildAliCloudObjectStoreServiceInfo() {
         return ImmutableObjectStoreServiceInfo.builder()
                                               .provider(Constants.ALIYUN_OSS)
-                                              .identity(ACCESS_KEY_ID_VALUE)
-                                              .credential(SECRET_ACCESS_KEY_VALUE)
-                                              .container(BUCKET_VALUE)
-                                              .endpoint(ENDPOINT_VALUE)
-                                              .region(REGION_VALUE)
+                                              .credentials(buildAliCloudCredentials())
                                               .build();
     }
 
@@ -89,27 +89,41 @@ class ObjectStoreServiceInfoCreatorTest {
     private static ObjectStoreServiceInfo buildAwsObjectStoreServiceInfo() {
         return ImmutableObjectStoreServiceInfo.builder()
                                               .provider(Constants.AWS_S_3)
-                                              .identity(ACCESS_KEY_ID_VALUE)
-                                              .credential(SECRET_ACCESS_KEY_VALUE)
-                                              .container(BUCKET_VALUE)
+                                              .credentials(buildAwsCredentials())
                                               .build();
     }
 
-    private static Map<String, Object> buildSdkCredentials() {
-        return CREDENTIALS;
+    private static Map<String, Object> buildCceeCredentials() {
+        Map<String, Object> credentials = new HashMap<>();
+        credentials.put(Constants.ACCESS_KEY_ID, ACCESS_KEY_ID_VALUE);
+        credentials.put(Constants.SECRET_ACCESS_KEY, SECRET_ACCESS_KEY_VALUE);
+        credentials.put(Constants.CONTAINER_NAME_WITH_DASH, BUCKET_VALUE);
+        credentials.put(Constants.ENDPOINT_URL, ENDPOINT_VALUE);
+        credentials.put(Constants.REGION, REGION_VALUE);
+        return credentials;
+    }
+
+    private static ObjectStoreServiceInfo buildCceeObjectStoreServiceInfo() {
+        Map<String, Object> expectedCredentials = new HashMap<>(buildCceeCredentials());
+        expectedCredentials.put(Constants.BUCKET, BUCKET_VALUE);
+        expectedCredentials.put(Constants.ENDPOINT, ENDPOINT_VALUE);
+        return ImmutableObjectStoreServiceInfo.builder()
+                                              .provider(Constants.AWS_S_3)
+                                              .credentials(expectedCredentials)
+                                              .build();
     }
 
     private static ObjectStoreServiceInfo buildAzureObjectStoreServiceInfo() {
         return ImmutableObjectStoreServiceInfo.builder()
                                               .provider(Constants.AZUREBLOB)
-                                              .credentials(CREDENTIALS)
+                                              .credentials(AZURE_CREDENTIALS)
                                               .build();
     }
 
     private static ObjectStoreServiceInfo buildGcpObjectStoreServiceInfo() {
         return ImmutableObjectStoreServiceInfo.builder()
                                               .provider(Constants.GOOGLE_CLOUD_STORAGE)
-                                              .credentials(CREDENTIALS)
+                                              .credentials(GCP_CREDENTIALS)
                                               .build();
     }
 

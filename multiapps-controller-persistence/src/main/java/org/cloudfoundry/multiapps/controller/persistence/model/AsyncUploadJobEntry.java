@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.model;
 
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 
 import org.cloudfoundry.multiapps.common.Nullable;
@@ -7,6 +8,8 @@ import org.immutables.value.Value;
 
 @Value.Immutable
 public interface AsyncUploadJobEntry {
+
+    String STALE_JOB_DETAILS_FORMAT = "Stale job details - id: {0}, state: {1}, updatedAt: {2}, addedAt: {3}, startedAt: {4}, bytesRead: {5}, url: {6}, space: {7}, namespace: {8}, user: {9}, instance: {10}";
 
     enum State {
         INITIAL, RUNNING, FINISHED, ERROR
@@ -53,4 +56,9 @@ public interface AsyncUploadJobEntry {
 
     @Nullable
     LocalDateTime getUpdatedAt();
+
+    default String buildStaleDetailsLogMessage() {
+        return MessageFormat.format(STALE_JOB_DETAILS_FORMAT, getId(), getState(), getUpdatedAt(), getAddedAt(), getStartedAt(),
+                                    getBytesRead(), getUrl(), getSpaceGuid(), getNamespace(), getUser(), getInstanceIndex());
+    }
 }
