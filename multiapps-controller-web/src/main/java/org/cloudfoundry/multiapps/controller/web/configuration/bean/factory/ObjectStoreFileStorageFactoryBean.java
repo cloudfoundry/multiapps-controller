@@ -1,5 +1,11 @@
 package org.cloudfoundry.multiapps.controller.web.configuration.bean.factory;
 
+import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import io.pivotal.cfenv.core.CfService;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
@@ -14,12 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
-
-import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStoreFileStorage>, InitializingBean {
 
@@ -44,16 +44,13 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
         if (providersServiceInfo.isEmpty()) {
             return null;
         }
+
         Map<String, Exception> exceptions = new HashMap<>();
+
         for (ObjectStoreServiceInfo objectStoreServiceInfo : providersServiceInfo) {
-            BlobStoreContext context = getBlobStoreContext(objectStoreServiceInfo);
-            if (context == null) {
-                exceptions.put(objectStoreServiceInfo.getProvider(),
-                               new IllegalArgumentException(Messages.MISSING_PROPERTIES_FOR_CREATING_THE_SPECIFIC_PROVIDER));
-                continue;
-            }
-            ObjectStoreFileStorage fileStorage = createFileStorage(objectStoreServiceInfo, context);
             try {
+                BlobStoreContext context = getBlobStoreContext(objectStoreServiceInfo);
+                ObjectStoreFileStorage fileStorage = createFileStorage(objectStoreServiceInfo, context);
                 fileStorage.testConnection();
                 LOGGER.info(MessageFormat.format(Messages.OBJECT_STORE_WITH_PROVIDER_0_CREATED, objectStoreServiceInfo.getProvider()));
                 return fileStorage;
@@ -61,9 +58,11 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
                 exceptions.put(objectStoreServiceInfo.getProvider(), e);
             }
         }
+
         exceptions.forEach(
-            (provider, exception) -> LOGGER.error(MessageFormat.format(Messages.CANNOT_CREATE_OBJECT_STORE_CLIENT_WITH_PROVIDER_0, provider),
-                                                  exception));
+            (provider, exception) -> LOGGER.error(
+                MessageFormat.format(Messages.CANNOT_CREATE_OBJECT_STORE_CLIENT_WITH_PROVIDER_0, provider),
+                exception));
         throw new IllegalStateException(Messages.NO_VALID_OBJECT_STORE_CONFIGURATION_FOUND);
     }
 
@@ -77,15 +76,31 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
 
     private BlobStoreContext getBlobStoreContext(ObjectStoreServiceInfo serviceInfo) {
         ContextBuilder contextBuilder = ContextBuilder.newBuilder(serviceInfo.getProvider());
+        applyCredentials(serviceInfo, contextBuilder);
+
+        resolveContextEndpoint(serviceInfo, contextBuilder);
+
+        BlobStoreContext context = contextBuilder.buildView(BlobStoreContext.class);
+        if (context == null) {
+            throw new IllegalStateException(Messages.FAILED_TO_CREATE_BLOB_STORE_CONTEXT);
+        }
+
+        return context;
+    }
+
+    private void applyCredentials(ObjectStoreServiceInfo serviceInfo, ContextBuilder contextBuilder) {
         if (serviceInfo.getCredentialsSupplier() != null) {
             contextBuilder.credentialsSupplier(serviceInfo.getCredentialsSupplier());
-        } else if (serviceInfo.getIdentity() != null && serviceInfo.getCredential() != null) {
-            contextBuilder.credentials(serviceInfo.getIdentity(), serviceInfo.getCredential());
         } else {
-            return null;
+            String identity = serviceInfo.getIdentity();
+            String credential = serviceInfo.getCredential();
+
+            if (StringUtils.isBlank(identity) || StringUtils.isBlank(credential)) {
+                throw new IllegalArgumentException(Messages.MISSING_PROPERTIES_FOR_CREATING_THE_SPECIFIC_PROVIDER);
+            }
+
+            contextBuilder.credentials(identity, credential);
         }
-        resolveContextEndpoint(serviceInfo, contextBuilder);
-        return contextBuilder.buildView(BlobStoreContext.class);
     }
 
     private void resolveContextEndpoint(ObjectStoreServiceInfo serviceInfo, ContextBuilder contextBuilder) {
