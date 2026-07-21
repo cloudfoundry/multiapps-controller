@@ -1,17 +1,18 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
-import org.cloudfoundry.multiapps.controller.client.facade.util.CloudUtil;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.web.client.DefaultResponseErrorHandler;
-import org.springframework.web.client.RestClientException;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.util.CloudUtil;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.web.client.DefaultResponseErrorHandler;
+import org.springframework.web.client.RestClientException;
 
 public class CloudControllerResponseErrorHandler extends DefaultResponseErrorHandler {
 
@@ -19,6 +20,7 @@ public class CloudControllerResponseErrorHandler extends DefaultResponseErrorHan
         HttpStatus statusCode = HttpStatus.valueOf(response.getStatusCode()
                                                            .value());
         String statusText = response.getStatusText();
+        Long retryAfterSeconds = extractRetryAfterSeconds(response, statusCode);
 
         ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally
 
@@ -26,12 +28,29 @@ public class CloudControllerResponseErrorHandler extends DefaultResponseErrorHan
             try {
                 @SuppressWarnings("unchecked") Map<String, Object> responseBody = mapper.readValue(response.getBody(), Map.class);
                 String description = getTrimmedDescription(responseBody);
-                return new CloudOperationException(statusCode, statusText, description);
+                return new CloudOperationException(statusCode, statusText, description, null, retryAfterSeconds);
             } catch (IOException e) {
                 // Fall through. Handled below.
             }
         }
-        return new CloudOperationException(statusCode, statusText);
+        return new CloudOperationException(statusCode, statusText, null, null, retryAfterSeconds);
+    }
+
+    private static Long extractRetryAfterSeconds(ClientHttpResponse response, HttpStatus statusCode) {
+        if (statusCode != HttpStatus.TOO_MANY_REQUESTS) {
+            return null;
+        }
+        String headerValue = response.getHeaders()
+                                     .getFirst(HttpHeaders.RETRY_AFTER);
+        if (headerValue == null) {
+            return null;
+        }
+        try {
+            long parsed = Long.parseLong(headerValue);
+            return parsed >= 0 ? parsed : null;
+        } catch (NumberFormatException _) {
+            return null;
+        }
     }
 
     private static String getTrimmedDescription(Map<String, Object> responseBody) {

@@ -7,7 +7,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
+import java.util.function.LongConsumer;
+import java.util.function.LongSupplier;
+import java.util.function.Supplier;
 
 import org.apache.commons.collections4.SetUtils;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
@@ -23,7 +27,8 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
 
     private static final Set<HttpStatus> DEFAULT_STATUSES_TO_IGNORE = Set.of(HttpStatus.GATEWAY_TIMEOUT, HttpStatus.REQUEST_TIMEOUT,
                                                                              HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.BAD_GATEWAY,
-                                                                             HttpStatus.SERVICE_UNAVAILABLE);
+                                                                             HttpStatus.SERVICE_UNAVAILABLE,
+                                                                             HttpStatus.TOO_MANY_REQUESTS);
 
     private static final int DEFAULT_TIMEOUT_RETRY_WAIT_TIME_IN_MILLIS = 30 * 1000; // 30 seconds
 
@@ -31,7 +36,16 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
                                                                                            Duration.ofMinutes(8), 3,
                                                                                            Duration.ofMinutes(15));
 
+    private static final long RATE_LIMIT_RETRY_AFTER_CAP_IN_SECONDS = 120L;
+    private static final long RATE_LIMIT_FALLBACK_WAIT_IN_MILLIS = 60_000L;
+    private static final long RANDOM_RETRY_MIN_WAIT_IN_MILLIS = 30_000L;
+    private static final long RANDOM_RETRY_MAX_WAIT_IN_MILLIS = 90_000L;
+
     private Set<HttpStatus> additionalStatusesToIgnore = Collections.emptySet();
+    private LongConsumer sleeper = MiscUtil::sleep;
+    private LongSupplier randomDelaySupplier = () -> ThreadLocalRandom.current()
+                                                                      .nextLong(RANDOM_RETRY_MIN_WAIT_IN_MILLIS,
+                                                                                RANDOM_RETRY_MAX_WAIT_IN_MILLIS + 1);
 
     @Override
     public ResilientCloudOperationExecutor withRetryCount(long retryCount) {
@@ -46,6 +60,30 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
     public ResilientCloudOperationExecutor withStatusesToIgnore(HttpStatus... statusesToIgnore) {
         this.additionalStatusesToIgnore = new HashSet<>(Arrays.asList(statusesToIgnore));
         return this;
+    }
+
+    ResilientCloudOperationExecutor withSleeper(LongConsumer sleeper) {
+        this.sleeper = sleeper;
+        return this;
+    }
+
+    ResilientCloudOperationExecutor withRandomDelaySupplier(LongSupplier randomDelaySupplier) {
+        this.randomDelaySupplier = randomDelaySupplier;
+        return this;
+    }
+
+    @Override
+    public <T> T execute(Supplier<T> operation) {
+        for (long i = 1; i < retryCount; i++) {
+            try {
+                return operation.get();
+            } catch (RuntimeException e) {
+                handle(e);
+                long waitMillis = computeWaitMillis(e, i);
+                sleeper.accept(waitMillis);
+            }
+        }
+        return operation.get();
     }
 
     public <T> T executeWithExponentialBackoff(Function<Duration, T> operation) {
@@ -85,6 +123,34 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
         LOGGER.warn(MessageFormat.format("Retrying operation that failed with status {0} and message: {1}", e.getStatusCode(),
                                          e.getMessage()),
                     e);
+    }
+
+    private long computeWaitMillis(RuntimeException e, long attemptIndex) {
+        if (isRateLimitException(e)) {
+            return computeRateLimitWaitMillis((CloudOperationException) e);
+        }
+        if (attemptIndex >= 2) {
+            long waitMillis = randomDelaySupplier.getAsLong();
+            LOGGER.info(Messages.RANDOM_WAIT_BEFORE_RETRY_MS, waitMillis);
+            return waitMillis;
+        }
+        return waitTimeBetweenRetriesInMillis;
+    }
+
+    private boolean isRateLimitException(RuntimeException e) {
+        return e instanceof CloudOperationException cloudException
+            && cloudException.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS;
+    }
+
+    private long computeRateLimitWaitMillis(CloudOperationException e) {
+        Long retryAfterSeconds = e.getRetryAfterSeconds();
+        if (retryAfterSeconds == null) {
+            LOGGER.info(Messages.RATE_LIMITED_BY_CC_NO_HEADER_WAITING_MS, RATE_LIMIT_FALLBACK_WAIT_IN_MILLIS);
+            return RATE_LIMIT_FALLBACK_WAIT_IN_MILLIS;
+        }
+        long cappedSeconds = Math.clamp(retryAfterSeconds, 1L, RATE_LIMIT_RETRY_AFTER_CAP_IN_SECONDS);
+        LOGGER.info(Messages.RATE_LIMITED_BY_CC_WAITING_S, retryAfterSeconds, cappedSeconds);
+        return cappedSeconds * 1000L;
     }
 
     private boolean shouldRetry(CloudOperationException e) {
