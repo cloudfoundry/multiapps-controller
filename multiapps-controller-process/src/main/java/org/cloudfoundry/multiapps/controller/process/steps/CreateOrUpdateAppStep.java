@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
@@ -14,6 +15,7 @@ import java.util.stream.Stream;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
@@ -26,6 +28,8 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApp
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceKeyToInject;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.AppBoundServiceInstanceNamesGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationFileDigestDetector;
 import org.cloudfoundry.multiapps.controller.core.model.BlueGreenApplicationNameSuffix;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
@@ -250,9 +254,39 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             if (app.getV3Metadata() == null) {
                 return;
             }
-            if (!Objects.equals(existingApp.getV3Metadata(), app.getV3Metadata())) {
+            if (hasUserMetadataChanged(existingApp.getV3Metadata(), app.getV3Metadata())) {
                 client.updateApplicationMetadata(existingApp.getGuid(), app.getV3Metadata());
             }
+        }
+
+        private boolean hasUserMetadataChanged(Metadata existing, Metadata updated) {
+            Set<String> internalLabelKeys = Set.of(MtaMetadataLabels.MTA_ID, MtaMetadataLabels.MTA_NAMESPACE, MtaMetadataLabels.SPACE_GUID,
+                                                   MtaMetadataLabels.AUTOSCALER_LABEL);
+            Set<String> internalAnnotationKeys = Set.of(MtaMetadataAnnotations.MTA_ID, MtaMetadataAnnotations.MTA_NAMESPACE,
+                                                        MtaMetadataAnnotations.MTA_MODULE,
+                                                        MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES,
+                                                        MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES,
+                                                        MtaMetadataAnnotations.MTA_RESOURCE);
+
+            Map<String, String> existingLabels = existing != null ? filterUserKeys(existing.getLabels(), internalLabelKeys)
+                : Map.of();
+            Map<String, String> updatedLabels = filterUserKeys(updated.getLabels(), internalLabelKeys);
+            Map<String, String> existingAnnotations = existing != null
+                ? filterUserKeys(existing.getAnnotations(), internalAnnotationKeys)
+                : Map.of();
+            Map<String, String> updatedAnnotations = filterUserKeys(updated.getAnnotations(), internalAnnotationKeys);
+
+            return !existingLabels.equals(updatedLabels) || !existingAnnotations.equals(updatedAnnotations);
+        }
+
+        private Map<String, String> filterUserKeys(Map<String, String> all, Set<String> internalKeys) {
+            if (all == null) {
+                return Map.of();
+            }
+            return all.entrySet()
+                      .stream()
+                      .filter(e -> !internalKeys.contains(e.getKey()))
+                      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         }
 
         private void addCurrentAppDigestToNewEnv(Map<String, String> newAppEnv, Map<String, String> existingAppEnv) {

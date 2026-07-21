@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.MapUtil;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CfUserMetadata;
 import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -16,7 +17,8 @@ import org.cloudfoundry.multiapps.mta.model.ProvidedDependency;
 
 public class ApplicationMetadataBuilder {
 
-    public static Metadata build(DeploymentDescriptor deploymentDescriptor, String namespace, Module module, List<String> services) {
+    public static Metadata build(DeploymentDescriptor deploymentDescriptor, String namespace, Module module, List<String> services,
+                                 CfUserMetadata userCfMetadata) {
         String mtaModuleAnnotation = buildMtaModuleAnnotation(module);
         String mtaModuleProvidedDependenciesAnnotation = buildMtaModuleProvidedDependenciesAnnotation(module);
         String mtaServicesAnnotation = buildBoundMtaServicesAnnotation(services);
@@ -26,6 +28,13 @@ public class ApplicationMetadataBuilder {
                                                      .annotation(MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES,
                                                                  mtaModuleProvidedDependenciesAnnotation)
                                                      .annotation(MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES, mtaServicesAnnotation);
+
+        if (userCfMetadata != null) {
+            userCfMetadata.getLabels()
+                          .forEach(builder::label);
+            userCfMetadata.getAnnotations()
+                          .forEach(builder::annotation);
+        }
 
         return builder.build();
     }

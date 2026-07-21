@@ -104,6 +104,7 @@ public class SupportedParameters {
     public static final String VCAP_SERVICES_ENV = "vcap-services";
     public static final String USER_PROVIDED_ENV = "user-provided";
     public static final String DOCKER = "docker";
+    public static final String CF_METADATA = "cf-metadata";
     public static final String TIMESTAMP = "timestamp";
     public static final String ENABLE_PARALLEL_SERVICE_BINDINGS = "enable-parallel-service-bindings";
     public static final String TCP_ROUTES = "tcp";
@@ -205,14 +206,14 @@ public class SupportedParameters {
                                                                APPS_UPLOAD_TIMEOUT, APPS_TASK_EXECUTION_TIMEOUT, APPS_START_TIMEOUT,
                                                                APPS_STAGE_TIMEOUT, SKIP_DEPLOY, APP_FEATURES, READINESS_HEALTH_CHECK_TYPE,
                                                                READINESS_HEALTH_CHECK_HTTP_ENDPOINT, READINESS_HEALTH_CHECK_INTERVAL,
-                                                               READINESS_HEALTH_CHECK_INVOCATION_TIMEOUT);
+                                                               READINESS_HEALTH_CHECK_INVOCATION_TIMEOUT, CF_METADATA);
 
     public static final Set<String> RESOURCE_PARAMETERS = Set.of(APPLY_NAMESPACE, SERVICE_CONFIG, SYSLOG_DRAIN_URL, DEFAULT_CONTAINER_NAME,
                                                                  DEFAULT_SERVICE_NAME, DEFAULT_XS_APP_NAME, SERVICE, SERVICE_KEYS,
                                                                  SERVICE_KEY_NAME, SERVICE_NAME, SERVICE_PLAN, SERVICE_TAGS, SERVICE_BROKER,
                                                                  SKIP_SERVICE_UPDATES, TYPE, PROVIDER_ID, PROVIDER_NID, TARGET,
                                                                  SERVICE_CONFIG_PATH, FILTER, MANAGED, VERSION, PATH, MEMORY,
-                                                                 FAIL_ON_SERVICE_UPDATE, SERVICE_PROVIDER, SERVICE_VERSION);
+                                                                 FAIL_ON_SERVICE_UPDATE, SERVICE_PROVIDER, SERVICE_VERSION, CF_METADATA);
     public static final Set<String> GLOBAL_PARAMETERS = Set.of(KEEP_EXISTING_ROUTES, APPS_UPLOAD_TIMEOUT, APPS_TASK_EXECUTION_TIMEOUT,
                                                                APPS_START_TIMEOUT, APPS_STAGE_TIMEOUT, APPLY_NAMESPACE,
                                                                ENABLE_PARALLEL_DEPLOYMENTS, DEPLOY_MODE, BG_DEPENDENCY_AWARE_STOP_ORDER);

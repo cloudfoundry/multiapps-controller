@@ -66,6 +66,9 @@ public abstract class CloudApplicationExtended extends CloudApplication {
     @Nullable
     public abstract AttributeUpdateStrategy getAttributesUpdateStrategy();
 
+    @Nullable
+    public abstract CfUserMetadata getUserCfMetadata();
+
     @Value.Immutable
     @JsonSerialize(as = ImmutableCloudApplicationExtended.ImmutableAttributeUpdateStrategy.class)
     @JsonDeserialize(as = ImmutableCloudApplicationExtended.ImmutableAttributeUpdateStrategy.class)
