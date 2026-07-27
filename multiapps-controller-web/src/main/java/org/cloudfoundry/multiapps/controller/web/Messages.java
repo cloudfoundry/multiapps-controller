@@ -80,6 +80,7 @@ public final class Messages {
     public static final String ASYNC_UPLOAD_JOB_EXISTS = "Async upload job for URL {} exists: {}";
     public static final String CREATING_ASYNC_UPLOAD_JOB = "Creating async upload job for URL {} with ID: {}";
     public static final String ASYNC_UPLOAD_JOB_REJECTED = "Async upload job with space guid: {}, namespace: {}, URL: {} rejected.";
+    public static final String OPERATION_START_RATE_LIMITED = "Start of operation in space {} rejected due to rate limiting: {}";
     public static final String STARTING_DOWNLOAD_OF_MTAR_WITH_JOB_ID = "Starting download of MTAR from remote endpoint: {}. Job id: {}";
     public static final String UPLOADED_MTAR_FROM_REMOTE_ENDPOINT_AND_JOB_ID = "Uploaded MTAR from remote endpoint {}. Job id: {} in {} ms";
     public static final String ASYNC_UPLOAD_JOB_FINISHED = "Async upload job {} finished";

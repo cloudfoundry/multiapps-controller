@@ -82,6 +82,23 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <includes>
+                        <include>**/*IntegrationTest</include>
+                    </includes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -152,6 +169,10 @@
             <artifactId>resilience4j-ratelimiter</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.bucket4j</groupId>
+            <artifactId>bucket4j_jdk17-postgresql</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.jclouds.common</groupId>
             <artifactId>googlecloud</artifactId>
         </dependency>
@@ -206,6 +227,21 @@
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-nio</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

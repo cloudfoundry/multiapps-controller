@@ -197,6 +197,13 @@ public final class Messages {
     public static final String THREADS_FOR_FILE_STORAGE_UPLOAD_0 = "Threads for file storage upload: {0}";
     public static final String DELETED_ORPHANED_MTA_DESCRIPTORS_COUNT = "Deleted orphaned mta descriptors count: {0}";
     public static final String IS_HEALTH_CHECK_ENABLED = "Is health check enabled: {0}";
+    public static final String OPERATION_RATE_LIMITING_ENABLED = "Operation rate limiting enabled: {0}";
+    public static final String MAX_ACTIVE_OPERATIONS_PER_SPACE = "Max active operations per space: {0}";
+    public static final String MAX_ACTIVE_OPERATIONS_PER_USER = "Max active operations per user: {0}";
+    public static final String OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY = "Operation rate limit per space capacity: {0}";
+    public static final String OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR = "Operation rate limit per space refill per hour: {0}";
+    public static final String OPERATION_RATE_LIMIT_PER_USER_CAPACITY = "Operation rate limit per user capacity: {0}";
+    public static final String OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR = "Operation rate limit per user refill per hour: {0}";
 
     // Debug messages
     public static final String DEPLOYMENT_DESCRIPTOR = "Deployment descriptor: {0}";

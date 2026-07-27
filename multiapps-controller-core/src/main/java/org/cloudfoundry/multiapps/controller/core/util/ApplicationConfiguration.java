@@ -100,6 +100,13 @@ public class ApplicationConfiguration {
     static final String CFG_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER = "THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER";
     static final String CFG_THREADS_FOR_FILE_STORAGE_UPLOAD = "THREADS_FOR_FILE_STORAGE_UPLOAD";
     static final String CFG_IS_HEALTH_CHECK_ENABLED = "IS_HEALTH_CHECK_ENABLED";
+    static final String CFG_OPERATION_RATE_LIMITING_ENABLED = "OPERATION_RATE_LIMITING_ENABLED";
+    static final String CFG_MAX_ACTIVE_OPERATIONS_PER_SPACE = "MAX_ACTIVE_OPERATIONS_PER_SPACE";
+    static final String CFG_MAX_ACTIVE_OPERATIONS_PER_USER = "MAX_ACTIVE_OPERATIONS_PER_USER";
+    static final String CFG_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY = "OP_RATE_LIMIT_PER_SPACE_CAPACITY";
+    static final String CFG_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR = "OP_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR";
+    static final String CFG_OPERATION_RATE_LIMIT_PER_USER_CAPACITY = "OP_RATE_LIMIT_PER_USER_CAPACITY";
+    static final String CFG_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR = "OP_RATE_LIMIT_PER_USER_REFILL_PER_HOUR";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = List.of("full_application_uris", "application_uris", "uris");
 
@@ -158,6 +165,13 @@ public class ApplicationConfiguration {
     public static final int DEFAULT_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER = 6;
     public static final int DEFAULT_THREADS_FOR_FILE_STORAGE_UPLOAD = 7;
     public static final boolean DEFAULT_IS_HEALTH_CHECK_ENABLED = false;
+    public static final boolean DEFAULT_OPERATION_RATE_LIMITING_ENABLED = false;
+    public static final int DEFAULT_MAX_ACTIVE_OPERATIONS_PER_SPACE = 500;
+    public static final int DEFAULT_MAX_ACTIVE_OPERATIONS_PER_USER = 200;
+    public static final int DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY = 300;
+    public static final int DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR = 800;
+    public static final int DEFAULT_OPERATION_RATE_LIMIT_PER_USER_CAPACITY = 150;
+    public static final int DEFAULT_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR = 300;
 
     protected final Environment environment;
 
@@ -217,6 +231,13 @@ public class ApplicationConfiguration {
     private Integer threadsForFileStorageUpload;
     private Boolean isHealthCheckEnabled;
     private Set<String> objectStoreRegions;
+    private Boolean operationRateLimitingEnabled;
+    private Integer maxActiveOperationsPerSpace;
+    private Integer maxActiveOperationsPerUser;
+    private Integer operationRateLimitPerSpaceCapacity;
+    private Integer operationRateLimitPerSpaceRefillPerHour;
+    private Integer operationRateLimitPerUserCapacity;
+    private Integer operationRateLimitPerUserRefillPerHour;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -285,7 +306,10 @@ public class ApplicationConfiguration {
                       CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS, CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS,
                       CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY, CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE,
                       CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE, CFG_CONTROLLER_CLIENT_RESPONSE_TIMEOUT, CFG_DB_TRANSACTION_TIMEOUT_IN_SECONDS,
-                      CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS, CFG_SERVICE_HANDLING_MAX_PARALLEL_THREADS);
+                      CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS, CFG_SERVICE_HANDLING_MAX_PARALLEL_THREADS,
+                      CFG_OPERATION_RATE_LIMITING_ENABLED, CFG_MAX_ACTIVE_OPERATIONS_PER_SPACE, CFG_MAX_ACTIVE_OPERATIONS_PER_USER,
+                      CFG_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY, CFG_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR,
+                      CFG_OPERATION_RATE_LIMIT_PER_USER_CAPACITY, CFG_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR);
     }
 
     public URL getControllerUrl() {
@@ -665,6 +689,55 @@ public class ApplicationConfiguration {
             isHealthCheckEnabled = isHealthCheckEnabledFromEnvironment();
         }
         return isHealthCheckEnabled;
+    }
+
+    public boolean isOperationRateLimitingEnabled() {
+        if (operationRateLimitingEnabled == null) {
+            operationRateLimitingEnabled = isOperationRateLimitingEnabledThroughEnvironment();
+        }
+        return operationRateLimitingEnabled;
+    }
+
+    public Integer getMaxActiveOperationsPerSpace() {
+        if (maxActiveOperationsPerSpace == null) {
+            maxActiveOperationsPerSpace = getMaxActiveOperationsPerSpaceFromEnvironment();
+        }
+        return maxActiveOperationsPerSpace;
+    }
+
+    public Integer getMaxActiveOperationsPerUser() {
+        if (maxActiveOperationsPerUser == null) {
+            maxActiveOperationsPerUser = getMaxActiveOperationsPerUserFromEnvironment();
+        }
+        return maxActiveOperationsPerUser;
+    }
+
+    public Integer getOperationRateLimitPerSpaceCapacity() {
+        if (operationRateLimitPerSpaceCapacity == null) {
+            operationRateLimitPerSpaceCapacity = getOperationRateLimitPerSpaceCapacityFromEnvironment();
+        }
+        return operationRateLimitPerSpaceCapacity;
+    }
+
+    public Integer getOperationRateLimitPerSpaceRefillPerHour() {
+        if (operationRateLimitPerSpaceRefillPerHour == null) {
+            operationRateLimitPerSpaceRefillPerHour = getOperationRateLimitPerSpaceRefillPerHourFromEnvironment();
+        }
+        return operationRateLimitPerSpaceRefillPerHour;
+    }
+
+    public Integer getOperationRateLimitPerUserCapacity() {
+        if (operationRateLimitPerUserCapacity == null) {
+            operationRateLimitPerUserCapacity = getOperationRateLimitPerUserCapacityFromEnvironment();
+        }
+        return operationRateLimitPerUserCapacity;
+    }
+
+    public Integer getOperationRateLimitPerUserRefillPerHour() {
+        if (operationRateLimitPerUserRefillPerHour == null) {
+            operationRateLimitPerUserRefillPerHour = getOperationRateLimitPerUserRefillPerHourFromEnvironment();
+        }
+        return operationRateLimitPerUserRefillPerHour;
     }
 
     private URL getControllerUrlFromEnvironment() {
@@ -1094,6 +1167,54 @@ public class ApplicationConfiguration {
     public boolean isHealthCheckEnabledFromEnvironment() {
         boolean value = environment.getBoolean(CFG_IS_HEALTH_CHECK_ENABLED, DEFAULT_IS_HEALTH_CHECK_ENABLED);
         logEnvironmentVariable(CFG_IS_HEALTH_CHECK_ENABLED, Messages.IS_HEALTH_CHECK_ENABLED, value);
+        return value;
+    }
+
+    private Boolean isOperationRateLimitingEnabledThroughEnvironment() {
+        Boolean value = environment.getBoolean(CFG_OPERATION_RATE_LIMITING_ENABLED, DEFAULT_OPERATION_RATE_LIMITING_ENABLED);
+        logEnvironmentVariable(CFG_OPERATION_RATE_LIMITING_ENABLED, Messages.OPERATION_RATE_LIMITING_ENABLED, value);
+        return value;
+    }
+
+    private Integer getMaxActiveOperationsPerSpaceFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_MAX_ACTIVE_OPERATIONS_PER_SPACE, DEFAULT_MAX_ACTIVE_OPERATIONS_PER_SPACE);
+        logEnvironmentVariable(CFG_MAX_ACTIVE_OPERATIONS_PER_SPACE, Messages.MAX_ACTIVE_OPERATIONS_PER_SPACE, value);
+        return value;
+    }
+
+    private Integer getMaxActiveOperationsPerUserFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_MAX_ACTIVE_OPERATIONS_PER_USER, DEFAULT_MAX_ACTIVE_OPERATIONS_PER_USER);
+        logEnvironmentVariable(CFG_MAX_ACTIVE_OPERATIONS_PER_USER, Messages.MAX_ACTIVE_OPERATIONS_PER_USER, value);
+        return value;
+    }
+
+    private Integer getOperationRateLimitPerSpaceCapacityFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY,
+                                                       DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY);
+        logEnvironmentVariable(CFG_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY, Messages.OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY, value);
+        return value;
+    }
+
+    private Integer getOperationRateLimitPerSpaceRefillPerHourFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR,
+                                                       DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR);
+        logEnvironmentVariable(CFG_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR,
+                               Messages.OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR, value);
+        return value;
+    }
+
+    private Integer getOperationRateLimitPerUserCapacityFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_OPERATION_RATE_LIMIT_PER_USER_CAPACITY,
+                                                       DEFAULT_OPERATION_RATE_LIMIT_PER_USER_CAPACITY);
+        logEnvironmentVariable(CFG_OPERATION_RATE_LIMIT_PER_USER_CAPACITY, Messages.OPERATION_RATE_LIMIT_PER_USER_CAPACITY, value);
+        return value;
+    }
+
+    private Integer getOperationRateLimitPerUserRefillPerHourFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR,
+                                                       DEFAULT_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR);
+        logEnvironmentVariable(CFG_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR,
+                               Messages.OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR, value);
         return value;
     }
 

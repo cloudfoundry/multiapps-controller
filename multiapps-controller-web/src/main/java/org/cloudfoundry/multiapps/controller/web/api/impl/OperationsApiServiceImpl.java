@@ -56,10 +56,13 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.monitoring.ApiUsageLogger;
+import org.cloudfoundry.multiapps.controller.web.util.OperationRateLimitExceededException;
+import org.cloudfoundry.multiapps.controller.web.util.OperationRateLimiter;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
@@ -84,6 +87,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     private final OperationsApiServiceAuditLog operationsApiServiceAuditLog;
     private final ApiUsageLogger apiUsageLogger;
     private final HttpServletRequest httpServletRequest;
+    private final OperationRateLimiter operationRateLimiter;
 
     @Inject
     public OperationsApiServiceImpl(CloudControllerClientFactory clientFactory, TokenService tokenService,
@@ -93,7 +97,8 @@ public class OperationsApiServiceImpl implements OperationsApiService {
                                     OperationsHelper operationsHelper, ProgressMessageService progressMessageService,
                                     ProcessActionRegistry processActionRegistry,
                                     OperationsApiServiceAuditLog operationsApiServiceAuditLog,
-                                    ApiUsageLogger apiUsageLogger, HttpServletRequest httpServletRequest) {
+                                    ApiUsageLogger apiUsageLogger, HttpServletRequest httpServletRequest,
+                                    OperationRateLimiter operationRateLimiter) {
         this.clientFactory = clientFactory;
         this.tokenService = tokenService;
         this.operationService = operationService;
@@ -106,6 +111,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         this.operationsApiServiceAuditLog = operationsApiServiceAuditLog;
         this.apiUsageLogger = apiUsageLogger;
         this.httpServletRequest = httpServletRequest;
+        this.operationRateLimiter = operationRateLimiter;
     }
 
     @Override
@@ -174,6 +180,11 @@ public class OperationsApiServiceImpl implements OperationsApiService {
                                                  operation.getNamespace(), httpServletRequest);
         operationsApiServiceAuditLog.logStartOperation(SecurityContextUtil.getUsername(), spaceGuid, operation);
         UserInfo authenticatedUser = getAuthenticatedUser();
+        try {
+            operationRateLimiter.checkStartAllowed(authenticatedUser.getName(), spaceGuid);
+        } catch (OperationRateLimitExceededException e) {
+            return buildRateLimitExceededResponse(spaceGuid, e);
+        }
         String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
         Set<ParameterMetadata> predefinedParameters = operationMetadataMapper.getOperationMetadata(operation.getProcessType())
                                                                              .getParameters();
@@ -185,6 +196,13 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
         return ResponseEntity.accepted()
                              .header("Location", getLocationHeader(processInstance.getProcessInstanceId(), spaceGuid))
+                             .build();
+    }
+
+    private ResponseEntity<Operation> buildRateLimitExceededResponse(String spaceGuid, OperationRateLimitExceededException e) {
+        LOGGER.debug(Messages.OPERATION_START_RATE_LIMITED, spaceGuid, e.getMessage());
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                             .header(HttpHeaders.RETRY_AFTER, String.valueOf(e.getRetryAfterSeconds()))
                              .build();
     }
 
