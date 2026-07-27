@@ -72,6 +72,9 @@ public final class Messages {
     public static final String JOB_WITH_ID_WAS_NOT_UPDATED_WITHIN_SECONDS = "Job with ID: {} was not updated within: {} seconds";
     public static final String CLEARING_OLD_ENTRY = "Clearing old entry with id: {0}";
     public static final String STARTED_OPERATION_0_BY_USER_1_AND_ORIGIN_OF_2 = "Started operation \"{0}\" by user \"{1}\" and origin of \"{2}\".";
+    public static final String STARTING_CLEAN_UP_OF_EXPIRED_OPERATION_RATE_LIMIT_BUCKETS = "Starting clean up of expired operation rate limit buckets...";
+    public static final String DELETED_EXPIRED_OPERATION_RATE_LIMIT_BUCKETS_0 = "Deleted {0} expired operation rate limit buckets";
+    public static final String COULD_NOT_CLEAN_UP_EXPIRED_OPERATION_RATE_LIMIT_BUCKETS = "Could not clean up expired operation rate limit buckets";
 
     // DEBUG log messages
     public static final String RECEIVED_UPLOAD_REQUEST = "Received upload request on URI: {}";
