@@ -10,4 +10,6 @@ import io.github.bucket4j.BucketConfiguration;
 public interface BucketStore {
 
     Bucket getBucket(long key, BucketConfiguration configuration);
+
+    int removeExpiredEntries(int batchSize);
 }
