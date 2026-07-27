@@ -465,6 +465,131 @@ class ApplicationConfigurationTest {
     }
 
     @Test
+    void testIsOperationRateLimitingEnabled() {
+        Mockito.when(environment.getBoolean(ApplicationConfiguration.CFG_OPERATION_RATE_LIMITING_ENABLED,
+                                            ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMITING_ENABLED))
+               .thenReturn(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMITING_ENABLED);
+        assertEquals(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMITING_ENABLED,
+                     configuration.isOperationRateLimitingEnabled());
+    }
+
+    @Test
+    void testIsOperationRateLimitingEnabledWithCustomValue() {
+        Mockito.when(environment.getBoolean(ApplicationConfiguration.CFG_OPERATION_RATE_LIMITING_ENABLED,
+                                            ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMITING_ENABLED))
+               .thenReturn(true);
+        assertTrue(configuration.isOperationRateLimitingEnabled());
+    }
+
+    @Test
+    void testGetMaxActiveOperationsPerSpace() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_MAX_ACTIVE_OPERATIONS_PER_SPACE,
+                                                    ApplicationConfiguration.DEFAULT_MAX_ACTIVE_OPERATIONS_PER_SPACE))
+               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_ACTIVE_OPERATIONS_PER_SPACE);
+        assertEquals(ApplicationConfiguration.DEFAULT_MAX_ACTIVE_OPERATIONS_PER_SPACE,
+                     configuration.getMaxActiveOperationsPerSpace());
+    }
+
+    @Test
+    void testGetMaxActiveOperationsPerSpaceWithCustomValue() {
+        int customValue = 750;
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_MAX_ACTIVE_OPERATIONS_PER_SPACE,
+                                                    ApplicationConfiguration.DEFAULT_MAX_ACTIVE_OPERATIONS_PER_SPACE))
+               .thenReturn(customValue);
+        assertEquals(customValue, configuration.getMaxActiveOperationsPerSpace());
+    }
+
+    @Test
+    void testGetMaxActiveOperationsPerUser() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_MAX_ACTIVE_OPERATIONS_PER_USER,
+                                                    ApplicationConfiguration.DEFAULT_MAX_ACTIVE_OPERATIONS_PER_USER))
+               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_ACTIVE_OPERATIONS_PER_USER);
+        assertEquals(ApplicationConfiguration.DEFAULT_MAX_ACTIVE_OPERATIONS_PER_USER,
+                     configuration.getMaxActiveOperationsPerUser());
+    }
+
+    @Test
+    void testGetMaxActiveOperationsPerUserWithCustomValue() {
+        int customValue = 250;
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_MAX_ACTIVE_OPERATIONS_PER_USER,
+                                                    ApplicationConfiguration.DEFAULT_MAX_ACTIVE_OPERATIONS_PER_USER))
+               .thenReturn(customValue);
+        assertEquals(customValue, configuration.getMaxActiveOperationsPerUser());
+    }
+
+    @Test
+    void testGetOperationRateLimitPerSpaceCapacity() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY,
+                                                    ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY))
+               .thenReturn(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY);
+        assertEquals(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY,
+                     configuration.getOperationRateLimitPerSpaceCapacity());
+    }
+
+    @Test
+    void testGetOperationRateLimitPerSpaceCapacityWithCustomValue() {
+        int customValue = 400;
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY,
+                                                    ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY))
+               .thenReturn(customValue);
+        assertEquals(customValue, configuration.getOperationRateLimitPerSpaceCapacity());
+    }
+
+    @Test
+    void testGetOperationRateLimitPerSpaceRefillPerHour() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR,
+                                                    ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR))
+               .thenReturn(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR);
+        assertEquals(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR,
+                     configuration.getOperationRateLimitPerSpaceRefillPerHour());
+    }
+
+    @Test
+    void testGetOperationRateLimitPerSpaceRefillPerHourWithCustomValue() {
+        int customValue = 1000;
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR,
+                                                    ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR))
+               .thenReturn(customValue);
+        assertEquals(customValue, configuration.getOperationRateLimitPerSpaceRefillPerHour());
+    }
+
+    @Test
+    void testGetOperationRateLimitPerUserCapacity() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_USER_CAPACITY,
+                                                    ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_USER_CAPACITY))
+               .thenReturn(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_USER_CAPACITY);
+        assertEquals(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_USER_CAPACITY,
+                     configuration.getOperationRateLimitPerUserCapacity());
+    }
+
+    @Test
+    void testGetOperationRateLimitPerUserCapacityWithCustomValue() {
+        int customValue = 200;
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_USER_CAPACITY,
+                                                    ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_USER_CAPACITY))
+               .thenReturn(customValue);
+        assertEquals(customValue, configuration.getOperationRateLimitPerUserCapacity());
+    }
+
+    @Test
+    void testGetOperationRateLimitPerUserRefillPerHour() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR,
+                                                    ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR))
+               .thenReturn(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR);
+        assertEquals(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR,
+                     configuration.getOperationRateLimitPerUserRefillPerHour());
+    }
+
+    @Test
+    void testGetOperationRateLimitPerUserRefillPerHourWithCustomValue() {
+        int customValue = 500;
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR,
+                                                    ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR))
+               .thenReturn(customValue);
+        assertEquals(customValue, configuration.getOperationRateLimitPerUserRefillPerHour());
+    }
+
+    @Test
     void testGetFilteredEnv() {
         Map<String, String> filteredEnvironment = new HashMap<>();
         filteredEnvironment.put(ApplicationConfiguration.CFG_MAX_MTA_DESCRIPTOR_SIZE, "1024");
