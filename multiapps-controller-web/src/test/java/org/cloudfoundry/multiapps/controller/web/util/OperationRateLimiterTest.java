@@ -4,6 +4,7 @@ import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.query.OperationQuery;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
+import org.cloudfoundry.multiapps.controller.process.util.BucketStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

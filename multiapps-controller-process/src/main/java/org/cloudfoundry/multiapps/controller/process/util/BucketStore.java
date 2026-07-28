@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.web.util;
+package org.cloudfoundry.multiapps.controller.process.util;
 
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.BucketConfiguration;

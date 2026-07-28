@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.web.util;
+package org.cloudfoundry.multiapps.controller.process.jobs;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.times;
@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.process.util.BucketStore;
 
 class OperationRateLimitBucketCleanerTest {
 
