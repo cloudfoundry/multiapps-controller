@@ -54,8 +54,8 @@ class DatabaseFileServiceTest {
     private static final String SELECT_FILE_WITH_CONTENT = "SELECT FILE_ID FROM {0} WHERE FILE_ID=? AND CONTENT IS NOT NULL";
     private static final String UPDATE_MODIFICATION_TIME = "UPDATE {0} SET MODIFIED=? WHERE FILE_ID=?";
     private static final String LIQUIBASE_CHANGELOG_LOCATION = "org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog.xml";
-    private static final String DIGEST_METHOD = "MD5";
-    private static final String PIC_MD5_DIGEST = "b39a167875c3771c384c9aa5601fc2d6";
+    private static final String DIGEST_METHOD = "SHA-384";
+    private static final String PIC_SHA256_DIGEST = "b43c60daa2a0f2e4eeadd057da75976d26d21e79ca784970c62da10edb6928692f0ab9bf5e82ca55a2905c0307e9b2b3";
     protected FileService fileService;
 
     protected DataSourceWithDialect testDataSource;
@@ -243,9 +243,8 @@ class DatabaseFileServiceTest {
         // the size of the uploaded file
         assertEquals(BigInteger.valueOf(PIC_SIZE), entry.getSize());
 
-        // verify the MD5 digest, compare with one taken with md5sum
-        assertEquals(PIC_MD5_DIGEST.toLowerCase(), entry.getDigest()
-                                                        .toLowerCase());
+        assertEquals(PIC_SHA256_DIGEST.toLowerCase(), entry.getDigest()
+                                                          .toLowerCase());
         assertEquals(DIGEST_METHOD, entry.getDigestAlgorithm());
     }
 
