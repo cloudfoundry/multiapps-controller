@@ -104,6 +104,7 @@ public class Messages {
     public static final String COULD_NOT_GET_APP_LOGS = "Could not get application recent logs: {0}";
     public static final String ERROR_DURING_INCREMENTAL_INSTANCE_UPDATE_OF_MODULE_0 = "Error during incremental instance update of module \"{0}\"";
     public static final String ERROR_DURING_POLL_OF_INCREMENTAL_INSTANCE_UPDATE_OF_MODULE_0 = "Error during poll of incremental instance update of module \"{0}\"";
+    public static final String COULD_NOT_CLEAN_UP_EXPIRED_OPERATION_RATE_LIMIT_BUCKETS = "Could not clean up expired operation rate limit buckets";
 
     // Process step errors
     public static final String ERROR_VALIDATING_PARAMS = "Error validating parameters";
@@ -356,6 +357,8 @@ public class Messages {
     public static final String DELETING_BACKUP_DESCRIPTORS_WITH_MTA_ID_0_SPACE_1_NAMESPACE_2_AND_SKIP_VERSIONS_3 = "Deleting backup descriptors with mta id \"{0}\" in space \"{1}\" namespace \"{2}\" and skip the following mta versions \"{3}\"";
     public static final String EXISTING_APPS_TO_BACKUP = "Existing apps to backup: {0}";
     public static final String TASK_0_ON_APPLICATION_1_IS_STILL_2 = "Task \"{0}\" on application \"{1}\" is still \"{2}\"";
+    public static final String STARTING_CLEAN_UP_OF_EXPIRED_OPERATION_RATE_LIMIT_BUCKETS = "Starting clean up of expired operation rate limit buckets...";
+    public static final String DELETED_EXPIRED_OPERATION_RATE_LIMIT_BUCKETS_0 = "Deleted {0} expired operation rate limit buckets";
 
     // Progress messages
     public static final String OPERATION_ID = "Operation ID: {0}";
