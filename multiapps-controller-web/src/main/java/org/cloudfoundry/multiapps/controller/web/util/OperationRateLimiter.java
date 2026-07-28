@@ -7,6 +7,7 @@ import jakarta.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
+import org.cloudfoundry.multiapps.controller.web.Messages;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
@@ -50,7 +51,7 @@ public class OperationRateLimiter {
                                                        .list()
                                                        .size();
         if (activeOperationsPerSpace >= applicationConfiguration.getMaxActiveOperationsPerSpace()) {
-            throw new OperationRateLimitExceededException("Too many active operations in space", NO_RETRY_AFTER_SECONDS);
+            throw new OperationRateLimitExceededException(Messages.TOO_MANY_ACTIVE_OPERATIONS_IN_SPACE, NO_RETRY_AFTER_SECONDS);
         }
         int activeOperationsPerUser = operationService.createQuery()
                                                       .user(user)
@@ -59,7 +60,7 @@ public class OperationRateLimiter {
                                                       .list()
                                                       .size();
         if (activeOperationsPerUser >= applicationConfiguration.getMaxActiveOperationsPerUser()) {
-            throw new OperationRateLimitExceededException("Too many active operations for user", NO_RETRY_AFTER_SECONDS);
+            throw new OperationRateLimitExceededException(Messages.TOO_MANY_ACTIVE_OPERATIONS_FOR_USER, NO_RETRY_AFTER_SECONDS);
         }
     }
 
@@ -96,7 +97,7 @@ public class OperationRateLimiter {
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(TOKENS_PER_OPERATION);
         if (!probe.isConsumed()) {
             long retryAfterSeconds = TimeUnit.NANOSECONDS.toSeconds(probe.getNanosToWaitForRefill());
-            throw new OperationRateLimitExceededException("Operation rate limit exceeded", retryAfterSeconds);
+            throw new OperationRateLimitExceededException(Messages.OPERATION_RATE_LIMIT_EXCEEDED, retryAfterSeconds);
         }
     }
 }
