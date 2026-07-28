@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.web.util;
+package org.cloudfoundry.multiapps.controller.process.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
