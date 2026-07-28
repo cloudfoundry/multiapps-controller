@@ -4,6 +4,7 @@ import java.time.Duration;
 
 import javax.sql.DataSource;
 
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 import io.github.bucket4j.Bucket;
@@ -25,6 +26,7 @@ public class PostgresBucketStore implements BucketStore {
 
     private final PostgreSQLSelectForUpdateBasedProxyManager<Long> proxyManager;
 
+    @Inject
     public PostgresBucketStore(DataSource dataSource) {
         this.proxyManager = Bucket4jPostgreSQL.selectForUpdateBasedBuilder(dataSource)
                                               .table(BUCKET_TABLE_NAME)
