@@ -18,7 +18,7 @@ class OperationRateLimitBucketCleanerTest {
 
     private static final int SELECTED_INSTANCE = 0;
     private static final int OTHER_INSTANCE = 3;
-    private static final int BATCH_SIZE = 100;
+    private static final int BATCH_SIZE = 1000;
 
     @Mock
     private ApplicationConfiguration applicationConfiguration;
