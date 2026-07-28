@@ -21,8 +21,8 @@ public class OperationRateLimitBucketCleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationRateLimitBucketCleaner.class);
     private static final int SELECTED_INSTANCE_FOR_CLEAN_UP = 0;
-    private static final int DELETE_BATCH_SIZE = 100;
-    private static final int MAX_ITERATIONS = 1000;
+    private static final int DELETE_BATCH_SIZE = 1000;
+    private static final int MAX_ITERATIONS = 10000;
 
     private final ApplicationConfiguration applicationConfiguration;
     private final BucketStore bucketStore;
