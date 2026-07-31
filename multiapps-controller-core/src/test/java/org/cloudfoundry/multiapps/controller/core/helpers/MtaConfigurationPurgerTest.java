@@ -26,6 +26,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableLoggingC
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationEntryQuery;
 import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationSubscriptionQuery;
+import org.cloudfoundry.multiapps.controller.persistence.query.LoggingConfigurationQuery;
 import org.cloudfoundry.multiapps.controller.persistence.query.Query;
 import org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging.CloudLoggingServiceConfigurationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
@@ -75,6 +76,8 @@ class MtaConfigurationPurgerTest {
     MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog;
     @Mock
     CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService;
+    @Mock(answer = Answers.RETURNS_SELF)
+    LoggingConfigurationQuery loggingConfigurationQuery;
     @Mock
     CloudLoggingServiceConfigurationAuditLog cloudLoggingServiceConfigurationAuditLog;
 
@@ -85,7 +88,8 @@ class MtaConfigurationPurgerTest {
         initApplicationsMock();
         initConfigurationEntriesMock();
         initConfigurationSubscriptionsMock();
-        when(cloudLoggingServiceConfigurationService.getLoggingConfigurationsBySpace(Mockito.anyString())).thenReturn(List.of());
+        when(cloudLoggingServiceConfigurationService.createQuery()).thenReturn(loggingConfigurationQuery);
+        doReturn(List.of()).when(loggingConfigurationQuery).list();
     }
 
     @Test
@@ -174,8 +178,7 @@ class MtaConfigurationPurgerTest {
         MtaConfigurationPurger purger = createPurger();
         purger.purge(TARGET_ORG, TARGET_SPACE, "test-user");
 
-        verify(cloudLoggingServiceConfigurationService).deleteLoggingConfiguration("id-1");
-        verify(cloudLoggingServiceConfigurationService).deleteLoggingConfiguration("id-2");
+        verify(loggingConfigurationQuery, Mockito.times(2)).delete();
         verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration("test-user", spaceId, config1);
         verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration("test-user", spaceId, config2);
     }
@@ -189,7 +192,7 @@ class MtaConfigurationPurgerTest {
         MtaConfigurationPurger purger = createPurger();
         purger.purge(TARGET_ORG, TARGET_SPACE, "test-user");
 
-        verify(cloudLoggingServiceConfigurationService, never()).deleteLoggingConfiguration(Mockito.anyString());
+        verify(loggingConfigurationQuery, never()).delete();
         verify(cloudLoggingServiceConfigurationAuditLog, never()).logDeleteLoggingConfiguration(Mockito.anyString(), Mockito.anyString(),
                                                                                                 Mockito.any());
     }
@@ -204,12 +207,12 @@ class MtaConfigurationPurgerTest {
         MtaConfigurationPurger purger = createPurger();
         purger.purge(TARGET_ORG, TARGET_SPACE, "test-user");
 
-        verify(cloudLoggingServiceConfigurationService).deleteLoggingConfiguration("id-1");
+        verify(loggingConfigurationQuery).delete();
         verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration("test-user", spaceId, config);
     }
 
     private void stubLoggingConfigurationsForSpace(String spaceId, List<LoggingConfiguration> configurations) {
-        when(cloudLoggingServiceConfigurationService.getLoggingConfigurationsBySpace(spaceId)).thenReturn(configurations);
+        doReturn(configurations).when(loggingConfigurationQuery).list();
     }
 
     private MtaConfigurationPurger createPurger() {

@@ -80,13 +80,27 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
     }
 
     private LoggingConfiguration getExistingLoggingConfiguration(ProcessContext context) {
-        LoggingConfiguration loggingConfiguration = cloudLoggingServiceConfigurationService.getLoggingConfiguration(
-            context.getVariable(Variables.SPACE_NAME), context.getVariable(Variables.MTA_ID), context.getVariable(Variables.MTA_NAMESPACE));
-
+        LoggingConfiguration loggingConfiguration = getLoggingConfiguration(context.getVariable(Variables.SPACE_NAME),
+                                                                            context.getVariable(Variables.MTA_ID),
+                                                                            context.getVariable(Variables.MTA_NAMESPACE));
+        if (loggingConfiguration == null) {
+            return null;
+        }
         cloudLoggingServiceConfigurationAuditLog.logGetLoggingConfiguration(context.getVariable(Variables.USER),
                                                                             context.getVariable(Variables.SPACE_GUID),
                                                                             loggingConfiguration);
         return loggingConfiguration;
+    }
+
+    private LoggingConfiguration getLoggingConfiguration(String mtaSpace, String mtaId, String namespace) {
+        return cloudLoggingServiceConfigurationService.createQuery()
+                                                      .mtaSpace(mtaSpace)
+                                                      .mtaId(mtaId)
+                                                      .namespace(namespace)
+                                                      .list()
+                                                      .stream()
+                                                      .findFirst()
+                                                      .orElse(null);
     }
 
     private LoggingConfiguration processUndeployLoggingConfiguration(ProcessContext context,
@@ -122,7 +136,7 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
             cloudLoggingServiceConfigurationAuditLog.logDeleteLoggingConfiguration(context.getVariable(Variables.USER),
                                                                                    context.getVariable(Variables.SPACE_GUID),
                                                                                    existingLoggingConfiguration);
-            cloudLoggingServiceConfigurationService.deleteLoggingConfiguration(existingLoggingConfiguration.getId());
+            cloudLoggingServiceConfigurationService.createQuery().id(existingLoggingConfiguration.getId()).delete();
         }
     }
 

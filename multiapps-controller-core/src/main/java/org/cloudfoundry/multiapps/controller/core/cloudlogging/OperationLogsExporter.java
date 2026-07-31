@@ -12,12 +12,12 @@ import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry
 @Named("operationLogsExporter")
 public class OperationLogsExporter {
 
-    private final CloudLoggingServiceHttpClient cloudLoggingServiceHttpClient;
+    private final CloudLoggingServiceClient cloudLoggingServiceHttpClient;
     private final ExternalOperationLogEntryFactory externalOperationLogEntryFactory;
     private final ExternalOperationLogEntryBatcher externalOperationLogEntryBatcher;
 
     @Inject
-    public OperationLogsExporter(CloudLoggingServiceHttpClient cloudLoggingServiceHttpClient,
+    public OperationLogsExporter(CloudLoggingServiceClient cloudLoggingServiceHttpClient,
                                  ExternalOperationLogEntryFactory externalOperationLogEntryFactory,
                                  ExternalOperationLogEntryBatcher externalOperationLogEntryBatcher) {
         this.cloudLoggingServiceHttpClient = cloudLoggingServiceHttpClient;
@@ -74,7 +74,7 @@ public class OperationLogsExporter {
 
     private void sendInBatches(List<ExternalOperationLogEntry> entries, LoggingConfiguration loggingConfiguration) {
         for (List<ExternalOperationLogEntry> logEntryBatch : externalOperationLogEntryBatcher.batch(entries)) {
-            cloudLoggingServiceHttpClient.sendLogs(loggingConfiguration, logEntryBatch);
+            cloudLoggingServiceHttpClient.sendLogsToCloudLoggingService(loggingConfiguration, logEntryBatch);
         }
     }
 }

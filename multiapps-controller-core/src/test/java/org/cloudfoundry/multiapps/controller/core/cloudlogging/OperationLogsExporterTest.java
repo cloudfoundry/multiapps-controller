@@ -19,13 +19,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
 
 class OperationLogsExporterTest {
 
@@ -244,11 +242,11 @@ class OperationLogsExporterTest {
     void testSendLogs_cachedClientReusedOnSubsequentCalls() {
         LoggingConfiguration config = buildConfig(LogLevel.INFO);
         exporter.sendLogsToCloudLoggingService(config, INFO_LOG);
-        int clientCreationsAfterFirst = httpClient.clientCreations;
+        int capturedAfterFirst = httpClient.capturedEntries().size();
 
         exporter.sendLogsToCloudLoggingService(config, INFO_LOG);
 
-        assertEquals(clientCreationsAfterFirst, httpClient.clientCreations);
+        assertEquals(capturedAfterFirst * 2, httpClient.capturedEntries().size());
     }
 
     private static String logLine(String date, String level, String logName, String text) {
@@ -280,10 +278,9 @@ class OperationLogsExporterTest {
                                          .build();
     }
 
-    private static class CapturingHttpClient extends CloudLoggingServiceHttpClient {
+    private static class CapturingHttpClient extends CloudLoggingServiceClient {
 
         final List<List<ExternalOperationLogEntry>> capturedBatches = new ArrayList<>();
-        int clientCreations = 0;
         boolean simulateHttpFailure = false;
         boolean simulateNullResponse = false;
 
@@ -294,19 +291,10 @@ class OperationLogsExporterTest {
         }
 
         @Override
-        public WebClient createWebClientWithMtls(LoggingConfiguration loggingConfiguration) {
-            clientCreations++;
-            return mock(WebClient.class);
-        }
-
-        @Override
-        public void sendLogsToCloudLoggingService(LoggingConfiguration loggingConfiguration, WebClient webClient,
+        public void sendLogsToCloudLoggingService(LoggingConfiguration loggingConfiguration,
                                                   List<ExternalOperationLogEntry> logEntryBatch) {
             capturedBatches.add(new ArrayList<>(logEntryBatch));
             if (simulateHttpFailure || simulateNullResponse) {
-                // The real client treats both an error status and a null response as a failure
-                // and routes through CloudLoggingServiceUtil — reproduce that here so the
-                // failSafe semantics under test still apply.
                 CloudLoggingServiceUtil.logErrorOrThrowExceptionBasedOnFailSafe(loggingConfiguration,
                                                                                 LoggerFactory.getLogger(CapturingHttpClient.class),
                                                                                 Messages.FAILED_TO_SEND_LOG_MESSAGE_TO_CLS);

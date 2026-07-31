@@ -1,7 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -29,26 +28,6 @@ public class CloudLoggingServiceConfigurationService extends PersistenceService<
 
     public LoggingConfigurationQuery createQuery() {
         return new LoggingConfigurationQueryImpl(createEntityManager(), mapper);
-    }
-
-    public LoggingConfiguration getLoggingConfiguration(String mtaSpace, String mtaId, String namespace) {
-        return createQuery().mtaSpace(mtaSpace)
-                            .mtaId(mtaId)
-                            .namespace(namespace)
-                            .list()
-                            .stream()
-                            .findFirst()
-                            .orElse(null);
-    }
-
-    public List<LoggingConfiguration> getLoggingConfigurationsBySpace(String mtaSpaceId) {
-        return createQuery().mtaSpaceId(mtaSpaceId)
-                            .list();
-    }
-
-    public void deleteLoggingConfiguration(String id) {
-        createQuery().id(id)
-                     .delete();
     }
 
     @Override

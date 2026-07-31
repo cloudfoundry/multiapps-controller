@@ -30,7 +30,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBack
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
-import org.cloudfoundry.multiapps.controller.core.cloudlogging.CloudLoggingServiceHttpClient;
+import org.cloudfoundry.multiapps.controller.core.cloudlogging.CloudLoggingServiceClient;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessDuration;
@@ -69,7 +69,7 @@ public class OperationInFinalStateHandler {
     @Inject
     private SecretTokenStoreFactory secretTokenStoreFactory;
     @Inject
-    private CloudLoggingServiceHttpClient cloudLoggingServiceHttpClient;
+    private CloudLoggingServiceClient cloudLoggingServiceHttpClient;
     @Inject
     private CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService;
     @Inject
@@ -213,7 +213,7 @@ public class OperationInFinalStateHandler {
         ProcessType processType = processTypeParser.getProcessType(execution);
         if (processType.equals(ProcessType.UNDEPLOY)) {
 
-            cloudLoggingServiceConfigurationService.deleteLoggingConfiguration(loggingConfiguration.getId());
+            cloudLoggingServiceConfigurationService.createQuery().id(loggingConfiguration.getId()).delete();
             cloudLoggingServiceConfigurationAuditLog.logDeleteLoggingConfiguration(VariableHandling.get(execution, Variables.USER),
                                                                                    VariableHandling.get(execution, Variables.SPACE_GUID),
                                                                                    loggingConfiguration);

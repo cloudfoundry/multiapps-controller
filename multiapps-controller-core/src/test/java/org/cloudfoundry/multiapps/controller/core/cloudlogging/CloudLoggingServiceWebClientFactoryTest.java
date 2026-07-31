@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CloudLoggingServiceWebClientFactoryTest {
@@ -17,19 +16,17 @@ class CloudLoggingServiceWebClientFactoryTest {
 
     @BeforeEach
     void setUp() {
-        factory = new CloudLoggingServiceWebClientFactory();
+        factory = new DefaultCloudLoggingServiceWebClientFactory();
     }
 
     @Test
-    void createWebClientWithMtls_failSafeTrue_returnsNullOnInvalidCredentials() {
+    void createWebClientWithMtls_throwsOnInvalidCredentials() {
         LoggingConfiguration config = configBuilder(true).serverCa("not a pem")
                                                          .clientCert("not a pem")
                                                          .clientKey("not a pem")
                                                          .build();
 
-        WebClient webClient = factory.createWebClientWithMtls(config);
-
-        assertNull(webClient);
+        assertThrows(SLException.class, () -> factory.createWebClientWithMtls(config));
     }
 
     @Test

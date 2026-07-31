@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.text.MessageFormat;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.cloudfoundry.multiapps.common.SLException;
@@ -20,6 +21,8 @@ import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LoggingConfigurationBuilder {
 
@@ -27,6 +30,7 @@ public class LoggingConfigurationBuilder {
     private static final String CREDENTIAL_KEY_SERVER_CA = "server-ca";
     private static final String CREDENTIAL_KEY_INGEST_MTLS_CERT = "ingest-mtls-cert";
     private static final String CREDENTIAL_KEY_INGEST_MTLS_KEY = "ingest-mtls-key";
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoggingConfigurationBuilder.class);
 
     private final CloudControllerClientFactory clientFactory;
     private final ProcessContext context;
@@ -83,11 +87,10 @@ public class LoggingConfigurationBuilder {
         if (LogLevel.isValid(logLevelFromDescriptor)) {
             return LogLevel.get(logLevelFromDescriptor);
         }
-        if (resource.isOptional()) {
-            return null;
-        } else {
+        if (!resource.isOptional()) {
             throw new SLException(Messages.INVALID_LOG_LEVEL);
         }
+        return LogLevel.INFO;
     }
 
     private boolean areCloudLoggingParametersInvalid(String serviceInstanceName, String serviceKeyName) {
@@ -137,21 +140,30 @@ public class LoggingConfigurationBuilder {
 
     private CloudServiceKey getCloudLoggingServiceKey(String serviceInstanceName, String serviceKeyName, String destinationOrg,
                                                       String destinationSpace, boolean isFailSafe) {
-        if (areCloudLoggingParametersInvalid(serviceInstanceName, serviceKeyName)) {
-            throwExceptionIfIsNotFailSafe(isFailSafe, getCloudLoggingServiceKeyErrorMessage());
+        Optional<CloudServiceKey> cloudServiceKey = getCloudLoggingServiceKeyOptional(serviceInstanceName, serviceKeyName, destinationOrg,
+                                                                                      destinationSpace);
+
+        if (cloudServiceKey.isPresent()) {
+            return cloudServiceKey.get();
+        }
+        if (isFailSafe) {
             return null;
+        }
+        throw new SLException(Messages.FAILED_TO_GET_CLOUD_LOGGING_SERVICE_KEY);
+    }
+
+    private Optional<CloudServiceKey> getCloudLoggingServiceKeyOptional(String serviceInstanceName, String serviceKeyName,
+                                                                        String destinationOrg, String destinationSpace) {
+        if (areCloudLoggingParametersInvalid(serviceInstanceName, serviceKeyName)) {
+            return Optional.empty();
         }
         CloudControllerClient client = calculateExternalLoggingServiceConfiguration(destinationOrg, destinationSpace);
         try {
             CloudServiceKey loggingServiceKey = client.getServiceKey(serviceInstanceName, serviceKeyName);
-            if (loggingServiceKey != null) {
-                return loggingServiceKey;
-            }
-            throwExceptionIfIsNotFailSafe(isFailSafe, getCloudLoggingServiceKeyErrorMessage());
-            return null;
+            return Optional.ofNullable(loggingServiceKey);
         } catch (CloudOperationException e) {
-            throwExceptionIfIsNotFailSafe(isFailSafe, e.getMessage());
-            return null;
+            LOGGER.error(e.getMessage());
+            return Optional.empty();
         }
     }
 
@@ -159,6 +171,7 @@ public class LoggingConfigurationBuilder {
         if (!isFailSafe) {
             throw new SLException(message);
         }
+
     }
 
     private String getCloudLoggingServiceKeyErrorMessage() {

@@ -11,13 +11,11 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableExternal
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableLoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.LogLevel;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -30,95 +28,72 @@ import reactor.util.retry.Retry;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class CloudLoggingServiceHttpClientTest {
-
-    private CloudLoggingServiceHttpClient client;
+class CloudLoggingServiceClientTest {
 
     private static final int MAX_RETRY_ATTEMPTS = 4;
 
-    @BeforeEach
-    void setUp() {
-        client = new CloudLoggingServiceHttpClient();
-        client.withRetrySpec(Retry.max(MAX_RETRY_ATTEMPTS)
-                                  .filter(client::isRetryableError)
-                                  .onRetryExhaustedThrow((spec, sig) -> sig.failure()));
-    }
-
-    @Test
-    void createWebClientWithMtls_failSafeTrue_returnsNullOnInvalidCredentials() {
-        LoggingConfiguration config = configBuilder(true).serverCa("not a pem")
-                                                         .clientCert("not a pem")
-                                                         .clientKey("not a pem")
-                                                         .build();
-
-        WebClient webClient = client.createWebClientWithMtls(config);
-
-        assertNull(webClient);
-    }
-
-    @Test
-    void createWebClientWithMtls_failSafeFalse_throwsOnInvalidCredentials() {
-        LoggingConfiguration config = configBuilder(false).serverCa("not a pem")
-                                                          .clientCert("not a pem")
-                                                          .clientKey("not a pem")
-                                                          .build();
-
-        assertThrows(SLException.class, () -> client.createWebClientWithMtls(config));
+    private CloudLoggingServiceClient clientWithStubWebClient(Function<ClientRequest, Mono<ClientResponse>> handler) {
+        WebClient webClient = stubWebClient(handler);
+        CloudLoggingServiceWebClientFactory factory = config -> webClient;
+        CloudLoggingServiceClient c = new CloudLoggingServiceClient(factory, new CloudLoggingServiceWebClientCache());
+        c.withRetrySpec(Retry.max(MAX_RETRY_ATTEMPTS)
+                             .filter(c::isRetryableError)
+                             .onRetryExhaustedThrow((spec, sig) -> sig.failure()));
+        return c;
     }
 
     @Test
     void sendLogs_2xxResponse_doesNotThrow() {
-        WebClient webClient = stubWebClient(req -> response(HttpStatus.OK));
+        CloudLoggingServiceClient client = clientWithStubWebClient(req -> response(HttpStatus.OK));
 
-        assertDoesNotThrow(() -> client.sendLogsToCloudLoggingService(configBuilder(true).build(), webClient, sampleBatch()));
+        assertDoesNotThrow(() -> client.sendLogsToCloudLoggingService(configBuilder(true).build(), sampleBatch()));
     }
 
     @Test
     void sendLogs_sendsJsonContentTypeHeader() {
         AtomicInteger calls = new AtomicInteger();
-        WebClient webClient = stubWebClient(req -> {
+        CloudLoggingServiceClient client = clientWithStubWebClient(req -> {
             calls.incrementAndGet();
             assertEquals(MediaType.APPLICATION_JSON_VALUE, req.headers()
                                                               .getFirst(HttpHeaders.CONTENT_TYPE));
             return response(HttpStatus.OK);
         });
 
-        client.sendLogsToCloudLoggingService(configBuilder(true).build(), webClient, sampleBatch());
+        client.sendLogsToCloudLoggingService(configBuilder(true).build(), sampleBatch());
 
         assertEquals(1, calls.get());
     }
 
     @Test
     void sendLogs_non2xxNonRetryable_failSafeTrue_doesNotThrow() {
-        WebClient webClient = stubWebClient(req -> response(HttpStatus.NOT_FOUND));
+        CloudLoggingServiceClient client = clientWithStubWebClient(req -> response(HttpStatus.NOT_FOUND));
 
-        assertDoesNotThrow(() -> client.sendLogsToCloudLoggingService(configBuilder(true).build(), webClient, sampleBatch()));
+        assertDoesNotThrow(() -> client.sendLogsToCloudLoggingService(configBuilder(true).build(), sampleBatch()));
     }
 
     @Test
     void sendLogs_non2xxNonRetryable_failSafeFalse_throwsSLException() {
-        WebClient webClient = stubWebClient(req -> response(HttpStatus.NOT_FOUND));
+        CloudLoggingServiceClient client = clientWithStubWebClient(req -> response(HttpStatus.NOT_FOUND));
 
         assertThrows(SLException.class,
-                     () -> client.sendLogsToCloudLoggingService(configBuilder(false).build(), webClient, sampleBatch()));
+                     () -> client.sendLogsToCloudLoggingService(configBuilder(false).build(), sampleBatch()));
     }
 
     @ParameterizedTest
     @ValueSource(ints = { 408, 425, 429, 500, 502, 503, 504 })
     void sendLogs_retryableStatus_isRetriedUntilSuccess(int retryableStatus) {
         AtomicInteger attempts = new AtomicInteger();
-        WebClient webClient = stubWebClient(req -> {
+        CloudLoggingServiceClient client = clientWithStubWebClient(req -> {
             int n = attempts.incrementAndGet();
             return n == 1 ? response(HttpStatus.valueOf(retryableStatus)) : response(HttpStatus.OK);
         });
 
-        client.sendLogsToCloudLoggingService(configBuilder(true).build(), webClient, sampleBatch());
+        client.sendLogsToCloudLoggingService(configBuilder(true).build(), sampleBatch());
 
         assertEquals(2, attempts.get());
     }
@@ -126,24 +101,24 @@ class CloudLoggingServiceHttpClientTest {
     @Test
     void sendLogs_persistentRetryableStatus_failSafeTrue_doesNotThrowAfterExhaustion() {
         AtomicInteger attempts = new AtomicInteger();
-        WebClient webClient = stubWebClient(req -> {
+        CloudLoggingServiceClient client = clientWithStubWebClient(req -> {
             attempts.incrementAndGet();
             return response(HttpStatus.SERVICE_UNAVAILABLE);
         });
 
-        assertDoesNotThrow(() -> client.sendLogsToCloudLoggingService(configBuilder(true).build(), webClient, sampleBatch()));
+        assertDoesNotThrow(() -> client.sendLogsToCloudLoggingService(configBuilder(true).build(), sampleBatch()));
         assertTrue(attempts.get() >= 2, "expected at least one retry, got " + attempts.get());
     }
 
     @Test
     void sendLogs_ioExceptionFromExchange_isRetried() {
         AtomicInteger attempts = new AtomicInteger();
-        WebClient webClient = stubWebClient(req -> {
+        CloudLoggingServiceClient client = clientWithStubWebClient(req -> {
             int n = attempts.incrementAndGet();
             return n == 1 ? Mono.error(new IOException("connection reset")) : response(HttpStatus.OK);
         });
 
-        client.sendLogsToCloudLoggingService(configBuilder(true).build(), webClient, sampleBatch());
+        client.sendLogsToCloudLoggingService(configBuilder(true).build(), sampleBatch());
 
         assertEquals(2, attempts.get());
     }
@@ -151,12 +126,12 @@ class CloudLoggingServiceHttpClientTest {
     @Test
     void sendLogs_prematureCloseException_isRetried() {
         AtomicInteger attempts = new AtomicInteger();
-        WebClient webClient = stubWebClient(req -> {
+        CloudLoggingServiceClient client = clientWithStubWebClient(req -> {
             int n = attempts.incrementAndGet();
             return n == 1 ? Mono.error(PrematureCloseException.TEST_EXCEPTION) : response(HttpStatus.OK);
         });
 
-        client.sendLogsToCloudLoggingService(configBuilder(true).build(), webClient, sampleBatch());
+        client.sendLogsToCloudLoggingService(configBuilder(true).build(), sampleBatch());
 
         assertEquals(2, attempts.get());
     }
@@ -164,47 +139,57 @@ class CloudLoggingServiceHttpClientTest {
     @Test
     void sendLogs_nonRetryableRuntimeException_failSafeTrue_doesNotThrow_andDoesNotRetry() {
         AtomicInteger attempts = new AtomicInteger();
-        WebClient webClient = stubWebClient(req -> {
+        CloudLoggingServiceClient client = clientWithStubWebClient(req -> {
             attempts.incrementAndGet();
             return Mono.error(new IllegalStateException("boom"));
         });
 
-        assertDoesNotThrow(() -> client.sendLogsToCloudLoggingService(configBuilder(true).build(), webClient, sampleBatch()));
+        assertDoesNotThrow(() -> client.sendLogsToCloudLoggingService(configBuilder(true).build(), sampleBatch()));
         assertEquals(1, attempts.get());
     }
 
     @Test
     void sendLogs_nonRetryableRuntimeException_failSafeFalse_throwsSLException() {
-        WebClient webClient = stubWebClient(req -> Mono.error(new IllegalStateException("boom")));
+        CloudLoggingServiceClient client = clientWithStubWebClient(req -> Mono.error(new IllegalStateException("boom")));
 
         assertThrows(SLException.class,
-                     () -> client.sendLogsToCloudLoggingService(configBuilder(false).build(), webClient, sampleBatch()));
+                     () -> client.sendLogsToCloudLoggingService(configBuilder(false).build(), sampleBatch()));
     }
 
     @Test
     void sendLogs_cachedClientReusedOnSubsequentCalls() {
-        CountingHttpClient countingClient = new CountingHttpClient();
+        AtomicInteger creations = new AtomicInteger();
+        CloudLoggingServiceWebClientFactory countingFactory = config -> {
+            creations.incrementAndGet();
+            return stubWebClient(req -> response(HttpStatus.OK));
+        };
+        CloudLoggingServiceClient client = new CloudLoggingServiceClient(countingFactory, new CloudLoggingServiceWebClientCache());
         LoggingConfiguration config = configBuilder(true).build();
 
-        countingClient.sendLogs(config, sampleBatch());
-        int creationsAfterFirst = countingClient.clientCreations;
-        countingClient.sendLogs(config, sampleBatch());
+        client.sendLogsToCloudLoggingService(config, sampleBatch());
+        int afterFirst = creations.get();
+        client.sendLogsToCloudLoggingService(config, sampleBatch());
 
-        assertEquals(creationsAfterFirst, countingClient.clientCreations);
+        assertEquals(afterFirst, creations.get());
     }
 
     @Test
     void removeClientFromCache_newClientCreatedOnNextSend() {
-        CountingHttpClient countingClient = new CountingHttpClient();
+        AtomicInteger creations = new AtomicInteger();
+        CloudLoggingServiceWebClientFactory countingFactory = config -> {
+            creations.incrementAndGet();
+            return stubWebClient(req -> response(HttpStatus.OK));
+        };
+        CloudLoggingServiceClient client = new CloudLoggingServiceClient(countingFactory, new CloudLoggingServiceWebClientCache());
         LoggingConfiguration config = configBuilder(true).build();
 
-        countingClient.sendLogs(config, sampleBatch());
-        int creationsAfterFirst = countingClient.clientCreations;
+        client.sendLogsToCloudLoggingService(config, sampleBatch());
+        int afterFirst = creations.get();
 
-        countingClient.removeClientFromCache(config.getOperationId());
-        countingClient.sendLogs(config, sampleBatch());
+        client.removeClientFromCache(config.getOperationId());
+        client.sendLogsToCloudLoggingService(config, sampleBatch());
 
-        assertEquals(creationsAfterFirst + 1, countingClient.clientCreations);
+        assertEquals(afterFirst + 1, creations.get());
     }
 
     private static WebClient stubWebClient(Function<ClientRequest, Mono<ClientResponse>> handler) {
@@ -251,22 +236,5 @@ class CloudLoggingServiceHttpClientTest {
                                             .serverCa("server-ca")
                                             .clientCert("client-cert")
                                             .clientKey("client-key");
-    }
-
-    private static class CountingHttpClient extends CloudLoggingServiceHttpClient {
-
-        int clientCreations = 0;
-
-        @Override
-        public WebClient createWebClientWithMtls(LoggingConfiguration loggingConfiguration) {
-            clientCreations++;
-            return mock(WebClient.class);
-        }
-
-        @Override
-        public void sendLogsToCloudLoggingService(LoggingConfiguration loggingConfiguration, WebClient webClient,
-                                                  List<ExternalOperationLogEntry> logEntryBatch) {
-            // no-op: this test only exercises client caching, not the HTTP exchange
-        }
     }
 }

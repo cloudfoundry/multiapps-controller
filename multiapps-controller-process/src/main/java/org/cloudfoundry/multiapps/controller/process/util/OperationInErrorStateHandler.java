@@ -13,7 +13,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
-import org.cloudfoundry.multiapps.controller.core.cloudlogging.CloudLoggingServiceHttpClient;
+import org.cloudfoundry.multiapps.controller.core.cloudlogging.CloudLoggingServiceClient;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableProgressMessage;
@@ -38,12 +38,12 @@ public class OperationInErrorStateHandler {
     private final ProgressMessageService progressMessageService;
     private final HistoricOperationEventService historicOperationEventService;
     private final ClientReleaser clientReleaser;
-    private final CloudLoggingServiceHttpClient cloudLoggingServiceHttpClient;
+    private final CloudLoggingServiceClient cloudLoggingServiceHttpClient;
 
     @Inject
     public OperationInErrorStateHandler(ProgressMessageService progressMessageService, FlowableFacade flowableFacade,
                                         HistoricOperationEventService historicOperationEventService, ClientReleaser clientReleaser,
-                                        OperationService operationService, CloudLoggingServiceHttpClient cloudLoggingServiceHttpClient) {
+                                        OperationService operationService, CloudLoggingServiceClient cloudLoggingServiceHttpClient) {
         this.progressMessageService = progressMessageService;
         this.flowableFacade = flowableFacade;
         this.historicOperationEventService = historicOperationEventService;

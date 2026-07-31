@@ -24,13 +24,14 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntr
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableLoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.query.DescriptorBackupQuery;
+import org.cloudfoundry.multiapps.controller.persistence.query.LoggingConfigurationQuery;
 import org.cloudfoundry.multiapps.controller.persistence.query.impl.OperationQueryImpl;
 import org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging.CloudLoggingServiceConfigurationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
-import org.cloudfoundry.multiapps.controller.core.cloudlogging.CloudLoggingServiceHttpClient;
+import org.cloudfoundry.multiapps.controller.core.cloudlogging.CloudLoggingServiceClient;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessDuration;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
@@ -47,6 +48,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -106,7 +108,7 @@ class OperationInFinalStateHandlerTest {
     @Mock
     private CloudControllerClient cloudControllerClient;
     @Mock
-    private CloudLoggingServiceHttpClient cloudLoggingServiceHttpClient;
+    private CloudLoggingServiceClient cloudLoggingServiceHttpClient;
     @Mock
     private HistoricOperationEventService historicOperationEventService;
     @Mock
@@ -115,6 +117,8 @@ class OperationInFinalStateHandlerTest {
     private DescriptorBackupQuery descriptorBackupQuery;
     @Mock
     private CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService;
+    @Mock(answer = Answers.RETURNS_SELF)
+    private LoggingConfigurationQuery loggingConfigurationQuery;
     @Mock
     private CloudLoggingServiceConfigurationAuditLog cloudLoggingServiceConfigurationAuditLog;
     @Mock
@@ -149,6 +153,7 @@ class OperationInFinalStateHandlerTest {
                .thenReturn(stepLogger);
         Mockito.when(secretTokenStoreFactory.createSecretTokenStoreDeletionRelated())
                .thenReturn(secretTokenStoreDeletion);
+        when(cloudLoggingServiceConfigurationService.createQuery()).thenReturn(loggingConfigurationQuery);
     }
 
     @ParameterizedTest
@@ -340,7 +345,7 @@ class OperationInFinalStateHandlerTest {
 
         eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
 
-        verify(cloudLoggingServiceConfigurationService, never()).deleteLoggingConfiguration(anyString());
+        verify(loggingConfigurationQuery, never()).delete();
         verify(cloudLoggingServiceConfigurationAuditLog, never()).logDeleteLoggingConfiguration(anyString(), anyString(), any());
     }
 
@@ -355,7 +360,7 @@ class OperationInFinalStateHandlerTest {
 
         eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
 
-        verify(cloudLoggingServiceConfigurationService, never()).deleteLoggingConfiguration(anyString());
+        verify(loggingConfigurationQuery, never()).delete();
         verify(cloudLoggingServiceConfigurationAuditLog, never()).logDeleteLoggingConfiguration(anyString(), anyString(), any());
     }
 
@@ -372,7 +377,7 @@ class OperationInFinalStateHandlerTest {
 
         eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
 
-        verify(cloudLoggingServiceConfigurationService, never()).deleteLoggingConfiguration(anyString());
+        verify(loggingConfigurationQuery, never()).delete();
         verify(cloudLoggingServiceConfigurationAuditLog, never()).logDeleteLoggingConfiguration(anyString(), anyString(), any());
     }
 
@@ -390,7 +395,7 @@ class OperationInFinalStateHandlerTest {
 
         eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
 
-        verify(cloudLoggingServiceConfigurationService).deleteLoggingConfiguration(LOGGING_CONFIG_ID);
+        verify(loggingConfigurationQuery).delete();
         verify(cloudLoggingServiceConfigurationAuditLog).logDeleteLoggingConfiguration(USER_NAME, SPACE_ID, loggingConfiguration);
     }
 

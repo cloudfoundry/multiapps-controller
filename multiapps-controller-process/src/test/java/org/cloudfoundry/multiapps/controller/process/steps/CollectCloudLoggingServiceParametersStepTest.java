@@ -11,6 +11,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableOperatio
 import org.cloudfoundry.multiapps.controller.persistence.model.LogLevel;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
+import org.cloudfoundry.multiapps.controller.persistence.query.LoggingConfigurationQuery;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging.CloudLoggingServiceConfigurationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging.UnsentProcessLogsProvider;
@@ -39,6 +40,7 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
     private TokenService tokenService;
     private CloudControllerClientFactory clientFactory;
     private CloudLoggingServiceConfigurationService configurationService;
+    private LoggingConfigurationQuery loggingConfigurationQuery;
     private ProcessTypeParser processTypeParser;
     private CloudLoggingServiceConfigurationAuditLog auditLog;
     private UnsentProcessLogsProvider unsentProcessLogsProvider;
@@ -78,6 +80,9 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
         tokenService = Mockito.mock(TokenService.class);
         clientFactory = Mockito.mock(CloudControllerClientFactory.class);
         configurationService = Mockito.mock(CloudLoggingServiceConfigurationService.class);
+        loggingConfigurationQuery = Mockito.mock(LoggingConfigurationQuery.class, Mockito.RETURNS_SELF);
+        Mockito.when(configurationService.createQuery()).thenReturn(loggingConfigurationQuery);
+        Mockito.doReturn(List.of()).when(loggingConfigurationQuery).list();
         processTypeParser = Mockito.mock(ProcessTypeParser.class);
         auditLog = Mockito.mock(CloudLoggingServiceConfigurationAuditLog.class);
         unsentProcessLogsProvider = Mockito.mock(UnsentProcessLogsProvider.class);
@@ -93,15 +98,15 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
 
         assertStepFinishedSuccessfully();
         assertNull(context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION));
-        verify(auditLog).logGetLoggingConfiguration(any(), any(), any());
+        verify(auditLog, never()).logGetLoggingConfiguration(any(), any(), any());
         verify(unsentProcessLogsProvider, never()).getUnsentProcessLogs(any());
     }
 
     @Test
     void undeploy_existingConfig_setsVariableAndAuditsGet() throws FileStorageException {
         LoggingConfiguration existing = buildConfig();
+        stubExistingConfig(existing);
         when(processTypeParser.getProcessType(any())).thenReturn(ProcessType.UNDEPLOY);
-        when(configurationService.getLoggingConfiguration(any(), any(), any())).thenReturn(existing);
         when(unsentProcessLogsProvider.getUnsentProcessLogs(existing)).thenReturn(List.of());
 
         step.execute(execution);
@@ -111,7 +116,7 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
         verify(auditLog).logGetLoggingConfiguration(USER_NAME, SPACE_GUID, existing);
         verify(configurationService, never()).add(any());
         verify(configurationService, never()).update(any(), any());
-        verify(configurationService, never()).deleteLoggingConfiguration(any());
+        verify(loggingConfigurationQuery, never()).delete();
     }
 
     @Test
@@ -122,7 +127,7 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
 
         assertStepFinishedSuccessfully();
         assertNull(context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION));
-        verify(configurationService, never()).deleteLoggingConfiguration(any());
+        verify(loggingConfigurationQuery, never()).delete();
         verify(auditLog, never()).logDeleteLoggingConfiguration(any(), any(), any());
         verify(unsentProcessLogsProvider, never()).getUnsentProcessLogs(any());
     }
@@ -130,15 +135,14 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
     @Test
     void deploy_noCloudLoggingResource_existingConfig_deletesAndAudits() {
         LoggingConfiguration existing = buildConfig();
+        stubExistingConfig(existing);
         prepareDeployContext(descriptorWithoutCloudLogging());
-        when(configurationService.getLoggingConfiguration(any(), any(), any())).thenReturn(existing);
-
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
         assertNull(context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION));
         verify(auditLog).logDeleteLoggingConfiguration(USER_NAME, SPACE_GUID, existing);
-        verify(configurationService).deleteLoggingConfiguration(existing.getId());
+        verify(loggingConfigurationQuery).delete();
         verify(unsentProcessLogsProvider, never()).getUnsentProcessLogs(any());
     }
 
@@ -175,13 +179,14 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
     @Test
     void deploy_cloudLoggingResource_existingConfig_updatesAndAuditsUpdateAndGet() throws FileStorageException {
         LoggingConfiguration existing = buildConfig();
+        stubExistingConfig(existing);
         LoggingConfiguration rebuilt = ImmutableLoggingConfiguration.builder()
                                                                     .from(existing)
                                                                     .logLevel(LogLevel.ERROR)
                                                                     .build();
-        prepareDeployContext(descriptorWithCloudLogging());
-        when(configurationService.getLoggingConfiguration(any(), any(), any())).thenReturn(existing);
         step.nextBuiltFromDescriptor = rebuilt;
+        step.nextBuiltFromExisting = null;
+        prepareDeployContext(descriptorWithCloudLogging());
         when(unsentProcessLogsProvider.getUnsentProcessLogs(rebuilt)).thenReturn(List.of());
 
         step.execute(execution);
@@ -248,6 +253,10 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
                                    .setResources(List.of(Resource.createV3()
                                                                  .setName("not-cls")
                                                                  .setType("org.cloudfoundry.managed-service")));
+    }
+
+    private void stubExistingConfig(LoggingConfiguration config) {
+        Mockito.doReturn(List.of(config)).when(loggingConfigurationQuery).list();
     }
 
     private static LoggingConfiguration buildConfig() {

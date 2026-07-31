@@ -95,6 +95,7 @@ public final class Messages {
     public static final String UNSUPPORTED_FILE_FORMAT = "Unsupported file format! \"{0}\" detected";
     public static final String ENCRYPTION_HAS_FAILED = "Encryption has failed! Errored with \"{0}\"";
     public static final String DECRYPTION_HAS_FAILED = "Decryption has failed! Errored with \"{0}\"";
+    public static final String COULD_NOT_CREATE_SSL_CONTEXT_FOR_CLOUD_LOGGING_SERVICE = "Could not create SSL context for Cloud Logging service";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";

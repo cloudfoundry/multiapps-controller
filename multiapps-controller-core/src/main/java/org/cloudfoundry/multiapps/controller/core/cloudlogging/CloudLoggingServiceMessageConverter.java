@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 @Named("cloudLoggingServiceMessageConverter")
 public class CloudLoggingServiceMessageConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudLoggingServiceMessageConverter.class);
-    // SAP Cloud Logging ingest endpoint accepts payloads up to ~4 MB; 3.5 MB leaves headroom for JSON envelope and HTTP framing.
     private static final Pattern MESSAGE_LOG_DATE_PATTERN = Pattern.compile("^#([^#\\r\\n]*)#", Pattern.MULTILINE);
     private static final Pattern MESSAGE_LOG_LEVEL_PATTERN = Pattern.compile("^#[^#\\r\\n]*#[^#\\r\\n]*#([^#\\r\\n]*)#", Pattern.MULTILINE);
     private static final Pattern MESSAGE_LOG_NAME = Pattern.compile("^#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#([^#\\r\\n]*)#",

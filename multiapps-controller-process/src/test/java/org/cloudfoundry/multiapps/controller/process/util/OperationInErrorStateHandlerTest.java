@@ -19,7 +19,7 @@ import org.cloudfoundry.multiapps.common.ParsingException;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
-import org.cloudfoundry.multiapps.controller.core.cloudlogging.CloudLoggingServiceHttpClient;
+import org.cloudfoundry.multiapps.controller.core.cloudlogging.CloudLoggingServiceClient;
 import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableProgressMessage;
@@ -62,7 +62,7 @@ class OperationInErrorStateHandlerTest {
     @Mock
     private OperationQueryImpl operationQuery;
     @Mock
-    private CloudLoggingServiceHttpClient cloudLoggingServiceHttpClient;
+    private CloudLoggingServiceClient cloudLoggingServiceHttpClient;
 
     private final Date now = DateTime.now()
                                      .toDate();
@@ -236,7 +236,7 @@ class OperationInErrorStateHandlerTest {
         public OperationInErrorStateHandlerMock(ProgressMessageService progressMessageService, FlowableFacade flowableFacade,
                                                 HistoricOperationEventService historicOperationEventService,
                                                 ClientReleaser clientReleaser, OperationService operationService,
-                                                CloudLoggingServiceHttpClient cloudLoggingServiceHttpClient) {
+                                                CloudLoggingServiceClient cloudLoggingServiceHttpClient) {
             super(progressMessageService, flowableFacade, historicOperationEventService, clientReleaser, operationService,
                   cloudLoggingServiceHttpClient);
         }

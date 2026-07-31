@@ -23,16 +23,15 @@ import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.Exceptions;
-import reactor.netty.http.client.PrematureCloseException;
 import reactor.util.retry.Retry;
 
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@Named("cloudLoggingServiceHttpClient")
-public class CloudLoggingServiceHttpClient {
+@Named("cloudLoggingServiceClient")
+public class CloudLoggingServiceClient {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CloudLoggingServiceHttpClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CloudLoggingServiceClient.class);
     private static final int MAX_RETRY_ATTEMPTS = 4;
     private static final Duration INITIAL_RETRY_BACKOFF = Duration.ofMillis(500);
     private static final Duration MAX_RETRY_BACKOFF = Duration.ofSeconds(10);
@@ -43,33 +42,35 @@ public class CloudLoggingServiceHttpClient {
     private final CloudLoggingServiceWebClientCache webClientCache;
     private Retry retrySpec;
 
-    public CloudLoggingServiceHttpClient() {
-        this(new CloudLoggingServiceWebClientFactory(), new CloudLoggingServiceWebClientCache());
-    }
-
-    CloudLoggingServiceHttpClient withRetrySpec(Retry retrySpec) {
-        this.retrySpec = retrySpec;
-        return this;
+    public CloudLoggingServiceClient() {
+        this(new DefaultCloudLoggingServiceWebClientFactory(),
+             new CloudLoggingServiceWebClientCache());
     }
 
     @Inject
-    public CloudLoggingServiceHttpClient(CloudLoggingServiceWebClientFactory webClientFactory,
-                                         CloudLoggingServiceWebClientCache webClientCache) {
+    public CloudLoggingServiceClient(CloudLoggingServiceWebClientFactory webClientFactory,
+                                     CloudLoggingServiceWebClientCache webClientCache) {
         this.webClientFactory = webClientFactory;
         this.webClientCache = webClientCache;
     }
 
-    public void sendLogs(LoggingConfiguration loggingConfiguration, List<ExternalOperationLogEntry> logEntryBatch) {
-        WebClient webClient = webClientCache.getOrCreate(loggingConfiguration, this::createWebClientWithMtls);
-        sendLogsToCloudLoggingService(loggingConfiguration, webClient, logEntryBatch);
+    public void withRetrySpec(Retry retrySpec) {
+        this.retrySpec = retrySpec;
     }
 
     public void removeClientFromCache(String operationId) {
         webClientCache.remove(operationId);
     }
 
-    public void sendLogsToCloudLoggingService(LoggingConfiguration loggingConfiguration, WebClient webClient,
+    public void sendLogsToCloudLoggingService(LoggingConfiguration loggingConfiguration,
                                               List<ExternalOperationLogEntry> logEntryBatch) {
+        WebClient webClient;
+        try {
+            webClient = webClientCache.getOrCreate(loggingConfiguration, webClientFactory::createWebClientWithMtls);
+        } catch (Exception e) {
+            handleSendLogFailure(loggingConfiguration, e);
+            return;
+        }
         try {
             ResponseEntity<Void> response = executeSendLogHttpRequest(webClient, logEntryBatch);
             if (hasRequestFailed(response)) {
@@ -95,10 +96,6 @@ public class CloudLoggingServiceHttpClient {
         CloudLoggingServiceUtil.logErrorOrThrowExceptionBasedOnFailSafe(loggingConfiguration, LOGGER,
                                                                         Messages.FAILED_TO_SEND_LOG_MESSAGE_TO_CLS + ": "
                                                                             + describeFailure(failure));
-    }
-
-    public WebClient createWebClientWithMtls(LoggingConfiguration loggingConfiguration) {
-        return webClientFactory.createWebClientWithMtls(loggingConfiguration);
     }
 
     private ResponseEntity<Void> executeSendLogHttpRequest(WebClient webClient, List<ExternalOperationLogEntry> logEntryBatch) {
@@ -130,7 +127,7 @@ public class CloudLoggingServiceHttpClient {
         if (throwable instanceof WebClientRequestException) {
             return true;
         }
-        return throwable instanceof PrematureCloseException || throwable instanceof IOException;
+        return throwable instanceof IOException;
     }
 
     private String describeFailure(Throwable throwable) {

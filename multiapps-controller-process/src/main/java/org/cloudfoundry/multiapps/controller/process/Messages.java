@@ -104,6 +104,7 @@ public class Messages {
     public static final String COULD_NOT_GET_APP_LOGS = "Could not get application recent logs: {0}";
     public static final String ERROR_DURING_INCREMENTAL_INSTANCE_UPDATE_OF_MODULE_0 = "Error during incremental instance update of module \"{0}\"";
     public static final String ERROR_DURING_POLL_OF_INCREMENTAL_INSTANCE_UPDATE_OF_MODULE_0 = "Error during poll of incremental instance update of module \"{0}\"";
+    public static final String FAILED_TO_GET_CLOUD_LOGGING_SERVICE_KEY = "Failed to get Cloud Logging service key";
 
     // Process step errors
     public static final String ERROR_VALIDATING_PARAMS = "Error validating parameters";
