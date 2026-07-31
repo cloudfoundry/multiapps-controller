@@ -1,0 +1,269 @@
+name: Publish Documentation
+
+# Publishes the MTA REST API specs (machine-readable YAML + interactive Swagger UI docs)
+# to the gh-pages branch.
+#
+# Versioning: each API version folder is keyed off the `info.version` field inside the
+# generated YAML (mtarest.yaml / mtarest_v2.yaml). A new folder appears only when that
+# version string changes. If the YAML content changes but the version does NOT, the build
+# fails to force a conscious version bump - unless the head commit message contains the
+# escape hatch `[docs-republish]` (deliberate same-version overwrite).
+#
+# Swagger UI is fetched at publish time from the npm registry, pinned to an exact version
+# and SHA-256 verified before use (no runtime CDN dependency, no committed vendor blob,
+# no pom.xml entry). A hash mismatch fails the build.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'multiapps-controller-api/src/main/resources/mtarest.yaml'
+      - 'multiapps-controller-api/src/main/resources/mtarest_v2.yaml'
+
+permissions:
+  contents: write
+
+env:
+  # Swagger UI - pinned for reproducibility. To upgrade: bump the version, download the
+  # tarball, recompute sha256sum, update both values below, and test locally first.
+  SWAGGER_UI_VERSION: '5.32.11'
+  SWAGGER_UI_SHA256: '966b7c7ea3bc98af2f5f125dac3a971973df20ed1f9c40707d846200d8b462a6'
+  V1_YAML: 'multiapps-controller-api/src/main/resources/mtarest.yaml'
+  V2_YAML: 'multiapps-controller-api/src/main/resources/mtarest_v2.yaml'
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          path: master
+          # Full history so we can diff info.version against the previous commit (3b guard).
+          fetch-depth: 0
+
+      - name: Checkout gh-pages
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: gh-pages
+          path: gh-pages
+          fetch-depth: 1
+
+      # Extract info.version from each generated YAML
+      - name: Extract API versions
+        id: api_versions
+        run: |
+          set -euo pipefail
+          extract_version() {
+            # info.version is a 2-space-indented, quoted field under the top-level info: block.
+            local file="$1"
+            local v
+            v=$(grep -m1 -E '^  version:' "$file" | sed -E 's/^  version:[[:space:]]*"?([^"[:space:]]+)"?.*/\1/')
+            if [ -z "$v" ]; then
+              echo "ERROR: could not extract info.version from $file" >&2
+              exit 1
+            fi
+            # Allowlist: the version becomes a directory name and is interpolated into generated
+            # HTML. Restrict to semver-ish tokens so it can never carry path or HTML metacharacters.
+            if ! printf '%s' "$v" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z]+)*$'; then
+              echo "ERROR: info.version '$v' in $file is not a valid version string." >&2
+              exit 1
+            fi
+            echo "$v"
+          }
+          V1_VERSION=$(extract_version "master/${V1_YAML}")
+          V2_VERSION=$(extract_version "master/${V2_YAML}")
+          echo "v1_version=$V1_VERSION" >> "$GITHUB_OUTPUT"
+          echo "v2_version=$V2_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Detected API v1: $V1_VERSION, v2: $V2_VERSION"
+
+      # 3b guard: fail if API content changed without a version bump
+      - name: Guard against unbumped API version
+        env:
+          V1_VERSION: ${{ steps.api_versions.outputs.v1_version }}
+          V2_VERSION: ${{ steps.api_versions.outputs.v2_version }}
+        run: |
+          set -euo pipefail
+          cd master
+
+          # Deliberate same-version republish escape hatch.
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          if printf '%s' "$COMMIT_MSG" | grep -qF '[docs-republish]'; then
+            echo "Escape hatch [docs-republish] present - skipping unbumped-version guard."
+            exit 0
+          fi
+
+          prev_version() {
+            # Read info.version from the previous commit's copy of the file (empty if new).
+            local file="$1"
+            git show "HEAD~1:$file" 2>/dev/null \
+              | grep -m1 -E '^  version:' \
+              | sed -E 's/^  version:[[:space:]]*"?([^"[:space:]]+)"?.*/\1/' || true
+          }
+
+          check() {
+            local file="$1" curr="$2" label="$3"
+            # Did the file change in this push relative to the previous commit?
+            if git diff --quiet "HEAD~1" -- "$file" 2>/dev/null; then
+              echo "$label: unchanged - ok."
+              return 0
+            fi
+            local prev
+            prev=$(prev_version "$file")
+            if [ -z "$prev" ]; then
+              echo "$label: new file (version $curr) - ok."
+              return 0
+            fi
+            if [ "$prev" = "$curr" ]; then
+              echo "ERROR: $label changed but info.version is still '$curr'." >&2
+              echo "Bump the version in multiapps-controller-api/pom.xml and regenerate the YAML," >&2
+              echo "or add [docs-republish] to the commit message for a deliberate same-version overwrite." >&2
+              exit 1
+            fi
+            echo "$label: version bumped $prev -> $curr - ok."
+          }
+
+          check "${V1_YAML}" "$V1_VERSION" "mtarest.yaml (v1)"
+          check "${V2_YAML}" "$V2_VERSION" "mtarest_v2.yaml (v2)"
+
+      # Strategy B: fetch + SHA-256 verify Swagger UI, then vendor into gh-pages
+      - name: Fetch and verify Swagger UI
+        run: |
+          set -euo pipefail
+          TARBALL="swagger-ui-dist-${SWAGGER_UI_VERSION}.tgz"
+          URL="https://registry.npmjs.org/swagger-ui-dist/-/${TARBALL}"
+          echo "Downloading $URL"
+          curl -fsSL "$URL" -o "$TARBALL"
+
+          echo "${SWAGGER_UI_SHA256}  ${TARBALL}" | sha256sum -c -
+
+          VENDOR_DIR="gh-pages/vendor/swagger-ui/${SWAGGER_UI_VERSION}"
+          rm -rf "$VENDOR_DIR"
+          mkdir -p "$VENDOR_DIR"
+          tar -xzf "$TARBALL" \
+            -C "$VENDOR_DIR" --strip-components=1 \
+            package/swagger-ui.css \
+            package/swagger-ui-bundle.js \
+            package/swagger-ui-standalone-preset.js
+          echo "Vendored Swagger UI ${SWAGGER_UI_VERSION} into ${VENDOR_DIR}"
+
+      - name: Generate third-party license notice
+        run: |
+          set -euo pipefail
+          mkdir -p gh-pages/vendor
+          cat > gh-pages/vendor/THIRD-PARTY-LICENSES.txt <<EOF
+          This documentation site bundles the following third-party software:
+
+          Swagger UI (swagger-ui-dist) v${SWAGGER_UI_VERSION}
+            Copyright (c) SmartBear Software and contributors
+            Licensed under the Apache License, Version 2.0
+            https://github.com/swagger-api/swagger-ui/blob/master/LICENSE
+            Full license text: https://www.apache.org/licenses/LICENSE-2.0
+          EOF
+          echo "Written gh-pages/vendor/THIRD-PARTY-LICENSES.txt"
+
+      # Generate per-version Swagger UI pages (v1 and v2) from the shared template.
+      # The template lives in the master checkout; placeholders are substituted with
+      # python3 (literal string replace) so path/HTML metacharacters are never re-interpreted.
+      - name: Generate API docs (Swagger UI)
+        env:
+          V1_VERSION: ${{ steps.api_versions.outputs.v1_version }}
+          V2_VERSION: ${{ steps.api_versions.outputs.v2_version }}
+          PAGE_TEMPLATE: master/.github/pages-templates/version-page.html
+        run: |
+          set -euo pipefail
+
+          # Render version-page.html for one API version.
+          #   $1 output index.html path
+          #   $2 API version string (nav badge / title)
+          #   $3 yaml filename served alongside (relative)
+          #   $4 relative path prefix up to gh-pages root (e.g. ../../ or ../../../)
+          write_page() {
+            local out="$1" version="$2" yaml="$3" root="$4"
+            local vendor="${root}vendor/swagger-ui/${SWAGGER_UI_VERSION}"
+            VERSION="$version" ROOT="$root" YAML="$yaml" VENDOR="$vendor" \
+            python3 - "$PAGE_TEMPLATE" "$out" <<'PY'
+          import os, sys
+          tmpl, out = sys.argv[1], sys.argv[2]
+          html = open(tmpl, encoding='utf-8').read()
+          for key in ('VERSION', 'ROOT', 'YAML', 'VENDOR'):
+              html = html.replace('__%s__' % key, os.environ[key])
+          open(out, 'w', encoding='utf-8').write(html)
+          PY
+          }
+
+          # v1: gh-pages/api/{V1_VERSION}/
+          V1_DIR="gh-pages/api/${V1_VERSION}"
+          mkdir -p "$V1_DIR"
+          cp "master/${V1_YAML}" "$V1_DIR/mtarest.yaml"
+          write_page "$V1_DIR/index.html" "$V1_VERSION" "mtarest.yaml" "../../"
+
+          # v2: gh-pages/api/v2/{V2_VERSION}/
+          V2_DIR="gh-pages/api/v2/${V2_VERSION}"
+          mkdir -p "$V2_DIR"
+          cp "master/${V2_YAML}" "$V2_DIR/mtarest_v2.yaml"
+          write_page "$V2_DIR/index.html" "$V2_VERSION" "mtarest_v2.yaml" "../../../"
+
+          echo "Generated api/${V1_VERSION}/ and api/v2/${V2_VERSION}/"
+
+      # Generate the API version index (discovers all published versions) from template.
+      - name: Generate API version index
+        env:
+          INDEX_TEMPLATE: master/.github/pages-templates/version-index.html
+        run: |
+          set -euo pipefail
+
+          # Semver dirs directly under api/ (v1), excluding the v2/ subtree.
+          V1_VERSIONS=$(ls -1 gh-pages/api/ 2>/dev/null | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -Vr | tr '\n' ' ')
+          V2_VERSIONS=$(ls -1 gh-pages/api/v2/ 2>/dev/null | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -Vr | tr '\n' ' ')
+
+          cards() {
+            # $1 space-separated versions, $2 url prefix (e.g. "" or "v2/")
+            local versions="$1" prefix="$2" latest="" out=""
+            for v in $versions; do latest="$v"; break; done
+            for v in $versions; do
+              local badge=""
+              if [ "$v" = "$latest" ]; then
+                badge=' <span style="background:#765DBC;color:#fff;padding:2px 8px;border-radius:10px;font-size:12px;margin-left:8px;">latest</span>'
+              fi
+              out="${out}    <li style=\"margin:10px 0;\"><a href=\"${prefix}${v}/\" style=\"font-size:18px;color:#765DBC;font-weight:bold;\">v${v}</a>${badge}</li>"$'\n'
+            done
+            printf '%s' "$out"
+          }
+
+          V1_CARDS=$(cards "$V1_VERSIONS" "")
+          V2_CARDS=$(cards "$V2_VERSIONS" "v2/")
+
+          # Substitute the card blocks into the template with python3 so the HTML markup
+          # is inserted literally (never re-interpreted by the shell).
+          V1_CARDS="$V1_CARDS" V2_CARDS="$V2_CARDS" \
+          python3 - "$INDEX_TEMPLATE" gh-pages/api/index.html <<'PY'
+          import os, sys
+          tmpl, out = sys.argv[1], sys.argv[2]
+          html = open(tmpl, encoding='utf-8').read()
+          html = html.replace('__V1_CARDS__', os.environ['V1_CARDS'])
+          html = html.replace('__V2_CARDS__', os.environ['V2_CARDS'])
+          open(out, 'w', encoding='utf-8').write(html)
+          PY
+          echo "Written gh-pages/api/index.html"
+
+      # Commit + push (scoped; never git add -A)
+      - name: Commit and push gh-pages
+        env:
+          V1_VERSION: ${{ steps.api_versions.outputs.v1_version }}
+          V2_VERSION: ${{ steps.api_versions.outputs.v2_version }}
+        run: |
+          set -euo pipefail
+          cd gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          touch .nojekyll
+          git add api/ vendor/ .nojekyll
+          if git diff --cached --quiet; then
+            echo "No documentation changes to publish."
+          else
+            SHA=$(cd ../master && git rev-parse --short HEAD)
+            git commit -m "docs: publish API v${V1_VERSION} / v${V2_VERSION} from ${SHA}"
+            git pull --rebase origin gh-pages
+            git push
+          fi
