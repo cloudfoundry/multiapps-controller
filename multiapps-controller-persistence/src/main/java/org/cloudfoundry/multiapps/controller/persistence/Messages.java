@@ -67,6 +67,9 @@ public final class Messages {
 
     // INFO log messages:
     public static final String DELETING_FILES_WITHOUT_CONTENT_WITH_IDS_0 = "Deleting files without content with ids: {0}";
+    public static final String TIME_ELAPSED_FOR_JCLOUDS_OS_UPLOAD_0_IN_MILLIS = "Time elapsed for JClouds object store upload: {0} in millis";
+    public static final String TIME_ELAPSED_FOR_GCP_OS_UPLOAD_0_IN_MILLIS = "Time elapsed for GCP object store upload: {0} in millis";
+    public static final String TIME_ELAPSED_FOR_AZURE_OS_UPLOAD_0_IN_MILLIS = "Time elapsed for Azure object store upload: {0} in millis";
 
     // DEBUG log messages:
     public static final String STORED_FILE_0 = "Stored file: \"{0}\"";

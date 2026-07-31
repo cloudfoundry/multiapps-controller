@@ -26,6 +26,7 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.monitoring.UploadDurationTracker;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentConsumer;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveIterator;
@@ -86,6 +87,7 @@ class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> 
                                                                            .build();
     private final MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
     private final ExecutorService appUploaderThreadPool = mock(ExecutorService.class);
+    private final UploadDurationTracker uploadDurationTracker = mock(UploadDurationTracker.class);
 
     @TempDir
     Path tempDir;
@@ -220,7 +222,7 @@ class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> 
             return List.of(new UploadAppAsyncExecution(applicationZipBuilder,
                                                        getProcessLogsPersister(),
                                                        configuration,
-                                                       appUploaderThreadPool) {
+                                                       appUploaderThreadPool, uploadDurationTracker) {
 
             });
         }
