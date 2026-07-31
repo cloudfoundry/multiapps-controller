@@ -13,6 +13,8 @@ import com.google.cloud.storage.StorageOptions;
 import com.google.cloud.storage.StorageRetryStrategy;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.monitoring.UploadDurationTracker;
+import org.cloudfoundry.multiapps.controller.persistence.monitoring.UploadTimeoutMatcher;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreConstants;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreFilter;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreMapper;
@@ -25,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -41,10 +44,12 @@ public class GcpObjectStoreFileStorage implements FileStorage {
 
     private final String bucketName;
     private final Storage storage;
+    private final UploadDurationTracker uploadDurationTracker;
 
-    public GcpObjectStoreFileStorage(Map<String, Object> credentials) {
+    public GcpObjectStoreFileStorage(Map<String, Object> credentials, UploadDurationTracker uploadDurationTracker) {
         this.bucketName = (String) credentials.get(CredentialKeys.BUCKET);
         this.storage = createObjectStoreStorage(credentials);
+        this.uploadDurationTracker = uploadDurationTracker;
     }
 
     protected Storage createObjectStoreStorage(Map<String, Object> credentials) {
@@ -92,11 +97,16 @@ public class GcpObjectStoreFileStorage implements FileStorage {
     }
 
     private void putBlob(BlobInfo blobInfo, InputStream content) throws FileStorageException {
+        LocalDateTime startTime = LocalDateTime.now();
         try {
             storage.createFrom(blobInfo, content);
         } catch (IOException | StorageException e) {
+            uploadDurationTracker.recordObjectStoreUpload(getElapsedTimeInMillis(startTime),
+                                                          UploadTimeoutMatcher.isUploadTimeoutException(e));
             throw new FileStorageException(e);
         }
+        uploadDurationTracker.recordObjectStoreUpload(getElapsedTimeInMillis(startTime), false);
+        LOGGER.info(MessageFormat.format(Messages.TIME_ELAPSED_FOR_GCP_OS_UPLOAD_0_IN_MILLIS, getElapsedTimeInMillis(startTime)));
     }
 
     @Override
@@ -283,4 +293,10 @@ public class GcpObjectStoreFileStorage implements FileStorage {
         static final String BASE_64_ENCODED_PRIVATE_KEY_DATA = "base64EncodedPrivateKeyData";
         static final String BUCKET = "bucket";
     }
+
+    private long getElapsedTimeInMillis(LocalDateTime startTime) {
+        return Duration.between(startTime, LocalDateTime.now())
+                       .toMillis();
+    }
+
 }

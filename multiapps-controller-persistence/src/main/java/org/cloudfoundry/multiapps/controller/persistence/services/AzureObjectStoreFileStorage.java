@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,8 @@ import com.azure.storage.blob.models.ParallelTransferOptions;
 import com.azure.storage.blob.options.BlobParallelUploadOptions;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.monitoring.UploadDurationTracker;
+import org.cloudfoundry.multiapps.controller.persistence.monitoring.UploadTimeoutMatcher;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreConstants;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreFilter;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreMapper;
@@ -46,15 +49,18 @@ public class AzureObjectStoreFileStorage extends ObjectStoreFileStorage {
     private static final int MAX_CONCURRENCY = 5;
     private final HttpClient httpClient;
     private final BlobContainerClient containerClient;
+    private final UploadDurationTracker uploadDurationTracker;
 
-    public AzureObjectStoreFileStorage(Map<String, Object> credentials) {
+    public AzureObjectStoreFileStorage(Map<String, Object> credentials, UploadDurationTracker uploadDurationTracker) {
         this.httpClient = new JdkHttpClientBuilder().build();
         this.containerClient = createContainerClient(credentials);
+        this.uploadDurationTracker = uploadDurationTracker;
     }
 
     @Override
     public void addFile(FileEntry fileEntry, InputStream content) throws FileStorageException {
         BlobClient blobClient = containerClient.getBlobClient(fileEntry.getId());
+        LocalDateTime startTime = LocalDateTime.now();
         try {
             ParallelTransferOptions pto = new ParallelTransferOptions().setMaxSingleUploadSizeLong(MAX_SINGLE_UPLOAD_SIZE)
                                                                        .setMaxConcurrency(MAX_CONCURRENCY)
@@ -67,10 +73,14 @@ public class AzureObjectStoreFileStorage extends ObjectStoreFileStorage {
             blobClient.uploadWithResponse(blobParallelUploadOptions,
                                           ObjectStoreConstants.AZURE_OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES, null);
             LOGGER.debug(MessageFormat.format(Messages.STORED_FILE_0_WITH_SIZE_1, fileEntry.getId(), fileEntry.getSize()
-                                                                                                             .longValue()));
+                                                                                                              .longValue()));
         } catch (BlobStorageException e) {
+            uploadDurationTracker.recordObjectStoreUpload(getElapsedTimeInMillis(startTime),
+                                                          UploadTimeoutMatcher.isUploadTimeoutException(e));
             throw new FileStorageException(e);
         }
+        uploadDurationTracker.recordObjectStoreUpload(getElapsedTimeInMillis(startTime), false);
+        LOGGER.info(MessageFormat.format(Messages.TIME_ELAPSED_FOR_AZURE_OS_UPLOAD_0_IN_MILLIS, getElapsedTimeInMillis(startTime)));
     }
 
     @Override
@@ -216,6 +226,11 @@ public class AzureObjectStoreFileStorage extends ObjectStoreFileStorage {
         }
 
         return deletedBlobsResult;
+    }
+
+    private long getElapsedTimeInMillis(LocalDateTime startTime) {
+        return Duration.between(startTime, LocalDateTime.now())
+                       .toMillis();
     }
 
     protected Set<String> getEntryNames(Predicate<? super BlobItem> filter) {

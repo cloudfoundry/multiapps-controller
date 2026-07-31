@@ -7,11 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import io.pivotal.cfenv.core.CfService;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.persistence.services.AwsS3ObjectStoreFileStorage;
+import org.cloudfoundry.multiapps.controller.persistence.monitoring.UploadDurationTracker;
 import org.cloudfoundry.multiapps.controller.persistence.services.AzureObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.GcpObjectStoreFileStorage;
@@ -39,13 +41,16 @@ public class ObjectStoreSelectorFactory {
     private final EnvironmentServicesFinder environmentServicesFinder;
     private final ApplicationConfiguration applicationConfiguration;
     private final SelectedObjectStore selectedObjectStore;
+    private final UploadDurationTracker uploadDurationTracker;
 
     public ObjectStoreSelectorFactory(String serviceName, EnvironmentServicesFinder environmentServicesFinder,
-                                      ApplicationConfiguration applicationConfiguration) {
+                                      ApplicationConfiguration applicationConfiguration,
+                                      UploadDurationTracker uploadDurationTracker) {
         this.serviceName = serviceName;
         this.environmentServicesFinder = environmentServicesFinder;
         this.applicationConfiguration = applicationConfiguration;
         this.selectedObjectStore = doSelect();
+        this.uploadDurationTracker = uploadDurationTracker;
     }
 
     public FileStorage fileStorage() {
@@ -155,15 +160,15 @@ public class ObjectStoreSelectorFactory {
     }
 
     protected GcpObjectStoreFileStorage createGcpFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
-        return new GcpObjectStoreFileStorage(objectStoreServiceInfo.getCredentials());
+        return new GcpObjectStoreFileStorage(objectStoreServiceInfo.getCredentials(), uploadDurationTracker);
     }
 
     protected AzureObjectStoreFileStorage createAzureFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
-        return new AzureObjectStoreFileStorage(objectStoreServiceInfo.getCredentials());
+        return new AzureObjectStoreFileStorage(objectStoreServiceInfo.getCredentials(), uploadDurationTracker);
     }
 
     protected AwsS3ObjectStoreFileStorage createAwsS3FileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
-        return new AwsS3ObjectStoreFileStorage(objectStoreServiceInfo.getCredentials());
+        return new AwsS3ObjectStoreFileStorage(objectStoreServiceInfo.getCredentials(), uploadDurationTracker);
     }
 
     private BlobStoreContext getBlobStoreContext(ObjectStoreServiceInfo serviceInfo) {
@@ -203,7 +208,7 @@ public class ObjectStoreSelectorFactory {
     protected JCloudsObjectStoreFileStorage createFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo, BlobStoreContext context) {
         return new JCloudsObjectStoreFileStorage(context.getBlobStore(),
                                                  (String) objectStoreServiceInfo.getCredentials()
-                                                                                .get(Constants.BUCKET));
+                                                                                .get(Constants.BUCKET), uploadDurationTracker);
     }
 
     private Optional<SelectedObjectStore> createObjectStoreBasedOnProvider(String objectStoreProviderName,

@@ -20,12 +20,14 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.Status;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.UploadStatusCallbackExtended;
 import org.cloudfoundry.multiapps.controller.core.Constants;
+import org.cloudfoundry.multiapps.controller.core.cloudlogging.OperationLogsExporter;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationEnvironmentUpdater;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
-import org.cloudfoundry.multiapps.controller.core.cloudlogging.OperationLogsExporter;
+import org.cloudfoundry.multiapps.controller.persistence.monitoring.UploadDurationTracker;
+import org.cloudfoundry.multiapps.controller.persistence.monitoring.UploadTimeoutMatcher;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerPersister;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.context.ApplicationToUploadContext;
@@ -48,15 +50,17 @@ public class UploadAppAsyncExecution implements AsyncExecution {
     private final ApplicationConfiguration applicationConfiguration;
     private final ExecutorService appUploaderThreadPool;
     private final OperationLogsExporter operationLogsExporter;
+    private final UploadDurationTracker uploadDurationTracker;
 
     public UploadAppAsyncExecution(ApplicationZipBuilder applicationZipBuilder, ProcessLoggerPersister processLoggerPersister,
                                    ApplicationConfiguration applicationConfiguration, ExecutorService appUploaderThreadPool,
-                                   OperationLogsExporter operationLogsExporter) {
+                                   OperationLogsExporter operationLogsExporter, UploadDurationTracker uploadDurationTracker) {
         this.applicationZipBuilder = applicationZipBuilder;
         this.processLoggerPersister = processLoggerPersister;
         this.applicationConfiguration = applicationConfiguration;
         this.appUploaderThreadPool = appUploaderThreadPool;
         this.operationLogsExporter = operationLogsExporter;
+        this.uploadDurationTracker = uploadDurationTracker;
     }
 
     @Override
@@ -76,6 +80,7 @@ public class UploadAppAsyncExecution implements AsyncExecution {
         try {
             runningUpload = appUploaderThreadPool.submit(() -> doUpload(context, applicationToProcess, applicationToUploadContext));
         } catch (RejectedExecutionException rejectedExecutionException) {
+            uploadDurationTracker.recordAppBinaryUploadRejection();
             LOGGER.warn(rejectedExecutionException.getMessage(), rejectedExecutionException);
             context.getStepLogger()
                    .warn(Messages.UPLOAD_OF_APPLICATION_0_WAS_NOT_ACCEPTED_BY_INSTANCE_1, applicationToProcess.getName(),
@@ -86,13 +91,12 @@ public class UploadAppAsyncExecution implements AsyncExecution {
         try {
             cloudPackage = runningUpload.get();
         } catch (InterruptedException | ExecutionException e) {
+            uploadDurationTracker.recordAppBinaryUpload(getElapsedTimeInMillis(context), UploadTimeoutMatcher.isUploadTimeoutException(e));
             throw new SLException(e, e.getMessage());
         }
-        LocalDateTime startTime = context.getVariable(Variables.UPLOAD_START_TIME);
-        long timeElapsedForUpload = Duration.between(startTime, LocalDateTime.now())
-                                            .toMillis();
+        uploadDurationTracker.recordAppBinaryUpload(getElapsedTimeInMillis(context), false);
         context.getStepLogger()
-               .infoWithoutProgressMessage(Messages.TIME_ELAPSED_FOR_UPLOAD_0_IN_MILLIS, timeElapsedForUpload);
+               .infoWithoutProgressMessage(Messages.TIME_ELAPSED_FOR_UPLOAD_0_IN_MILLIS, getElapsedTimeInMillis(context));
         return processCloudPackage(context, client, cloudPackage);
     }
 
@@ -208,6 +212,12 @@ public class UploadAppAsyncExecution implements AsyncExecution {
         new ApplicationEnvironmentUpdater(app, appEnv, client).updateApplicationEnvironment(Constants.ENV_DEPLOY_ATTRIBUTES,
                                                                                             Constants.ATTR_APP_CONTENT_DIGEST,
                                                                                             newApplicationDigest);
+    }
+
+    private long getElapsedTimeInMillis(ProcessContext context) {
+        LocalDateTime startTime = context.getVariable(Variables.UPLOAD_START_TIME);
+        return Duration.between(startTime, LocalDateTime.now())
+                       .toMillis();
     }
 
     @Override

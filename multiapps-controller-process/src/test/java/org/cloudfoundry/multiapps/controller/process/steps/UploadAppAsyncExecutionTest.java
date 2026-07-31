@@ -29,6 +29,7 @@ import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableLoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.LogLevel;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.monitoring.UploadDurationTracker;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentConsumer;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveIterator;
@@ -92,6 +93,7 @@ class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> 
                                                                            .build();
     private final MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
     private final ExecutorService appUploaderThreadPool = mock(ExecutorService.class);
+    private final UploadDurationTracker uploadDurationTracker = mock(UploadDurationTracker.class);
 
     @TempDir
     Path tempDir;
@@ -212,8 +214,9 @@ class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> 
         context.setVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION, loggingConfiguration);
         when(client.asyncUploadApplicationWithExponentialBackoff(eq(APP_NAME), eq(appFile), any(UploadStatusCallback.class),
                                                                  any())).thenReturn(CLOUD_PACKAGE);
-        when(step.getProcessLogsPersister().getApplicationProcessLogsMessages(TEST_CORRELATION_ID,
-                                                                              TEST_TASK_ID)).thenReturn(List.of("log-1", "log-2"));
+        when(step.getProcessLogsPersister()
+                 .getApplicationProcessLogsMessages(TEST_CORRELATION_ID,
+                                                    TEST_TASK_ID)).thenReturn(List.of("log-1", "log-2"));
         expectedStatus = AsyncExecutionState.FINISHED;
 
         testExecuteOperations();
@@ -230,8 +233,9 @@ class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> 
         context.setVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION, null);
         when(client.asyncUploadApplicationWithExponentialBackoff(eq(APP_NAME), eq(appFile), any(UploadStatusCallback.class),
                                                                  any())).thenReturn(CLOUD_PACKAGE);
-        when(step.getProcessLogsPersister().getApplicationProcessLogsMessages(TEST_CORRELATION_ID,
-                                                                              TEST_TASK_ID)).thenReturn(List.of("log-1"));
+        when(step.getProcessLogsPersister()
+                 .getApplicationProcessLogsMessages(TEST_CORRELATION_ID,
+                                                    TEST_TASK_ID)).thenReturn(List.of("log-1"));
         expectedStatus = AsyncExecutionState.FINISHED;
 
         testExecuteOperations();
@@ -248,8 +252,9 @@ class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> 
         context.setVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION, loggingConfiguration);
         when(client.asyncUploadApplicationWithExponentialBackoff(eq(APP_NAME), eq(appFile), any(UploadStatusCallback.class),
                                                                  any())).thenReturn(CLOUD_PACKAGE);
-        when(step.getProcessLogsPersister().getApplicationProcessLogsMessages(TEST_CORRELATION_ID,
-                                                                              TEST_TASK_ID)).thenReturn(Collections.emptyList());
+        when(step.getProcessLogsPersister()
+                 .getApplicationProcessLogsMessages(TEST_CORRELATION_ID,
+                                                    TEST_TASK_ID)).thenReturn(Collections.emptyList());
         expectedStatus = AsyncExecutionState.FINISHED;
 
         testExecuteOperations();
@@ -266,8 +271,9 @@ class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> 
         context.setVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION, loggingConfiguration);
         when(client.asyncUploadApplicationWithExponentialBackoff(eq(APP_NAME), eq(appFile), any(UploadStatusCallback.class),
                                                                  any())).thenReturn(CLOUD_PACKAGE);
-        when(step.getProcessLogsPersister().getApplicationProcessLogsMessages(TEST_CORRELATION_ID,
-                                                                              TEST_TASK_ID)).thenReturn(List.of("process-log-content"));
+        when(step.getProcessLogsPersister()
+                 .getApplicationProcessLogsMessages(TEST_CORRELATION_ID,
+                                                    TEST_TASK_ID)).thenReturn(List.of("process-log-content"));
         expectedStatus = AsyncExecutionState.FINISHED;
 
         testExecuteOperations();
@@ -314,7 +320,7 @@ class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> 
                                                        getProcessLogsPersister(),
                                                        configuration,
                                                        appUploaderThreadPool,
-                                                       operationLogsExporter) {
+                                                       operationLogsExporter, uploadDurationTracker) {
 
             });
         }

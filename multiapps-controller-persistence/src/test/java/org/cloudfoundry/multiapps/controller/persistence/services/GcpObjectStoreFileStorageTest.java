@@ -8,6 +8,7 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.contrib.nio.testing.LocalStorageHelper;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.monitoring.UploadDurationTracker;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,13 +37,14 @@ class GcpObjectStoreFileStorageTest extends JCloudsObjectStoreFileStorageTest {
     private Storage storage;
     private Storage mockedStorage;
     private GcpObjectStoreFileStorage mockedGcpFileStorage;
+    private final UploadDurationTracker uploadDurationTracker = mock(UploadDurationTracker.class);
 
     @Override
     @BeforeEach
     public void setUp() {
         storage = LocalStorageHelper.getOptions()
                                     .getService();
-        fileStorage = new GcpObjectStoreFileStorage(Map.of("bucket", CONTAINER)) {
+        fileStorage = new GcpObjectStoreFileStorage(Map.of("bucket", CONTAINER), uploadDurationTracker) {
 
             @Override
             protected Storage createObjectStoreStorage(Map<String, Object> credentials) {
@@ -54,7 +56,7 @@ class GcpObjectStoreFileStorageTest extends JCloudsObjectStoreFileStorageTest {
         namespace = UUID.randomUUID()
                         .toString();
         mockedStorage = mock(Storage.class);
-        mockedGcpFileStorage = new GcpObjectStoreFileStorage(Map.of("bucket", CONTAINER)) {
+        mockedGcpFileStorage = new GcpObjectStoreFileStorage(Map.of("bucket", CONTAINER), uploadDurationTracker) {
             @Override
             protected Storage createObjectStoreStorage(Map<String, Object> credentials) {
                 return mockedStorage;
