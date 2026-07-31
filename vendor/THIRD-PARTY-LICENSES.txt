@@ -1,0 +1,7 @@
+This documentation site bundles the following third-party software:
+
+Swagger UI (swagger-ui-dist) v5.32.11
+  Copyright (c) SmartBear Software and contributors
+  Licensed under the Apache License, Version 2.0
+  https://github.com/swagger-api/swagger-ui/blob/master/LICENSE
+  Full license text: https://www.apache.org/licenses/LICENSE-2.0

@@ -95,12 +95,12 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-12">
-          <a href="https://github.com/cloudfoundry-incubator/multiapps"  target="_blank">
+          <a href="https://github.com/cloudfoundry/multiapps"  target="_blank">
             <img src="img/light-color-text.png" width="188" height="157"/>
           </a>
         </div>
       </div>
-      <div class="row">
+      <div class="row justify-content-center">
         <div class="col-lg-4">
           <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3 no-hover-link">
             <a href="https://www.youtube.com/watch?v=d07DZCuUXyk&list=PLh9DU5njj6fu7cAtB5cDZe5p-_FtZxeQ0" target="_blank">
@@ -108,15 +108,15 @@
                 <i class="icon-screen-desktop m-auto text-primary"></i>
               </div>
             </a>
-            <h3>Video Tutorials</h3>
-            <p class="lead mb-0">Checkout our youtube videos for MultiApps overview plus additional tutorials</p>
+            <h3>Video Intro</h3>
+            <p class="lead mb-0">Watch a short introduction video for a quick overview of MultiApps</p>
           </div>
         </div>
         <div class="col-lg-4">
           <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3 no-hover-link">
-            <a href="https://github.com/cloudfoundry-incubator/multiapps-controller/" target="_blank">
+            <a href="https://github.com/cloudfoundry/multiapps-controller/" target="_blank">
               <div class="features-icons-icon d-flex">
-                <i class="icon-layers m-auto text-primary" style="color:765DBC"></i>
+                <i class="icon-layers m-auto text-primary"></i>
               </div>
             </a>
             <h3>Get Started</h3>
@@ -146,9 +146,11 @@
         <div class="col-lg-6 order-lg-2 text-white showcase-img" style="background-image: url('img/bg-showcase-1.jpg');"></div>
         <div class="col-lg-6 order-lg-1 my-auto showcase-text">
           <h2>Deploy your solution on CF with one command</h2>
-          <p class="lead mb-0">MultiApps is exactly about that, to help you optmize your complex cloud deployments,
+          <p class="lead mb-0">MultiApps is exactly about that: to help you optimize your complex cloud deployments,
             make
-            your pipelines simpler and easier to maintain, help you deal with complex deployment sequences and so on.</p>
+            your pipelines simpler and easier to maintain, help you deal with complex deployment sequences and so on.
+            It minimizes the total cost of ownership of your CI/CD, so developers can focus on business needs and
+            stakeholder demand.</p>
         </div>
       </div>
       <div class="row g-0">
@@ -157,7 +159,7 @@
           <h2>Declarative approach</h2>
           <p class="lead mb-0">Don't bother yourself with scripting for deployment. MultiApps offers you a common,
             standardized
-            decalarative approach, which helps you to handle all of your deployments in a similar way</p>
+            declarative approach, which helps you to handle all of your deployments in a similar way</p>
         </div>
       </div>
       <div class="row g-0">
@@ -168,7 +170,106 @@
             the
             users who are using the previous version. Once you're done testing you can easily switch to your new
             version
-            or revert to the old one withot downtime</p>
+            or revert to the old one without downtime. The blue-green deployment is performed over the whole set of
+            Cloud Foundry apps that should work coherently together.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Enterprise Capabilities Grid -->
+  <section class="features-icons bg-light text-center" id="capabilities">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <h2 class="mb-2">Built for enterprise deployments</h2>
+          <p class="lead mb-5">A production-grade orchestration engine that treats your whole solution as one atomic, versioned unit</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-4">
+          <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
+            <div class="features-icons-icon d-flex">
+              <i class="icon-layers m-auto text-primary"></i>
+            </div>
+            <h3>Atomic Orchestration</h3>
+            <p class="lead mb-0">Deploy dozens of applications, services and their dependencies as a single unit, in the right order and in parallel where possible.</p>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
+            <div class="features-icons-icon d-flex">
+              <i class="icon-refresh m-auto text-primary"></i>
+            </div>
+            <h3>Zero-Downtime Releases</h3>
+            <p class="lead mb-0">Blue-green deployment with explicit test and promotion gates lets you validate on production before switching live traffic.</p>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
+            <div class="features-icons-icon d-flex">
+              <i class="icon-reload m-auto text-primary"></i>
+            </div>
+            <h3>Resumable</h3>
+            <p class="lead mb-0">If an operation fails because of an infrastructure issue, it can be resumed from the exact state it failed at — no need to start over.</p>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-4">
+          <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
+            <div class="features-icons-icon d-flex">
+              <i class="icon-shield m-auto text-primary"></i>
+            </div>
+            <h3>Durable State</h3>
+            <p class="lead mb-0">Operations are persisted and processed in a distributed, resilient way.</p>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
+            <div class="features-icons-icon d-flex">
+              <i class="icon-settings m-auto text-primary"></i>
+            </div>
+            <h3>Deployment-Specific Configuration</h3>
+            <p class="lead mb-0">Build once, then deploy the same artifact across various stages — each with its own deployment-specific configuration.</p>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
+            <div class="features-icons-icon d-flex">
+              <i class="icon-speedometer m-auto text-primary"></i>
+            </div>
+            <h3>Scales With You</h3>
+            <p class="lead mb-0">Battle-tested at scale — handling several thousand deployments per day, delivering thousands of applications.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CF Feature Parity Strip -->
+  <section class="section section-b text-center" id="parity">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <h2 class="mb-2">Cloud Foundry feature parity</h2>
+          <p class="lead mb-4">Everything you can do with individual <code>cf</code> commands, declared once and deployed together</p>
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-md-4 text-md-start">
+          <ul class="list-unstyled">
+            <li class="mb-2"><i class="fa fa-check fa-fw icon-check"></i> Managed &amp; user-provided services</li>
+            <li class="mb-2"><i class="fa fa-check fa-fw icon-check"></i> Service keys &amp; bindings</li>
+            <li class="mb-2"><i class="fa fa-check fa-fw icon-check"></i> Routes &amp; custom domains</li>
+          </ul>
+        </div>
+        <div class="col-md-4 text-md-start">
+          <ul class="list-unstyled">
+            <li class="mb-2"><i class="fa fa-check fa-fw icon-check"></i> Buildpack &amp; Docker apps</li>
+            <li class="mb-2"><i class="fa fa-check fa-fw icon-check"></i> Health checks</li>
+            <li class="mb-2"><i class="fa fa-check fa-fw icon-check"></i> Tasks</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -194,25 +295,18 @@
   <footer class="footer bg-light">
     <div class="container">
       <div class="row">
-        <div class="col-lg-6 h-100 text-center text-lg-start my-auto">
+        <div class="col-12 d-flex align-items-center justify-content-center">
           <img src="img/light-color-text.png" width="40" height="40"/>
-        </div>
-        <div class="col-lg-6 h-100 text-center text-lg-end my-auto">
-          <ul class="list-inline mb-0">
-            <li class="list-inline-item me-3">
-              <a href="https://github.com/cloudfoundry-incubator?utf8=%E2%9C%93&q=multiapps&type=&language=" target="_blank">
-                <i class="fa fa-github fa-2x fa-fw" style="color: #765DBC"></i>
-              </a>
-            </li>
+          <ul class="list-inline mb-0 ms-3">
             <li class="list-inline-item me-3">
               <a href="https://cloudfoundry.slack.com/?redir=%2Fmessages%2Fmultiapps-dev" target="_blank">
-                <i class="fa fa-slack fa-2x fa-fw" style="color: #765DBC"></i>
+                <i class="fa fa-slack fa-2x fa-fw align-middle" style="color: #765DBC"></i>
               </a>
             </li>
-            <li class="list-inline-item me-3">
+            <li class="list-inline-item">
               <a href="https://www.cloudfoundry.org/blog/accelerating-deployment-distributed-cloud-applications/"
                 target="_blank">
-                <i class="fa fa-wordpress fa-2x fa-fw" style="color: #765DBC"></i>
+                <i class="fa fa-wordpress fa-2x fa-fw align-middle" style="color: #765DBC"></i>
               </a>
             </li>
           </ul>
