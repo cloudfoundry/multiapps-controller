@@ -22,6 +22,45 @@
   <!-- Custom styles for this template -->
   <link href="css/landing-page.min.css" rel="stylesheet">
 
+  <style>
+    .site-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(118, 93, 188, 0.95);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      backdrop-filter: blur(4px);
+    }
+    .site-nav .brand {
+      font-family: 'Lato', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      color: #fff;
+      text-decoration: none;
+      margin-right: auto;
+    }
+    .site-nav a {
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+      font-family: 'Lato', sans-serif;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+    .site-nav a:hover { color: #fff; }
+    .site-nav .nav-btn {
+      border: 1px solid rgba(255,255,255,0.5);
+      padding: 4px 14px;
+      border-radius: 14px;
+    }
+    .site-nav .nav-btn:hover { border-color: #fff; background: rgba(255,255,255,0.1); }
+    body { padding-top: 44px; }
+  </style>
+
   <!-- Bootstrap core JavaScript -->
   <script src="vendor/jquery/jquery.min.js"></script>
   <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -31,6 +70,16 @@
 </head>
 
 <body>
+
+  <!-- Navigation -->
+  <nav class="site-nav">
+    <a class="brand" href="#">MultiApps</a>
+    <a href="docs/">Documentation</a>
+    <a href="api/">API Reference</a>
+    <a href="https://github.com/cloudfoundry/multiapps-controller" target="_blank">GitHub</a>
+    <a class="nav-btn" href="https://github.com/cloudfoundry/multiapps-cli-plugin/releases" target="_blank">Get CLI Plugin</a>
+  </nav>
+
   <!-- Masthead -->
   <header class="v-header container">
     <div class="fullscreen-video-wrap">
@@ -45,7 +94,6 @@
       <a class="btn" href="#about">Find Out More </a>
     </div>
   </header>
-  </header>
 
   <!-- Icons Grid -->
   <section class="features-icons bg-light text-center" id="about">
@@ -58,7 +106,7 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-lg-6">
+        <div class="col-lg-3">
           <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3 no-hover-link">
             <a href="https://www.youtube.com/watch?v=d07DZCuUXyk&list=PLh9DU5njj6fu7cAtB5cDZe5p-_FtZxeQ0" target="_blank">
               <div class="features-icons-icon d-flex">
@@ -69,7 +117,7 @@
             <p class="lead mb-0">Checkout our youtube videos for MultiApps overview plus additional tutorials</p>
           </div>
         </div>
-        <div class="col-lg-6">
+        <div class="col-lg-3">
           <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3 no-hover-link">
             <a href="https://github.com/cloudfoundry-incubator/multiapps-controller/" target="_blank">
               <div class="features-icons-icon d-flex">
@@ -78,6 +126,28 @@
             </a>
             <h3>Get Started</h3>
             <p class="lead mb-0">Deploy your first application with couple of easy steps</p>
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3 no-hover-link">
+            <a href="docs/">
+              <div class="features-icons-icon d-flex">
+                <i class="icon-docs m-auto text-primary"></i>
+              </div>
+            </a>
+            <h3>Documentation</h3>
+            <p class="lead mb-0">Architecture overview, getting started guide, and configuration reference</p>
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3 no-hover-link">
+            <a href="api/">
+              <div class="features-icons-icon d-flex">
+                <i class="icon-puzzle m-auto text-primary"></i>
+              </div>
+            </a>
+            <h3>API Reference</h3>
+            <p class="lead mb-0">Versioned REST API documentation with interactive Swagger UI</p>
           </div>
         </div>
       </div>
