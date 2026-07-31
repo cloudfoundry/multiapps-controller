@@ -1,16 +1,17 @@
 // Scrolls to the selected menu item on the page
-$(function() {
-  $('a[href*=\\#]:not([href=\\#])').click(function() {
-    if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') || location.hostname == this.hostname) {
-
-      var target = $(this.hash);
-      target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
-      if (target.length) {
-        $('html,body').animate({
-          scrollTop: target.offset().top
-        }, 1000);
-        return false;
+document.addEventListener('DOMContentLoaded', function() {
+  var links = document.querySelectorAll('a[href*="#"]:not([href="#"])');
+  links.forEach(function(link) {
+    link.addEventListener('click', function(event) {
+      if (link.pathname.replace(/^\//, '') === location.pathname.replace(/^\//, '') &&
+          link.hostname === location.hostname) {
+        var target = document.getElementById(link.hash.slice(1)) ||
+                     document.getElementsByName(link.hash.slice(1))[0];
+        if (target) {
+          event.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
       }
-    }
+    });
   });
 });
