@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -16,13 +17,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
+
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.monitoring.UploadDurationTracker;
+import org.cloudfoundry.multiapps.controller.persistence.monitoring.UploadTimeoutMatcher;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreConstants;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreFilter;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.MediaType;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -57,10 +62,12 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
 
     private final S3Client s3Client;
     private final String bucketName;
+    private final UploadDurationTracker uploadDurationTracker;
 
-    public AwsS3ObjectStoreFileStorage(Map<String, Object> credentials) {
+    public AwsS3ObjectStoreFileStorage(Map<String, Object> credentials, UploadDurationTracker uploadDurationTracker) {
         this.bucketName = (String) credentials.get(CredentialKeys.BUCKET);
         this.s3Client = createS3Client(credentials);
+        this.uploadDurationTracker = uploadDurationTracker;
     }
 
     protected S3Client createS3Client(Map<String, Object> credentials) {
@@ -103,6 +110,7 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
 
     @Override
     public void addFile(FileEntry fileEntry, InputStream content) throws FileStorageException {
+        LocalDateTime startTime = LocalDateTime.now();
         long fileSize = fileEntry.getSize()
                                  .longValue();
         PutObjectRequest request = PutObjectRequest.builder()
@@ -115,8 +123,12 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
         try {
             s3Client.putObject(request, RequestBody.fromInputStream(new BufferedInputStream(content), fileSize));
             LOGGER.debug(MessageFormat.format(Messages.STORED_FILE_0_WITH_SIZE_1, fileEntry.getId(), fileSize));
+            uploadDurationTracker.recordObjectStoreUpload(getElapsedTimeInMillis(startTime), false);
+            LOGGER.info(MessageFormat.format(Messages.TIME_ELAPSED_FOR_AWS_OS_UPLOAD_0_IN_MILLIS, getElapsedTimeInMillis(startTime)));
         } catch (Exception e) {
             LOGGER.error(MessageFormat.format(Messages.S3_UPLOAD_FAILED_FILE_0_SIZE_1, fileEntry.getName(), fileSize, e));
+            uploadDurationTracker.recordObjectStoreUpload(getElapsedTimeInMillis(startTime),
+                                                          UploadTimeoutMatcher.isUploadTimeoutException(e));
             throw new FileStorageException(MessageFormat.format(Messages.UPLOAD_OF_FILE_WITH_NAMESPACE_FAILED, fileEntry.getName(),
                                                                 fileEntry.getNamespace()), e);
         }
@@ -183,14 +195,15 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
 
     @Override
     public void deleteFilesBySpaceAndNamespace(String space, String namespace) {
-        int deletedFiles = deleteByFilterAndCount((key, metadata) -> ObjectStoreFilter.filterBySpaceAndNamespace(metadata, space, namespace));
+        int deletedFiles = deleteByFilterAndCount(
+            (key, metadata) -> ObjectStoreFilter.filterBySpaceAndNamespace(metadata, space, namespace));
         LOGGER.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITH_SPACE_1_AND_NAMESPACE_2, deletedFiles, space, namespace));
     }
 
     @Override
     public int deleteFilesModifiedBefore(LocalDateTime modificationTime) {
         int deletedFiles = deleteByFilterAndCount((key, metadata) -> ObjectStoreFilter.filterByModificationTime(metadata, key,
-                                                                                                               modificationTime));
+                                                                                                                modificationTime));
         LOGGER.debug(MessageFormat.format(Messages.DELETED_0_FILES_MODIFIED_BEFORE_1, deletedFiles, modificationTime));
         return deletedFiles;
     }
@@ -317,6 +330,11 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
     public void destroy() {
         super.destroy();
         s3Client.close();
+    }
+
+    private long getElapsedTimeInMillis(LocalDateTime startTime) {
+        return Duration.between(startTime, LocalDateTime.now())
+                       .toMillis();
     }
 
     private static final class CredentialKeys {

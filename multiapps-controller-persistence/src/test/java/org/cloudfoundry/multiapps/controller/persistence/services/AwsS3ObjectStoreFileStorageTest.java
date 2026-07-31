@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.persistence.services;
 
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.monitoring.UploadDurationTracker;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,16 +63,19 @@ class AwsS3ObjectStoreFileStorageTest {
     @Mock
     private FileContentProcessor<String> fileContentProcessor;
 
+    @Mock
+    private UploadDurationTracker uploadDurationTracker;
+
     private AwsS3ObjectStoreFileStorage fileStorage;
     private final InputStream inputStream = new ByteArrayInputStream(new byte[] {});
     private static final String TEST_SPACE_ID = UUID.randomUUID()
-                                                     .toString();
+                                                    .toString();
     private static final String TEST_SPACE_ID_2 = UUID.randomUUID()
-                                                       .toString();
+                                                      .toString();
     private static final String TEST_ID = UUID.randomUUID()
-                                               .toString();
+                                              .toString();
     private static final String TEST_ID_2 = UUID.randomUUID()
-                                                 .toString();
+                                                .toString();
     private static final String NAMESPACE = "namespace";
     private static final String NAMESPACE_2 = "namespace_2";
 
@@ -80,7 +84,7 @@ class AwsS3ObjectStoreFileStorageTest {
         MockitoAnnotations.openMocks(this)
                           .close();
 
-        fileStorage = new AwsS3ObjectStoreFileStorage(Map.of("bucket", BUCKET_NAME)) {
+        fileStorage = new AwsS3ObjectStoreFileStorage(Map.of("bucket", BUCKET_NAME), uploadDurationTracker) {
 
             @Override
             protected S3Client createS3Client(Map<String, Object> credentials) {
@@ -136,7 +140,7 @@ class AwsS3ObjectStoreFileStorageTest {
     }
 
     @Test
-        void testExistsInObjectStoreWhenFileExists() {
+    void testExistsInObjectStoreWhenFileExists() {
         when(s3Client.headObject(any(HeadObjectRequest.class))).thenReturn(HeadObjectResponse.builder()
                                                                                              .build());
         FileEntry fileEntry = createFileEntry(TEST_SPACE_ID, TEST_ID);
@@ -232,7 +236,7 @@ class AwsS3ObjectStoreFileStorageTest {
     @Test
     void testDeleteFilesModifiedBefore() {
         LocalDateTime oldModified = FILE_TIMESTAMP
-                                                 .minusMinutes(15);
+            .minusMinutes(15);
 
         setupListObjectsWithKeys(TEST_ID, TEST_ID_2);
         setupHeadObjectWithMetadata(TEST_ID, TEST_SPACE_ID, NAMESPACE, oldModified);
@@ -250,7 +254,7 @@ class AwsS3ObjectStoreFileStorageTest {
         setupHeadObjectWithMetadata(TEST_ID, TEST_SPACE_ID, NAMESPACE, FILE_TIMESTAMP);
 
         LocalDateTime cutoff = FILE_TIMESTAMP
-                                            .minusDays(1);
+            .minusDays(1);
         int deletedCount = fileStorage.deleteFilesModifiedBefore(cutoff);
 
         assertEquals(0, deletedCount);
@@ -532,7 +536,7 @@ class AwsS3ObjectStoreFileStorageTest {
         assertTrue(config.apiCallAttemptTimeout()
                          .isPresent());
         assertEquals(ObjectStoreConstants.OBJECT_STORE_TOTAL_TIMEOUT_CONFIG_IN_MINUTES, config.apiCallAttemptTimeout()
-                                                                                          .get());
+                                                                                              .get());
     }
 
     @Test
@@ -544,8 +548,8 @@ class AwsS3ObjectStoreFileStorageTest {
         assertInstanceOf(StandardRetryStrategy.class, config.retryStrategy()
                                                             .get());
         assertEquals(ObjectStoreConstants.OBJECT_STORE_MAX_ATTEMPTS_CONFIG, config.retryStrategy()
-                                                                                .get()
-                                                                                .maxAttempts());
+                                                                                  .get()
+                                                                                  .maxAttempts());
     }
 
     @Test
@@ -555,7 +559,7 @@ class AwsS3ObjectStoreFileStorageTest {
                                                  "bucket", "test-bucket",
                                                  "host", "s3.amazonaws.com",
                                                  "region", "eu-central-1");
-        AwsS3ObjectStoreFileStorage storage = new AwsS3ObjectStoreFileStorage(credentials);
+        AwsS3ObjectStoreFileStorage storage = new AwsS3ObjectStoreFileStorage(credentials, uploadDurationTracker);
 
         assertNotNull(storage);
         storage.destroy();
