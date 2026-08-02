@@ -49,8 +49,8 @@ public class ObjectStoreSelectorFactory {
         this.serviceName = serviceName;
         this.environmentServicesFinder = environmentServicesFinder;
         this.applicationConfiguration = applicationConfiguration;
-        this.selectedObjectStore = doSelect();
         this.uploadDurationTracker = uploadDurationTracker;
+        this.selectedObjectStore = doSelect();
     }
 
     public FileStorage fileStorage() {
