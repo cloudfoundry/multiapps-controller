@@ -27,7 +27,6 @@ import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreFilter;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cglib.core.Local;
 import org.springframework.http.MediaType;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
