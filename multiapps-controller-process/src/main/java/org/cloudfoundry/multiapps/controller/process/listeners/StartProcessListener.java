@@ -19,8 +19,10 @@ import org.cloudfoundry.multiapps.controller.api.model.ParameterMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.LoggingUtil;
+import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.persistence.services.AsyncUploadJobService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
@@ -56,6 +58,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     private final ProcessTypeToOperationMetadataMapper operationMetadataMapper;
     private final DynatracePublisher dynatracePublisher;
     private final FileService fileService;
+    private final AsyncUploadJobService asyncUploadJobService;
 
     @Inject
     public StartProcessListener(ProgressMessageService progressMessageService, StepLogger.Factory stepLoggerFactory,
@@ -63,7 +66,8 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
                                 HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
                                 ApplicationConfiguration configuration, ProcessTypeParser processTypeParser,
                                 OperationService operationService, ProcessTypeToOperationMetadataMapper operationMetadataMapper,
-                                DynatracePublisher dynatracePublisher, FileService fileService) {
+                                DynatracePublisher dynatracePublisher, FileService fileService,
+                                AsyncUploadJobService asyncUploadJobService) {
         super(progressMessageService,
               stepLoggerFactory,
               processLoggerProvider,
@@ -76,6 +80,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         this.operationMetadataMapper = operationMetadataMapper;
         this.dynatracePublisher = dynatracePublisher;
         this.fileService = fileService;
+        this.asyncUploadJobService = asyncUploadJobService;
     }
 
     @Override
@@ -92,6 +97,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         }
 
         updateOperationFiles(execution, correlationId);
+        logAsyncUploadJobs(execution, correlationId);
         getHistoricOperationEventService().add(ImmutableHistoricOperationEvent.of(correlationId, HistoricOperationEvent.EventType.STARTED));
         logProcessEnvironment();
         logProcessVariables(execution, processType, correlationId);
@@ -155,6 +161,24 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         } catch (FileStorageException e) {
             LOGGER.error(e.getMessage(), e);
             throw new SLException(MessageFormat.format(Messages.FAILED_TO_UPDATE_FILES_OF_OPERATION_0, correlationId));
+        }
+    }
+
+    private void logAsyncUploadJobs(DelegateExecution execution, String correlationId) {
+        List<String> operationFileIds = OperationFileIdsUtil.getOperationFileIds(execution);
+        if (operationFileIds.isEmpty()) {
+            return;
+        }
+        try {
+            List<AsyncUploadJobEntry> asyncUploadJobs = asyncUploadJobService.createQuery()
+                                                                             .withFileIds(operationFileIds)
+                                                                             .list();
+            for (AsyncUploadJobEntry asyncUploadJob : asyncUploadJobs) {
+                LOGGER.info(MessageFormat.format(Messages.ASYNC_UPLOAD_JOB_FOR_OPERATION_0_IS_1, correlationId,
+                                                 asyncUploadJob.buildLogSummary()));
+            }
+        } catch (Exception e) {
+            LOGGER.warn(MessageFormat.format(Messages.COULD_NOT_LOG_ASYNC_UPLOAD_JOBS_FOR_OPERATION_0, correlationId), e);
         }
     }
 

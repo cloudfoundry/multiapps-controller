@@ -18,6 +18,8 @@ import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.query.OperationQuery;
+import org.cloudfoundry.multiapps.controller.persistence.query.AsyncUploadJobsQuery;
+import org.cloudfoundry.multiapps.controller.persistence.services.AsyncUploadJobService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
@@ -78,6 +80,10 @@ class StartProcessListenerTest {
     private HistoricOperationEventService historicOperationEventService;
     @Mock
     private FileService fileService;
+    @Mock(answer = Answers.RETURNS_SELF)
+    private AsyncUploadJobService asyncUploadJobService;
+    @Mock(answer = Answers.RETURNS_SELF)
+    private AsyncUploadJobsQuery asyncUploadJobsQuery;
     @Spy
     private ProcessTypeToOperationMetadataMapper operationMetadataMapper;
     @Mock
@@ -114,7 +120,8 @@ class StartProcessListenerTest {
                                             operationService,
                                             operationMetadataMapper,
                                             dynatracePublisher,
-                                            fileService);
+                                            fileService,
+                                            asyncUploadJobService);
     }
 
     @ParameterizedTest
@@ -139,6 +146,10 @@ class StartProcessListenerTest {
         Mockito.doReturn(null)
                .when(operationQuery)
                .singleResult();
+        Mockito.when(asyncUploadJobService.createQuery())
+               .thenReturn(asyncUploadJobsQuery);
+        Mockito.when(asyncUploadJobsQuery.list())
+               .thenReturn(Collections.emptyList());
     }
 
     private void prepareContext() {
