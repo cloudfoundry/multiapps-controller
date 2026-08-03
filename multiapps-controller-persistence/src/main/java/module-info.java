@@ -81,5 +81,4 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires software.amazon.awssdk.retries.api;
     requires static java.compiler;
     requires static org.immutables.value;
-    requires io.netty.handler;
 }
