@@ -16,7 +16,7 @@ public class ResilientOperationExecutor {
     private static final long DEFAULT_RETRY_COUNT = 3;
     private static final long DEFAULT_WAIT_TIME_BETWEEN_RETRIES_IN_MILLIS = 5000;
 
-    private long waitTimeBetweenRetriesInMillis = DEFAULT_WAIT_TIME_BETWEEN_RETRIES_IN_MILLIS;
+    protected long waitTimeBetweenRetriesInMillis = DEFAULT_WAIT_TIME_BETWEEN_RETRIES_IN_MILLIS;
     protected long retryCount = DEFAULT_RETRY_COUNT;
 
     public ResilientOperationExecutor withRetryCount(long retryCount) {
