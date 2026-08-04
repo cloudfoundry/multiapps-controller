@@ -78,11 +78,11 @@ open module org.cloudfoundry.multiapps.controller.core {
     requires spring.webflux;
     requires spring.security.oauth2.core;
     requires reactor.netty;
+    requires reactor.netty.core;
+    requires reactor.netty.http;
     requires io.netty.handler;
 
     requires static java.compiler;
     requires static org.immutables.value;
-    requires reactor.netty.http;
-    requires reactor.netty.core;
 
 }

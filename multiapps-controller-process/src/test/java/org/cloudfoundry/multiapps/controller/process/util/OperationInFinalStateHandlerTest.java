@@ -14,6 +14,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient
 import org.cloudfoundry.multiapps.controller.core.auditlogging.CloudLoggingServiceConfigurationAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
+import org.cloudfoundry.multiapps.controller.core.cloudlogging.CloudLoggingServiceClient;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMta;
@@ -26,13 +27,12 @@ import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfigurat
 import org.cloudfoundry.multiapps.controller.persistence.query.DescriptorBackupQuery;
 import org.cloudfoundry.multiapps.controller.persistence.query.LoggingConfigurationQuery;
 import org.cloudfoundry.multiapps.controller.persistence.query.impl.OperationQueryImpl;
-import org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging.CloudLoggingServiceConfigurationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.DescriptorBackupService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
-import org.cloudfoundry.multiapps.controller.core.cloudlogging.CloudLoggingServiceClient;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
+import org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging.CloudLoggingServiceConfigurationService;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessDuration;
 import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
 import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenStoreDeletion;
@@ -46,9 +46,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
-import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -108,7 +108,7 @@ class OperationInFinalStateHandlerTest {
     @Mock
     private CloudControllerClient cloudControllerClient;
     @Mock
-    private CloudLoggingServiceClient cloudLoggingServiceHttpClient;
+    private CloudLoggingServiceClient cloudLoggingServiceClient;
     @Mock
     private HistoricOperationEventService historicOperationEventService;
     @Mock
@@ -285,7 +285,7 @@ class OperationInFinalStateHandlerTest {
 
         eventHandler.handle(execution, PROCESS_TYPE, OPERATION_STATE);
 
-        verify(cloudLoggingServiceHttpClient).removeClientFromCache(PROCESS_ID);
+        verify(cloudLoggingServiceClient).removeClientFromCache(PROCESS_ID);
     }
 
     @Test
