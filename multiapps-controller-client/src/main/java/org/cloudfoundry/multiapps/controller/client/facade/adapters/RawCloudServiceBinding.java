@@ -30,7 +30,7 @@ public abstract class RawCloudServiceBinding extends RawCloudEntity<CloudService
                                                                                               .getServiceInstance()
                                                                                               .getData()
                                                                                               .getId()))
-                                           .serviceBindingOperation(ServiceCredentialBindingOperation.from(getServiceBinding().getLastOperation()))
+                                           .serviceBindingOperation(ServiceCredentialBindingOperation.from(toDomainLastOperation(getServiceBinding().getLastOperation())))
                                            .build();
     }
 

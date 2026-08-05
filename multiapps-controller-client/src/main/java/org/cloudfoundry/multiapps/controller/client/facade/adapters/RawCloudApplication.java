@@ -32,7 +32,7 @@ public abstract class RawCloudApplication extends RawCloudEntity<CloudApplicatio
         Application app = getApplication();
         return ImmutableCloudApplication.builder()
                                         .metadata(parseResourceMetadata(app))
-                                        .v3Metadata(app.getMetadata())
+                                        .v3Metadata(toDomainMetadata(app.getMetadata()))
                                         .name(app.getName())
                                         .state(parseState(app.getState()))
                                         .lifecycle(parseLifecycle(app.getLifecycle()))

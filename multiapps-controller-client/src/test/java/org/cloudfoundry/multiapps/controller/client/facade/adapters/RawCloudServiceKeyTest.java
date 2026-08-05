@@ -34,11 +34,14 @@ class RawCloudServiceKeyTest {
     private static CloudServiceKey buildExpectedServiceKey() {
         return ImmutableCloudServiceKey.builder()
                                        .metadata(RawCloudEntityTest.EXPECTED_METADATA_V3)
-                                       .v3Metadata(RawCloudEntityTest.V3_METADATA)
+                                       .v3Metadata(RawCloudEntityTest.V3_METADATA_DOMAIN)
                                        .name(NAME)
                                        .credentials(CREDENTIALS)
                                        .serviceInstance(SERVICE_INSTANCE)
-                                       .serviceKeyOperation(ServiceCredentialBindingOperation.from(LAST_OPERATION))
+                                       .serviceKeyOperation(ServiceCredentialBindingOperation.from(
+                                           new org.cloudfoundry.multiapps.controller.client.facade.domain.LastOperation(
+                                               LAST_OPERATION.getType(), LAST_OPERATION.getState(), LAST_OPERATION.getDescription(),
+                                               LAST_OPERATION.getCreatedAt(), LAST_OPERATION.getUpdatedAt())))
                                        .build();
     }
 

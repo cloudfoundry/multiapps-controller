@@ -3,8 +3,8 @@ package org.cloudfoundry.multiapps.controller.core.cf.v2;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.cloudfoundry.client.v3.Metadata;
-import org.cloudfoundry.client.v3.Metadata.Builder;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata.Builder;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.Constants;

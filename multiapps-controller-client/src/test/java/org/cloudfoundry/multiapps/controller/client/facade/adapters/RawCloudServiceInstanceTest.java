@@ -8,7 +8,7 @@ import java.util.UUID;
 
 import org.cloudfoundry.client.v3.LastOperation;
 import org.cloudfoundry.client.v3.MaintenanceInfo;
-import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.client.v3.Relationship;
 import org.cloudfoundry.client.v3.ToOneRelationship;
 import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceRelationships;
@@ -58,7 +58,7 @@ class RawCloudServiceInstanceTest {
                                                                             .guid(UUID.fromString(SERVICE_INSTANCE_ID))
                                                                             .build())
                                             .name(SERVICE_INSTANCE_NAME)
-                                            .v3Metadata(Metadata.builder()
+                                            .v3Metadata(org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata.builder()
                                                                 .annotations(METADATA_ANNOTATIONS)
                                                                 .labels(METADATA_LABELS)
                                                                 .build())
@@ -90,7 +90,7 @@ class RawCloudServiceInstanceTest {
                                                                       .description(MAINTENANCE_INFO_DESCRIPTION)
                                                                       .version(MAINTENANCE_INFO_VERSION)
                                                                       .build())
-                                      .metadata(Metadata.builder()
+                                      .metadata(org.cloudfoundry.client.v3.Metadata.builder()
                                                         .annotations(METADATA_ANNOTATIONS)
                                                         .labels(METADATA_LABELS)
                                                         .build())

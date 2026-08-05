@@ -34,7 +34,7 @@ class RawCloudAsyncJobTest {
     private CloudAsyncJob buildExpectedTask() {
         return ImmutableCloudAsyncJob.builder()
                                      .metadata(RawCloudEntityTest.EXPECTED_METADATA_PARSED_FROM_V3_RESOURCE)
-                                     .state(JobState.FAILED)
+                                     .state(org.cloudfoundry.multiapps.controller.client.facade.domain.JobState.FAILED)
                                      .operation(OPERATION)
                                      .warnings(WARNINGS)
                                      .errors(ERRORS)

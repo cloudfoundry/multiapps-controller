@@ -1,7 +1,7 @@
 package org.cloudfoundry.multiapps.controller.client.facade;
 
-import org.cloudfoundry.client.v3.Metadata;
-import org.cloudfoundry.client.v3.processes.HealthCheckType;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.HealthCheckType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudBuild;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
@@ -171,7 +171,7 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
                                                                                      .healthCheck(
                                                                                          org.cloudfoundry.client.v3.processes.HealthCheck.builder()
                                                                                                                                          .type(
-                                                                                                                                             HealthCheckType.PROCESS)
+                                                                                                                                             org.cloudfoundry.client.v3.processes.HealthCheckType.PROCESS)
                                                                                                                                          .build())
                                                                                      .build())
                     .block();

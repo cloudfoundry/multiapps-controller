@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.cloudfoundry.AllowNulls;
-import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceType;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

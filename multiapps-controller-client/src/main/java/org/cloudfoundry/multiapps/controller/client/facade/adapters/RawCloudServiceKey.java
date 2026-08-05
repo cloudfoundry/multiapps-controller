@@ -30,11 +30,11 @@ public abstract class RawCloudServiceKey extends RawCloudEntity<CloudServiceKey>
         Derivable<CloudServiceInstance> serviceInstance = getServiceInstance();
         return ImmutableCloudServiceKey.builder()
                                        .metadata(parseResourceMetadata(serviceBindingResource))
-                                       .v3Metadata(serviceBindingResource.getMetadata())
+                                       .v3Metadata(toDomainMetadata(serviceBindingResource.getMetadata()))
                                        .name(serviceBindingResource.getName())
                                        .credentials(getCredentials())
                                        .serviceInstance(serviceInstance.derive())
-                                       .serviceKeyOperation(ServiceCredentialBindingOperation.from(serviceBindingResource.getLastOperation()))
+                                       .serviceKeyOperation(ServiceCredentialBindingOperation.from(toDomainLastOperation(serviceBindingResource.getLastOperation())))
                                        .build();
     }
 

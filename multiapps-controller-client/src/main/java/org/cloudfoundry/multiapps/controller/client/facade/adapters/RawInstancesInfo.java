@@ -39,7 +39,8 @@ public abstract class RawInstancesInfo extends RawCloudEntity<InstancesInfo> {
     private static InstanceInfo parseProcessStatistic(ProcessStatisticsResource statsResource) {
         return ImmutableInstanceInfo.builder()
                                     .index(statsResource.getIndex())
-                                    .state(InstanceState.valueOfWithDefault(statsResource.getState()))
+                                    .state(InstanceState.valueOfWithDefault(statsResource.getState()
+                                                                                         .getValue()))
                                     .isRoutable(Boolean.parseBoolean(statsResource.getRoutable()))
                                     .build();
     }

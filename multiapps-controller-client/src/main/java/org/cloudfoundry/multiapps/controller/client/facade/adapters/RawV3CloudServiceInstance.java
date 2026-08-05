@@ -16,7 +16,7 @@ public abstract class RawV3CloudServiceInstance extends RawCloudEntity<CloudServ
         ServiceInstance serviceInstance = getServiceInstance();
         return ImmutableCloudServiceInstance.builder()
                                             .metadata(parseResourceMetadata(serviceInstance))
-                                            .v3Metadata(serviceInstance.getMetadata())
+                                            .v3Metadata(toDomainMetadata(serviceInstance.getMetadata()))
                                             .name(serviceInstance.getName())
                                             .tags(serviceInstance.getTags())
                                             .build();

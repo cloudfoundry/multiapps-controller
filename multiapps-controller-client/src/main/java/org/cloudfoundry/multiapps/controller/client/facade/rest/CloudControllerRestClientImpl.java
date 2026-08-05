@@ -25,7 +25,7 @@ import org.cloudfoundry.client.v3.BuildpackData;
 import org.cloudfoundry.client.v3.DockerData;
 import org.cloudfoundry.client.v3.Lifecycle;
 import org.cloudfoundry.client.v3.LifecycleType;
-import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.client.v3.Relationship;
 import org.cloudfoundry.client.v3.Resource;
 import org.cloudfoundry.client.v3.ToOneRelationship;
@@ -305,7 +305,7 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
         assertSpaceProvided("create application");
         CreateApplicationRequest createApplicationRequest = CreateApplicationRequest.builder()
                                                                                     .name(applicationToCreateDto.getName())
-                                                                                    .metadata(applicationToCreateDto.getMetadata())
+                                                                                    .metadata(toOssMetadata(applicationToCreateDto.getMetadata()))
                                                                                     .lifecycle(buildApplicationLifecycle(
                                                                                         applicationToCreateDto.getStaging()))
                                                                                     .relationships(buildApplicationRelationships())
@@ -472,7 +472,7 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
                 .create(CreateServiceInstanceRequest.builder()
                                                     .type(ServiceInstanceType.MANAGED)
                                                     .name(serviceInstance.getName())
-                                                    .metadata(serviceInstance.getV3Metadata())
+                                                    .metadata(toOssMetadata(serviceInstance.getV3Metadata()))
                                                     .relationships(ServiceInstanceRelationships.builder()
                                                                                                .servicePlan(buildToOneRelationship(
                                                                                                    servicePlanGuid.toString()))
@@ -557,7 +557,7 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
 
     private CreateServiceBindingRequest buildServiceCredentialBindingRequest(String name, Map<String, Object> parameters, Metadata metadata,
                                                                              CloudServiceInstance serviceInstance) {
-        if (serviceInstance.getType() != ServiceInstanceType.MANAGED) {
+        if (serviceInstance.getType() != org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceInstanceType.MANAGED) {
             throw new IllegalArgumentException(
                 String.format(Messages.CANT_CREATE_SERVICE_KEY_FOR_USER_PROVIDED_SERVICE, serviceInstance.getName()));
         }
@@ -566,7 +566,7 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
         var createBindingRequest = CreateServiceBindingRequest.builder()
                                                               .type(ServiceBindingType.KEY)
                                                               .name(name)
-                                                              .metadata(metadata)
+                                                              .metadata(toOssMetadata(metadata))
                                                               .relationships(ServiceBindingRelationships.builder()
                                                                                                         .serviceInstance(
                                                                                                             buildToOneRelationship(
@@ -578,6 +578,16 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
         return createBindingRequest.build();
     }
 
+    private static org.cloudfoundry.client.v3.Metadata toOssMetadata(Metadata metadata) {
+        if (metadata == null) {
+            return null;
+        }
+        return org.cloudfoundry.client.v3.Metadata.builder()
+                                                  .labels(metadata.getLabels())
+                                                  .annotations(metadata.getAnnotations())
+                                                  .build();
+    }
+
     @Override
     public void createUserProvidedServiceInstance(CloudServiceInstance serviceInstance) {
         assertSpaceProvided("create service instance");
@@ -586,7 +596,7 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
         delegate.serviceInstancesV3()
                 .create(CreateServiceInstanceRequest.builder()
                                                     .name(serviceInstance.getName())
-                                                    .metadata(serviceInstance.getV3Metadata())
+                                                    .metadata(toOssMetadata(serviceInstance.getV3Metadata()))
                                                     .type(ServiceInstanceType.USER_PROVIDED)
                                                     .credentials(serviceInstance.getCredentials())
                                                     .syslogDrainUrl(syslogDrainUrl)
@@ -1325,11 +1335,11 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
     }
 
     @Override
-    public void updateApplicationMetadata(UUID guid, org.cloudfoundry.client.v3.Metadata metadata) {
+    public void updateApplicationMetadata(UUID guid, Metadata metadata) {
         delegate.applicationsV3()
                 .update(org.cloudfoundry.client.v3.applications.UpdateApplicationRequest.builder()
                                                                                         .applicationId(guid.toString())
-                                                                                        .metadata(metadata)
+                                                                                        .metadata(toOssMetadata(metadata))
                                                                                         .build())
                 .block();
     }
@@ -1424,21 +1434,21 @@ public class CloudControllerRestClientImpl implements CloudControllerRestClient 
     }
 
     @Override
-    public void updateServiceInstanceMetadata(UUID guid, org.cloudfoundry.client.v3.Metadata metadata) {
+    public void updateServiceInstanceMetadata(UUID guid, Metadata metadata) {
         delegate.serviceInstancesV3()
                 .update(UpdateServiceInstanceRequest.builder()
                                                     .serviceInstanceId(guid.toString())
-                                                    .metadata(metadata)
+                                                    .metadata(toOssMetadata(metadata))
                                                     .build())
                 .block();
     }
 
     @Override
-    public void updateServiceBindingMetadata(UUID guid, org.cloudfoundry.client.v3.Metadata metadata) {
+    public void updateServiceBindingMetadata(UUID guid, Metadata metadata) {
         delegate.serviceBindingsV3()
                 .update(UpdateServiceBindingRequest.builder()
                                                    .serviceBindingId(guid.toString())
-                                                   .metadata(metadata)
+                                                   .metadata(toOssMetadata(metadata))
                                                    .build())
                 .block();
     }

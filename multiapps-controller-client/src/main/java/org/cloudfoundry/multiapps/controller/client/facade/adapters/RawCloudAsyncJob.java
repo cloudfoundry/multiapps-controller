@@ -20,7 +20,8 @@ public abstract class RawCloudAsyncJob extends RawCloudEntity<CloudAsyncJob> {
         Job job = getJob();
         return ImmutableCloudAsyncJob.builder()
                                      .metadata(parseResourceMetadata(job))
-                                     .state(job.getState())
+                                     .state(org.cloudfoundry.multiapps.controller.client.facade.domain.JobState.valueOf(job.getState()
+                                                                                                                          .name()))
                                      .operation(job.getOperation())
                                      .warnings(getWarnings(job))
                                      .errors(getErrors(job))

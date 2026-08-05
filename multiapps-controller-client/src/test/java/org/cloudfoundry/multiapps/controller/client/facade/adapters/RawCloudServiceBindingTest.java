@@ -31,7 +31,10 @@ class RawCloudServiceBindingTest {
                                            .metadata(RawCloudEntityTest.EXPECTED_METADATA_V3)
                                            .applicationGuid(APPLICATION_GUID)
                                            .serviceInstanceGuid(SERVICE_INSTANCE_GUID)
-                                           .serviceBindingOperation(ServiceCredentialBindingOperation.from(LAST_OPERATION))
+                                           .serviceBindingOperation(ServiceCredentialBindingOperation.from(
+                                               new org.cloudfoundry.multiapps.controller.client.facade.domain.LastOperation(
+                                                   LAST_OPERATION.getType(), LAST_OPERATION.getState(), LAST_OPERATION.getDescription(),
+                                                   LAST_OPERATION.getCreatedAt(), LAST_OPERATION.getUpdatedAt())))
                                            .build();
     }
 

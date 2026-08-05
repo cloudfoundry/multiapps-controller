@@ -4,8 +4,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.client.v3.roles.RoleType;
-
 public enum UserRole {
 
     ORGANIZATION_AUDITOR,
@@ -20,10 +18,14 @@ public enum UserRole {
                                                                        .collect(Collectors.toMap(UserRole::getName,
                                                                                                  roleType ->  roleType));
 
-    public static UserRole fromRoleType(RoleType roleType) {
-        UserRole userRole = NAMES_TO_VALUES.get(roleType.getValue());
+    /**
+     * Resolve from the CF v3 role {@code type} wire value (e.g. {@code space_developer}). Takes the raw string rather than the OSS
+     * {@code RoleType} enum, so the domain no longer depends on cf-java-client.
+     */
+    public static UserRole fromRoleType(String roleTypeValue) {
+        UserRole userRole = NAMES_TO_VALUES.get(roleTypeValue);
         if (userRole == null) {
-            throw new IllegalArgumentException("Unknown user role: " + roleType.getValue());
+            throw new IllegalArgumentException("Unknown user role: " + roleTypeValue);
         }
         return userRole;
     }

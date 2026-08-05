@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.client.facade.domain;
 
 import java.util.UUID;
 
-import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 
 import org.cloudfoundry.multiapps.controller.client.facade.Nullable;
 
