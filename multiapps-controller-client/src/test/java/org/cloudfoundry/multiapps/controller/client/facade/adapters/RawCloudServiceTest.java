@@ -46,7 +46,7 @@ class RawCloudServiceTest {
                                             .name(NAME)
                                             .plan(PLAN_NAME)
                                             .label(OFFERING_NAME)
-                                            .type(ServiceInstanceType.MANAGED)
+                                            .type(org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceInstanceType.MANAGED)
                                             .tags(TAGS)
                                             .lastOperation(new ServiceOperation(Type.CREATE, "", State.IN_PROGRESS))
                                             .build();
@@ -56,7 +56,7 @@ class RawCloudServiceTest {
         return ImmutableCloudServiceInstance.builder()
                                             .metadata(RawCloudEntityTest.EXPECTED_METADATA_PARSED_FROM_V3_RESOURCE)
                                             .name(NAME)
-                                            .type(ServiceInstanceType.USER_PROVIDED)
+                                            .type(org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceInstanceType.USER_PROVIDED)
                                             .tags(TAGS)
                                             .lastOperation(new ServiceOperation(Type.CREATE, "", State.SUCCEEDED))
                                             .build();

@@ -29,13 +29,14 @@ public abstract class RawCloudServiceInstance extends RawCloudEntity<CloudServic
         ServiceInstanceResource resource = getResource();
         return ImmutableCloudServiceInstance.builder()
                                             .metadata(parseResourceMetadata(resource))
-                                            .v3Metadata(resource.getMetadata())
+                                            .v3Metadata(toDomainMetadata(resource.getMetadata()))
                                             .name(resource.getName())
                                             .plan(getServicePlanName())
                                             .label(getLabelName())
-                                            .type(resource.getType())
+                                            .type(org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceInstanceType.valueOf(resource.getType()
+                                                                                                                                                .name()))
                                             .tags(resource.getTags())
-                                            .lastOperation(ServiceOperation.fromLastOperation(resource.getLastOperation()))
+                                            .lastOperation(ServiceOperation.fromLastOperation(toDomainLastOperation(resource.getLastOperation())))
                                             .syslogDrainUrl(resource.getSyslogDrainUrl())
                                             .build();
     }

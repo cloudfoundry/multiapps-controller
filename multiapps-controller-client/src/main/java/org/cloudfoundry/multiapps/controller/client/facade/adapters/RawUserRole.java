@@ -15,7 +15,8 @@ public abstract class RawUserRole implements Derivable<UserRole> {
     @Override
     public UserRole derive() {
         RoleResource role = getRoleResource();
-        return UserRole.fromRoleType(role.getType());
+        return UserRole.fromRoleType(role.getType()
+                                         .getValue());
     }
 
 }

@@ -49,7 +49,7 @@ class RawCloudApplicationTest {
     private static CloudApplication buildApplication(org.cloudfoundry.multiapps.controller.client.facade.domain.Lifecycle lifecycle) {
         return ImmutableCloudApplication.builder()
                                         .metadata(RawCloudEntityTest.EXPECTED_METADATA_V3)
-                                        .v3Metadata(RawCloudEntityTest.V3_METADATA)
+                                        .v3Metadata(RawCloudEntityTest.V3_METADATA_DOMAIN)
                                         .name(RawCloudEntityTest.NAME)
                                         .state(EXPECTED_STATE)
                                         .lifecycle(lifecycle)

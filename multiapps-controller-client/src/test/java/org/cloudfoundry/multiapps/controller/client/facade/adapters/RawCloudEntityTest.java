@@ -44,6 +44,13 @@ class RawCloudEntityTest {
                                                 .labels(V3_LABELS)
                                                 .build();
 
+    // Domain-typed equivalent of V3_METADATA, for building expected domain objects (CloudEntity.getV3Metadata() is domain.Metadata).
+    static final org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata V3_METADATA_DOMAIN =
+        org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata.builder()
+                                                                           .annotations(V3_ANNOTATIONS)
+                                                                           .labels(V3_LABELS)
+                                                                           .build();
+
     static final CloudMetadata EXPECTED_METADATA_PARSED_FROM_V3_RESOURCE = ImmutableCloudMetadata.builder()
                                                                                                  .guid(GUID)
                                                                                                  .createdAt(CREATED_AT)

@@ -33,6 +33,37 @@ public abstract class RawCloudEntity<T> implements Derivable<T> {
                                      .build();
     }
 
+    /**
+     * Convert the OSS {@code LastOperation} to the project-owned {@link org.cloudfoundry.multiapps.controller.client.facade.domain.LastOperation}.
+     * Shared by the service instance / binding / key adapters. (Part of the OSS-backed path; removed with the OSS client.)
+     */
+    protected static org.cloudfoundry.multiapps.controller.client.facade.domain.LastOperation toDomainLastOperation(
+        org.cloudfoundry.client.v3.LastOperation lastOperation) {
+        if (lastOperation == null) {
+            return null;
+        }
+        return new org.cloudfoundry.multiapps.controller.client.facade.domain.LastOperation(lastOperation.getType(),
+                                                                                            lastOperation.getState(),
+                                                                                            lastOperation.getDescription(),
+                                                                                            lastOperation.getCreatedAt(),
+                                                                                            lastOperation.getUpdatedAt());
+    }
+
+    /**
+     * Convert the OSS v3 {@code Metadata} to the project-owned
+     * {@link org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata}. (OSS-backed path; removed with the OSS client.)
+     */
+    protected static org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata toDomainMetadata(
+        org.cloudfoundry.client.v3.Metadata metadata) {
+        if (metadata == null) {
+            return null;
+        }
+        return org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata.builder()
+                                                                                  .labels(metadata.getLabels())
+                                                                                  .annotations(metadata.getAnnotations())
+                                                                                  .build();
+    }
+
     protected static UUID parseNullableGuid(String guid) {
         return guid == null ? null : parseGuid(guid);
     }
