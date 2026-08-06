@@ -54,19 +54,16 @@ public class OperationLogsExporter {
         if (loggingConfiguration == null) {
             return;
         }
-        List<LogLevel> allowedLevels = LogLevel.getLogLevelLoggingType()
-                                               .get(loggingConfiguration.getLogLevel());
-        if (allowedLevels == null || !allowedLevels.contains(level)) {
+
+        ExternalOperationLogEntry entry = externalOperationLogEntryFactory.fromLevelledMessage(loggingConfiguration, message, level);
+
+        if (entry == null) {
             return;
         }
-        ExternalOperationLogEntry entry = externalOperationLogEntryFactory.fromLevelledMessage(loggingConfiguration, message, level);
         sendInBatches(List.of(entry), loggingConfiguration);
     }
 
     public void sendLogsToCloudLoggingService(LoggingConfiguration loggingConfiguration, OperationLogEntry operationLogEntry) {
-        if (loggingConfiguration == null) {
-            return;
-        }
         List<ExternalOperationLogEntry> entries = externalOperationLogEntryFactory.fromOperationLogEntry(loggingConfiguration,
                                                                                                          operationLogEntry);
         sendInBatches(entries, loggingConfiguration);

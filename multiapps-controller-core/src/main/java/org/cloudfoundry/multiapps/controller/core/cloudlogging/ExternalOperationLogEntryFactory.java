@@ -46,7 +46,7 @@ public class ExternalOperationLogEntryFactory {
     public List<ExternalOperationLogEntry> fromOperationLogEntry(LoggingConfiguration loggingConfiguration,
                                                                  OperationLogEntry operationLogEntry) {
         Map<LogLevel, List<OperationLog>> filteredOperationLogs = getFilteredOperationLogs(loggingConfiguration,
-                                                                                          operationLogEntry.getOperationLog());
+                                                                                           operationLogEntry.getOperationLog());
 
         List<ExternalOperationLogEntry> externalOperationLogEntries = new ArrayList<>();
         for (Map.Entry<LogLevel, List<OperationLog>> operationLog : filteredOperationLogs.entrySet()) {
@@ -60,10 +60,15 @@ public class ExternalOperationLogEntryFactory {
     }
 
     public ExternalOperationLogEntry fromLevelledMessage(LoggingConfiguration loggingConfiguration, String message, LogLevel level) {
+        List<LogLevel> allowedLevels = LogLevel.getLogLevelLoggingType()
+                                               .get(loggingConfiguration.getLogLevel());
+        if (allowedLevels == null || !allowedLevels.contains(level)) {
+            return null;
+        }
         return ImmutableExternalOperationLogEntry.builder()
                                                  .timestamp(String.valueOf(LocalDateTime.now()
                                                                                         .atOffset(ZoneOffset.UTC)))
-                                                 .message(message)
+                                                 .message(cloudLoggingServiceMessageConverter.getLogMessage(message))
                                                  .id(UUID.randomUUID()
                                                          .toString())
                                                  .operationLogName(cloudLoggingServiceMessageConverter.extractLogName(message)

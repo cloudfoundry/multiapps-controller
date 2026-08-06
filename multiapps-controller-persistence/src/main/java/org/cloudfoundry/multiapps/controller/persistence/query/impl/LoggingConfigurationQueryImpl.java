@@ -56,6 +56,16 @@ public class LoggingConfigurationQueryImpl extends AbstractQueryImpl<LoggingConf
     }
 
     @Override
+    public LoggingConfigurationQuery mtaOrg(String mtaOrg) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
+                                                                       .attribute(AttributeNames.MTA_ORG)
+                                                                       .condition(getCriteriaBuilder()::equal)
+                                                                       .value(mtaOrg)
+                                                                       .build());
+        return this;
+    }
+
+    @Override
     public LoggingConfigurationQuery mtaSpaceId(String mtaSpaceId) {
         queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
                                                                        .attribute(AttributeNames.MTA_SPACE_ID)

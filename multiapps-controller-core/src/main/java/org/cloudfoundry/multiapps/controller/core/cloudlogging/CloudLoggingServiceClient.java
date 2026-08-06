@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
@@ -43,8 +44,7 @@ public class CloudLoggingServiceClient {
     private Retry retrySpec;
 
     public CloudLoggingServiceClient() {
-        this(new DefaultCloudLoggingServiceWebClientFactory(),
-             new CloudLoggingServiceWebClientCache());
+        this(new DefaultCloudLoggingServiceWebClientFactory(), new CloudLoggingServiceWebClientCache());
     }
 
     @Inject
@@ -62,6 +62,7 @@ public class CloudLoggingServiceClient {
         webClientCache.remove(operationId);
     }
 
+    @Async("asyncExecutor")
     public void sendLogsToCloudLoggingService(LoggingConfiguration loggingConfiguration,
                                               List<ExternalOperationLogEntry> logEntryBatch) {
         WebClient webClient;

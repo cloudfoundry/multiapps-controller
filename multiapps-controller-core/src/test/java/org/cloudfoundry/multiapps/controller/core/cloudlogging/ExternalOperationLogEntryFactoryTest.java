@@ -52,7 +52,7 @@ class ExternalOperationLogEntryFactoryTest {
         List<ExternalOperationLogEntry> entries = factory.fromMessage(buildConfig(LogLevel.INFO), INFO_LOG);
 
         assertEquals("deploy-app.hello-backend.log", entries.get(0)
-                                             .getOperationLogName());
+                                                            .getOperationLogName());
     }
 
     @Test

@@ -54,7 +54,7 @@ public final class Messages {
     public static final String OBJECT_STORE_BUCKET_NOT_FOUND = "Object store bucket \"{0}\" not found";
     public static final String UPLOAD_OF_FILE_WITH_NAMESPACE_FAILED = "Upload of file: \"{0}\" with namespace: \"{1}\" failed";
     public static final String FAILED_TO_SEND_LOG_MESSAGE_TO_CLS = "Failed to send log message to Cloud Logging service";
-    public static final String INVALID_LOG_LEVEL = "Invalid log level";
+    public static final String INVALID_LOG_LEVEL_0 = "Invalid log level \"{0}\"";
 
     // ERROR log messages:
     public static final String UPLOAD_STREAM_FAILED_TO_CLOSE = "Cannot close file upload stream";

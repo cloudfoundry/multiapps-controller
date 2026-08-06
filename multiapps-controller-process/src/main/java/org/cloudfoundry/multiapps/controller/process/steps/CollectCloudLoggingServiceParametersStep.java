@@ -8,6 +8,7 @@ import org.cloudfoundry.multiapps.controller.core.auditlogging.CloudLoggingServi
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ResourceType;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.OperationLogEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging.CloudLoggingServiceConfigurationService;
@@ -82,7 +83,8 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
     private LoggingConfiguration getExistingLoggingConfiguration(ProcessContext context) {
         LoggingConfiguration loggingConfiguration = getLoggingConfiguration(context.getVariable(Variables.SPACE_NAME),
                                                                             context.getVariable(Variables.MTA_ID),
-                                                                            context.getVariable(Variables.MTA_NAMESPACE));
+                                                                            context.getVariable(Variables.MTA_NAMESPACE),
+                                                                            context.getVariable(Variables.ORGANIZATION_NAME));
         if (loggingConfiguration == null) {
             return null;
         }
@@ -92,11 +94,12 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
         return loggingConfiguration;
     }
 
-    private LoggingConfiguration getLoggingConfiguration(String mtaSpace, String mtaId, String namespace) {
+    private LoggingConfiguration getLoggingConfiguration(String mtaSpace, String mtaId, String namespace, String mtaOrg) {
         return cloudLoggingServiceConfigurationService.createQuery()
                                                       .mtaSpace(mtaSpace)
                                                       .mtaId(mtaId)
                                                       .namespace(namespace)
+                                                      .mtaOrg(mtaOrg)
                                                       .list()
                                                       .stream()
                                                       .findFirst()
@@ -108,7 +111,7 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
         if (existingLoggingConfiguration == null) {
             return null;
         }
-        return setExternalLoggingServiceConfigurationIfRequired(context, existingLoggingConfiguration);
+        return createLoggingServiceConfiguration(context, existingLoggingConfiguration);
     }
 
     private LoggingConfiguration processDeployLoggingConfiguration(ProcessContext context,
@@ -119,7 +122,7 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
             return null;
         }
 
-        LoggingConfiguration newLoggingConfiguration = setExternalLoggingServiceConfigurationIfRequired(context, deploymentDescriptor);
+        LoggingConfiguration newLoggingConfiguration = createLoggingServiceConfiguration(context, deploymentDescriptor);
         if (newLoggingConfiguration == null) {
             return null;
         }
@@ -136,7 +139,9 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
             cloudLoggingServiceConfigurationAuditLog.logDeleteLoggingConfiguration(context.getVariable(Variables.USER),
                                                                                    context.getVariable(Variables.SPACE_GUID),
                                                                                    existingLoggingConfiguration);
-            cloudLoggingServiceConfigurationService.createQuery().id(existingLoggingConfiguration.getId()).delete();
+            cloudLoggingServiceConfigurationService.createQuery()
+                                                   .id(existingLoggingConfiguration.getId())
+                                                   .delete();
         }
     }
 
@@ -148,17 +153,17 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
                                    .anyMatch(CollectCloudLoggingServiceParametersStep::isCloudLoggingServiceResource);
     }
 
-    protected LoggingConfiguration setExternalLoggingServiceConfigurationIfRequired(ProcessContext context,
-                                                                                    DeploymentDescriptor deploymentDescriptor) {
+    protected LoggingConfiguration createLoggingServiceConfiguration(ProcessContext context,
+                                                                     DeploymentDescriptor deploymentDescriptor) {
         LoggingConfigurationBuilder builder = new LoggingConfigurationBuilder(clientFactory, context, tokenService);
         Resource resource = findCloudLoggingServiceResource(deploymentDescriptor.getResources());
-        return builder.exportOperationLogsToExternalSystem(resource);
+        return builder.buildConfigurationFromResource(resource);
     }
 
-    protected LoggingConfiguration setExternalLoggingServiceConfigurationIfRequired(ProcessContext context,
-                                                                                    LoggingConfiguration loggingConfiguration) {
+    protected LoggingConfiguration createLoggingServiceConfiguration(ProcessContext context,
+                                                                     LoggingConfiguration loggingConfiguration) {
         LoggingConfigurationBuilder builder = new LoggingConfigurationBuilder(clientFactory, context, tokenService);
-        return builder.exportOperationLogsToExternalSystem(loggingConfiguration, context);
+        return builder.getCredentialsFromServiceKey(loggingConfiguration, context);
     }
 
     private void persistLoggingConfiguration(ProcessContext context, LoggingConfiguration newLoggingConfiguration) {
@@ -184,7 +189,8 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
     }
 
     private static boolean isCloudLoggingServiceResource(Resource resource) {
-        ResourceType resourceType = ResourceType.get(stripCloudfoundryPrefix(resource.getType()));
+        //        ResourceType resourceType = ResourceType.get(stripCloudfoundryPrefix(resource.getType()));
+        ResourceType resourceType = CloudModelBuilderUtil.getResourceType(resource);
         return ResourceType.CLOUD_LOGGING_SERVICE.equals(resourceType);
     }
 

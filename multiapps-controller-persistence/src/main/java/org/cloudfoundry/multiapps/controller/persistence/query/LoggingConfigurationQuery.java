@@ -10,6 +10,8 @@ public interface LoggingConfigurationQuery extends Query<LoggingConfiguration, L
 
     LoggingConfigurationQuery mtaId(String mtaId);
 
+    LoggingConfigurationQuery mtaOrg(String mtaOrg);
+
     LoggingConfigurationQuery mtaSpaceId(String mtaSpaceId);
 
     LoggingConfigurationQuery namespace(String namespace);

@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
@@ -23,6 +24,8 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.cloudfoundry.multiapps.controller.persistence.Messages.INVALID_LOG_LEVEL_0;
 
 public class LoggingConfigurationBuilder {
 
@@ -43,8 +46,7 @@ public class LoggingConfigurationBuilder {
         this.tokenService = tokenService;
     }
 
-    public LoggingConfiguration exportOperationLogsToExternalSystem(Resource resource) {
-
+    public LoggingConfiguration buildConfigurationFromResource(Resource resource) {
         LoggingConfiguration loggingConfiguration = getCredentialsFromServiceKey(resource);
         if (loggingConfiguration == null) {
             return null;
@@ -72,11 +74,6 @@ public class LoggingConfigurationBuilder {
                                             .withIsFailSafe(resource.isOptional());
     }
 
-    public LoggingConfiguration exportOperationLogsToExternalSystem(LoggingConfiguration incomingLoggingConfiguration,
-                                                                    ProcessContext context) {
-        return getCredentialsFromServiceKey(incomingLoggingConfiguration, context);
-    }
-
     private LogLevel getLogLevelsFromConfiguration(Resource resource) {
         if (!resource.getParameters()
                      .containsKey(SupportedParameters.LOG_LEVEL)) {
@@ -88,13 +85,13 @@ public class LoggingConfigurationBuilder {
             return LogLevel.get(logLevelFromDescriptor);
         }
         if (!resource.isOptional()) {
-            throw new SLException(Messages.INVALID_LOG_LEVEL);
+            throw new SLException(MessageFormat.format(INVALID_LOG_LEVEL_0, logLevelFromDescriptor));
         }
         return LogLevel.INFO;
     }
 
     private boolean areCloudLoggingParametersInvalid(String serviceInstanceName, String serviceKeyName) {
-        return serviceInstanceName == null || serviceInstanceName.isBlank() || serviceKeyName == null || serviceKeyName.isBlank();
+        return StringUtils.isEmpty(serviceInstanceName) || StringUtils.isEmpty(serviceKeyName);
     }
 
     private String getServiceKeyName(Resource resource) {
@@ -102,7 +99,7 @@ public class LoggingConfigurationBuilder {
                                      .get(SupportedParameters.SERVICE_KEY_NAME));
     }
 
-    private LoggingConfiguration getCredentialsFromServiceKey(LoggingConfiguration loggingConfiguration, ProcessContext context) {
+    public LoggingConfiguration getCredentialsFromServiceKey(LoggingConfiguration loggingConfiguration, ProcessContext context) {
         CloudServiceKey loggingServiceKey = getServiceKeyWithLoggingConfiguration(loggingConfiguration);
         if (loggingServiceKey == null) {
             return null;
@@ -157,7 +154,7 @@ public class LoggingConfigurationBuilder {
         if (areCloudLoggingParametersInvalid(serviceInstanceName, serviceKeyName)) {
             return Optional.empty();
         }
-        CloudControllerClient client = calculateExternalLoggingServiceConfiguration(destinationOrg, destinationSpace);
+        CloudControllerClient client = createCloudControllerClient(destinationOrg, destinationSpace);
         try {
             CloudServiceKey loggingServiceKey = client.getServiceKey(serviceInstanceName, serviceKeyName);
             return Optional.ofNullable(loggingServiceKey);
@@ -165,18 +162,6 @@ public class LoggingConfigurationBuilder {
             LOGGER.error(e.getMessage());
             return Optional.empty();
         }
-    }
-
-    private void throwExceptionIfIsNotFailSafe(boolean isFailSafe, String message) {
-        if (!isFailSafe) {
-            throw new SLException(message);
-        }
-
-    }
-
-    private String getCloudLoggingServiceKeyErrorMessage() {
-        return MessageFormat.format(Messages.NO_CLOUD_LOGGING_SERVICE_KEY_FOUND_FOR_OPERATION_0_SKIPPING_LOG_EXPORT,
-                                    context.getVariable(Variables.CORRELATION_ID));
     }
 
     private LoggingConfiguration getCredentialsFromServiceKey(Resource resource) {
@@ -207,13 +192,13 @@ public class LoggingConfigurationBuilder {
         String credential = (String) credentials.get(credentialsName);
 
         if (credential == null) {
-            throw new SLException(MessageFormat.format(Messages.MISSING_REQUIRED_1_CREDENTIAL_FROM_SCL_EXPORT, credentialsName));
+            throw new SLException(MessageFormat.format(Messages.MISSING_REQUIRED_0_CREDENTIAL_FROM_SCL_EXPORT, credentialsName));
         }
 
         return credential;
     }
 
-    private CloudControllerClient calculateExternalLoggingServiceConfiguration(String destinationOrg, String destinationSpace) {
+    private CloudControllerClient createCloudControllerClient(String destinationOrg, String destinationSpace) {
         String currentTargetOrg = context.getVariable(Variables.ORGANIZATION_NAME);
         String currentTargetSpace = context.getVariable(Variables.SPACE_NAME);
 
@@ -228,7 +213,7 @@ public class LoggingConfigurationBuilder {
     }
 
     private String resolveTargetSpaceGuid(String destinationOrg, String destinationSpace) {
-        CloudControllerClient client = calculateExternalLoggingServiceConfiguration(destinationOrg, destinationSpace);
+        CloudControllerClient client = createCloudControllerClient(destinationOrg, destinationSpace);
         return toGuidString(client.getTarget()
                                   .getGuid());
     }

@@ -25,8 +25,9 @@ public class CloudLoggingServiceMessageConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudLoggingServiceMessageConverter.class);
     private static final Pattern MESSAGE_LOG_DATE_PATTERN = Pattern.compile("^#([^#\\r\\n]*)#", Pattern.MULTILINE);
     private static final Pattern MESSAGE_LOG_LEVEL_PATTERN = Pattern.compile("^#[^#\\r\\n]*#[^#\\r\\n]*#([^#\\r\\n]*)#", Pattern.MULTILINE);
-    private static final Pattern MESSAGE_LOG_NAME = Pattern.compile("^#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#([^#\\r\\n]*)#",
-                                                                    Pattern.MULTILINE);
+    private static final Pattern MESSAGE_LOG_NAME = Pattern.compile(
+        "^#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#(?:[^#\\r\\n]*/)?(?:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\\.)?([^#/\\r\\n]*?)(?:\\.log)?#",
+        Pattern.MULTILINE);
     private static final String MESSAGE_SPLITTING_REGEX = "(?m)^#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#[^#\\r\\n]*#(?:\\r?\\n)?";
     private static final String LOG_NAME_SUFFIX = ".log";
 
@@ -56,6 +57,11 @@ public class CloudLoggingServiceMessageConverter {
         }
 
         return groupByLogLevel(messages, logLevels, logDates);
+    }
+
+    public String getLogMessage(String message) {
+        String messageWithStepName = splitNonBlankMessages(message).getFirst();
+        return extractMessage(messageWithStepName);
     }
 
     private List<String> splitNonBlankMessages(String log) {
@@ -110,7 +116,7 @@ public class CloudLoggingServiceMessageConverter {
         return logLevels;
     }
 
-    private String extractMessage(String message) {
+    public String extractMessage(String message) {
         String trimmed = message.substring(message.indexOf("]") + 1)
                                 .trim();
         if (trimmed.isEmpty()) {

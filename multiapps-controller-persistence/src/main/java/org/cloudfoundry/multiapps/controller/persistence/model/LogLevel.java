@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.persistence.model;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
@@ -20,7 +21,7 @@ public enum LogLevel {
                 return logLevel;
             }
         }
-        throw new IllegalArgumentException(Messages.INVALID_LOG_LEVEL);
+        throw new IllegalArgumentException(MessageFormat.format(Messages.INVALID_LOG_LEVEL_0, value));
     }
 
     public static Map<LogLevel, List<LogLevel>> getLogLevelLoggingType() {

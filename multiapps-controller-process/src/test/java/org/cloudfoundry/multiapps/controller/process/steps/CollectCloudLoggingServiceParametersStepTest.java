@@ -57,14 +57,14 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
         }
 
         @Override
-        protected LoggingConfiguration setExternalLoggingServiceConfigurationIfRequired(ProcessContext context,
-                                                                                        DeploymentDescriptor deploymentDescriptor) {
+        protected LoggingConfiguration createLoggingServiceConfiguration(ProcessContext context,
+                                                                         DeploymentDescriptor deploymentDescriptor) {
             return nextBuiltFromDescriptor;
         }
 
         @Override
-        protected LoggingConfiguration setExternalLoggingServiceConfigurationIfRequired(ProcessContext context,
-                                                                                        LoggingConfiguration loggingConfiguration) {
+        protected LoggingConfiguration createLoggingServiceConfiguration(ProcessContext context,
+                                                                         LoggingConfiguration loggingConfiguration) {
             return nextBuiltFromExisting == null ? loggingConfiguration : nextBuiltFromExisting;
         }
     }
@@ -81,8 +81,11 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
         clientFactory = Mockito.mock(CloudControllerClientFactory.class);
         configurationService = Mockito.mock(CloudLoggingServiceConfigurationService.class);
         loggingConfigurationQuery = Mockito.mock(LoggingConfigurationQuery.class, Mockito.RETURNS_SELF);
-        Mockito.when(configurationService.createQuery()).thenReturn(loggingConfigurationQuery);
-        Mockito.doReturn(List.of()).when(loggingConfigurationQuery).list();
+        Mockito.when(configurationService.createQuery())
+               .thenReturn(loggingConfigurationQuery);
+        Mockito.doReturn(List.of())
+               .when(loggingConfigurationQuery)
+               .list();
         processTypeParser = Mockito.mock(ProcessTypeParser.class);
         auditLog = Mockito.mock(CloudLoggingServiceConfigurationAuditLog.class);
         unsentProcessLogsProvider = Mockito.mock(UnsentProcessLogsProvider.class);
@@ -256,7 +259,9 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
     }
 
     private void stubExistingConfig(LoggingConfiguration config) {
-        Mockito.doReturn(List.of(config)).when(loggingConfigurationQuery).list();
+        Mockito.doReturn(List.of(config))
+               .when(loggingConfigurationQuery)
+               .list();
     }
 
     private static LoggingConfiguration buildConfig() {

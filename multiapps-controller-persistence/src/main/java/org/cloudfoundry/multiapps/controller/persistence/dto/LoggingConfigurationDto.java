@@ -21,6 +21,7 @@ public class LoggingConfigurationDto implements DtoWithPrimaryKey<String> {
 
         public static final String ID = "id";
         public static final String MTA_ID = "mtaId";
+        public static final String MTA_ORG = "mtaOrg";
         public static final String MTA_SPACE = "mtaSpace";
         public static final String MTA_SPACE_ID = "mtaSpaceId";
         public static final String NAMESPACE = "namespace";

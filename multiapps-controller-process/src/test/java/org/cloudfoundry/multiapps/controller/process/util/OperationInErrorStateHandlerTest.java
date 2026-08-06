@@ -1,15 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
@@ -41,7 +31,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class OperationInErrorStateHandlerTest {
 
@@ -72,7 +73,7 @@ class OperationInErrorStateHandlerTest {
         MockitoAnnotations.openMocks(this)
                           .close();
         when(progressMessageServiceMock.createQuery())
-               .thenReturn(progressMessageQuery);
+            .thenReturn(progressMessageQuery);
         prepareOperationService();
     }
 
@@ -95,24 +96,24 @@ class OperationInErrorStateHandlerTest {
     @Test
     void testWithErrorMessageAlreadyPersisted() {
         when(flowableFacadeMock.getProcessInstanceId(any()))
-               .thenReturn("foo");
+            .thenReturn("foo");
         ProgressMessageQuery queryMock = new MockBuilder<>(progressMessageQuery).on(query -> query.processId("foo"))
                                                                                 .build();
         doReturn(List.of(ImmutableProgressMessage.builder()
-                                                         .processId("foo")
-                                                         .taskId("")
-                                                         .text("")
-                                                         .type(ProgressMessageType.ERROR)
-                                                         .build()))
-               .when(queryMock)
-               .list();
+                                                 .processId("foo")
+                                                 .taskId("")
+                                                 .text("")
+                                                 .type(ProgressMessageType.ERROR)
+                                                 .build()))
+            .when(queryMock)
+            .list();
         FlowableEngineEvent event = mock(FlowableEngineEvent.class);
 
         OperationInErrorStateHandler handler = mockHandler();
         handler.handle(event, new Exception("test-message"));
 
         verify(progressMessageServiceMock, never())
-               .add(any());
+            .add(any());
         assertErrorStateSet();
     }
 
@@ -124,56 +125,56 @@ class OperationInErrorStateHandlerTest {
     @Test
     void testWithNoErrorMessageAndTaskIdFromContext() {
         when(flowableFacadeMock.getCurrentTaskId("bar"))
-               .thenReturn("barbar");
+            .thenReturn("barbar");
 
         testWithNoErrorMessageWithExecutionEntity(false);
     }
 
     private void testWithNoErrorMessageWithExecutionEntity(boolean shouldUseExecutionEntity) {
         when(flowableFacadeMock.getProcessInstanceId(anyString()))
-               .thenReturn("foo");
+            .thenReturn("foo");
         ProgressMessageQuery queryMock = new MockBuilder<>(progressMessageQuery).on(query -> query.processId("foo"))
                                                                                 .build();
         doReturn(Collections.emptyList())
-               .when(queryMock)
-               .list();
+            .when(queryMock)
+            .list();
 
         FlowableEngineEvent engineEvent = mock(FlowableEngineEvent.class);
         when(engineEvent.getExecutionId())
-               .thenReturn("bar");
+            .thenReturn("bar");
         when(engineEvent.getProcessInstanceId())
-               .thenReturn("foo");
+            .thenReturn("foo");
         when(engineEvent.getProcessDefinitionId())
-               .thenReturn("testing");
+            .thenReturn("testing");
 
         RuntimeService runtimeServiceMock = mock(RuntimeService.class);
         ExecutionQuery executionQueryMock = mock(ExecutionQuery.class);
         when(executionQueryMock.executionId("bar"))
-               .thenReturn(executionQueryMock);
+            .thenReturn(executionQueryMock);
 
         when(executionQueryMock.processInstanceId("foo"))
-               .thenReturn(executionQueryMock);
+            .thenReturn(executionQueryMock);
 
         getExecutionEntityMock(shouldUseExecutionEntity, executionQueryMock);
 
         when(runtimeServiceMock.createExecutionQuery())
-               .thenReturn(executionQueryMock);
+            .thenReturn(executionQueryMock);
 
         when(processEngineConfigurationMock.getRuntimeService())
-               .thenReturn(runtimeServiceMock);
+            .thenReturn(runtimeServiceMock);
 
         OperationInErrorStateHandler handler = mockHandler();
 
         handler.handle(engineEvent, new Exception("test-message"));
 
         verify(progressMessageServiceMock, times(1))
-               .add(ImmutableProgressMessage.builder()
-                                            .processId("foo")
-                                            .taskId("barbar")
-                                            .type(ProgressMessageType.ERROR)
-                                            .text("Unexpected error: test-message")
-                                            .timestamp(now)
-                                            .build());
+            .add(ImmutableProgressMessage.builder()
+                                         .processId("foo")
+                                         .taskId("barbar")
+                                         .type(ProgressMessageType.ERROR)
+                                         .text("Unexpected error: test-message")
+                                         .timestamp(now)
+                                         .build());
         assertErrorStateSet();
         Mockito.verify(cloudLoggingServiceHttpClient)
                .removeClientFromCache("foo");
@@ -183,7 +184,7 @@ class OperationInErrorStateHandlerTest {
         ExecutionEntityImpl executionEntity = getExecutionEntity(shouldUseExecutionEntity);
 
         when(executionQueryMock.list())
-               .thenReturn(getList(executionEntity));
+            .thenReturn(getList(executionEntity));
     }
 
     private List<Execution> getList(ExecutionEntityImpl executionEntity) {
@@ -205,11 +206,11 @@ class OperationInErrorStateHandlerTest {
                                                 .state(Operation.State.RUNNING)
                                                 .build();
         when(operationService.createQuery())
-               .thenReturn(operationQuery);
+            .thenReturn(operationQuery);
         when(operationQuery.processId(anyString()))
-               .thenReturn(operationQuery);
+            .thenReturn(operationQuery);
         when(operationQuery.singleResult())
-               .thenReturn(operation);
+            .thenReturn(operation);
     }
 
     private void assertErrorStateSet() {
@@ -217,7 +218,7 @@ class OperationInErrorStateHandlerTest {
                                                      .state(Operation.State.ERROR)
                                                      .build();
         verify(operationService)
-               .update(errorOperation, errorOperation);
+            .update(errorOperation, errorOperation);
     }
 
     private OperationInErrorStateHandlerMock mockHandler() {
@@ -226,7 +227,8 @@ class OperationInErrorStateHandlerTest {
                                                     historicOperationEventServiceMock,
                                                     clientReleaserMock,
                                                     operationService,
-                                                    cloudLoggingServiceHttpClient).withProcessEngineConfiguration(processEngineConfigurationMock);
+                                                    cloudLoggingServiceHttpClient).withProcessEngineConfiguration(
+            processEngineConfigurationMock);
     }
 
     private class OperationInErrorStateHandlerMock extends OperationInErrorStateHandler {
