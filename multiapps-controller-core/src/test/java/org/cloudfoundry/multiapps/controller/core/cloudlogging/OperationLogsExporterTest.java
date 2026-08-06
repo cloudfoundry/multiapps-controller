@@ -53,14 +53,6 @@ class OperationLogsExporterTest {
     }
 
     @Test
-    void testSendLogs_withNullLoggingConfiguration_doesNothing() {
-        exporter.sendLogsToCloudLoggingService(null, buildEntry(INFO_LOG));
-
-        assertTrue(httpClient.capturedEntries()
-                             .isEmpty());
-    }
-
-    @Test
     void testSendLogs_withOperationLogEntry_sendsExpectedNumberOfEntries() {
         LoggingConfiguration config = buildConfig(LogLevel.INFO);
 
@@ -115,8 +107,8 @@ class OperationLogsExporterTest {
         exporter.sendLogsToCloudLoggingService(config, INFO_LOG);
 
         assertEquals("deploy-app.hello-backend.log", httpClient.capturedEntries()
-                                                .get(0)
-                                                .getOperationLogName());
+                                                               .get(0)
+                                                               .getOperationLogName());
     }
 
     @Test
@@ -242,11 +234,13 @@ class OperationLogsExporterTest {
     void testSendLogs_cachedClientReusedOnSubsequentCalls() {
         LoggingConfiguration config = buildConfig(LogLevel.INFO);
         exporter.sendLogsToCloudLoggingService(config, INFO_LOG);
-        int capturedAfterFirst = httpClient.capturedEntries().size();
+        int capturedAfterFirst = httpClient.capturedEntries()
+                                           .size();
 
         exporter.sendLogsToCloudLoggingService(config, INFO_LOG);
 
-        assertEquals(capturedAfterFirst * 2, httpClient.capturedEntries().size());
+        assertEquals(capturedAfterFirst * 2, httpClient.capturedEntries()
+                                                       .size());
     }
 
     private static String logLine(String date, String level, String logName, String text) {

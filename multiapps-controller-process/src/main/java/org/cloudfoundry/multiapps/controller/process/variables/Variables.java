@@ -978,7 +978,11 @@ public interface Variables {
                                                                                                                LoggingConfiguration.class))
                                                                                                        .defaultValue(null)
                                                                                                        .build();
-
+    /* This variable is required during internal deployments because the xs2 deployment process start subprocess, which is multiple-mtas-deploy.
+    For the multiple-mtas-deploy the parent process id and correlation id are the one from xs2 deployment. The problem comes when the
+    multiple-mtas-deploy subprocess starts another sub-sub process whose parent id is not the multiple-mtas-deploy one but the first parent
+    process. Basically this variable is the id of the multiple-mtas-deploy subprocess so all other sub-sub processes can you it.
+    */
     Variable<String> PARENT_PROCESS_INSTANCE_ID = ImmutableSimpleVariable.<String> builder()
                                                                          .name("parentProcessInstanceId")
                                                                          .defaultValue(null)
