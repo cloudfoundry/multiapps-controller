@@ -683,7 +683,7 @@ public interface Variables {
                                                                           .name("waitBindServiceTimeout")
                                                                           .defaultValue(Duration.ofHours(1))
                                                                           .build();
-    Variable<LocalDateTime> UPLOAD_START_TIME = ImmutableSimpleVariable.<LocalDateTime> builder()
+    Variable<Instant> UPLOAD_START_TIME = ImmutableSimpleVariable.<Instant> builder()
                                                                        .name("uploadStartTime")
                                                                        .build();
 

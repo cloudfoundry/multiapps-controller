@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.text.MessageFormat;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -97,7 +98,7 @@ public class GcpObjectStoreFileStorage implements FileStorage {
     }
 
     private void putBlob(BlobInfo blobInfo, InputStream content) throws FileStorageException {
-        LocalDateTime startTime = LocalDateTime.now();
+        Instant startTime = Instant.now();
         try {
             storage.createFrom(blobInfo, content);
         } catch (IOException | StorageException e) {
@@ -294,8 +295,8 @@ public class GcpObjectStoreFileStorage implements FileStorage {
         static final String BUCKET = "bucket";
     }
 
-    private long getElapsedTimeInMillis(LocalDateTime startTime) {
-        return Duration.between(startTime, LocalDateTime.now())
+    private long getElapsedTimeInMillis(Instant startTime) {
+        return Duration.between(startTime, Instant.now())
                        .toMillis();
     }
 

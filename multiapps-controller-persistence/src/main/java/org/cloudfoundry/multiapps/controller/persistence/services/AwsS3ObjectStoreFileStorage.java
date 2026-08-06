@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -109,7 +110,7 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
 
     @Override
     public void addFile(FileEntry fileEntry, InputStream content) throws FileStorageException {
-        LocalDateTime startTime = LocalDateTime.now();
+        Instant startTime = Instant.now();
         long fileSize = fileEntry.getSize()
                                  .longValue();
         PutObjectRequest request = PutObjectRequest.builder()
@@ -331,8 +332,8 @@ public class AwsS3ObjectStoreFileStorage extends ObjectStoreFileStorage {
         s3Client.close();
     }
 
-    private long getElapsedTimeInMillis(LocalDateTime startTime) {
-        return Duration.between(startTime, LocalDateTime.now())
+    private long getElapsedTimeInMillis(Instant startTime) {
+        return Duration.between(startTime, Instant.now())
                        .toMillis();
     }
 

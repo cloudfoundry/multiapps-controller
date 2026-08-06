@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -61,7 +62,7 @@ public class JCloudsObjectStoreFileStorage extends ObjectStoreFileStorage {
                              .contentLength(fileSize)
                              .userMetadata(ObjectStoreMapper.createFileEntryMetadata(fileEntry))
                              .build();
-        LocalDateTime startTime = LocalDateTime.now();
+        Instant startTime = Instant.now();
         try {
             putBlobWithRetries(blob, MAX_RETRIES_COUNT);
             LOGGER.debug(MessageFormat.format(Messages.STORED_FILE_0_WITH_SIZE_1, fileEntry.getId(), fileSize));
@@ -272,8 +273,8 @@ public class JCloudsObjectStoreFileStorage extends ObjectStoreFileStorage {
         return entries;
     }
 
-    private long getElapsedTimeInMillis(LocalDateTime startTime) {
-        return Duration.between(startTime, LocalDateTime.now())
+    private long getElapsedTimeInMillis(Instant startTime) {
+        return Duration.between(startTime, Instant.now())
                        .toMillis();
     }
 

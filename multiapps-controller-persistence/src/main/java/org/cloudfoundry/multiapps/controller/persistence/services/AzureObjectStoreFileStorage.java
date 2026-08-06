@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +61,7 @@ public class AzureObjectStoreFileStorage extends ObjectStoreFileStorage {
     @Override
     public void addFile(FileEntry fileEntry, InputStream content) throws FileStorageException {
         BlobClient blobClient = containerClient.getBlobClient(fileEntry.getId());
-        LocalDateTime startTime = LocalDateTime.now();
+        Instant startTime = Instant.now();
         try {
             ParallelTransferOptions pto = new ParallelTransferOptions().setMaxSingleUploadSizeLong(MAX_SINGLE_UPLOAD_SIZE)
                                                                        .setMaxConcurrency(MAX_CONCURRENCY)
@@ -228,8 +229,8 @@ public class AzureObjectStoreFileStorage extends ObjectStoreFileStorage {
         return deletedBlobsResult;
     }
 
-    private long getElapsedTimeInMillis(LocalDateTime startTime) {
-        return Duration.between(startTime, LocalDateTime.now())
+    private long getElapsedTimeInMillis(Instant startTime) {
+        return Duration.between(startTime, Instant.now())
                        .toMillis();
     }
 

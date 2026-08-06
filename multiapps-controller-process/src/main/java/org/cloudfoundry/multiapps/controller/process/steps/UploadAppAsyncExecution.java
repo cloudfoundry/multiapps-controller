@@ -3,7 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -72,7 +72,7 @@ public class UploadAppAsyncExecution implements AsyncExecution {
             return AsyncExecutionState.FINISHED;
         }
         if (context.getVariable(Variables.UPLOAD_START_TIME) == null) {
-            context.setVariable(Variables.UPLOAD_START_TIME, LocalDateTime.now());
+            context.setVariable(Variables.UPLOAD_START_TIME, Instant.now());
         }
         ApplicationToUploadContext applicationToUploadContext = buildApplicationToUploadContext(context, applicationToProcess);
         CloudControllerClient client = context.getControllerClient();
@@ -153,10 +153,10 @@ public class UploadAppAsyncExecution implements AsyncExecution {
     }
 
     private Path extractApplicationFromArchive(ApplicationToUploadContext applicationToUploadContext) {
-        LocalDateTime startTime = LocalDateTime.now();
+        Instant startTime = Instant.now();
         Path extractedAppPath = extractFromMtar(
             createApplicationArchiveContext(applicationToUploadContext, applicationConfiguration.getMaxResourceFileSize()));
-        long timeElapsedForUpload = Duration.between(startTime, LocalDateTime.now())
+        long timeElapsedForUpload = Duration.between(startTime, Instant.now())
                                             .toMillis();
         applicationToUploadContext.getStepLogger()
                                   .infoWithoutProgressMessage(Messages.TIME_ELAPSED_FOR_APP_BINARY_DOWNLOAD_0_IN_MILLIS,
@@ -215,8 +215,8 @@ public class UploadAppAsyncExecution implements AsyncExecution {
     }
 
     private long getElapsedTimeInMillis(ProcessContext context) {
-        LocalDateTime startTime = context.getVariable(Variables.UPLOAD_START_TIME);
-        return Duration.between(startTime, LocalDateTime.now())
+        Instant startTime = context.getVariable(Variables.UPLOAD_START_TIME);
+        return Duration.between(startTime, Instant.now())
                        .toMillis();
     }
 
