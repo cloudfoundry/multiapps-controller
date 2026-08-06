@@ -22,8 +22,6 @@ import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import static org.apache.commons.lang3.StringUtils.EMPTY;
-
 @Named("collectCloudLoggingServiceParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
@@ -189,12 +187,7 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
     }
 
     private static boolean isCloudLoggingServiceResource(Resource resource) {
-        //        ResourceType resourceType = ResourceType.get(stripCloudfoundryPrefix(resource.getType()));
         ResourceType resourceType = CloudModelBuilderUtil.getResourceType(resource);
         return ResourceType.CLOUD_LOGGING_SERVICE.equals(resourceType);
-    }
-
-    private static String stripCloudfoundryPrefix(String resourceType) {
-        return resourceType.replace(CLOUDFOUNDRY_RESOURCE_TYPE_PREFIX, EMPTY);
     }
 }

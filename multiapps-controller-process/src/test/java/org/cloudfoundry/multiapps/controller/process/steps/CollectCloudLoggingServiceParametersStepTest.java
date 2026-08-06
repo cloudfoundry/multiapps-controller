@@ -1,10 +1,12 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.List;
+import java.util.Map;
 
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.CloudLoggingServiceConfigurationAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientFactory;
+import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableLoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableOperationLogEntry;
@@ -36,6 +38,7 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
     private static final String NAMESPACE = "ns-1";
     private static final String CONFIG_ID = "config-id-1";
     private static final String CLOUD_LOGGING_RESOURCE_TYPE = "org.cloudfoundry.cloud-logging-service";
+    private static final String CLOUD_LOGGING_TYPE_PARAMETER = "cloud-logging-service";
 
     private TokenService tokenService;
     private CloudControllerClientFactory clientFactory;
@@ -248,7 +251,9 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
         return DeploymentDescriptor.createV3()
                                    .setResources(List.of(Resource.createV3()
                                                                  .setName("my-cls")
-                                                                 .setType(CLOUD_LOGGING_RESOURCE_TYPE)));
+                                                                 .setType(CLOUD_LOGGING_RESOURCE_TYPE)
+                                                                 .setParameters(Map.of(SupportedParameters.TYPE,
+                                                                                       CLOUD_LOGGING_TYPE_PARAMETER))));
     }
 
     private static DeploymentDescriptor descriptorWithoutCloudLogging() {
