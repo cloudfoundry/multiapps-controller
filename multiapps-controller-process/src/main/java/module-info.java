@@ -57,17 +57,15 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires spring.core;
     requires spring.security.oauth2.core;
     requires spring.web;
+    requires spring.webflux;
     requires reactor.netty;
+    requires reactor.netty.core;
+    requires reactor.netty.http;
     requires io.netty.handler;
     requires io.netty.transport;
 
     requires static java.compiler;
     requires static org.immutables.value;
-    requires spring.webflux;
-    requires reactor.netty.core;
-    requires reactor.netty.http;
     requires org.cloudfoundry.multiapps.controller.shutdown.client;
-    requires com.google.errorprone.annotations;
-    requires liquibase.core;
 
 }
