@@ -27,7 +27,7 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${shouldBindServiceToApp}]]></conditionExpression>
     </sequenceFlow>
     <serviceTask id="checkForServiceBindingOperationInProgress" name="Check For Service Binding Operation In Progress" flowable:async="true" flowable:delegateExpression="${checkServiceBindingOperationStep}"></serviceTask>
-    <sequenceFlow id="sid-2F192239-9810-4794-8AD5-82FDE7513CCD" sourceRef="startEvent" targetRef="checkForServiceBindingOperationInProgress"></sequenceFlow>
+    <sequenceFlow id="checkForServiceBindingOperationFlowFromStart" sourceRef="startEvent" targetRef="checkForServiceBindingOperationInProgress"></sequenceFlow>
     <intermediateCatchEvent id="sid-23BDFA15-4E1C-4CBA-9F12-82B2207151A7" name="TimerCatchEvent">
       <timerEventDefinition>
         <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
@@ -145,11 +145,6 @@
       <bpmndi:BPMNEdge bpmnElement="sid-C0DD02A2-6839-472E-AEF4-81F971697758" id="BPMNEdge_sid-C0DD02A2-6839-472E-AEF4-81F971697758" flowable:sourceDockerX="20.5" flowable:sourceDockerY="20.5" flowable:targetDockerX="15.5" flowable:targetDockerY="15.5">
         <omgdi:waypoint x="594.4364835948631" y="95.0"></omgdi:waypoint>
         <omgdi:waypoint x="630.0" y="95.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-2F192239-9810-4794-8AD5-82FDE7513CCD" id="BPMNEdge_sid-2F192239-9810-4794-8AD5-82FDE7513CCD" flowable:sourceDockerX="15.0" flowable:sourceDockerY="15.0" flowable:targetDockerX="54.5" flowable:targetDockerY="34.5">
-        <omgdi:waypoint x="45.0" y="59.949997975825816"></omgdi:waypoint>
-        <omgdi:waypoint x="45.0" y="140.0"></omgdi:waypoint>
-        <omgdi:waypoint x="75.0" y="140.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-013C03ED-F3A5-4CAE-9D33-5C2093052CFB" id="BPMNEdge_sid-013C03ED-F3A5-4CAE-9D33-5C2093052CFB" flowable:sourceDockerX="16.0" flowable:sourceDockerY="16.0" flowable:targetDockerX="54.5" flowable:targetDockerY="1.0">
         <omgdi:waypoint x="1006.0" y="79.5"></omgdi:waypoint>

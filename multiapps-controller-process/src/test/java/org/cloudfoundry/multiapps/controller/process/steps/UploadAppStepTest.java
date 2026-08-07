@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.time.Duration;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
@@ -14,6 +12,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UploadAppStepTest {
 

@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.List;
 
 import jakarta.inject.Named;
@@ -8,13 +9,14 @@ import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 @Named("checkServiceKeyOperationStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CheckServiceKeyOperationStep extends AsyncFlowableStep {
+public class CheckServiceKeyOperationStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) throws Exception {
@@ -50,5 +52,10 @@ public class CheckServiceKeyOperationStep extends AsyncFlowableStep {
     protected String getStepErrorMessage(ProcessContext context) {
         CloudServiceKey serviceKeyToProcess = context.getVariable(Variables.SERVICE_KEY_TO_PROCESS);
         return MessageFormat.format(Messages.ERROR_WHILE_CHECKING_SERVICE_KEY_OPERATION_0, serviceKeyToProcess.getName());
+    }
+
+    @Override
+    public Duration getTimeout(ProcessContext context) {
+        return calculateTimeout(context, TimeoutType.BIND_SERVICE);
     }
 }

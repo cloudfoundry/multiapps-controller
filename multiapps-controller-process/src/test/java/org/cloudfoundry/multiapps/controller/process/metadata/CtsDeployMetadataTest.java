@@ -61,7 +61,10 @@ public class CtsDeployMetadataTest extends MetadataBaseTest {
                 Variables.IS_SECURITY_ENABLED.getName(),
                 Variables.DISPOSABLE_USER_PROVIDED_SERVICE_NAME.getName(),
                 Variables.IS_DISPOSABLE_USER_PROVIDED_SERVICE_ENABLED.getName(),
-                Variables.API_REQUEST_PATH.getName()
+                Variables.API_REQUEST_PATH.getName(),
+                Variables.CREATE_SERVICE_TIMEOUT_PROCESS_VARIABLE.getName(),
+                Variables.BIND_SERVICE_TIMEOUT_PROCESS_VARIABLE.getName(),
+                Variables.CREATE_SERVICE_KEY_TIMEOUT_PROCESS_VARIABLE.getName()
             // @formatter:on
         };
     }

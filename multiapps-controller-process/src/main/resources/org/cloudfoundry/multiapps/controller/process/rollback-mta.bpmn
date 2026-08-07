@@ -19,6 +19,7 @@
     <serviceTask id="collectSystemParametersTask" name="Collect System Parameters" flowable:async="true" flowable:delegateExpression="${collectSystemParametersStep}"></serviceTask>
     <sequenceFlow id="flow10" sourceRef="collectSystemParametersTask" targetRef="processDescriptorTask"></sequenceFlow>
     <serviceTask id="processDescriptorTask" name="Process Descriptor" flowable:async="true" flowable:delegateExpression="${processDescriptorStep}"></serviceTask>
+    <serviceTask id="globalTimeoutSettingTask" name="Set Global Timeouts" flowable:async="true" flowable:delegateExpression="${globalTimeoutSettingStep}"></serviceTask>
     <serviceTask id="buildUndeployModelTask" name="Build Undeploy Model" flowable:async="true" flowable:delegateExpression="${buildCloudUndeployModelStep}"></serviceTask>
     <serviceTask id="renameApplicationsTask" name="Rename applications" flowable:async="true" flowable:delegateExpression="${renameApplicationsStep}"></serviceTask>
     <sequenceFlow id="flow9" sourceRef="renameApplicationsTask" targetRef="collectSystemParametersTask"></sequenceFlow>
@@ -62,7 +63,8 @@
       </multiInstanceLoopCharacteristics>
     </callActivity>
     <serviceTask id="detachServicesFromMtaTask" name="Detach Services from MTA" flowable:async="true" flowable:delegateExpression="${detachServicesFromMtaStep}"></serviceTask>
-    <sequenceFlow id="flow11" sourceRef="processDescriptorTask" targetRef="buildDeployModelTask"></sequenceFlow>
+    <sequenceFlow id="flow11" sourceRef="processDescriptorTask" targetRef="globalTimeoutSettingTask"></sequenceFlow>
+    <sequenceFlow id="globalTimeoutToBuildDeployModel" sourceRef="globalTimeoutSettingTask" targetRef="buildDeployModelTask"></sequenceFlow>
     <sequenceFlow id="flow151" sourceRef="computeNextModulesToDeployInParallel" targetRef="deployModulesParallel"></sequenceFlow>
     <sequenceFlow id="doNotDeleteDiscontinuedServicesFlow" name="Don't delete services" sourceRef="shouldDeleteDiscontinuedServicesGateway" targetRef="detachServicesFromMtaTask">
       <extensionElements>
@@ -121,6 +123,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="processDescriptorTask" id="BPMNShape_processDescriptorTask">
         <omgdc:Bounds height="68.0" width="105.0" x="795.0" y="26.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="globalTimeoutSettingTask" id="BPMNShape_globalTimeoutSettingTask">
+        <omgdc:Bounds height="68.0" width="105.0" x="863.25" y="26.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="buildUndeployModelTask" id="BPMNShape_buildUndeployModelTask">
         <omgdc:Bounds height="68.0" width="117.0" x="1089.5" y="26.0"></omgdc:Bounds>
@@ -259,8 +264,12 @@
         <omgdi:waypoint x="764.9499999999999" y="60.0"></omgdi:waypoint>
         <omgdi:waypoint x="794.9999999999749" y="60.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11" flowable:sourceDockerX="52.5" flowable:sourceDockerY="34.0" flowable:targetDockerX="59.0" flowable:targetDockerY="34.0">
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11" flowable:sourceDockerX="52.5" flowable:sourceDockerY="34.0" flowable:targetDockerX="52.5" flowable:targetDockerY="34.0">
         <omgdi:waypoint x="899.949999999993" y="60.0"></omgdi:waypoint>
+        <omgdi:waypoint x="863.25" y="60.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="globalTimeoutToBuildDeployModel" id="BPMNEdge_globalTimeoutToBuildDeployModel" flowable:sourceDockerX="52.5" flowable:sourceDockerY="34.0" flowable:targetDockerX="59.0" flowable:targetDockerY="34.0">
+        <omgdi:waypoint x="968.199999999993" y="60.0"></omgdi:waypoint>
         <omgdi:waypoint x="931.5" y="60.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flowHasGitGateway" id="BPMNEdge_flowHasGitGateway" flowable:sourceDockerX="15.0" flowable:sourceDockerY="15.0" flowable:targetDockerX="1.0" flowable:targetDockerY="32.5">

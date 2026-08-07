@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process;
 
+import java.time.Duration;
 import java.util.regex.Pattern;
 
 public class Constants {
@@ -45,6 +46,10 @@ public class Constants {
     public static final int ENCRYPTION_KEY_LENGTH = 32;
 
     public static final Pattern STANDARD_INT_PATTERN = Pattern.compile("[+-]?[0-9]+");
+
+    public static final Duration DEFAULT_DELETE_SERVICE_TIMEOUT = Duration.ofMinutes(60);
+    public static final Duration DEFAULT_DELETE_SERVICE_KEY_TIMEOUT = Duration.ofMinutes(60);
+    public static final Duration DEFAULT_UNBIND_SERVICE_TIMEOUT = Duration.ofMinutes(60);
 
     protected Constants() {
     }
