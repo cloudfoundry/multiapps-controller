@@ -35,6 +35,7 @@ import org.cloudfoundry.multiapps.controller.core.model.SubprocessPhase;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.process.DeployStrategy;
 import org.cloudfoundry.multiapps.controller.process.steps.StepPhase;
 import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryWithStreamPositions;
@@ -581,9 +582,9 @@ public interface Variables {
                                                                               .defaultValue(Collections.emptyList())
                                                                               .build();
     Variable<List<String>> HOOK_EXECUTION_PHASES = ImmutableSimpleVariable.<List<String>> builder()
-                                                                         .name("hookExecutionPhases")
-                                                                         .defaultValue(Collections.emptyList())
-                                                                         .build();
+                                                                          .name("hookExecutionPhases")
+                                                                          .defaultValue(Collections.emptyList())
+                                                                          .build();
     Variable<List<Module>> MODULES_TO_DEPLOY = ImmutableJsonBinaryListVariable.<Module> builder()
                                                                               .name("modulesToDeploy")
                                                                               .type(Variable.typeReference(Module.class))
@@ -969,4 +970,21 @@ public interface Variables {
                                                                                            .defaultValue(false)
                                                                                            .build();
 
+    Variable<LoggingConfiguration> EXTERNAL_LOGGING_SERVICE_CONFIGURATION = ImmutableJsonStringVariable.<LoggingConfiguration> builder()
+                                                                                                       .name(
+                                                                                                           "externalLoggingServiceConfigurations")
+                                                                                                       .type(
+                                                                                                           Variable.typeReference(
+                                                                                                               LoggingConfiguration.class))
+                                                                                                       .defaultValue(null)
+                                                                                                       .build();
+    /* This variable is required during internal deployments because the xs2 deployment process start subprocess, which is multiple-mtas-deploy.
+    For the multiple-mtas-deploy the parent process id and correlation id are the one from xs2 deployment. The problem comes when the
+    multiple-mtas-deploy subprocess starts another sub-sub process whose parent id is not the multiple-mtas-deploy one but the first parent
+    process. Basically this variable is the id of the multiple-mtas-deploy subprocess so all other sub-sub processes can you it.
+    */
+    Variable<String> PARENT_PROCESS_INSTANCE_ID = ImmutableSimpleVariable.<String> builder()
+                                                                         .name("parentProcessInstanceId")
+                                                                         .defaultValue(null)
+                                                                         .build();
 }

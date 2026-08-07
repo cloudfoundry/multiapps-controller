@@ -14,6 +14,7 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     exports org.cloudfoundry.multiapps.controller.persistence.query.impl;
     exports org.cloudfoundry.multiapps.controller.persistence.query.providers;
     exports org.cloudfoundry.multiapps.controller.persistence.services;
+    exports org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging;
     exports org.cloudfoundry.multiapps.controller.persistence.util;
     exports org.cloudfoundry.multiapps.controller.persistence.stream;
     exports org.cloudfoundry.multiapps.controller.persistence.query.options;
@@ -46,6 +47,7 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires google.cloud.core;
     requires google.cloud.nio;
     requires google.cloud.storage;
+    requires io.netty.handler;
     requires jakarta.xml.bind;
     requires jakarta.annotation;
     requires jakarta.inject;
@@ -60,9 +62,14 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires org.cloudfoundry.multiapps.common;
     requires org.eclipse.persistence.core;
     requires org.slf4j;
+    requires reactor.core;
+    requires reactor.netty.core;
+    requires reactor.netty.http;
     requires spring.beans;
     requires spring.context;
     requires spring.core;
+    requires spring.webflux;
+
     requires software.amazon.awssdk.services.s3;
     requires software.amazon.awssdk.core;
     requires software.amazon.awssdk.regions;

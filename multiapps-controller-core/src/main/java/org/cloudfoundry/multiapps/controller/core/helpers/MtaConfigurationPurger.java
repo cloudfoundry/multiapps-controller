@@ -12,6 +12,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationExcepti
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudSpaceClient;
 import org.cloudfoundry.multiapps.controller.core.Messages;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.CloudLoggingServiceConfigurationAuditLog;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadata;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
@@ -20,6 +21,8 @@ import org.cloudfoundry.multiapps.controller.core.util.ConfigurationEntriesUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
+import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.services.cloudlogging.CloudLoggingServiceConfigurationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.slf4j.Logger;
@@ -37,25 +40,32 @@ public class MtaConfigurationPurger {
     private final ConfigurationEntryService configurationEntryService;
     private final ConfigurationSubscriptionService configurationSubscriptionService;
     private MtaMetadataParser mtaMetadataParser;
+    private CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService;
+    private CloudLoggingServiceConfigurationAuditLog cloudLoggingServiceConfigurationAuditLog;
 
     public MtaConfigurationPurger(CloudControllerClient client, CloudSpaceClient spaceClient,
                                   ConfigurationEntryService configurationEntryService,
                                   ConfigurationSubscriptionService configurationSubscriptionService, MtaMetadataParser mtaMetadataParser,
-                                  MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog) {
+                                  MtaConfigurationPurgerAuditLog mtaConfigurationPurgerAuditLog,
+                                  CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService,
+                                  CloudLoggingServiceConfigurationAuditLog cloudLoggingServiceConfigurationAuditLog) {
         this.client = client;
         this.spaceClient = spaceClient;
         this.configurationEntryService = configurationEntryService;
         this.configurationSubscriptionService = configurationSubscriptionService;
         this.mtaMetadataParser = mtaMetadataParser;
         this.mtaConfigurationPurgerAuditLog = mtaConfigurationPurgerAuditLog;
+        this.cloudLoggingServiceConfigurationService = cloudLoggingServiceConfigurationService;
+        this.cloudLoggingServiceConfigurationAuditLog = cloudLoggingServiceConfigurationAuditLog;
     }
 
-    public void purge(String org, String space) {
+    public void purge(String org, String space, String userName) {
         CloudTarget targetSpace = new CloudTarget(org, space);
         String targetId = new ClientHelper(spaceClient).computeSpaceId(org, space);
         List<CloudApplication> existingApps = getExistingApps();
         purgeConfigurationSubscriptions(targetId, existingApps);
         purgeConfigurationEntries(targetSpace, existingApps, targetId);
+        purgeCloudLoggingServiceConfigurations(targetId, userName);
     }
 
     private void purgeConfigurationSubscriptions(String spaceId, List<CloudApplication> existingApps) {
@@ -93,6 +103,16 @@ public class MtaConfigurationPurger {
             if (!isStillRelevant(stillRelevantEntries, entry)) {
                 purgeConfigurationEntry(entry, spaceId);
             }
+        }
+    }
+
+    private void purgeCloudLoggingServiceConfigurations(String spaceId, String userName) {
+        List<LoggingConfiguration> loggingConfigurations = cloudLoggingServiceConfigurationService.createQuery()
+                                                                                                  .mtaSpaceId(spaceId)
+                                                                                                  .list();
+        for (LoggingConfiguration loggingConfiguration : loggingConfigurations) {
+            cloudLoggingServiceConfigurationService.createQuery().id(loggingConfiguration.getId()).delete();
+            cloudLoggingServiceConfigurationAuditLog.logDeleteLoggingConfiguration(userName, spaceId, loggingConfiguration);
         }
     }
 

@@ -39,7 +39,6 @@ class PollStartAppExecutionWithRollbackExecutionTest extends AsyncStepOperationT
 
     private CloudControllerClientFactory clientFactory;
     private TokenService tokenService;
-
     private AsyncExecutionState expectedAsyncExecutionState;
 
     @Test
@@ -151,7 +150,7 @@ class PollStartAppExecutionWithRollbackExecutionTest extends AsyncStepOperationT
 
     @Override
     protected List<AsyncExecution> getAsyncOperations(ProcessContext wrapper) {
-        return List.of(new PollStartAppExecutionWithRollbackExecution(clientFactory, tokenService));
+        return List.of(new PollStartAppExecutionWithRollbackExecution(clientFactory, tokenService, operationLogsExporter));
     }
 
     @Override

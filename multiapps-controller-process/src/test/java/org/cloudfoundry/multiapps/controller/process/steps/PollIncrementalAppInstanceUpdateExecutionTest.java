@@ -31,7 +31,6 @@ class PollIncrementalAppInstanceUpdateExecutionTest extends AsyncStepOperationTe
 
     private CloudControllerClientFactory clientFactory;
     private TokenService tokenService;
-
     private AsyncExecutionState expectedAsyncExecutionState;
 
     @Test

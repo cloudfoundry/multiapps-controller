@@ -14,6 +14,7 @@ public final class Messages {
     public static final String ERROR_GETTING_FILES_WITH_SPACE_AND_NAMESPACE = "Error getting files with space {0} and namespace {1}";
     public static final String ERROR_GETTING_LOGS_WITH_SPACE_AND_OPERATION_ID = "Error getting logs with space {0} and operation id {1}";
     public static final String ERROR_GETTING_LOGS_WITH_SPACE_OPERATION_ID_AND_NAME = "Error getting logs with space {0} operation id {1} and file name {2}";
+    public static final String ERROR_UPDATING_LOGS_WITH_SPACE_OPERATION_ID_AND_NAME = "Error updating log  with space {0} operation id {1} and file name {2}";
     public static final String ERROR_GETTING_ALL_FILES = "Error getting all files";
     public static final String ERROR_LOG_FILE_NOT_FOUND = "Log file with name \"{0}\" for operation \"{1}\" in space \"{2}\" was not found";
     public static final String ERROR_CORRELATION_ID_OR_ACTIVITY_ID_NULL = "Unable to retrieve correlation id or activity id for process \"{0}\" at activity \"{1}\" and space \"{2}\"";
@@ -40,6 +41,8 @@ public final class Messages {
     public static final String GENERATING_KEY_FILE_FAILED = "Generating key failed: {0}";
     public static final String ASYNC_UPLOAD_JOB_NOT_FOUND = "Async upload job entry with ID \"{0}\" not found";
     public static final String ASYNC_UPLOAD_JOB_ALREADY_EXISTS = "Async upload job entry with ID \"{0}\" already exists";
+    public static final String CLOUD_LOGGING_CONFIGURATION_NOT_FOUND = "Cloud logging configuration with ID \"{0}\" does not exist";
+    public static final String CLOUD_LOGGING_CONFIGURATION_ALREADY_EXISTS = "Cloud logging configuration with ID \"{0}\" already exists";
     public static final String ERROR_GETTING_FILES_CREATED_AFTER_0_AND_BEFORE_1 = "Error getting files created after {0} and before {1]";
     public static final String BACKUP_DESCRIPTOR_FOR_MTA_ID_0_AND_ID_1_ALREADY_EXIST = "Backup descriptor for mta id \"{0}\" and id \"{1}\" already exist";
     public static final String SECRET_TOKEN_FOR_VARIABLE_NAME_0_AND_ID_1_ALREADY_EXIST = "Secret token for variable name \"{0}\" and id \"{1}\" already exists";
@@ -50,17 +53,21 @@ public final class Messages {
     public static final String DATABASE_HEALTH_CHECK_FAILED = "Database health check failed";
     public static final String OBJECT_STORE_BUCKET_NOT_FOUND = "Object store bucket \"{0}\" not found";
     public static final String UPLOAD_OF_FILE_WITH_NAMESPACE_FAILED = "Upload of file: \"{0}\" with namespace: \"{1}\" failed";
+    public static final String FAILED_TO_SEND_LOG_MESSAGE_TO_CLS = "Failed to send log message to Cloud Logging service";
+    public static final String INVALID_LOG_LEVEL_0 = "Invalid log level \"{0}\"";
 
     // ERROR log messages:
     public static final String UPLOAD_STREAM_FAILED_TO_CLOSE = "Cannot close file upload stream";
     public static final String CANNOT_PARSE_CONTAINER_URI_OF_OBJECT_STORE = "Cannot parse container_uri of object store";
     public static final String MISSING_CONTAINER_URI_IN_THE_CREDENTIALS = "Missing container uri in the credentials";
+    public static final String INVALID_LOG_FILE = "Invalid log file";
 
     // WARN log messages:
     public static final String COULD_NOT_CLOSE_RESULT_SET = "Could not close result set.";
     public static final String COULD_NOT_CLOSE_STATEMENT = "Could not close statement.";
     public static final String COULD_NOT_CLOSE_CONNECTION = "Could not close connection.";
     public static final String ATTEMPT_TO_UPLOAD_BLOB_FAILED = "Attempt [{0}/{1}] to upload blob to ObjectStore failed with \"{2}\"";
+    public static final String RETRYING_SEND_LOGS_TO_CLS = "Retrying send of log batch to Cloud Logging service after transient failure: {0}";
     public static final String ATTEMPT_TO_DOWNLOAD_MISSING_BLOB = "Attempt [{0}/{1}] to download missing blob {2} from ObjectStore";
     public static final String USER_METADATA_OF_BLOB_0_EMPTY_AND_WILL_BE_DELETED = "User metadata of blob \"{0}\" is empty and will be deleted";
     public static final String DATE_METADATA_OF_BLOB_0_IS_NOT_IN_PROPER_FORMAT_AND_WILL_BE_DELETED = "Date metadata of blob \"{0}\" is not in a proper format and will be deleted";
@@ -82,6 +89,7 @@ public final class Messages {
     public static final String RETRIEVED_SECRET_TOKEN_WITH_ID_0_FOR_PROCESS_WITH_ID_1 = "Retrieved secret token with id \"{0}\" for process with id \"{1}\"";
     public static final String DELETED_0_SECRET_TOKENS_FOR_PROCESS_WITH_ID_1 = "Deleted \"{0}\" secret tokens for process with id \"{1}\"";
     public static final String DELETED_0_SECRET_TOKENS_WITH_EXPIRATION_DATE_1 = "Deleted secret tokens \"{0}\" with an expiration date \"{1}\"";
+    public static final String CREATING_WEBCLIENT_WITH_MTLS_CONFIGURATION_FOR_ENDPOINT_1 = "Creating WebClient with mTLS configuration for endpoint: {0}";
     public static final String FAILED_TO_DELETE_FILE_0_IN_OBJECT_STORE_REASON_1 = "Failed to delete file \"{0}\" in object store. Reason: {1}";
     public static final String S3_UPLOAD_FAILED_FILE_0_SIZE_1 = "S3 upload failed for file \"{0}\" (size={1}). Root cause chain: {2}";
 

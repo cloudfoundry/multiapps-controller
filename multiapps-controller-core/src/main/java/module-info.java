@@ -16,6 +16,7 @@ open module org.cloudfoundry.multiapps.controller.core {
     exports org.cloudfoundry.multiapps.controller.core.cf.util;
     exports org.cloudfoundry.multiapps.controller.core.cf.v2;
     exports org.cloudfoundry.multiapps.controller.core.cf.v3;
+    exports org.cloudfoundry.multiapps.controller.core.cloudlogging;
     exports org.cloudfoundry.multiapps.controller.core.configuration;
     exports org.cloudfoundry.multiapps.controller.core.health;
     exports org.cloudfoundry.multiapps.controller.core.health.model;
@@ -77,6 +78,8 @@ open module org.cloudfoundry.multiapps.controller.core {
     requires spring.webflux;
     requires spring.security.oauth2.core;
     requires reactor.netty;
+    requires reactor.netty.core;
+    requires reactor.netty.http;
     requires io.netty.handler;
 
     requires static java.compiler;

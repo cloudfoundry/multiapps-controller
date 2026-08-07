@@ -95,6 +95,7 @@ public final class Messages {
     public static final String UNSUPPORTED_FILE_FORMAT = "Unsupported file format! \"{0}\" detected";
     public static final String ENCRYPTION_HAS_FAILED = "Encryption has failed! Errored with \"{0}\"";
     public static final String DECRYPTION_HAS_FAILED = "Decryption has failed! Errored with \"{0}\"";
+    public static final String COULD_NOT_CREATE_SSL_CONTEXT_FOR_CLOUD_LOGGING_SERVICE = "Could not create SSL context for Cloud Logging service";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";
@@ -286,6 +287,17 @@ public final class Messages {
 
     public static final String ENTRY_CREATE_AUDIT_LOG_CONFIG = "Configuration entry create";
     public static final String ENTRY_UPDATE_AUDIT_LOG_CONFIG = "Configuration entry update";
+
+    public static final String LOGGING_CONFIGURATION_CREATE = "Create cloud-logging-configuration in space with id: {0}";
+    public static final String LOGGING_CONFIGURATION_UPDATE = "Update cloud-logging-configuration in space with id: {0}";
+    public static final String LOGGING_CONFIGURATION_DELETE = "Delete cloud-logging-configuration in space with id: {0}";
+    public static final String LOGGING_CONFIGURATION_GET = "Get cloud-logging-configuration in space with id: {0}";
+    public static final String LOGGING_CONFIGURATION_LIST = "List cloud-logging-configurations in space with id: {0}";
+    public static final String LOGGING_CONFIGURATION_CREATE_AUDIT_LOG_CONFIG = "Cloud logging configuration create";
+    public static final String LOGGING_CONFIGURATION_UPDATE_AUDIT_LOG_CONFIG = "Cloud logging configuration update";
+    public static final String LOGGING_CONFIGURATION_DELETE_AUDIT_LOG_CONFIG = "Cloud logging configuration delete";
+    public static final String LOGGING_CONFIGURATION_GET_AUDIT_LOG_CONFIG = "Cloud logging configuration get";
+    public static final String LOGGING_CONFIGURATION_LIST_AUDIT_LOG_CONFIG = "Cloud logging configuration list";
 
     public static final String API_INFO_AUDIT_LOG_CONFIG = "Api info";
     public static final String IGNORING_NAMESPACE_PARAMETERS = "Ignoring parameter \"{0}\" , as the MTA is not deployed with namespace!";

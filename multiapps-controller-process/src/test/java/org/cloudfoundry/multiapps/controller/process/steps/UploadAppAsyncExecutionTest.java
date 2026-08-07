@@ -26,6 +26,9 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableLoggingConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.model.LogLevel;
+import org.cloudfoundry.multiapps.controller.persistence.model.LoggingConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentConsumer;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveIterator;
@@ -37,6 +40,7 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.ArgumentCaptor;
 import org.springframework.http.HttpStatus;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -49,7 +53,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> {
@@ -198,6 +204,93 @@ class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> 
         testExecuteOperations();
     }
 
+    @Test
+    void testSendApplicationLogsToCloudLoggingService_sendsLogsForEachProcessLog() {
+        prepareExecutorService();
+        context.setVariable(Variables.ARCHIVE_ENTRIES_POSITIONS, List.of(ARCHIVE_ENTRY_WITH_STREAM_POSITIONS));
+        LoggingConfiguration loggingConfiguration = buildLoggingConfiguration();
+        context.setVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION, loggingConfiguration);
+        when(client.asyncUploadApplicationWithExponentialBackoff(eq(APP_NAME), eq(appFile), any(UploadStatusCallback.class),
+                                                                 any())).thenReturn(CLOUD_PACKAGE);
+        when(step.getProcessLogsPersister().getApplicationProcessLogsMessages(TEST_CORRELATION_ID,
+                                                                              TEST_TASK_ID)).thenReturn(List.of("log-1", "log-2"));
+        expectedStatus = AsyncExecutionState.FINISHED;
+
+        testExecuteOperations();
+        triggerOnProgress(Status.READY.toString());
+
+        verify(operationLogsExporter).sendLogsToCloudLoggingService(loggingConfiguration, "log-1");
+        verify(operationLogsExporter).sendLogsToCloudLoggingService(loggingConfiguration, "log-2");
+    }
+
+    @Test
+    void testSendApplicationLogsToCloudLoggingService_withNullLoggingConfiguration_stillSendsLogs() {
+        prepareExecutorService();
+        context.setVariable(Variables.ARCHIVE_ENTRIES_POSITIONS, List.of(ARCHIVE_ENTRY_WITH_STREAM_POSITIONS));
+        context.setVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION, null);
+        when(client.asyncUploadApplicationWithExponentialBackoff(eq(APP_NAME), eq(appFile), any(UploadStatusCallback.class),
+                                                                 any())).thenReturn(CLOUD_PACKAGE);
+        when(step.getProcessLogsPersister().getApplicationProcessLogsMessages(TEST_CORRELATION_ID,
+                                                                              TEST_TASK_ID)).thenReturn(List.of("log-1"));
+        expectedStatus = AsyncExecutionState.FINISHED;
+
+        testExecuteOperations();
+        triggerOnProgress(Status.READY.toString());
+
+        verify(operationLogsExporter).sendLogsToCloudLoggingService(null, "log-1");
+    }
+
+    @Test
+    void testSendApplicationLogsToCloudLoggingService_withNoLogs_doesNotSendProcessLogs() {
+        prepareExecutorService();
+        context.setVariable(Variables.ARCHIVE_ENTRIES_POSITIONS, List.of(ARCHIVE_ENTRY_WITH_STREAM_POSITIONS));
+        LoggingConfiguration loggingConfiguration = buildLoggingConfiguration();
+        context.setVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION, loggingConfiguration);
+        when(client.asyncUploadApplicationWithExponentialBackoff(eq(APP_NAME), eq(appFile), any(UploadStatusCallback.class),
+                                                                 any())).thenReturn(CLOUD_PACKAGE);
+        when(step.getProcessLogsPersister().getApplicationProcessLogsMessages(TEST_CORRELATION_ID,
+                                                                              TEST_TASK_ID)).thenReturn(Collections.emptyList());
+        expectedStatus = AsyncExecutionState.FINISHED;
+
+        testExecuteOperations();
+        triggerOnProgress(Status.READY.toString());
+
+        verify(operationLogsExporter, never()).sendLogsToCloudLoggingService(eq(loggingConfiguration), eq("process-log-content"));
+    }
+
+    @Test
+    void testSendApplicationLogsToCloudLoggingService_notCalledWhenStatusIsNotReady() {
+        prepareExecutorService();
+        context.setVariable(Variables.ARCHIVE_ENTRIES_POSITIONS, List.of(ARCHIVE_ENTRY_WITH_STREAM_POSITIONS));
+        LoggingConfiguration loggingConfiguration = buildLoggingConfiguration();
+        context.setVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION, loggingConfiguration);
+        when(client.asyncUploadApplicationWithExponentialBackoff(eq(APP_NAME), eq(appFile), any(UploadStatusCallback.class),
+                                                                 any())).thenReturn(CLOUD_PACKAGE);
+        when(step.getProcessLogsPersister().getApplicationProcessLogsMessages(TEST_CORRELATION_ID,
+                                                                              TEST_TASK_ID)).thenReturn(List.of("process-log-content"));
+        expectedStatus = AsyncExecutionState.FINISHED;
+
+        testExecuteOperations();
+        triggerOnProgress(Status.AWAITING_UPLOAD.toString());
+
+        verify(operationLogsExporter, never()).sendLogsToCloudLoggingService(eq(loggingConfiguration), eq("process-log-content"));
+    }
+
+    private void triggerOnProgress(String status) {
+        ArgumentCaptor<UploadStatusCallback> callbackCaptor = ArgumentCaptor.forClass(UploadStatusCallback.class);
+        verify(client).asyncUploadApplicationWithExponentialBackoff(eq(APP_NAME), eq(appFile), callbackCaptor.capture(), any());
+        callbackCaptor.getValue()
+                      .onProgress(status);
+    }
+
+    private LoggingConfiguration buildLoggingConfiguration() {
+        return ImmutableLoggingConfiguration.builder()
+                                            .operationId(TEST_CORRELATION_ID)
+                                            .logLevel(LogLevel.INFO)
+                                            .isFailSafe(true)
+                                            .build();
+    }
+
     @Override
     protected List<AsyncExecution> getAsyncOperations(ProcessContext wrapper) {
         return step.getAsyncStepExecutions(wrapper);
@@ -220,7 +313,8 @@ class UploadAppAsyncExecutionTest extends AsyncStepOperationTest<UploadAppStep> 
             return List.of(new UploadAppAsyncExecution(applicationZipBuilder,
                                                        getProcessLogsPersister(),
                                                        configuration,
-                                                       appUploaderThreadPool) {
+                                                       appUploaderThreadPool,
+                                                       operationLogsExporter) {
 
             });
         }

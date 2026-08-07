@@ -174,8 +174,8 @@ public class IncrementalAppInstancesUpdateStep extends TimeoutAsyncFlowableStep 
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
         // The sequence of executions is crucial, as the incremental blue-green deployment alternates between them during the polling
         // process
-        return List.of(new PollStartLiveAppExecution(clientFactory, tokenService),
-                       new PollStartAppExecutionWithRollbackExecution(clientFactory, tokenService),
+        return List.of(new PollStartLiveAppExecution(clientFactory, tokenService, operationLogsExporter),
+                       new PollStartAppExecutionWithRollbackExecution(clientFactory, tokenService, operationLogsExporter),
                        new PollIncrementalAppInstanceUpdateExecution());
     }
 

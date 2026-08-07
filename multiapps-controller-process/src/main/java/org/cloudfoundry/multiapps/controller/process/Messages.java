@@ -104,6 +104,7 @@ public class Messages {
     public static final String COULD_NOT_GET_APP_LOGS = "Could not get application recent logs: {0}";
     public static final String ERROR_DURING_INCREMENTAL_INSTANCE_UPDATE_OF_MODULE_0 = "Error during incremental instance update of module \"{0}\"";
     public static final String ERROR_DURING_POLL_OF_INCREMENTAL_INSTANCE_UPDATE_OF_MODULE_0 = "Error during poll of incremental instance update of module \"{0}\"";
+    public static final String FAILED_TO_GET_CLOUD_LOGGING_SERVICE_KEY = "Failed to get Cloud Logging service key";
 
     // Process step errors
     public static final String ERROR_VALIDATING_PARAMS = "Error validating parameters";
@@ -114,6 +115,7 @@ public class Messages {
     public static final String ERROR_DETECTING_DEPLOYED_MTA = "Error detecting deployed MTA";
     public static final String ERROR_RENAMING_APPLICATIONS = "Error renaming applications";
     public static final String ERROR_COLLECTING_SYSTEM_PARAMETERS = "Error collecting system parameters";
+    public static final String ERROR_COLLECTING_CLOUD_LOGGING_SERVICE_PARAMETERS = "Error collecting cloud logging service parameters";
     public static final String ERROR_RESOLVING_DESCRIPTOR_PROPERTIES = "Error resolving merged descriptor properties and parameters";
     public static final String ERROR_CREATING_SUBSCRIPTIONS = "Error creating subscriptions";
     public static final String ERROR_BUILDING_CLOUD_MODEL = "Error building cloud model";
@@ -819,7 +821,7 @@ public class Messages {
 
     public static final String IGNORING_NOT_FOUND_OPTIONAL_SERVICE = "Service {0} not found but is optional";
     public static final String IGNORING_NOT_FOUND_INACTIVE_SERVICE = "Service {0} not found but is inactive";
-
+    public static final String MISSING_REQUIRED_0_CREDENTIAL_FROM_SCL_EXPORT = "Missing required {0} credential for SAP Cloud Logging export";
     // Not log messages
     public static final String SERVICE_TYPE = "{0}/{1}";
     public static final String PARSE_NULL_STRING_ERROR = "Cannot parse null string";

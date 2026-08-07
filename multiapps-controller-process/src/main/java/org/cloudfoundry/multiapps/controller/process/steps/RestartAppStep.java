@@ -92,8 +92,8 @@ public class RestartAppStep extends TimeoutAsyncFlowableStepWithHooks implements
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
-        return List.of(new PollStartAppStatusExecution(clientFactory, tokenService),
-                       new PollExecuteAppStatusExecution(clientFactory, tokenService));
+        return List.of(new PollStartAppStatusExecution(clientFactory, tokenService, operationLogsExporter),
+                       new PollExecuteAppStatusExecution(clientFactory, tokenService, operationLogsExporter));
     }
 
     @Override

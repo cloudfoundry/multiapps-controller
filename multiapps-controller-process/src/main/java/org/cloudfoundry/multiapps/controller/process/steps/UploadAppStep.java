@@ -185,7 +185,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
-        return List.of(new UploadAppAsyncExecution(applicationZipBuilder, getProcessLogsPersister(), configuration, appUploaderThreadPool),
+        return List.of(new UploadAppAsyncExecution(applicationZipBuilder, getProcessLogsPersister(), configuration, appUploaderThreadPool,
+                                                   operationLogsExporter),
                        new PollUploadAppStatusExecution());
     }
 

@@ -22,6 +22,7 @@ public class PersistenceMetadata {
         public static final String BACKUP_DESCRIPTOR_TABLE = "backup_descriptor";
         public static final String APPLICATION_SHUTDOWN_TABLE = "application_shutdown";
         public static final String SECRET_TOKEN = "secret_token";
+        public static final String CLOUD_LOGGING_SERVICE_CONFIGURATION_TABLE = "cloud_logging_service_configuration";
 
     }
 
@@ -128,6 +129,20 @@ public class PersistenceMetadata {
         public static final String SECRET_TOKEN_VARIABLE_NAME = "variable_name";
         public static final String SECRET_TOKEN_CONTENT = "content";
         public static final String SECRET_TOKEN_TIMESTAMP = "timestamp";
+
+        public static final String CLOUD_LOGGING_ID = "id";
+        public static final String CLOUD_LOGGING_TARGET_SPACE = "target_space";
+        public static final String CLOUD_LOGGING_TARGET_ORG = "target_org";
+        public static final String CLOUD_LOGGING_MTA_ID = "mta_id";
+        public static final String CLOUD_LOGGING_MTA_ORG = "mta_org";
+        public static final String CLOUD_LOGGING_MTA_SPACE = "mta_space";
+        public static final String CLOUD_LOGGING_MTA_SPACE_ID = "mta_space_id";
+        public static final String CLOUD_LOGGING_NAMESPACE = "namespace";
+        public static final String CLOUD_LOGGING_SERVICE_INSTANCE_NAME = "service_instance_name";
+        public static final String CLOUD_LOGGING_SERVICE_KEY_NAME = "service_key_name";
+        public static final String CLOUD_LOGGING_LOG_LEVEL = "log_level";
+        public static final String CLOUD_LOGGING_IS_FAILSAFE = "is_failsafe";
+        public static final String CLOUD_LOGGING_ADDED_AT = "added_at";
     }
 
 }

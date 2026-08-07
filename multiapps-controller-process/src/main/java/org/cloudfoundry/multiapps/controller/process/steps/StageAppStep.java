@@ -40,7 +40,7 @@ public class StageAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
-        return List.of(new PollStageAppStatusExecution(new ApplicationStager(context), clientFactory, tokenService));
+        return List.of(new PollStageAppStatusExecution(new ApplicationStager(context), clientFactory, tokenService, operationLogsExporter));
     }
 
     @Override

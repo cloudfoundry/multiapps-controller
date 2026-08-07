@@ -51,7 +51,7 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
-        return List.of(new PollExecuteTaskStatusExecution(clientFactory, tokenService));
+        return List.of(new PollExecuteTaskStatusExecution(clientFactory, tokenService, operationLogsExporter));
     }
 
     @Override
