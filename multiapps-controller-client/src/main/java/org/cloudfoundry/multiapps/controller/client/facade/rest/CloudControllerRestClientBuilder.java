@@ -18,6 +18,7 @@ import javax.net.ssl.X509TrustManager;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
+import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestClient;
@@ -56,10 +57,14 @@ public final class CloudControllerRestClientBuilder {
                          // hands it to the consumer; that default init eagerly constructs AllEncompassingFormHttpMessageConverter ->
                          // MappingJackson2YamlHttpMessageConverter -> Jackson2ObjectMapperBuilder.yaml(), which loads a YAMLFactory that is
                          // incompatible with this codebase's jackson-core (mixed Jackson 2/3 classpath) and throws VerifyError at load time
-                         // — so clearing the list afterwards is too late. The List overload skips initMessageConverters() entirely, so the
-                         // YAML converter is never built. CF v3 is JSON-only; JSON + String + byte[] (from an ObjectMapper we control) suffice.
+                         // — so clearing the list afterwards is too late. The List overload skips initMessageConverters() entirely.
+                         // Converters: byte[] + String + JSON (from an ObjectMapper we control) for the v3 JSON APIs, plus a plain
+                         // FormHttpMessageConverter for multipart/form-data (the POST /v3/packages/{guid}/upload app-bits upload). We use
+                         // FormHttpMessageConverter, NOT AllEncompassingFormHttpMessageConverter, precisely because the latter is what
+                         // triggers the YAML VerifyError above.
                          .messageConverters(List.of(new ByteArrayHttpMessageConverter(),
                                                     new StringHttpMessageConverter(),
+                                                    new FormHttpMessageConverter(),
                                                     new MappingJackson2HttpMessageConverter(new ObjectMapper())))
                          .requestInterceptor((request, body, execution) -> {
                              String authorization = oAuthClient.getAuthorizationHeaderValue();

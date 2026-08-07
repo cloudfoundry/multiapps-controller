@@ -7,15 +7,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableCloudFoundryClientFactory;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableLifecycle;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Lifecycle;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.LifecycleType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudSpaceClient;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.ImmutableCloudControllerRestClientFactory;
 import org.cloudfoundry.multiapps.controller.client.facade.util.RestUtil;
-import org.cloudfoundry.client.CloudFoundryClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +29,6 @@ abstract class CloudControllerClientIntegrationTest {
     protected static final String DEFAULT_STACK = "cflinuxfs4";
 
     protected static CloudControllerClient client;
-    protected static CloudFoundryClient delegate;
     protected static CloudSpace target;
 
     @BeforeAll
@@ -39,14 +37,14 @@ abstract class CloudControllerClientIntegrationTest {
         CloudCredentials credentials = getCloudCredentials();
         URL apiUrl = URI.create(ITVariable.CF_API.getValue())
                         .toURL();
-        var clientFactory = ImmutableCloudFoundryClientFactory.builder()
-                                                              .build();
+        var clientFactory = ImmutableCloudControllerRestClientFactory.builder()
+                                                                     .shouldTrustSelfSignedCertificates(true)
+                                                                     .build();
         var oauthClient = new RestUtil().createOAuthClientByControllerUrl(apiUrl, true);
         oauthClient.init(credentials);
         CloudSpaceClient spaceClient = clientFactory.createSpaceClient(apiUrl, oauthClient, Collections.emptyMap());
         target = spaceClient.getSpace(ITVariable.ORG.getValue(), ITVariable.SPACE.getValue());
         client = new CloudControllerClientImpl(apiUrl, credentials, target, true);
-        delegate = clientFactory.createClient(apiUrl, oauthClient, Collections.emptyMap());
     }
 
     @BeforeEach

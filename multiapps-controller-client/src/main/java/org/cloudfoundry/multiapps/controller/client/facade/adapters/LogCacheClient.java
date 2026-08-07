@@ -1,19 +1,5 @@
 package org.cloudfoundry.multiapps.controller.client.facade.adapters;
 
-import org.cloudfoundry.multiapps.controller.client.facade.CloudException;
-import org.cloudfoundry.multiapps.controller.client.facade.Messages;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.ApplicationLog;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableApplicationLog;
-import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuthClient;
-import org.cloudfoundry.logcache.v1.Envelope;
-import org.cloudfoundry.logcache.v1.EnvelopeType;
-import org.cloudfoundry.logcache.v1.ReadRequest;
-import org.cloudfoundry.logcache.v1.ReadResponse;
-import org.cloudfoundry.reactor.ConnectionContext;
-import org.cloudfoundry.reactor.logcache.v1.ReactorLogCacheClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.time.Duration;
@@ -24,77 +10,77 @@ import java.time.ZoneOffset;
 import java.util.Base64;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
+import org.cloudfoundry.multiapps.controller.client.facade.CloudException;
+import org.cloudfoundry.multiapps.controller.client.facade.Messages;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ApplicationLog;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableApplicationLog;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.LogCacheReadResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.client.RestClient;
+
+/**
+ * Fetches recent application logs from Log-Cache. Reimplemented on a plain synchronous Spring {@link RestClient} against Log-Cache's
+ * JSON {@code read} REST API ({@code GET /api/v1/read/{source_id}}), removing the previous dependency on the OSS cf-java-client
+ * ({@code org.cloudfoundry.logcache.v1.*} / {@code org.cloudfoundry.reactor.*}). The {@link RestClient} is pre-configured with the
+ * log-cache base URL, bearer-token auth and request tags by the factory; this class only builds the request and maps the response to
+ * {@link ApplicationLog}, preserving the previous behaviour exactly.
+ */
 public class LogCacheClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LogCacheClient.class);
     private static final String SOURCE_TYPE_KEY_NAME = "source_type";
     private static final int MAX_LOG_COUNT = 1000;
-    private final OAuthClient oAuthClient;
-    private final Map<String, String> requestTags;
-    private final ConnectionContext connectionContext;
 
-    public LogCacheClient(OAuthClient oAuthClient, Map<String, String> requestTags, ConnectionContext connectionContext) {
-        this.oAuthClient = oAuthClient;
-        this.requestTags = requestTags;
-        this.connectionContext = connectionContext;
+    private final RestClient restClient;
+
+    public LogCacheClient(RestClient restClient) {
+        this.restClient = restClient;
     }
 
     public List<ApplicationLog> getRecentLogs(UUID applicationGuid, LocalDateTime offset) {
         LOGGER.info(Messages.TRYING_TO_GET_APP_LOGS);
-        org.cloudfoundry.logcache.v1.LogCacheClient logCacheClient = createReactorLogCacheClient();
-        ReadResponse applicationLogsResponse = readApplicationLogs(logCacheClient, applicationGuid, offset);
+        LogCacheReadResponse response = readApplicationLogs(applicationGuid, offset);
 
-        if (applicationLogsResponse != null) {
-            LOGGER.info(Messages.APP_LOGS_WERE_FETCHED_SUCCESSFULLY);
-            return applicationLogsResponse.getEnvelopes()
-                                          .getBatch()
-                                          .stream()
-                                          .map(this::mapToAppLog)
-                                          // we use a linked list so that the log messages can be a LIFO sequence
-                                          // that way, we avoid unnecessary sorting and copying to and from another collection/array
-                                          .collect(LinkedList::new, LinkedList::addFirst, LinkedList::addAll);
-        } else {
+        if (response == null) {
             throw new CloudException(MessageFormat.format(Messages.FAILED_TO_FETCH_APP_LOGS_FOR_APP, applicationGuid));
         }
-
+        LOGGER.info(Messages.APP_LOGS_WERE_FETCHED_SUCCESSFULLY);
+        return response.batch()
+                       .stream()
+                       .map(this::mapToAppLog)
+                       // we use a linked list so that the log messages can be a LIFO sequence
+                       // that way, we avoid unnecessary sorting and copying to and from another collection/array
+                       .collect(LinkedList::new, LinkedList::addFirst, LinkedList::addAll);
     }
 
-    private ReactorLogCacheClient createReactorLogCacheClient() {
-        return ReactorLogCacheClient.builder()
-                                    .requestTags(requestTags)
-                                    .connectionContext(connectionContext)
-                                    .tokenProvider(oAuthClient.getTokenProvider())
-                                    .build();
-    }
-
-    private ReadResponse readApplicationLogs(org.cloudfoundry.logcache.v1.LogCacheClient logCacheClient, UUID applicationGuid,
-                                             LocalDateTime offset) {
+    private LogCacheReadResponse readApplicationLogs(UUID applicationGuid, LocalDateTime offset) {
         var instant = offset.toInstant(ZoneOffset.UTC);
         var secondsInNanos = Duration.ofSeconds(instant.getEpochSecond())
                                      .toNanos();
-        return logCacheClient.read(ReadRequest.builder()
-                                              .envelopeType(EnvelopeType.LOG)
-                                              .sourceId(applicationGuid.toString())
-                                              .descending(Boolean.TRUE)
-                                              .limit(MAX_LOG_COUNT)
-                                              .startTime(secondsInNanos + instant.getNano() + 1)
-                                              .build())
-                             .block();
+        long startTime = secondsInNanos + instant.getNano() + 1;
+        return restClient.get()
+                         .uri(uriBuilder -> uriBuilder.path("/api/v1/read/{sourceId}")
+                                                      .queryParam("envelope_types", "LOG")
+                                                      .queryParam("descending", Boolean.TRUE)
+                                                      .queryParam("limit", MAX_LOG_COUNT)
+                                                      .queryParam("start_time", startTime)
+                                                      .build(applicationGuid.toString()))
+                         .retrieve()
+                         .body(LogCacheReadResponse.class);
     }
 
-    private ApplicationLog mapToAppLog(Envelope envelope) {
+    private ApplicationLog mapToAppLog(LogCacheReadResponse.Envelope envelope) {
         return ImmutableApplicationLog.builder()
-                                      .applicationGuid(envelope.getSourceId())
-                                      .message(decodeLogPayload(envelope.getLog()
-                                                                        .getPayload()))
-                                      .timestamp(fromLogTimestamp(envelope.getTimestamp()))
-                                      .messageType(fromLogMessageType(envelope.getLog()
-                                                                              .getType()
-                                                                              .getValue()))
-                                      .sourceName(envelope.getTags()
+                                      .applicationGuid(envelope.sourceId())
+                                      .message(decodeLogPayload(envelope.log()
+                                                                        .payload()))
+                                      .timestamp(fromLogTimestamp(envelope.timestamp()))
+                                      .messageType(fromLogMessageType(envelope.log()
+                                                                              .type()))
+                                      .sourceName(envelope.tags()
                                                           .get(SOURCE_TYPE_KEY_NAME))
                                       .build();
     }

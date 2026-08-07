@@ -10,8 +10,6 @@ import org.cloudfoundry.multiapps.controller.client.facade.CloudException;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Job;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -33,7 +31,6 @@ import org.springframework.web.client.RestClient;
  */
 public class CloudControllerV3Client {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CloudControllerV3Client.class);
 
     // Mirrors the OSS JobV3Util backoff so async behaviour is unchanged.
     private static final Duration JOB_POLL_MIN_INTERVAL = Duration.ofSeconds(1);
@@ -47,7 +44,6 @@ public class CloudControllerV3Client {
     }
 
     public <T> T get(String uri, Class<T> responseType) {
-        LOGGER.warn("[cf-v3-poc] GET {}", uri);
         return restClient.get()
                          .uri(uri)
                          .retrieve()
@@ -77,7 +73,6 @@ public class CloudControllerV3Client {
         List<R> all = new ArrayList<>();
         String nextUri = firstPageUri;
         while (nextUri != null) {
-            LOGGER.warn("[cf-v3-poc] LIST {}", nextUri);
             V3ListResponse<R> page = restClient.get()
                                                .uri(nextUri)
                                                .retrieve()

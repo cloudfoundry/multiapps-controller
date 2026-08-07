@@ -8,7 +8,7 @@ import java.util.UUID;
 
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableCloudFoundryClientFactory;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.ImmutableCloudControllerRestClientFactory;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudSpaceClient;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.OAuthClientFactory;
@@ -97,7 +97,7 @@ public abstract class OrphanedDataCleaner<T extends AuditableConfiguration> impl
         CloudCredentials cloudCredentials = new CloudCredentials(configuration.getGlobalAuditorUser(),
                                                                  configuration.getGlobalAuditorPassword(), SecurityUtil.CLIENT_ID,
                                                                  SecurityUtil.CLIENT_SECRET, configuration.getGlobalAuditorOrigin());
-        var clientFactory = ImmutableCloudFoundryClientFactory.builder()
+        var clientFactory = ImmutableCloudControllerRestClientFactory.builder()
                                                               .connectTimeout(Duration.ofMinutes(5))
                                                               .responseTimeout(Duration.ofMinutes(5))
                                                               .connectionPoolSize(1)

@@ -1,19 +1,21 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.CloudFoundryClientFactory;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.ImmutableCloudFoundryClientFactory;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudException;
+import org.cloudfoundry.multiapps.controller.client.facade.adapters.LogCacheClient;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
 import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuthClient;
 import org.cloudfoundry.multiapps.controller.client.facade.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.facade.util.RestUtil;
-import org.cloudfoundry.client.CloudFoundryClient;
 import org.immutables.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestClient;
 
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
@@ -21,9 +23,15 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Builds the in-house {@link CloudControllerRestClient} (and the auxiliary {@link CloudSpaceClient} / {@link LogCacheClient}) that talk to
+ * the Cloud Controller v3 REST API directly through a blocking Spring {@link RestClient}, with no dependency on the OSS cf-java-client.
+ */
 @Value.Immutable
 public abstract class CloudControllerRestClientFactory {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudControllerRestClientFactory.class);
+
     private final RestUtil restUtil = new RestUtil();
 
     public abstract Optional<Duration> getSslHandshakeTimeout();
@@ -41,35 +49,10 @@ public abstract class CloudControllerRestClientFactory {
         return false;
     }
 
-    /**
-     * Feature flag for the cf-java-client migration PoC. When {@code true}, {@link #createClient} builds the in-house
-     * {@link CloudControllerRestClientV3Impl} (direct CF v3 REST, no cf-java-client); when {@code false} (default), it builds the
-     * OSS-backed {@link CloudControllerRestClientImpl}. Kept default-off so existing behaviour is unchanged and the two can be A/B
-     * compared against the same live Cloud Foundry.
-     */
-    @Value.Default
-    public boolean useV3RestClient() {
-        // cf_java_client_poc branch: default ON so the in-house CloudControllerRestClientV3Impl is always chosen for OQ verification.
-        // Do NOT merge this default to main — the switch belongs off there until the client is validated.
-        return true;
-    }
-
-    @Value.Derived
-    public CloudFoundryClientFactory getCloudFoundryClientFactory() {
-        ImmutableCloudFoundryClientFactory.Builder builder = ImmutableCloudFoundryClientFactory.builder();
-        getSslHandshakeTimeout().ifPresent(builder::sslHandshakeTimeout);
-        getConnectTimeout().ifPresent(builder::connectTimeout);
-        getConnectionPoolSize().ifPresent(builder::connectionPoolSize);
-        getThreadPoolSize().ifPresent(builder::threadPoolSize);
-        getResponseTimeout().ifPresent(builder::responseTimeout);
-        return builder.build();
-    }
-
     public CloudControllerRestClient createClient(URL controllerUrl, CloudCredentials credentials, String organizationName,
                                                   String spaceName, OAuthClient oAuthClient, Map<String, String> requestTags) {
         oAuthClient.init(credentials);
-        CloudSpaceClient spaceGetter = getCloudFoundryClientFactory().createSpaceClient(controllerUrl, oAuthClient, requestTags);
-        CloudSpace target = spaceGetter.getSpace(organizationName, spaceName);
+        CloudSpace target = createSpaceClient(controllerUrl, oAuthClient, requestTags).getSpace(organizationName, spaceName);
         return createClient(controllerUrl, credentials, target, oAuthClient, requestTags);
     }
 
@@ -81,45 +64,78 @@ public abstract class CloudControllerRestClientFactory {
     public CloudControllerRestClient createClient(URL controllerUrl, CloudCredentials credentials, CloudSpace target,
                                                   OAuthClient oAuthClient, Map<String, String> requestTags) {
         oAuthClient.init(credentials);
-        if (useV3RestClient()) {
-            return createV3RestClient(controllerUrl, target, oAuthClient, requestTags);
-        }
-        CloudFoundryClient delegate = getCloudFoundryClientFactory().createClient(controllerUrl, oAuthClient, requestTags);
-        return new CloudControllerRestClientImpl(delegate, target);
-    }
-
-    private CloudControllerRestClient createV3RestClient(URL controllerUrl, CloudSpace target, OAuthClient oAuthClient,
-                                                         Map<String, String> requestTags) {
         URL v3ApiUrl = deriveV3ApiUrl(controllerUrl, requestTags);
-        // The RestClient baseUrl must be the API ORIGIN (scheme://host[:port]) only — every operation path already carries the
-        // "/v3/..." prefix, so using the ".../v3" href as the base would produce a duplicated "/v3/v3/apps" path (CF -> 404 Unknown
-        // request). We keep v3ApiUrl (which includes /v3) for reference/root-link semantics but strip it to the origin for the base.
-        URL baseUrl = toOrigin(v3ApiUrl);
-        LOGGER.warn("[cf-v3-poc] controllerUrl={} resolved v3ApiUrl={} restClientBaseUrl={}", controllerUrl, v3ApiUrl, baseUrl);
-        var transportOptions = new CloudControllerRestClientBuilder.TransportOptions(getConnectTimeout(), getResponseTimeout(),
-                                                                                     getConnectionPoolSize(),
-                                                                                     shouldTrustSelfSignedCertificates());
-        RestClient restClient = CloudControllerRestClientBuilder.build(baseUrl, oAuthClient, requestTags, transportOptions);
+        RestClient restClient = buildRestClient(toOrigin(v3ApiUrl), oAuthClient, requestTags);
         return new CloudControllerRestClientV3Impl(v3ApiUrl, oAuthClient, target, restClient);
     }
 
-    // scheme://host[:port] of the given URL, dropping any path (e.g. the trailing /v3).
+    public CloudSpaceClient createSpaceClient(URL controllerUrl, OAuthClient oAuthClient, Map<String, String> requestTags) {
+        URL v3ApiUrl = deriveV3ApiUrl(controllerUrl, requestTags);
+        RestClient restClient = buildRestClient(toOrigin(v3ApiUrl), oAuthClient, requestTags);
+        return new CloudSpaceClient(new CloudControllerV3Client(restClient));
+    }
+
+    public LogCacheClient createLogCacheClient(URL controllerUrl, OAuthClient oAuthClient, Map<String, String> requestTags) {
+        URL logCacheUrl = deriveLogCacheUrl(controllerUrl, requestTags);
+        RestClient restClient = buildRestClient(logCacheUrl, oAuthClient, requestTags);
+        return new LogCacheClient(restClient);
+    }
+
+    private RestClient buildRestClient(URL baseUrl, OAuthClient oAuthClient, Map<String, String> requestTags) {
+        var transportOptions = new CloudControllerRestClientBuilder.TransportOptions(getConnectTimeout(), getResponseTimeout(),
+                                                                                     getConnectionPoolSize(),
+                                                                                     shouldTrustSelfSignedCertificates());
+        return CloudControllerRestClientBuilder.build(baseUrl, oAuthClient, requestTags, transportOptions);
+    }
+
+    // scheme://host[:port] of the given URL, dropping any path (e.g. the trailing /v3). The RestClient baseUrl must be the origin only,
+    // because every operation path already carries the "/v3/..." prefix.
     private URL toOrigin(URL url) {
         try {
             int port = url.getPort();
             String origin = url.getProtocol() + "://" + url.getHost() + (port == -1 ? "" : ":" + port);
-            return java.net.URI.create(origin)
-                               .toURL();
-        } catch (java.net.MalformedURLException e) {
+            return URI.create(origin)
+                      .toURL();
+        } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Could not derive the API origin from " + url, e);
         }
     }
 
-    // Resolve the CF v3 API base URL the same way the OSS factory does: GET the CF root and read links.cloud_controller_v3.href.
-    // The conventional controllerUrl + "/v3" is only a fallback — on some landscapes the real v3 href differs, and using the naive
-    // path yields "404 Not Found: Unknown request" from the Cloud Controller.
+    // Resolve the CF v3 API base URL from the CF root "cloud_controller_v3" link; fall back to controllerUrl + "/v3".
     @SuppressWarnings("unchecked")
     private URL deriveV3ApiUrl(URL controllerUrl, Map<String, String> requestTags) {
+        try {
+            Map<String, Object> links = fetchRootLinks(controllerUrl, requestTags);
+            Map<String, Object> ccv3 = (Map<String, Object>) links.get("cloud_controller_v3");
+            return URI.create((String) ccv3.get("href"))
+                      .toURL();
+        } catch (Exception e) {
+            return fallbackUrl(controllerUrl, "/v3");
+        }
+    }
+
+    // Log-Cache base URL from the CF root "log_cache" link; fall back to the "log-cache" subdomain of the controller host.
+    @SuppressWarnings("unchecked")
+    private URL deriveLogCacheUrl(URL controllerUrl, Map<String, String> requestTags) {
+        try {
+            Map<String, Object> links = fetchRootLinks(controllerUrl, requestTags);
+            Map<String, Object> logCache = (Map<String, Object>) links.get("log_cache");
+            return URI.create((String) logCache.get("href"))
+                      .toURL();
+        } catch (Exception e) {
+            String host = controllerUrl.getHost();
+            String logCacheHost = host.startsWith("api.") ? "log-cache." + host.substring("api.".length()) : "log-cache." + host;
+            try {
+                return URI.create(controllerUrl.getProtocol() + "://" + logCacheHost)
+                          .toURL();
+            } catch (MalformedURLException me) {
+                throw new CloudException("Could not derive the log-cache URL from " + controllerUrl, me);
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> fetchRootLinks(URL controllerUrl, Map<String, String> requestTags) {
         try {
             HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                                                             .GET()
@@ -128,38 +144,33 @@ public abstract class CloudControllerRestClientFactory {
             requestTags.forEach(requestBuilder::header);
             HttpResponse<String> response = rootHttpClient().send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() / 100 != 2) {
-                return fallbackV3ApiUrl(controllerUrl);
+                throw new CloudException("CF root request to " + controllerUrl + " returned " + response.statusCode());
             }
-            Map<String, Object> links = (Map<String, Object>) JsonUtil.convertJsonToMap(response.body())
-                                                                      .get("links");
-            Map<String, Object> ccv3 = (Map<String, Object>) links.get("cloud_controller_v3");
-            String href = (String) ccv3.get("href");
-            return java.net.URI.create(href)
-                               .toURL();
+            return (Map<String, Object>) JsonUtil.convertJsonToMap(response.body())
+                                                 .get("links");
         } catch (InterruptedException e) {
             Thread.currentThread()
                   .interrupt();
-            return fallbackV3ApiUrl(controllerUrl);
+            throw new CloudException("Interrupted while calling the CF root at " + controllerUrl, e);
         } catch (Exception e) {
-            return fallbackV3ApiUrl(controllerUrl);
+            throw new CloudException("Failed to call the CF root at " + controllerUrl + ": " + e.getMessage(), e);
         }
     }
 
-    private static java.net.http.HttpClient rootHttpClient() {
-        return java.net.http.HttpClient.newBuilder()
-                                       .connectTimeout(Duration.ofMinutes(1))
-                                       .build();
+    private static HttpClient rootHttpClient() {
+        return HttpClient.newBuilder()
+                         .connectTimeout(Duration.ofMinutes(1))
+                         .build();
     }
 
-    private URL fallbackV3ApiUrl(URL controllerUrl) {
+    private URL fallbackUrl(URL controllerUrl, String pathSuffix) {
         try {
-            return java.net.URI.create(controllerUrl.toString() + "/v3")
-                               .toURL();
-        } catch (java.net.MalformedURLException e) {
-            throw new IllegalArgumentException("Could not derive the CF v3 API URL from " + controllerUrl, e);
+            return URI.create(controllerUrl.toString() + pathSuffix)
+                      .toURL();
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("Could not derive URL from " + controllerUrl + pathSuffix, e);
         }
     }
-
 
     private OAuthClient createOAuthClient(URL controllerUrl, String origin) {
         return restUtil.createOAuthClientByControllerUrl(controllerUrl, shouldTrustSelfSignedCertificates());
