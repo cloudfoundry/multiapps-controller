@@ -85,16 +85,18 @@
             <artifactId>value</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.cloudfoundry/cloudfoundry-client-reactor -->
-        <dependency>
-            <groupId>org.cloudfoundry</groupId>
-            <artifactId>cloudfoundry-client-reactor</artifactId>
-        </dependency>
-        <!-- Transitive dependency from cloudfoundry-client. Pin the version, because the one they're using (1.0.3) contains vulnerabilities -->
+        <!-- reactor-netty backs the Spring WebClient used by the OAuth client (RestUtil). -->
         <!-- https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty -->
         <dependency>
             <groupId>io.projectreactor.netty</groupId>
             <artifactId>reactor-netty</artifactId>
+        </dependency>
+        <!-- commons-logging: used directly by JsonUtil (previously came transitively via cloudfoundry-client). -->
+        <!-- https://mvnrepository.com/artifact/commons-logging/commons-logging -->
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons-logging.version}</version>
         </dependency>
         <!-- Required dependency due to enabled metrics of reactor-netty client -->
         <!-- https://mvnrepository.com/artifact/io.micrometer/micrometer-registry-jmx -->
@@ -140,30 +142,6 @@
                 </plugins>
             </build>
             <dependencies>
-                <dependency>
-                    <groupId>org.cloudfoundry</groupId>
-                    <artifactId>cloudfoundry-client-reactor</artifactId>
-                    <version>${cloudfoundry-client.version}</version>
-                    <exclusions>
-                        <exclusion>
-                            <!-- Excluding the dependency as it will be overridden by commons-logging (see below)
-                                 because they expose the same module, but jcl-over-slf4j 2.0.9 which comes as a transitive
-                                 dependency does not expose "org.apache.commons.logging.impl" package from "org.apache.commons.logging"
-                                 module which is used by org.springframework.core.log.CompositeLog and leads to java.lang.IllegalAccessError
-                                 during integration tests. -->
-                            <groupId>org.slf4j</groupId>
-                            <artifactId>jcl-over-slf4j</artifactId>
-                        </exclusion>
-                         <!--
-                             Excluding jackson-databind because the Cloud Foundry client pulls in
-                             an old Jackson 2.13.x version that conflicts with Spring WebFlux 6.2.x
-                             and causes DefaultExchangeStrategiesBuilder to fail initialization. -->
-                        <exclusion>
-                            <groupId>com.fasterxml.jackson.core</groupId>
-                            <artifactId>jackson-databind</artifactId>
-                        </exclusion>
-                    </exclusions>
-                </dependency>
                 <!-- https://mvnrepository.com/artifact/commons-logging/commons-logging-->
                 <dependency>
                     <groupId>commons-logging</groupId>

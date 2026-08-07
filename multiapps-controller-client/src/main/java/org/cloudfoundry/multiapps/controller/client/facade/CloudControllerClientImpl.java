@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import org.cloudfoundry.AbstractCloudFoundryException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudBuild;
@@ -40,7 +39,6 @@ import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCrea
 import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudControllerRestClient;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudControllerRestClientFactory;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.ImmutableCloudControllerRestClientFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.util.Assert;
 
 /**
@@ -659,16 +657,9 @@ public class CloudControllerClientImpl implements CloudControllerClient {
     }
 
     private <T> T handleExceptions(Supplier<T> runnable) {
-        try {
-            return runnable.get();
-        } catch (AbstractCloudFoundryException e) {
-            throw convertV3ClientException(e);
-        }
-    }
-
-    private CloudOperationException convertV3ClientException(AbstractCloudFoundryException e) {
-        HttpStatus httpStatus = HttpStatus.valueOf(e.getStatusCode());
-        return new CloudOperationException(httpStatus, httpStatus.getReasonPhrase(), e.getMessage(), e);
+        // The underlying CloudControllerRestClient already surfaces failures as CloudOperationException
+        // (via CloudControllerResponseErrorHandler), so no exception translation is needed here.
+        return runnable.get();
     }
 
 }

@@ -157,27 +157,12 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
         String applicationName = "test-application-16";
         try {
             createAndVerifyDefaultApplication(applicationName);
+            client.updateApplicationStaging(applicationName, ImmutableStaging.builder()
+                                                                             .healthCheckType(HealthCheckType.PROCESS.getValue())
+                                                                             .build());
             UUID applicationGuid = client.getApplicationGuid(applicationName);
-            var processResponse = delegate.applicationsV3()
-                                          .getProcess(org.cloudfoundry.client.v3.applications.GetApplicationProcessRequest.builder()
-                                                                                                                          .applicationId(
-                                                                                                                              applicationGuid.toString())
-                                                                                                                          .type("web")
-                                                                                                                          .build())
-                                          .block();
-            delegate.processes()
-                    .update(org.cloudfoundry.client.v3.processes.UpdateProcessRequest.builder()
-                                                                                     .processId(processResponse.getId())
-                                                                                     .healthCheck(
-                                                                                         org.cloudfoundry.client.v3.processes.HealthCheck.builder()
-                                                                                                                                         .type(
-                                                                                                                                             org.cloudfoundry.client.v3.processes.HealthCheckType.PROCESS)
-                                                                                                                                         .build())
-                                                                                     .build())
-                    .block();
             CloudProcess cloudProcess = client.getApplicationProcess(applicationGuid);
-            assertEquals(org.cloudfoundry.multiapps.controller.client.facade.domain.HealthCheckType.PROCESS,
-                         cloudProcess.getHealthCheckType());
+            assertEquals(HealthCheckType.PROCESS, cloudProcess.getHealthCheckType());
         } catch (Exception e) {
             fail(e);
         } finally {
