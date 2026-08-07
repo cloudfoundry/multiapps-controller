@@ -26,8 +26,6 @@ import org.springframework.context.annotation.Scope;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
 
-    private static final String CLOUDFOUNDRY_RESOURCE_TYPE_PREFIX = "org.cloudfoundry.";
-
     private final TokenService tokenService;
     private final CloudControllerClientFactory clientFactory;
     private final CloudLoggingServiceConfigurationService cloudLoggingServiceConfigurationService;

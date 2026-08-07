@@ -58,11 +58,11 @@ class CloudLoggingServiceMessageConverterTest {
     }
 
     @Test
-    void getLogsFromOperationLogEntry_singleInfoLine_groupedByLevel() {
+    void getGroupedLogsFromUnsendLog_singleInfoLine_groupedByLevel() {
         String input = logLine(DATE, "INFO", "deploy-app.svc", "[main] hello");
 
-        Map<LogLevel, List<OperationLog>> result = converter.getLogsFromOperationLogEntry(buildConfig(true),
-                                                                                          input);
+        Map<LogLevel, List<OperationLog>> result = converter.getGroupedLogsFromUnsendLog(buildConfig(true),
+                                                                                         input);
 
         List<OperationLog> infos = result.get(LogLevel.INFO);
         assertEquals(1, infos.size());
@@ -73,13 +73,13 @@ class CloudLoggingServiceMessageConverterTest {
     }
 
     @Test
-    void getLogsFromOperationLogEntry_multipleLevels_groupedSeparately() {
+    void getGroupedLogsFromUnsendLog_multipleLevels_groupedSeparately() {
         String input = logLine(DATE, "INFO", "deploy-app.svc", "[t] i")
             + logLine(DATE, "WARN", "deploy-app.svc", "[t] w")
             + logLine(DATE, "ERROR", "deploy-app.svc", "[t] e");
 
-        Map<LogLevel, List<OperationLog>> result = converter.getLogsFromOperationLogEntry(buildConfig(true),
-                                                                                          input);
+        Map<LogLevel, List<OperationLog>> result = converter.getGroupedLogsFromUnsendLog(buildConfig(true),
+                                                                                         input);
 
         assertEquals(1, result.get(LogLevel.INFO)
                               .size());
@@ -90,12 +90,12 @@ class CloudLoggingServiceMessageConverterTest {
     }
 
     @Test
-    void getLogsFromOperationLogEntry_sameLevelMultipleEntries_appendedToList() {
+    void getGroupedLogsFromUnsendLog_sameLevelMultipleEntries_appendedToList() {
         String input = logLine(DATE, "INFO", "deploy-app.svc", "[t] one")
             + logLine(DATE, "INFO", "deploy-app.svc", "[t] two");
 
-        Map<LogLevel, List<OperationLog>> result = converter.getLogsFromOperationLogEntry(buildConfig(true),
-                                                                                          input);
+        Map<LogLevel, List<OperationLog>> result = converter.getGroupedLogsFromUnsendLog(buildConfig(true),
+                                                                                         input);
 
         List<OperationLog> infos = result.get(LogLevel.INFO);
         assertEquals(2, infos.size());
@@ -106,47 +106,47 @@ class CloudLoggingServiceMessageConverterTest {
     }
 
     @Test
-    void getLogsFromOperationLogEntry_emptyInput_returnsEmptyMap() {
-        Map<LogLevel, List<OperationLog>> result = converter.getLogsFromOperationLogEntry(buildConfig(true),
-                                                                                          "");
+    void getGroupedLogsFromUnsendLog_emptyInput_returnsEmptyMap() {
+        Map<LogLevel, List<OperationLog>> result = converter.getGroupedLogsFromUnsendLog(buildConfig(true),
+                                                                                         "");
 
         assertTrue(result.isEmpty());
     }
 
     @Test
-    void getLogsFromOperationLogEntry_noHeaderLines_returnsEmptyMap() {
-        Map<LogLevel, List<OperationLog>> result = converter.getLogsFromOperationLogEntry(buildConfig(true),
-                                                                                          "free text without any header\n");
+    void getGroupedLogsFromUnsendLog_noHeaderLines_returnsEmptyMap() {
+        Map<LogLevel, List<OperationLog>> result = converter.getGroupedLogsFromUnsendLog(buildConfig(true),
+                                                                                         "free text without any header\n");
 
         assertTrue(result.isEmpty());
     }
 
     @Test
-    void getLogsFromOperationLogEntry_unknownLogLevel_throwsIllegalArgument() {
+    void getGroupedLogsFromUnsendLog_unknownLogLevel_throwsIllegalArgument() {
         String input = logLine(DATE, "FATAL", "deploy-app.svc", "[t] unknown level");
 
-        assertThrows(IllegalArgumentException.class, () -> converter.getLogsFromOperationLogEntry(buildConfig(true), input));
+        assertThrows(IllegalArgumentException.class, () -> converter.getGroupedLogsFromUnsendLog(buildConfig(true), input));
     }
 
     @Test
-    void getLogsFromOperationLogEntry_moreMessagesThanLevels_failSafeTrue_returnsEmptyMap() {
+    void getGroupedLogsFromUnsendLog_moreMessagesThanLevels_failSafeTrue_returnsEmptyMap() {
         String malformed = "orphan body before any header\n"
             + "#" + DATE + "#org.example.Logger#INFO#deploy-app.svc#main#\n"
             + "[t] body\n";
 
-        Map<LogLevel, List<OperationLog>> result = converter.getLogsFromOperationLogEntry(buildConfig(true),
-                                                                                          malformed);
+        Map<LogLevel, List<OperationLog>> result = converter.getGroupedLogsFromUnsendLog(buildConfig(true),
+                                                                                         malformed);
 
         assertTrue(result.isEmpty());
     }
 
     @Test
-    void getLogsFromOperationLogEntry_moreMessagesThanLevels_failSafeFalse_throws() {
+    void getGroupedLogsFromUnsendLog_moreMessagesThanLevels_failSafeFalse_throws() {
         String malformed = "orphan body before any header\n"
             + "#" + DATE + "#org.example.Logger#INFO#deploy-app.svc#main#\n"
             + "[t] body\n";
 
-        assertThrows(SLException.class, () -> converter.getLogsFromOperationLogEntry(buildConfig(false), malformed));
+        assertThrows(SLException.class, () -> converter.getGroupedLogsFromUnsendLog(buildConfig(false), malformed));
     }
 
     private static String logLine(String date, String level, String logName, String text) {

@@ -79,7 +79,7 @@ public class ExternalOperationLogEntryFactory {
     }
 
     private Map<LogLevel, List<OperationLog>> getFilteredOperationLogs(LoggingConfiguration loggingConfiguration, String message) {
-        Map<LogLevel, List<OperationLog>> operationLogs = cloudLoggingServiceMessageConverter.getLogsFromOperationLogEntry(
+        Map<LogLevel, List<OperationLog>> operationLogs = cloudLoggingServiceMessageConverter.getGroupedLogsFromUnsendLog(
             loggingConfiguration, message);
         return removeLogsWithUnwantedLogLevel(loggingConfiguration, operationLogs);
     }

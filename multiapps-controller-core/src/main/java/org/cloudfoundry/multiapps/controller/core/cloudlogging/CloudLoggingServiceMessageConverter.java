@@ -41,9 +41,7 @@ public class CloudLoggingServiceMessageConverter {
         return Optional.of(raw);
     }
 
-    public Map<LogLevel, List<OperationLog>> getLogsFromOperationLogEntry(
-        LoggingConfiguration loggingConfiguration, String log) {
-
+    public Map<LogLevel, List<OperationLog>> getGroupedLogsFromUnsendLog(LoggingConfiguration loggingConfiguration, String log) {
         List<String> logLevels = getLogLevels(log);
         List<LocalDateTime> logDates = getLogDate(log);
         if (logLevels.isEmpty()) {
