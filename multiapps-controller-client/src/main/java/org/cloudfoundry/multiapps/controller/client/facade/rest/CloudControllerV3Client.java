@@ -15,6 +15,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import reactor.core.publisher.Flux;
 
 /**
  * Low-level Cloud Controller v3 access shared by every operation of {@link CloudControllerRestClientV3Impl}. This is the reusable
@@ -37,10 +42,22 @@ public class CloudControllerV3Client {
     private static final Duration JOB_POLL_MAX_INTERVAL = Duration.ofSeconds(15);
     private static final Duration DEFAULT_JOB_TIMEOUT = Duration.ofMinutes(5);
 
+    // Reactor's default flatMap concurrency — the in-flight cap the OSS PaginationUtils effectively used when fetching pages 2..N.
+    private static final int MAX_CONCURRENT_PAGES = 256;
+
     private final RestClient restClient;
+    // Optional reactive client on the SAME reactor-netty transport, used only to fetch pages 2..N concurrently (as the OSS client did via
+    // Reactor flatMap). When null (e.g. the auxiliary space/log-cache clients that never paginate large sets), list() falls back to the
+    // sequential next.href walk.
+    private final WebClient webClient;
 
     public CloudControllerV3Client(RestClient restClient) {
+        this(restClient, null);
+    }
+
+    public CloudControllerV3Client(RestClient restClient, WebClient webClient) {
         this.restClient = restClient;
+        this.webClient = webClient;
     }
 
     public <T> T get(String uri, Class<T> responseType) {
@@ -66,12 +83,38 @@ public class CloudControllerV3Client {
     }
 
     /**
-     * Walk every page of a v3 list endpoint, following {@code pagination.next.href} until it is {@code null}. The caller supplies the
-     * fully-formed first-page URI (path + query) and a type reference for the paged {@link V3ListResponse}.
+     * List every resource of a v3 list endpoint across all pages. Mirrors the OSS {@code PaginationUtils.requestClientV3Resources}:
+     * fetch page 1, read {@code pagination.total_pages}, then request pages {@code 2..N} <b>concurrently</b> (bounded by
+     * {@value #MAX_CONCURRENT_PAGES}) via the reactive {@link WebClient} on the shared transport, and concatenate the results in page
+     * order. This restores the intra-operation concurrency the OSS client had on large, multi-page listings.
+     * <p>
+     * Falls back to the sequential {@code pagination.next.href} walk when no {@link WebClient} is configured or the response does not
+     * report {@code total_pages} — preserving correctness on any endpoint that omits it.
      */
     public <R> List<R> list(String firstPageUri, ParameterizedTypeReference<V3ListResponse<R>> pageType) {
-        List<R> all = new ArrayList<>();
-        String nextUri = firstPageUri;
+        String firstPageRelativeUri = toRelativeIfAbsolute(firstPageUri);
+        V3ListResponse<R> firstPage = restClient.get()
+                                                .uri(firstPageRelativeUri)
+                                                .retrieve()
+                                                .body(pageType);
+        if (firstPage == null) {
+            return new ArrayList<>();
+        }
+        Integer totalPages = firstPage.pagination() == null ? null
+            : firstPage.pagination()
+                       .totalPages();
+        if (webClient == null || totalPages == null || totalPages <= 1) {
+            return listSequentially(firstPage, pageType);
+        }
+        List<R> all = new ArrayList<>(firstPage.resources());
+        all.addAll(fetchRemainingPagesConcurrently(firstPageRelativeUri, totalPages, pageType));
+        return all;
+    }
+
+    // Sequential pagination via pagination.next.href — the fallback path (and the whole behaviour when no WebClient is set).
+    private <R> List<R> listSequentially(V3ListResponse<R> firstPage, ParameterizedTypeReference<V3ListResponse<R>> pageType) {
+        List<R> all = new ArrayList<>(firstPage.resources());
+        String nextUri = toRelativeIfAbsolute(firstPage.nextPageHref());
         while (nextUri != null) {
             V3ListResponse<R> page = restClient.get()
                                                .uri(nextUri)
@@ -84,6 +127,37 @@ public class CloudControllerV3Client {
             nextUri = toRelativeIfAbsolute(page.nextPageHref());
         }
         return all;
+    }
+
+    // Fetch pages 2..totalPages concurrently on the reactive transport, preserving page order (flatMapSequential), and flatten their
+    // resources. Errors propagate unwrapped, matching the RestClient error mapping (WebClient maps non-2xx to WebClientResponseException;
+    // we surface it as a CloudOperationException to keep callers' handling uniform).
+    private <R> List<R> fetchRemainingPagesConcurrently(String firstPageRelativeUri, int totalPages,
+                                                        ParameterizedTypeReference<V3ListResponse<R>> pageType) {
+        return Flux.range(2, totalPages - 1)
+                   .flatMapSequential(page -> webClient.get()
+                                                       .uri(pageUri(firstPageRelativeUri, page))
+                                                       .retrieve()
+                                                       .bodyToMono(pageType)
+                                                       .onErrorMap(WebClientResponseException.class, this::toCloudOperationException),
+                                      MAX_CONCURRENT_PAGES)
+                   .flatMapIterable(V3ListResponse::resources)
+                   .collectList()
+                   .block();
+    }
+
+    // Set/replace the "page" query parameter on the first-page URI, keeping per_page and every filter intact. Package-visible for testing.
+    static String pageUri(String firstPageRelativeUri, int page) {
+        return UriComponentsBuilder.fromUriString(firstPageRelativeUri)
+                                   .replaceQueryParam("page", page)
+                                   .build()
+                                   .toUriString();
+    }
+
+    private CloudOperationException toCloudOperationException(WebClientResponseException e) {
+        HttpStatus status = HttpStatus.valueOf(e.getStatusCode()
+                                                .value());
+        return new CloudOperationException(status, status.getReasonPhrase(), e.getResponseBodyAsString(), e);
     }
 
     /**

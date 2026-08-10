@@ -179,10 +179,9 @@ public class ServiceInstancesV3Operations {
     public List<CloudServiceInstance> getServiceInstancesByMetadataLabelSelector(String labelSelector) {
         String uri = "/v3/service_instances?per_page=" + PER_PAGE + "&space_guids=" + getTargetSpaceGuid() + "&label_selector="
             + labelSelector;
-        return cc.list(uri, SERVICE_INSTANCE_LIST_TYPE)
-                 .stream()
-                 .map(this::mapWithAuxiliaryContent)
-                 .collect(Collectors.toList());
+        // Each managed instance needs its plan + offering resolved via extra GETs (mapWithAuxiliaryContent). The OSS client ran this
+        // enrichment concurrently across the list; preserve that so a large label-selector result doesn't serialize the per-instance calls.
+        return ReactiveFanOut.mapConcurrently(cc.list(uri, SERVICE_INSTANCE_LIST_TYPE), this::mapWithAuxiliaryContent);
     }
 
     public List<CloudServiceInstance> getServiceInstancesWithoutAuxiliaryContentByMetadataLabelSelector(String labelSelector) {

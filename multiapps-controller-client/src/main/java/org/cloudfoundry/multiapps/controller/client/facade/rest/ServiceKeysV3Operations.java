@@ -97,11 +97,11 @@ public class ServiceKeysV3Operations {
     }
 
     public List<CloudServiceKey> getServiceKeysWithCredentials(CloudServiceInstance serviceInstance) {
-        return listServiceKeyResources(serviceInstance.getGuid()).stream()
-                                                                 .map(key -> V3ServiceKeyMapper.toCloudServiceKey(key, serviceInstance,
-                                                                                                                  getServiceKeyCredentials(
-                                                                                                                      key.guid())))
-                                                                 .toList();
+        // Each key needs a separate GET /details for its credentials. The OSS client fetched these concurrently (reactive flatMap); do the
+        // same here so a service with many keys doesn't serialize N credential round-trips.
+        return ReactiveFanOut.mapConcurrently(listServiceKeyResources(serviceInstance.getGuid()),
+                                              key -> V3ServiceKeyMapper.toCloudServiceKey(key, serviceInstance,
+                                                                                          getServiceKeyCredentials(key.guid())));
     }
 
     // --- helpers ----------------------------------------------------------------------------------------------------------------
