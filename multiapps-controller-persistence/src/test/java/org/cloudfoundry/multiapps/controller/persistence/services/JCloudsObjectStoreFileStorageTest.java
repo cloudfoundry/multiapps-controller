@@ -16,10 +16,12 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
 import jakarta.xml.bind.DatatypeConverter;
 import org.cloudfoundry.multiapps.common.util.DigestHelper;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.monitoring.UploadDurationTracker;
 import org.jclouds.ContextBuilder;
 import org.jclouds.blobstore.BlobStore;
 import org.jclouds.blobstore.BlobStoreContext;
@@ -28,6 +30,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -57,10 +60,12 @@ class JCloudsObjectStoreFileStorageTest {
 
     private BlobStoreContext blobStoreContext;
 
+    private UploadDurationTracker uploadDurationTracker = mock(UploadDurationTracker.class);
+
     @BeforeEach
     protected void setUp() {
         createBlobStoreContext();
-        fileStorage = new JCloudsObjectStoreFileStorage(blobStoreContext.getBlobStore(), CONTAINER) {
+        fileStorage = new JCloudsObjectStoreFileStorage(blobStoreContext.getBlobStore(), CONTAINER, uploadDurationTracker) {
             @Override
             protected long getRetryWaitTime() {
                 return 1;
@@ -233,7 +238,7 @@ class JCloudsObjectStoreFileStorageTest {
     @Test
     void testTestConnectionWhenContainerExists() {
         BlobStore mockBlobStore = mock(BlobStore.class);
-        JCloudsObjectStoreFileStorage testFileStorage = new JCloudsObjectStoreFileStorage(mockBlobStore, CONTAINER);
+        JCloudsObjectStoreFileStorage testFileStorage = new JCloudsObjectStoreFileStorage(mockBlobStore, CONTAINER, uploadDurationTracker);
 
         when(mockBlobStore.containerExists(CONTAINER)).thenReturn(true);
 
@@ -244,7 +249,7 @@ class JCloudsObjectStoreFileStorageTest {
     @Test
     void testTestConnectionWhenContainerDoesNotExist() {
         BlobStore mockBlobStore = mock(BlobStore.class);
-        JCloudsObjectStoreFileStorage testFileStorage = new JCloudsObjectStoreFileStorage(mockBlobStore, CONTAINER);
+        JCloudsObjectStoreFileStorage testFileStorage = new JCloudsObjectStoreFileStorage(mockBlobStore, CONTAINER, uploadDurationTracker);
 
         when(mockBlobStore.containerExists(CONTAINER)).thenReturn(false);
 
@@ -404,7 +409,7 @@ class JCloudsObjectStoreFileStorageTest {
     void existsInObjectStoreWithMockedBlobStoreVerifiesBlobExistsCalled() {
         BlobStore mockBlobStore = mock(BlobStore.class);
         FileEntry fileEntry = createFileEntry();
-        JCloudsObjectStoreFileStorage testFileStorage = new JCloudsObjectStoreFileStorage(mockBlobStore, CONTAINER);
+        JCloudsObjectStoreFileStorage testFileStorage = new JCloudsObjectStoreFileStorage(mockBlobStore, CONTAINER, uploadDurationTracker);
 
         when(mockBlobStore.blobExists(CONTAINER, fileEntry.getId())).thenReturn(true);
 
@@ -418,7 +423,7 @@ class JCloudsObjectStoreFileStorageTest {
     void existsInObjectStoreWithMockedBlobStoreFileNotFound() {
         BlobStore mockBlobStore = mock(BlobStore.class);
         FileEntry fileEntry = createFileEntry();
-        JCloudsObjectStoreFileStorage testFileStorage = new JCloudsObjectStoreFileStorage(mockBlobStore, CONTAINER);
+        JCloudsObjectStoreFileStorage testFileStorage = new JCloudsObjectStoreFileStorage(mockBlobStore, CONTAINER, uploadDurationTracker);
 
         when(mockBlobStore.blobExists(CONTAINER, fileEntry.getId())).thenReturn(false);
 
@@ -433,7 +438,8 @@ class JCloudsObjectStoreFileStorageTest {
         BlobStore mockBlobStore = mock(BlobStore.class);
         String testContainer = "test-container";
         FileEntry fileEntry = createFileEntry();
-        JCloudsObjectStoreFileStorage testFileStorage = new JCloudsObjectStoreFileStorage(mockBlobStore, testContainer);
+        JCloudsObjectStoreFileStorage testFileStorage = new JCloudsObjectStoreFileStorage(mockBlobStore, testContainer,
+                                                                                          uploadDurationTracker);
 
         when(mockBlobStore.blobExists(testContainer, fileEntry.getId())).thenReturn(true);
 

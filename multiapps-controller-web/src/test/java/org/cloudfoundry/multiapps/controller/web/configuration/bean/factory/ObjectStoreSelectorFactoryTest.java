@@ -4,6 +4,7 @@ import io.pivotal.cfenv.core.CfCredentials;
 import io.pivotal.cfenv.core.CfService;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.AwsS3ObjectStoreFileStorage;
+import org.cloudfoundry.multiapps.controller.persistence.monitoring.UploadDurationTracker;
 import org.cloudfoundry.multiapps.controller.persistence.services.AzureObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.GcpObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.JCloudsObjectStoreFileStorage;
@@ -64,6 +65,8 @@ class ObjectStoreSelectorFactoryTest {
     private AwsS3ObjectStoreFileStorage awsS3ObjectStoreFileStorage;
     @Mock
     private AzureObjectStoreFileStorage azureObjectStoreFileStorage;
+    @Mock
+    private UploadDurationTracker uploadDurationTracker;
 
     private ObjectStoreServiceInfo capturedGcpServiceInfo;
     private ObjectStoreServiceInfo capturedAzureServiceInfo;
@@ -103,7 +106,7 @@ class ObjectStoreSelectorFactoryTest {
         assertInstanceOf(AwsS3ObjectStoreFileStorage.class, selector.fileStorage());
         assertInstanceOf(AwsTransientErrorClassifier.class, selector.classifier());
         verify(awsS3ObjectStoreFileStorage)
-               .testConnection();
+            .testConnection();
     }
 
     @Test
@@ -116,7 +119,7 @@ class ObjectStoreSelectorFactoryTest {
         assertInstanceOf(AzureObjectStoreFileStorage.class, selector.fileStorage());
         assertInstanceOf(AzureTransientErrorClassifier.class, selector.classifier());
         verify(azureObjectStoreFileStorage)
-               .testConnection();
+            .testConnection();
     }
 
     @Test
@@ -129,12 +132,12 @@ class ObjectStoreSelectorFactoryTest {
         assertInstanceOf(GcpObjectStoreFileStorage.class, selector.fileStorage());
         assertInstanceOf(GcpTransientErrorClassifier.class, selector.classifier());
         verify(gcpObjectStoreFileStorage)
-               .testConnection();
+            .testConnection();
     }
 
     static Stream<Arguments> testObjectStoreCreationFallsBackToFirstReachableProviderWhenEnvIsInvalid() {
         return Stream.of(
-        // @formatter:off
+            // @formatter:off
             // (0) Unknown provider name:
             Arguments.of("WRONG_PROVIDER"),
             // (1) Null env value:
@@ -169,7 +172,7 @@ class ObjectStoreSelectorFactoryTest {
         assertInstanceOf(JCloudsObjectStoreFileStorage.class, selector.fileStorage());
         assertInstanceOf(JCloudsTransientErrorClassifier.class, selector.classifier());
         verify(jCloudsObjectStoreFileStorage)
-               .testConnection();
+            .testConnection();
     }
 
     @Test
@@ -289,7 +292,7 @@ class ObjectStoreSelectorFactoryTest {
 
         ObjectStoreSelectorFactoryMock(String serviceName, EnvironmentServicesFinder environmentServicesFinder,
                                        ApplicationConfiguration applicationConfiguration) {
-            super(serviceName, environmentServicesFinder, applicationConfiguration);
+            super(serviceName, environmentServicesFinder, applicationConfiguration, uploadDurationTracker);
         }
 
         @Override

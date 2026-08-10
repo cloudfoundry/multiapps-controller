@@ -9,6 +9,7 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     exports org.cloudfoundry.multiapps.controller.persistence.model;
     exports org.cloudfoundry.multiapps.controller.persistence.model.adapter;
     exports org.cloudfoundry.multiapps.controller.persistence.model.filters;
+    exports org.cloudfoundry.multiapps.controller.persistence.monitoring;
     exports org.cloudfoundry.multiapps.controller.persistence.query;
     exports org.cloudfoundry.multiapps.controller.persistence.query.criteria;
     exports org.cloudfoundry.multiapps.controller.persistence.query.impl;

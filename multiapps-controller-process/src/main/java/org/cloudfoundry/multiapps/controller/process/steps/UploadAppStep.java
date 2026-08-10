@@ -21,6 +21,7 @@ import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationFileDigestDetector;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
+import org.cloudfoundry.multiapps.controller.persistence.monitoring.UploadDurationTracker;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
@@ -53,6 +54,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     protected CloudPackagesGetter cloudPackagesGetter;
     @Inject
     private ExecutorService appUploaderThreadPool;
+    @Inject
+    private UploadDurationTracker uploadDurationTracker;
 
     @Override
     public StepPhase executeAsyncStep(ProcessContext context) throws FileStorageException {
@@ -186,7 +189,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
         return List.of(new UploadAppAsyncExecution(applicationZipBuilder, getProcessLogsPersister(), configuration, appUploaderThreadPool,
-                                                   operationLogsExporter),
+                                                   operationLogsExporter, uploadDurationTracker),
                        new PollUploadAppStatusExecution());
     }
 

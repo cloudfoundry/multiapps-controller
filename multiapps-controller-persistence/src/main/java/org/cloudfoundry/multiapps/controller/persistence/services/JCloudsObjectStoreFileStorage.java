@@ -3,6 +3,8 @@ package org.cloudfoundry.multiapps.controller.persistence.services;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -10,9 +12,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.persistence.Messages;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.monitoring.UploadDurationTracker;
+import org.cloudfoundry.multiapps.controller.persistence.monitoring.UploadTimeoutMatcher;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreFilter;
 import org.cloudfoundry.multiapps.controller.persistence.util.ObjectStoreMapper;
 import org.jclouds.blobstore.BlobStore;
@@ -37,10 +42,12 @@ public class JCloudsObjectStoreFileStorage extends ObjectStoreFileStorage {
 
     private final BlobStore blobStore;
     private final String container;
+    private final UploadDurationTracker uploadDurationTracker;
 
-    public JCloudsObjectStoreFileStorage(BlobStore blobStore, String container) {
+    public JCloudsObjectStoreFileStorage(BlobStore blobStore, String container, UploadDurationTracker uploadDurationTracker) {
         this.blobStore = blobStore;
         this.container = container;
+        this.uploadDurationTracker = uploadDurationTracker;
     }
 
     @Override
@@ -55,13 +62,18 @@ public class JCloudsObjectStoreFileStorage extends ObjectStoreFileStorage {
                              .contentLength(fileSize)
                              .userMetadata(ObjectStoreMapper.createFileEntryMetadata(fileEntry))
                              .build();
+        Instant startTime = Instant.now();
         try {
             putBlobWithRetries(blob, MAX_RETRIES_COUNT);
             LOGGER.debug(MessageFormat.format(Messages.STORED_FILE_0_WITH_SIZE_1, fileEntry.getId(), fileSize));
         } catch (ContainerNotFoundException e) {
+            uploadDurationTracker.recordObjectStoreUpload(getElapsedTimeInMillis(startTime),
+                                                          UploadTimeoutMatcher.isUploadTimeoutException(e));
             throw new FileStorageException(MessageFormat.format(Messages.FILE_UPLOAD_FAILED, fileEntry.getName(),
                                                                 fileEntry.getNamespace()));
         }
+        uploadDurationTracker.recordObjectStoreUpload(getElapsedTimeInMillis(startTime), false);
+        LOGGER.info(MessageFormat.format(Messages.TIME_ELAPSED_FOR_JCLOUDS_OS_UPLOAD_0_IN_MILLIS, getElapsedTimeInMillis(startTime)));
     }
 
     @Override
@@ -95,7 +107,7 @@ public class JCloudsObjectStoreFileStorage extends ObjectStoreFileStorage {
     @Override
     public void deleteFilesBySpaceAndNamespace(String space, String namespace) {
         int deletedFiles = removeBlobsByFilter(blob -> ObjectStoreFilter.filterBySpaceAndNamespace(blob.getUserMetadata(), space,
-                                                                                                  namespace));
+                                                                                                   namespace));
         LOGGER.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITH_SPACE_1_AND_NAMESPACE_2, deletedFiles, space, namespace));
     }
 
@@ -260,4 +272,10 @@ public class JCloudsObjectStoreFileStorage extends ObjectStoreFileStorage {
         }
         return entries;
     }
+
+    private long getElapsedTimeInMillis(Instant startTime) {
+        return Duration.between(startTime, Instant.now())
+                       .toMillis();
+    }
+
 }

@@ -20,6 +20,7 @@ import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobInputStream;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.monitoring.UploadDurationTracker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -51,6 +52,9 @@ class AzureObjectStoreFileStorageTest {
     @Mock
     private BlobInputStream blobInputStream;
 
+    @Mock
+    private UploadDurationTracker uploadDurationTracker;
+
     private AzureObjectStoreFileStorage fileStorage;
     private InputStream inputStream = new ByteArrayInputStream(new byte[] {});
     private final String TEST_SPACE_ID = UUID.randomUUID()
@@ -70,7 +74,7 @@ class AzureObjectStoreFileStorageTest {
         MockitoAnnotations.openMocks(this)
                           .close();
 
-        fileStorage = new AzureObjectStoreFileStorage(Map.of()) {
+        fileStorage = new AzureObjectStoreFileStorage(Map.of(), uploadDurationTracker) {
 
             @Override
             protected BlobContainerClient createContainerClient(Map<String, Object> credentials) {

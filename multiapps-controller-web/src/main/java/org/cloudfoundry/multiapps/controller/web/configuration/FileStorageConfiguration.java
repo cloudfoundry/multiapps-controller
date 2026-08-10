@@ -1,9 +1,11 @@
 package org.cloudfoundry.multiapps.controller.web.configuration;
 
+import jakarta.inject.Inject;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.resilience.NoRetryErrorClassifier;
 import org.cloudfoundry.multiapps.controller.persistence.services.resilience.RetryableErrorClassifier;
+import org.cloudfoundry.multiapps.controller.persistence.monitoring.UploadDurationTracker;
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.cloudfoundry.multiapps.controller.web.configuration.factory.ObjectStoreSelectorFactory;
 import org.springframework.context.annotation.Bean;
@@ -16,10 +18,14 @@ public class FileStorageConfiguration {
 
     private static final String OBJECT_STORE_SERVICE_NAME = "deploy-service-os";
 
+    @Inject
+    private UploadDurationTracker uploadDurationTracker;
+
     @Bean
     public ObjectStoreSelectorFactory objectStoreSelector(EnvironmentServicesFinder vcapServiceFinder,
                                                           ApplicationConfiguration applicationConfiguration) {
-        return new ObjectStoreSelectorFactory(OBJECT_STORE_SERVICE_NAME, vcapServiceFinder, applicationConfiguration);
+        return new ObjectStoreSelectorFactory(OBJECT_STORE_SERVICE_NAME, vcapServiceFinder, applicationConfiguration,
+                                              uploadDurationTracker);
     }
 
     @Bean
