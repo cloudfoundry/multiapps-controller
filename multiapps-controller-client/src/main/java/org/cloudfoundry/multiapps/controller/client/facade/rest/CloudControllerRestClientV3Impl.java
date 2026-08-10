@@ -86,16 +86,27 @@ public class CloudControllerRestClientV3Impl implements CloudControllerRestClien
     private final TasksV3Operations tasksOps;
 
     public CloudControllerRestClientV3Impl(URL v3ApiUrl, OAuthClient oAuthClient, CloudSpace target, RestClient restClient) {
+        this(v3ApiUrl, oAuthClient, target, restClient, null);
+    }
+
+    public CloudControllerRestClientV3Impl(URL v3ApiUrl, OAuthClient oAuthClient, CloudSpace target, RestClient restClient,
+                                           java.util.function.Function<java.time.Duration, RestClient> uploadRestClientFactory) {
+        this(v3ApiUrl, oAuthClient, target, restClient, new CloudControllerV3Client(restClient), uploadRestClientFactory);
+    }
+
+    public CloudControllerRestClientV3Impl(URL v3ApiUrl, OAuthClient oAuthClient, CloudSpace target, RestClient restClient,
+                                           CloudControllerV3Client cc,
+                                           java.util.function.Function<java.time.Duration, RestClient> uploadRestClientFactory) {
         this.v3ApiUrl = v3ApiUrl;
         this.oAuthClient = oAuthClient;
         this.target = target;
         this.restClient = restClient;
-        this.cc = new CloudControllerV3Client(restClient);
+        this.cc = cc;
         this.buildsOps = new BuildsV3Operations(cc, target);
         this.domainsOps = new DomainsV3Operations(cc, target);
         this.eventsOps = new EventsV3Operations(cc, target);
         this.jobsOps = new JobsV3Operations(cc, target);
-        this.packagesOps = new PackagesV3Operations(cc, target);
+        this.packagesOps = new PackagesV3Operations(cc, target, uploadRestClientFactory);
         this.processesOps = new ProcessesV3Operations(cc, target);
         this.rolesOps = new RolesV3Operations(cc, target);
         this.routesOps = new RoutesV3Operations(cc, target);

@@ -28,6 +28,7 @@ import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClient;
 
 /**
  * CF v3 <em>packages</em> operations of the cf-java-client replacement. Reproduces the HTTP shape and domain mapping of the OSS
@@ -53,10 +54,19 @@ public class PackagesV3Operations {
 
     private final CloudControllerV3Client cc;
     private final CloudSpace target;
+    // Builds a RestClient whose response timeout is the given per-upload timeout, so a stalled bits upload is bounded by the
+    // user-configured UPLOAD_TIMEOUT (mirrors the OSS .timeout(uploadTimeout)). May be null, in which case the shared client is used.
+    private final java.util.function.Function<java.time.Duration, RestClient> uploadRestClientFactory;
 
     public PackagesV3Operations(CloudControllerV3Client cc, CloudSpace target) {
+        this(cc, target, null);
+    }
+
+    public PackagesV3Operations(CloudControllerV3Client cc, CloudSpace target,
+                                java.util.function.Function<java.time.Duration, RestClient> uploadRestClientFactory) {
         this.cc = cc;
         this.target = target;
+        this.uploadRestClientFactory = uploadRestClientFactory;
     }
 
     public CloudPackage getPackage(UUID packageGuid) {
@@ -122,15 +132,24 @@ public class PackagesV3Operations {
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("bits", new FileSystemResource(file));
-        cc.getRestClient()
-          .post()
-          .uri("/v3/packages/{guid}/upload", packageGuid)
-          .contentType(MediaType.MULTIPART_FORM_DATA)
-          .body(body)
-          .retrieve()
-          .toBodilessEntity();
+        // Bound the bits upload by the caller's per-MTA uploadTimeout via a dedicated RestClient whose response timeout is that value
+        // (see CloudControllerRestClientFactory). Fall back to the shared client if no factory/timeout was supplied.
+        RestClient uploadClient = resolveUploadClient(uploadTimeout);
+        uploadClient.post()
+                    .uri("/v3/packages/{guid}/upload", packageGuid)
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .body(body)
+                    .retrieve()
+                    .toBodilessEntity();
 
         return getPackage(packageGuid);
+    }
+
+    private RestClient resolveUploadClient(Duration uploadTimeout) {
+        if (uploadRestClientFactory != null && uploadTimeout != null && !uploadTimeout.isZero() && !uploadTimeout.isNegative()) {
+            return uploadRestClientFactory.apply(uploadTimeout);
+        }
+        return cc.getRestClient();
     }
 
     private CloudPackage createBitsPackage(UUID applicationGuid) {

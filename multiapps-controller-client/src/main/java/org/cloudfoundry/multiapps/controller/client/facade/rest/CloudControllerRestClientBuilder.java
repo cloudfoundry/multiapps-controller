@@ -1,57 +1,71 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
 import java.net.URL;
-import java.net.http.HttpClient;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.client.JdkClientHttpRequestFactory;
+import org.springframework.http.client.ReactorClientHttpRequestFactory;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+import org.springframework.web.reactive.function.client.ClientRequest;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.netty.channel.ChannelOption;
+import io.netty.handler.ssl.SslContextBuilder;
 import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuthClient;
+import reactor.netty.http.client.HttpClient;
+import reactor.netty.resources.ConnectionProvider;
 
 /**
  * Builds the blocking Spring {@link RestClient} used by {@link CloudControllerRestClientV3Impl} to talk to the Cloud Controller v3
  * REST API directly, without the OSS cf-java-client.
  * <p>
- * The transport is the JDK {@link java.net.http.HttpClient} (via {@link JdkClientHttpRequestFactory}). This is deliberately chosen over
- * reactor-netty: it is already available through {@code spring-web} and the JDK, so it pulls <em>no</em> extra transitive dependencies
- * (no reactor-netty, no spring-webflux) into the deploy-service WAR — which is exactly the dependency-shedding this migration is about.
- * The JDK client provides connection reuse (HTTP/2 multiplexing + keep-alive) and connect/read timeouts; TLS trust is configurable for
- * self-signed landscapes. Every request carries a bearer token from {@link OAuthClient} (refreshed as needed), and non-2xx responses are
- * mapped to {@code CloudOperationException} by the existing {@link CloudControllerResponseErrorHandler}.
+ * The transport is <b>Reactor-Netty</b> (via Spring's {@link ReactorClientHttpRequestFactory}, which lives in {@code spring-web} — NOT
+ * {@code spring-webflux}). This is the same HTTP engine the deploy-service ran on under the OSS client, so its proven behavior
+ * (connection pooling, TLS, timeouts, proxy handling on the target landscapes) is preserved; only the cf-java-client library on top of it
+ * was removed. The tuning knobs the OSS {@code DefaultConnectionContext} honored are restored here: pool size (via {@link ConnectionProvider}),
+ * connect timeout, and response timeout. The caller still consumes everything synchronously through {@link RestClient} — Reactor-Netty is
+ * used purely as the transport, exactly as before.
+ * <p>
+ * Every request carries a bearer token from {@link OAuthClient} (refreshed as needed), and non-2xx responses are mapped to
+ * {@code CloudOperationException} by the existing {@link CloudControllerResponseErrorHandler}.
  */
 public final class CloudControllerRestClientBuilder {
 
     private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofMinutes(1);
+    private static final int DEFAULT_CONNECTION_POOL_SIZE = 192;
+    private static final String CONNECTION_POOL_NAME = "cf-controller-client";
 
     private CloudControllerRestClientBuilder() {
     }
 
     public static RestClient build(URL v3ApiUrl, OAuthClient oAuthClient, Map<String, String> requestTags, TransportOptions options) {
-        JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory(buildHttpClient(options));
-        options.responseTimeout()
-               .ifPresent(requestFactory::setReadTimeout);
+        return buildRestClient(buildHttpClient(options), v3ApiUrl, oAuthClient, requestTags);
+    }
+
+    /**
+     * Build a blocking {@link RestClient} on the given (already-configured) Reactor-Netty {@link HttpClient}. Sharing one
+     * {@code HttpClient} between the RestClient and the {@link #buildWebClient WebClient} means both ride the same connection pool,
+     * timeouts, TLS and proxy settings.
+     */
+    public static RestClient buildRestClient(HttpClient httpClient, URL baseUrl, OAuthClient oAuthClient,
+                                             Map<String, String> requestTags) {
         return RestClient.builder()
-                         .baseUrl(v3ApiUrl.toString())
-                         .requestFactory(requestFactory)
+                         .baseUrl(baseUrl.toString())
+                         .requestFactory(new ReactorClientHttpRequestFactory(httpClient))
                          // Pass a fully-formed converter list via the List overload — deliberately NOT the Consumer overload.
                          // messageConverters(Consumer) first calls initMessageConverters() to build Spring's DEFAULT list and only then
                          // hands it to the consumer; that default init eagerly constructs AllEncompassingFormHttpMessageConverter ->
@@ -80,23 +94,86 @@ public final class CloudControllerRestClientBuilder {
                          .build();
     }
 
-    private static HttpClient buildHttpClient(TransportOptions options) {
-        HttpClient.Builder builder = HttpClient.newBuilder()
-                                               .followRedirects(HttpClient.Redirect.NORMAL)
-                                               .connectTimeout(options.connectTimeout()
-                                                                      .orElse(DEFAULT_CONNECT_TIMEOUT));
-        if (options.trustSelfSignedCertificates()) {
-            builder.sslContext(buildTrustAllSslContext());
-        }
-        return builder.build();
+    /**
+     * Build a reactive {@link WebClient} on the same Reactor-Netty {@link HttpClient} as the RestClient, applying the identical
+     * per-request bearer auth (from {@link OAuthClient}, refreshed as needed) and request-tag headers. This is used only for the
+     * intra-operation concurrency spots (concurrent pagination) — the same mechanism the OSS client used — while the rest of the client
+     * stays on the blocking RestClient. Response error handling for these calls is done by the callers (they map WebClient errors the
+     * same way {@link CloudControllerResponseErrorHandler} does for the RestClient).
+     */
+    public static WebClient buildWebClient(HttpClient httpClient, URL baseUrl, OAuthClient oAuthClient,
+                                           Map<String, String> requestTags) {
+        return WebClient.builder()
+                        .baseUrl(baseUrl.toString())
+                        .clientConnector(new ReactorClientHttpConnector(httpClient))
+                        .filter(authAndTagsFilter(oAuthClient, requestTags))
+                        .build();
     }
 
-    private static SSLContext buildTrustAllSslContext() {
+    private static ExchangeFilterFunction authAndTagsFilter(OAuthClient oAuthClient, Map<String, String> requestTags) {
+        return (request, next) -> {
+            ClientRequest.Builder builder = ClientRequest.from(request);
+            String authorization = oAuthClient.getAuthorizationHeaderValue();
+            if (authorization != null) {
+                builder.header(HttpHeaders.AUTHORIZATION, authorization);
+            }
+            requestTags.forEach(builder::header);
+            return next.exchange(builder.build());
+        };
+    }
+
+    static HttpClient buildHttpClient(TransportOptions options) {
+        int poolSize = options.connectionPoolSize()
+                              .orElse(DEFAULT_CONNECTION_POOL_SIZE);
+        ConnectionProvider connectionProvider = ConnectionProvider.builder(CONNECTION_POOL_NAME)
+                                                                  .maxConnections(poolSize)
+                                                                  .build();
+        HttpClient httpClient = HttpClient.create(connectionProvider)
+                                          .followRedirect(true)
+                                          // Honor JVM standard proxy settings (-Dhttp(s).proxyHost/proxyPort/nonProxyHosts), matching the
+                                          // OSS DefaultConnectionContext's proxy support. No-op when no proxy is configured, so it is safe
+                                          // on direct-connect landscapes and required on proxied ones.
+                                          .proxyWithSystemProperties();
+        int connectTimeoutMillis = (int) options.connectTimeout()
+                                                 .orElse(DEFAULT_CONNECT_TIMEOUT)
+                                                 .toMillis();
+        httpClient = httpClient.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeoutMillis);
+        Optional<Duration> responseTimeout = options.responseTimeout();
+        if (responseTimeout.isPresent()) {
+            httpClient = httpClient.responseTimeout(responseTimeout.get());
+        }
+        Optional<Duration> handshakeTimeout = options.sslHandshakeTimeout();
+        if (options.trustSelfSignedCertificates()) {
+            httpClient = httpClient.secure(spec -> {
+                var sslBuilder = spec.sslContext(buildTrustAllSslContext());
+                handshakeTimeout.ifPresent(sslBuilder::handshakeTimeout);
+            });
+        } else if (handshakeTimeout.isPresent()) {
+            httpClient = httpClient.secure(spec -> {
+                var sslBuilder = spec.sslContext(defaultClientSslContext());
+                sslBuilder.handshakeTimeout(handshakeTimeout.get());
+            });
+        } else {
+            httpClient = httpClient.secure();
+        }
+        return httpClient;
+    }
+
+    private static io.netty.handler.ssl.SslContext defaultClientSslContext() {
         try {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, new TrustManager[] { trustAllManager() }, new SecureRandom());
-            return sslContext;
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+            return SslContextBuilder.forClient()
+                                    .build();
+        } catch (javax.net.ssl.SSLException e) {
+            throw new IllegalStateException("An error occurred setting up the default SSLContext", e);
+        }
+    }
+
+    private static io.netty.handler.ssl.SslContext buildTrustAllSslContext() {
+        try {
+            return SslContextBuilder.forClient()
+                                    .trustManager(trustAllManager())
+                                    .build();
+        } catch (javax.net.ssl.SSLException e) {
             throw new IllegalStateException("An error occurred setting up the SSLContext", e);
         }
     }
@@ -123,11 +200,13 @@ public final class CloudControllerRestClientBuilder {
     }
 
     /**
-     * The transport-tuning surface carried over from the OSS-backed factory, so operators keep the same knobs. {@code connectionPoolSize}
-     * is accepted for parity but the JDK client manages connection reuse internally; it is retained for a future backend swap.
+     * The transport-tuning surface, honored by the Reactor-Netty transport: {@code connectTimeout} and {@code responseTimeout} on the
+     * client, {@code sslHandshakeTimeout} on the TLS layer, {@code connectionPoolSize} on the {@link ConnectionProvider}. Mirrors the
+     * knobs the OSS {@code DefaultConnectionContext} exposed.
      */
     public record TransportOptions(Optional<Duration> connectTimeout, Optional<Duration> responseTimeout,
-                                   Optional<Integer> connectionPoolSize, boolean trustSelfSignedCertificates) {
+                                   Optional<Duration> sslHandshakeTimeout, Optional<Integer> connectionPoolSize,
+                                   boolean trustSelfSignedCertificates) {
     }
 
 }
