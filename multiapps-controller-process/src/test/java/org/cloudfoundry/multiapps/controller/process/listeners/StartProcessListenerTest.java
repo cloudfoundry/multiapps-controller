@@ -14,7 +14,11 @@ import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableAsyncUploadJobEntry;
 import org.cloudfoundry.multiapps.controller.persistence.query.OperationQuery;
+import org.cloudfoundry.multiapps.controller.persistence.query.AsyncUploadJobsQuery;
+import org.cloudfoundry.multiapps.controller.persistence.services.AsyncUploadJobService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
@@ -35,6 +39,7 @@ import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -47,6 +52,8 @@ import org.mockito.Spy;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class StartProcessListenerTest {
 
@@ -79,6 +86,10 @@ class StartProcessListenerTest {
     private HistoricOperationEventService historicOperationEventService;
     @Mock
     private FileService fileService;
+    @Mock(answer = Answers.RETURNS_SELF)
+    private AsyncUploadJobService asyncUploadJobService;
+    @Mock(answer = Answers.RETURNS_SELF)
+    private AsyncUploadJobsQuery asyncUploadJobsQuery;
     @Spy
     private ProcessTypeToOperationMetadataMapper operationMetadataMapper;
     @Mock
@@ -118,6 +129,7 @@ class StartProcessListenerTest {
                                             operationMetadataMapper,
                                             dynatracePublisher,
                                             fileService,
+                                            asyncUploadJobService,
                                             operationLogsExporter);
     }
 
@@ -134,25 +146,60 @@ class StartProcessListenerTest {
         verifyDynatracePublishEvent();
     }
 
+    @Test
+    void testAssociatedAsyncUploadJobsAreLogged() {
+        this.processType = ProcessType.DEPLOY;
+        this.processInstanceId = "process-instance-id";
+        prepare();
+        AsyncUploadJobEntry asyncUploadJob = ImmutableAsyncUploadJobEntry.builder()
+                                                                         .id("async-job-id")
+                                                                         .state(AsyncUploadJobEntry.State.FINISHED)
+                                                                         .user(USER)
+                                                                         .url("https://example.com/my.mtar")
+                                                                         .spaceGuid(SPACE_ID)
+                                                                         .fileId(APP_ARCHIVE_IDS.split(",")[0])
+                                                                         .instanceIndex(0)
+                                                                         .build();
+        when(asyncUploadJobsQuery.list()).thenReturn(List.of(asyncUploadJob));
+
+        listener.notify(execution);
+
+        List<String> expectedFileIds = List.of(ArrayUtils.addAll(APP_ARCHIVE_IDS.split(","), EXT_DESCRIPTOR_IDS.split(",")));
+        verify(asyncUploadJobsQuery)
+               .withFileIds(expectedFileIds);
+        verify(asyncUploadJobsQuery)
+               .list();
+    }
+
+    @Test
+    void testFailureToLogAsyncUploadJobsDoesNotBreakOperation() throws Exception {
+        this.processType = ProcessType.DEPLOY;
+        this.processInstanceId = "process-instance-id";
+        prepare();
+        when(asyncUploadJobService.createQuery()).thenThrow(new IllegalStateException("Async upload job store is unavailable"));
+
+        listener.notify(execution);
+
+        verifyOperationFilesAreUpdated();
+        verifyDynatracePublishEvent();
+    }
+
     private void prepare() {
         prepareContext();
-        Mockito.when(stepLoggerFactory.create(any(), any(), any(), any(), any()))
-               .thenReturn(stepLogger);
-        Mockito.when(operationService.createQuery())
-               .thenReturn(operationQuery);
+        when(stepLoggerFactory.create(any(), any(), any(), any(), any())).thenReturn(stepLogger);
+        when(operationService.createQuery()).thenReturn(operationQuery);
         Mockito.doReturn(null)
                .when(operationQuery)
                .singleResult();
+        when(asyncUploadJobService.createQuery()).thenReturn(asyncUploadJobsQuery);
+        when(asyncUploadJobsQuery.list()).thenReturn(Collections.emptyList());
     }
 
     private void prepareContext() {
         listener.currentTimeSupplier = currentTimeSupplier;
-        Mockito.when(execution.getProcessInstanceId())
-               .thenReturn(processInstanceId);
-        Mockito.when(execution.getVariables())
-               .thenReturn(Collections.emptyMap());
-        Mockito.when(processTypeParser.getProcessType(execution))
-               .thenReturn(processType);
+        when(execution.getProcessInstanceId()).thenReturn(processInstanceId);
+        when(execution.getVariables()).thenReturn(Collections.emptyMap());
+        when(processTypeParser.getProcessType(execution)).thenReturn(processType);
         VariableHandling.set(execution, Variables.SPACE_GUID, SPACE_ID);
         VariableHandling.set(execution, Variables.MTA_ID, MTA_ID);
         VariableHandling.set(execution, Variables.USER, USER);
@@ -178,13 +225,13 @@ class StartProcessListenerTest {
 
     private void verifyOperationFilesAreUpdated() throws FileStorageException {
         List<String> expectedFileIds = List.of(ArrayUtils.addAll(APP_ARCHIVE_IDS.split(","), EXT_DESCRIPTOR_IDS.split(",")));
-        Mockito.verify(fileService)
+        verify(fileService)
                .updateFilesOperationId(Mockito.eq(expectedFileIds), Mockito.anyString());
     }
 
     private void verifyDynatracePublishEvent() {
         ArgumentCaptor<DynatraceProcessEvent> argumentCaptor = ArgumentCaptor.forClass(DynatraceProcessEvent.class);
-        Mockito.verify(dynatracePublisher)
+        verify(dynatracePublisher)
                .publishProcessEvent(argumentCaptor.capture(), Mockito.any());
         DynatraceProcessEvent actualDynatraceEvent = argumentCaptor.getValue();
         assertEquals(MTA_ID, actualDynatraceEvent.getMtaId());
