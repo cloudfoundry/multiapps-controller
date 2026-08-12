@@ -242,6 +242,33 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
         verify(operationLogsExporter, never()).sendLogsToCloudLoggingService(any(), Mockito.<OperationLogEntry> any());
     }
 
+    @Test
+    void deploy_inactiveCloudLoggingResource_noExistingConfig_finishesWithoutSideEffects() {
+        prepareDeployContext(descriptorWithInactiveCloudLogging());
+
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
+        assertNull(context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION));
+        verify(loggingConfigurationQuery, never()).delete();
+        verify(auditLog, never()).logDeleteLoggingConfiguration(any(), any(), any());
+        verify(unsentProcessLogsProvider, never()).getUnsentProcessLogs(any());
+    }
+
+    @Test
+    void deploy_inactiveCloudLoggingResource_existingConfig_deletesExisting() {
+        LoggingConfiguration existing = buildConfig();
+        stubExistingConfig(existing);
+        prepareDeployContext(descriptorWithInactiveCloudLogging());
+
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
+        assertNull(context.getVariable(Variables.EXTERNAL_LOGGING_SERVICE_CONFIGURATION));
+        verify(auditLog).logDeleteLoggingConfiguration(USER_NAME, SPACE_GUID, existing);
+        verify(loggingConfigurationQuery).delete();
+    }
+
     private void prepareDeployContext(DeploymentDescriptor descriptor) {
         when(processTypeParser.getProcessType(any())).thenReturn(ProcessType.DEPLOY);
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
@@ -252,6 +279,16 @@ class CollectCloudLoggingServiceParametersStepTest extends SyncFlowableStepTest<
                                    .setResources(List.of(Resource.createV3()
                                                                  .setName("my-cls")
                                                                  .setType(CLOUD_LOGGING_RESOURCE_TYPE)
+                                                                 .setParameters(Map.of(SupportedParameters.TYPE,
+                                                                                       CLOUD_LOGGING_TYPE_PARAMETER))));
+    }
+
+    private static DeploymentDescriptor descriptorWithInactiveCloudLogging() {
+        return DeploymentDescriptor.createV3()
+                                   .setResources(List.of(Resource.createV3()
+                                                                 .setName("my-cls")
+                                                                 .setType(CLOUD_LOGGING_RESOURCE_TYPE)
+                                                                 .setActive(false)
                                                                  .setParameters(Map.of(SupportedParameters.TYPE,
                                                                                        CLOUD_LOGGING_TYPE_PARAMETER))));
     }
