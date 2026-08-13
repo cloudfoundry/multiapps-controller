@@ -146,7 +146,7 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
                                     .isEmpty()
             && deploymentDescriptor.getResources()
                                    .stream()
-                                   .anyMatch(CollectCloudLoggingServiceParametersStep::isCloudLoggingServiceResource);
+                                   .anyMatch(CollectCloudLoggingServiceParametersStep::isActiveCloudLoggingServiceResource);
     }
 
     protected LoggingConfiguration createLoggingServiceConfiguration(ProcessContext context,
@@ -179,9 +179,13 @@ public class CollectCloudLoggingServiceParametersStep extends SyncFlowableStep {
 
     private Resource findCloudLoggingServiceResource(List<Resource> resources) {
         return resources.stream()
-                        .filter(CollectCloudLoggingServiceParametersStep::isCloudLoggingServiceResource)
+                        .filter(CollectCloudLoggingServiceParametersStep::isActiveCloudLoggingServiceResource)
                         .findFirst()
                         .get();
+    }
+
+    private static boolean isActiveCloudLoggingServiceResource(Resource resource) {
+        return isCloudLoggingServiceResource(resource) && resource.isActive();
     }
 
     private static boolean isCloudLoggingServiceResource(Resource resource) {
