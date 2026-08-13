@@ -1,5 +1,16 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudException;
 import org.cloudfoundry.multiapps.controller.client.facade.adapters.LogCacheClient;
@@ -12,18 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-
 import reactor.netty.http.client.HttpClient;
 
 /**
@@ -82,9 +81,12 @@ public abstract class CloudControllerRestClientFactory {
         // per-MTA uploadTimeout, not the shared 900s response timeout. Build a dedicated RestClient whose response timeout is
         // that uploadTimeout, mirroring the OSS startUpload's .timeout(uploadTimeout). Everything else (pool, connect, TLS) matches.
         java.util.function.Function<Duration, RestClient> uploadRestClientFactory = uploadTimeout -> {
+            // Upload uses a one-off client with only its response timeout overridden; no dedicated event-loop pool (threadPoolSize empty)
+            // so it does not spin up its own LoopResources.
             var uploadOptions = new CloudControllerRestClientBuilder.TransportOptions(getConnectTimeout(), Optional.of(uploadTimeout),
-                                                                                     getSslHandshakeTimeout(), getConnectionPoolSize(),
-                                                                                     shouldTrustSelfSignedCertificates());
+                                                                                      getSslHandshakeTimeout(), getConnectionPoolSize(),
+                                                                                      Optional.empty(),
+                                                                                      shouldTrustSelfSignedCertificates());
             return CloudControllerRestClientBuilder.build(origin, oAuthClient, requestTags, uploadOptions);
         };
         return new CloudControllerRestClientV3Impl(v3ApiUrl, oAuthClient, target, restClient, cc, uploadRestClientFactory);
@@ -118,7 +120,8 @@ public abstract class CloudControllerRestClientFactory {
 
     private CloudControllerRestClientBuilder.TransportOptions transportOptions() {
         return new CloudControllerRestClientBuilder.TransportOptions(getConnectTimeout(), getResponseTimeout(), getSslHandshakeTimeout(),
-                                                                     getConnectionPoolSize(), shouldTrustSelfSignedCertificates());
+                                                                     getConnectionPoolSize(), getThreadPoolSize(),
+                                                                     shouldTrustSelfSignedCertificates());
     }
 
     // scheme://host[:port] of the given URL, dropping any path (e.g. the trailing /v3). The RestClient baseUrl must be the origin only,
