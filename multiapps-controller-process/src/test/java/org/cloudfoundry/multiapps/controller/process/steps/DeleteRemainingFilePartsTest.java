@@ -20,7 +20,7 @@ class DeleteRemainingFilePartsTest extends SyncFlowableStepTest<DeleteRemainingF
 
     private static final String DIGEST_ALGORITHM = "SHA-384";
     private static final String NAMESPACE = "namespace";
-    private static final String DIGEST = "A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2";
+    private static final String DIGEST = "A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6";
 
     @BeforeEach
     void setUp() {
