@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -9,6 +10,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.Messages;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudEntity;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
@@ -253,7 +255,7 @@ public class ServiceInstancesV3Operations {
         if (servicePlanGuid == null) {
             return V3ServiceInstanceMapper.toCloudServiceInstance(resource, null, null);
         }
-        ServicePlanNames names = resolvePlanAndOfferingNames(servicePlanGuid);
+        ServicePlanNames names = resolvePlanAndOfferingNames(servicePlanGuid, resource.name());
         return V3ServiceInstanceMapper.toCloudServiceInstance(resource, names.planName(), names.offeringName());
     }
 
@@ -283,19 +285,58 @@ public class ServiceInstancesV3Operations {
                        .guid();
     }
 
-    // Mirrors the OSS getServicePlanResource + getServiceOffering zip: resolve the plan's own name and its offering's name.
-    private ServicePlanNames resolvePlanAndOfferingNames(String servicePlanGuid) {
-        V3ServicePlan plan = cc.get("/v3/service_plans/" + servicePlanGuid, V3ServicePlan.class);
+    // Mirrors the OSS getServicePlanResource + getServiceOffering zip: resolve the plan's own name and its offering's name. Reproduces the
+    // OSS friendly-error mapping too — a 403/404 on the plan or offering lookup becomes a specific, human-readable CloudOperationException
+    // (instead of the generic one) so operators get the same messages as before.
+    private ServicePlanNames resolvePlanAndOfferingNames(String servicePlanGuid, String serviceInstanceName) {
+        V3ServicePlan plan = getServicePlanForNameResolution(servicePlanGuid, serviceInstanceName);
         if (plan == null) {
             return new ServicePlanNames(null, null);
         }
         String offeringName = null;
         String offeringGuid = offeringGuidOf(plan);
         if (offeringGuid != null) {
-            V3ServiceOffering offering = cc.get("/v3/service_offerings/" + offeringGuid, V3ServiceOffering.class);
+            V3ServiceOffering offering = getServiceOfferingForNameResolution(offeringGuid);
             offeringName = offering == null ? null : offering.name();
         }
         return new ServicePlanNames(plan.name(), offeringName);
+    }
+
+    private V3ServicePlan getServicePlanForNameResolution(String servicePlanGuid, String serviceInstanceName) {
+        try {
+            return cc.get("/v3/service_plans/" + servicePlanGuid, V3ServicePlan.class);
+        } catch (CloudOperationException e) {
+            if (e.getStatusCode() == HttpStatus.FORBIDDEN) {
+                throw new CloudOperationException(HttpStatus.FORBIDDEN, HttpStatus.FORBIDDEN.getReasonPhrase(),
+                                                  MessageFormat.format(Messages.SERVICE_PLAN_WITH_GUID_0_NOT_AVAILABLE_FOR_SERVICE_INSTANCE_1,
+                                                                       servicePlanGuid, serviceInstanceName),
+                                                  e);
+            }
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
+                                                  MessageFormat.format(Messages.NO_SERVICE_PLAN_FOUND, servicePlanGuid,
+                                                                       serviceInstanceName),
+                                                  e);
+            }
+            throw e;
+        }
+    }
+
+    private V3ServiceOffering getServiceOfferingForNameResolution(String offeringGuid) {
+        try {
+            return cc.get("/v3/service_offerings/" + offeringGuid, V3ServiceOffering.class);
+        } catch (CloudOperationException e) {
+            if (e.getStatusCode() == HttpStatus.FORBIDDEN) {
+                throw new CloudOperationException(HttpStatus.FORBIDDEN, HttpStatus.FORBIDDEN.getReasonPhrase(),
+                                                  MessageFormat.format(Messages.SERVICE_OFFERING_WITH_GUID_0_IS_NOT_AVAILABLE, offeringGuid),
+                                                  e);
+            }
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
+                                                  MessageFormat.format(Messages.SERVICE_OFFERING_WITH_GUID_0_NOT_FOUND, offeringGuid), e);
+            }
+            throw e;
+        }
     }
 
     private String offeringGuidOf(V3ServicePlan plan) {

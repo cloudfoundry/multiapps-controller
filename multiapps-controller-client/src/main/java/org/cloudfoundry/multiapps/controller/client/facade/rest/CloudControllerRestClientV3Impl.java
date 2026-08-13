@@ -606,12 +606,21 @@ public class CloudControllerRestClientV3Impl implements CloudControllerRestClien
     @Override
     public void rename(String applicationName, String newName) {
         UUID guid = getApplicationGuid(applicationName);
-        cc.getRestClient()
-          .patch()
-          .uri("/v3/apps/{guid}", guid)
-          .body(Map.of("name", newName))
-          .retrieve()
-          .toBodilessEntity();
+        try {
+            cc.getRestClient()
+              .patch()
+              .uri("/v3/apps/{guid}", guid)
+              .body(Map.of("name", newName))
+              .retrieve()
+              .toBodilessEntity();
+        } catch (CloudOperationException e) {
+            // Idempotent-rename tolerance (mirrors the OSS fallbackApplicationRename): the CC can answer 503 to a rename that in fact
+            // already took effect. If the app is already named newName, treat the rename as successful; otherwise propagate.
+            if (e.getStatusCode() == HttpStatus.SERVICE_UNAVAILABLE && newName.equals(getApplicationName(guid))) {
+                return;
+            }
+            throw e;
+        }
     }
 
     @Override

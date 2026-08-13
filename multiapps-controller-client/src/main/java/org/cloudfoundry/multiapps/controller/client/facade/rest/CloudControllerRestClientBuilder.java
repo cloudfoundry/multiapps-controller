@@ -28,6 +28,7 @@ import io.netty.handler.ssl.SslContextBuilder;
 import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuthClient;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
+import reactor.netty.resources.LoopResources;
 
 /**
  * Builds the blocking Spring {@link RestClient} used by {@link CloudControllerRestClientV3Impl} to talk to the Cloud Controller v3
@@ -138,6 +139,13 @@ public final class CloudControllerRestClientBuilder {
                                                  .orElse(DEFAULT_CONNECT_TIMEOUT)
                                                  .toMillis();
         httpClient = httpClient.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeoutMillis);
+        // Size the I/O event-loop pool from threadPoolSize, mirroring the OSS DefaultConnectionContext.threadPoolSize (which created a
+        // reactor-netty LoopResources the client ran on). When unset, reactor-netty uses its shared default LoopResources.
+        Optional<Integer> threadPoolSize = options.threadPoolSize();
+        if (threadPoolSize.isPresent()) {
+            LoopResources loopResources = LoopResources.create(CONNECTION_POOL_NAME + "-loop", threadPoolSize.get(), true);
+            httpClient = httpClient.runOn(loopResources);
+        }
         Optional<Duration> responseTimeout = options.responseTimeout();
         if (responseTimeout.isPresent()) {
             httpClient = httpClient.responseTimeout(responseTimeout.get());
@@ -201,12 +209,13 @@ public final class CloudControllerRestClientBuilder {
 
     /**
      * The transport-tuning surface, honored by the Reactor-Netty transport: {@code connectTimeout} and {@code responseTimeout} on the
-     * client, {@code sslHandshakeTimeout} on the TLS layer, {@code connectionPoolSize} on the {@link ConnectionProvider}. Mirrors the
-     * knobs the OSS {@code DefaultConnectionContext} exposed.
+     * client, {@code sslHandshakeTimeout} on the TLS layer, {@code connectionPoolSize} on the {@link ConnectionProvider}, and
+     * {@code threadPoolSize} on the I/O event-loop ({@link LoopResources}). Mirrors the knobs the OSS {@code DefaultConnectionContext}
+     * exposed.
      */
     public record TransportOptions(Optional<Duration> connectTimeout, Optional<Duration> responseTimeout,
                                    Optional<Duration> sslHandshakeTimeout, Optional<Integer> connectionPoolSize,
-                                   boolean trustSelfSignedCertificates) {
+                                   Optional<Integer> threadPoolSize, boolean trustSelfSignedCertificates) {
     }
 
 }
