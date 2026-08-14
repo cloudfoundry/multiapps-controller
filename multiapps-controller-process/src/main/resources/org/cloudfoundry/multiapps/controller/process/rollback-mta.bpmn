@@ -85,6 +85,7 @@
         <flowable:in source="keepFiles" target="keepFiles"></flowable:in>
         <flowable:in source="appArchiveId" target="appArchiveId"></flowable:in>
         <flowable:in source="mtaExtDescriptorId" target="mtaExtDescriptorId"></flowable:in>
+        <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="appsToUndeploy" flowable:elementVariable="appToProcess">
         <extensionElements></extensionElements>
