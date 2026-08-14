@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 
 class DeleteRemainingFilePartsTest extends SyncFlowableStepTest<DeleteRemainingFileParts> {
 
-    private static final String DIGEST_ALGORITHM = "SHA-256";
+    private static final String DIGEST_ALGORITHM = "SHA256";
     private static final String NAMESPACE = "namespace";
     private static final String DIGEST = "A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2";
 

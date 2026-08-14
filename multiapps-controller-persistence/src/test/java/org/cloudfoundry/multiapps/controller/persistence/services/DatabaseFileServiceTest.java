@@ -54,7 +54,7 @@ class DatabaseFileServiceTest {
     private static final String SELECT_FILE_WITH_CONTENT = "SELECT FILE_ID FROM {0} WHERE FILE_ID=? AND CONTENT IS NOT NULL";
     private static final String UPDATE_MODIFICATION_TIME = "UPDATE {0} SET MODIFIED=? WHERE FILE_ID=?";
     private static final String LIQUIBASE_CHANGELOG_LOCATION = "org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog.xml";
-    private static final String DIGEST_METHOD = "SHA-256";
+    private static final String DIGEST_METHOD = "SHA256";
     private static final String PIC_SHA256_DIGEST = "061a61ef096cc57d4a88f791a9cce86d28c75f8469927387266424d803cc7e99";
     protected FileService fileService;
 

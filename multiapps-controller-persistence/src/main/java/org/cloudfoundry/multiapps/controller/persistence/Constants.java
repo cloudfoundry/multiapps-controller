@@ -8,7 +8,7 @@ public class Constants {
     public static final String INDEXED_STEP_NAME = "__INDEXED_STEP_NAME";
     public static final String VARIABLE_NAME_SERVICE_ID = "__SERVICE_ID";
 
-    public static final String DIGEST_ALGORITHM = "SHA-256";
+    public static final String DIGEST_ALGORITHM = "SHA256";
 
     public static final String FILE_ENTRY_CONTENT = "CONTENT";
     public static final String FILE_ENTRY_MODIFIED = "MODIFIED";
