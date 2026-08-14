@@ -39,7 +39,7 @@ class FileInfoTest {
         FileInfo info = ImmutableFileInfo.builder()
                                          .size(BigInteger.valueOf(5))
                                          .digest("digest")
-                                         .digestAlgorithm("SHA-384")
+                                         .digestAlgorithm("SHA-256")
                                          .file(file.toFile())
                                          .build();
 
@@ -55,7 +55,7 @@ class FileInfoTest {
         FileInfo info = ImmutableFileInfo.builder()
                                          .size(BigInteger.ZERO)
                                          .digest("digest")
-                                         .digestAlgorithm("SHA-384")
+                                         .digestAlgorithm("SHA-256")
                                          .file(missing)
                                          .build();
 
