@@ -84,7 +84,37 @@
         <extensionElements></extensionElements>
       </multiInstanceLoopCharacteristics>
     </callActivity>
-    <callActivity id="undeployAppCallActivity" name="Undeploy App Call Activity" flowable:async="true" calledElement="undeployAppSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+    <callActivity id="undeployAppCallActivity" name="Undeploy App Call Activity" flowable:async="true" calledElement="undeployAppSubProcess" flowable:calledElementType="key" flowable:inheritVariables="false" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+      <extensionElements>
+        <flowable:in source="appsToUndeploy" target="appsToUndeploy"></flowable:in>
+        <flowable:in source="correlationId" target="correlationId"></flowable:in>
+        <flowable:in source="user" target="user"></flowable:in>
+        <flowable:in source="userGuid" target="userGuid"></flowable:in>
+        <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
+        <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
+        <flowable:in source="externalLoggingServiceConfigurations" target="externalLoggingServiceConfigurations"></flowable:in>
+        <flowable:in source="mtaDeploymentDescriptor" target="mtaDeploymentDescriptor"></flowable:in>
+        <flowable:in source="completeMtaDeploymentDescriptor" target="completeMtaDeploymentDescriptor"></flowable:in>
+        <flowable:in source="moduleToDeploy" target="moduleToDeploy"></flowable:in>
+        <flowable:in source="mtaId" target="mtaId"></flowable:in>
+        <flowable:in source="subprocessPhase" target="subprocessPhase"></flowable:in>
+        <flowable:in source="phase" target="phase"></flowable:in>
+        <flowable:in source="deployedMta" target="deployedMta"></flowable:in>
+        <flowable:in source="idleMtaColor" target="idleMtaColor"></flowable:in>
+        <flowable:in source="liveMtaColor" target="liveMtaColor"></flowable:in>
+        <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
+        <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
+        <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
+        <flowable:in source="processId" target="processId"></flowable:in>
+        <flowable:in source="useLastOperationForServiceBindingDeletion" target="useLastOperationForServiceBindingDeletion"></flowable:in>
+        <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
+        <flowable:in source="mtaMajorSchemaVersion" target="mtaMajorSchemaVersion"></flowable:in>
+        <flowable:in source="namespace" target="namespace"></flowable:in>
+        <flowable:in source="keepFiles" target="keepFiles"></flowable:in>
+        <flowable:in source="appArchiveId" target="appArchiveId"></flowable:in>
+        <flowable:in source="mtaExtDescriptorId" target="mtaExtDescriptorId"></flowable:in>
+        <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
+      </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="appsToUndeploy" flowable:elementVariable="appToProcess">
         <extensionElements></extensionElements>
       </multiInstanceLoopCharacteristics>
