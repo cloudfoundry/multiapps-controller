@@ -25,8 +25,8 @@ class ApplicationDigestCalculatorTest {
 
     private static final String SPACE_GUID = "123";
     private static final String APP_ARCHIVE_ID = "132";
-    private static final String DB_DIRECTORY_MODULE_DIGEST = "71017C6429E2E1FA4ED2AD97ABF321A0";
-    private static final String WEB_SERVER_MODULE_DIGEST = "4C64A36CDC073B5D07947005F630DACC";
+    private static final String DB_DIRECTORY_MODULE_DIGEST = "201E068B8D5F1681672A86D85975B48179FF3C8F5AE5EA440C5453DEDE9F46C9";
+    private static final String WEB_SERVER_MODULE_DIGEST = "3F89FDE951B020507002CD12BBB77D62D88E6F556C26DA75D18C77D61CBCD07D";
 
     @Mock
     private FileService fileService;
