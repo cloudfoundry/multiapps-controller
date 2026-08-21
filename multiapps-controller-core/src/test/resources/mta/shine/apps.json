@@ -10,7 +10,7 @@
         "mta_bound_services": "[\"uaa\"]"
       },
       "labels": {
-        "mta_id": "be5ee71b7aaf0d059a831b9babd5547c"
+        "mta_id": "711e220d596737d3bd428f1e5da74793bd2fbfdbc39e8c34fbfac195b3758f"
       }
     },
     "moduleName": "shine",
@@ -65,7 +65,7 @@
         "mta_bound_services": "[\"uaa\",\"shine-database\"]"
       },
       "labels": {
-        "mta_id": "be5ee71b7aaf0d059a831b9babd5547c"
+        "mta_id": "711e220d596737d3bd428f1e5da74793bd2fbfdbc39e8c34fbfac195b3758f"
       }
     },
     "moduleName": "shine-xsjs",
@@ -121,7 +121,7 @@
         "mta_bound_services": "[\"uaa\",\"shine-database\"]"
       },
       "labels": {
-        "mta_id": "be5ee71b7aaf0d059a831b9babd5547c"
+        "mta_id": "711e220d596737d3bd428f1e5da74793bd2fbfdbc39e8c34fbfac195b3758f"
       }
     },
     "moduleName": "shine-odata",

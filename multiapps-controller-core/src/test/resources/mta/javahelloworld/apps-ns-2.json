@@ -11,8 +11,8 @@
         "mta_bound_services": "[\"namespace2-but-it-is-really-really-long-uaa\"]"
       },
       "labels": {
-        "mta_id": "c232c91455fc92b226129257682792b2",
-        "mta_namespace": "f2748a3f7a3ccdaa81947be34bd4464b"
+        "mta_id": "d0c0b094ae15f84d44022588991f2b04329606a2169e3f3c2d5bb509d07153",
+        "mta_namespace": "dc4b65986c567aa8fbd1a23fcbea022b00e0244aa12023e73c24d6d0f25a5b"
       }
     },
     "moduleName": "java-hello-world",
@@ -68,8 +68,8 @@
         "mta_bound_services": "[\"namespace2-but-it-is-really-really-long-uaa\",\"namespace2-but-it-is-really-really-long-ja4fcad984\"]"
       },
       "labels": {
-        "mta_id": "c232c91455fc92b226129257682792b2",
-        "mta_namespace": "f2748a3f7a3ccdaa81947be34bd4464b"
+        "mta_id": "d0c0b094ae15f84d44022588991f2b04329606a2169e3f3c2d5bb509d07153",
+        "mta_namespace": "dc4b65986c567aa8fbd1a23fcbea022b00e0244aa12023e73c24d6d0f25a5b"
       }
     },
     "moduleName": "java-hello-world-backend",
@@ -128,8 +128,8 @@
         "mta_bound_services": "[\"namespace2-but-it-is-really-really-long-ja4fcad984\"]"
       },
       "labels": {
-        "mta_id": "c232c91455fc92b226129257682792b2",
-        "mta_namespace": "f2748a3f7a3ccdaa81947be34bd4464b"
+        "mta_id": "d0c0b094ae15f84d44022588991f2b04329606a2169e3f3c2d5bb509d07153",
+        "mta_namespace": "dc4b65986c567aa8fbd1a23fcbea022b00e0244aa12023e73c24d6d0f25a5b"
       }
     },
     "moduleName": "java-hello-world-db",

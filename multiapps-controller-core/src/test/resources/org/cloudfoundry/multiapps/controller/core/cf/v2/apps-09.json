@@ -10,7 +10,7 @@
         "mta_bound_services": "[]"
       },
       "labels": {
-        "mta_id": "30a5c6eb633271c624fc7c1f2aec51c4"
+        "mta_id": "fb9943d61485a927f2aa982f1953018b3aa5b7d6295e97c5880d8a3deb71de"
       }
     },
     "moduleName": "module-1",
@@ -76,7 +76,7 @@
         "mta_bound_services": "[]"
       },
       "labels": {
-        "mta_id": "30a5c6eb633271c624fc7c1f2aec51c4"
+        "mta_id": "fb9943d61485a927f2aa982f1953018b3aa5b7d6295e97c5880d8a3deb71de"
       }
     },
     "moduleName": "module-2",
@@ -128,7 +128,7 @@
         "mta_bound_services": "[]"
       },
       "labels": {
-        "mta_id": "30a5c6eb633271c624fc7c1f2aec51c4"
+        "mta_id": "fb9943d61485a927f2aa982f1953018b3aa5b7d6295e97c5880d8a3deb71de"
       }
     },
     "moduleName": "module-3",
@@ -180,7 +180,7 @@
         "mta_bound_services": "[]"
       },
       "labels": {
-        "mta_id": "30a5c6eb633271c624fc7c1f2aec51c4"
+        "mta_id": "fb9943d61485a927f2aa982f1953018b3aa5b7d6295e97c5880d8a3deb71de"
       }
     },
     "moduleName": "module-4",

@@ -16,7 +16,7 @@
             "mta_bound_services": "[]"
           },
           "labels": {
-            "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
+            "mta_id": "726f2da21cc3ae9ec51d9311a777f6dd038ab32bca51e35fbdd19385cb98ce"
           }
         },
         "moduleName": "foo",
@@ -37,7 +37,7 @@
             "mta_bound_services": "[]"
           },
           "labels": {
-            "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
+            "mta_id": "726f2da21cc3ae9ec51d9311a777f6dd038ab32bca51e35fbdd19385cb98ce"
           }
         },
         "moduleName": "bar",
@@ -58,7 +58,7 @@
             "mta_resource": "{\"name\":\"mta-service\"}"
           },
           "labels": {
-            "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
+            "mta_id": "726f2da21cc3ae9ec51d9311a777f6dd038ab32bca51e35fbdd19385cb98ce"
           }
         },
         "credentials": {
@@ -88,7 +88,7 @@
             "mta_namespace": "other-namespace"
           },
           "labels": {
-            "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba",
+            "mta_id": "726f2da21cc3ae9ec51d9311a777f6dd038ab32bca51e35fbdd19385cb98ce",
             "mta_namespace": "other-namespace-hashed"
           }
         },
@@ -111,7 +111,7 @@
             "mta_namespace": "other-namespace"
           },
           "labels": {
-            "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba",
+            "mta_id": "726f2da21cc3ae9ec51d9311a777f6dd038ab32bca51e35fbdd19385cb98ce",
             "mta_namespace": "other-namespace-hashed"
           }
         },
@@ -134,7 +134,7 @@
             "mta_namespace": "other-namespace"
           },
           "labels": {
-            "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba",
+            "mta_id": "726f2da21cc3ae9ec51d9311a777f6dd038ab32bca51e35fbdd19385cb98ce",
             "mta_namespace": "other-namespace-hashed"
           }
         },
@@ -165,7 +165,7 @@
             "mta_namespace": "namespace"
           },
           "labels": {
-            "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba",
+            "mta_id": "726f2da21cc3ae9ec51d9311a777f6dd038ab32bca51e35fbdd19385cb98ce",
             "mta_namespace": "namespace-hashed"
           }
         },
@@ -188,7 +188,7 @@
             "mta_namespace": "namespace"
           },
           "labels": {
-            "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba",
+            "mta_id": "726f2da21cc3ae9ec51d9311a777f6dd038ab32bca51e35fbdd19385cb98ce",
             "mta_namespace": "namespace-hashed"
           }
         },
@@ -211,7 +211,7 @@
             "mta_namespace": "namespace"
           },
           "labels": {
-            "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba",
+            "mta_id": "726f2da21cc3ae9ec51d9311a777f6dd038ab32bca51e35fbdd19385cb98ce",
             "mta_namespace": "namespace-hashed"
           }
         },

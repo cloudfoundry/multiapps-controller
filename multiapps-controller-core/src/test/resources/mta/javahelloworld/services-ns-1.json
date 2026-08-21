@@ -10,8 +10,8 @@
       "mta_namespace" : "namespace1"
     },
     "labels" : {
-      "mta_id" : "c232c91455fc92b226129257682792b2",
-      "mta_namespace" : "612897f0683dd83be850731b14801182"
+      "mta_id" : "d0c0b094ae15f84d44022588991f2b04329606a2169e3f3c2d5bb509d07153",
+      "mta_namespace" : "2813bb9521e9b7e26697f5a31fe8743bdba7e6ffc9c77c756e2b11df5dbcfa"
     }
   },
   "credentials" : { },
@@ -45,8 +45,8 @@
       "mta_resource" : "{\"name\":\"uaa\"}"
     },
     "labels" : {
-      "mta_id" : "c232c91455fc92b226129257682792b2",
-      "mta_namespace" : "612897f0683dd83be850731b14801182"
+      "mta_id" : "d0c0b094ae15f84d44022588991f2b04329606a2169e3f3c2d5bb509d07153",
+      "mta_namespace" : "2813bb9521e9b7e26697f5a31fe8743bdba7e6ffc9c77c756e2b11df5dbcfa"
     }
   },
   "shouldSkipParametersUpdate" : false,

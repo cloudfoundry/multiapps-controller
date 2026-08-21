@@ -10,7 +10,7 @@
         "mta_bound_services": "[\"di-core-hdi\"]"
       },
       "labels": {
-        "mta_id": "81530aa8411b2e488fa727eda264e137"
+        "mta_id": "ad83d761765e734c019bdc8ae14d53c2caa6c62c76c57948ac085f2b56e556"
       }
     },
     "moduleName": "di-core",
@@ -72,7 +72,7 @@
         "mta_bound_services": "[]"
       },
       "labels": {
-        "mta_id": "81530aa8411b2e488fa727eda264e137"
+        "mta_id": "ad83d761765e734c019bdc8ae14d53c2caa6c62c76c57948ac085f2b56e556"
       }
     },
     "moduleName": "di-builder",
@@ -132,7 +132,7 @@
         "mta_bound_services": "[]"
       },
       "labels": {
-        "mta_id": "81530aa8411b2e488fa727eda264e137"
+        "mta_id": "ad83d761765e734c019bdc8ae14d53c2caa6c62c76c57948ac085f2b56e556"
       }
     },
     "moduleName": "di-runner",

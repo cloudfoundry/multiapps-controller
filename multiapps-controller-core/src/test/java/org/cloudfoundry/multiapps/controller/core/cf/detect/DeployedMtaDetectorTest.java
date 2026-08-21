@@ -180,10 +180,12 @@ class DeployedMtaDetectorTest {
     private void verifyNamespaceWasChecked(String namespace) {
         if (namespace != null) {
             Mockito.verify(client)
-                   .getApplicationsByMetadataLabelSelector(Mockito.contains("mta_namespace=" + MtaMetadataUtil.getHashedLabel(namespace)));
+                   .getApplicationsByMetadataLabelSelector(Mockito.contains("mta_namespace in (" + MtaMetadataUtil.getHashedLabel(namespace)
+                       + "," + MtaMetadataUtil.getLegacyHashedLabel(namespace)));
             Mockito.verify(client)
                    .getServiceInstancesByMetadataLabelSelector(
-                       Mockito.contains("mta_namespace=" + MtaMetadataUtil.getHashedLabel(namespace)));
+                       Mockito.contains("mta_namespace in (" + MtaMetadataUtil.getHashedLabel(namespace) + ","
+                           + MtaMetadataUtil.getLegacyHashedLabel(namespace)));
 
         } else {
             Mockito.verify(client)
@@ -195,9 +197,9 @@ class DeployedMtaDetectorTest {
 
     private void verifyNameWasChecked(String name) {
         Mockito.verify(client)
-               .getApplicationsByMetadataLabelSelector(Mockito.contains("mta_id=" + MtaMetadataUtil.getHashedLabel(name)));
+               .getApplicationsByMetadataLabelSelector(Mockito.contains("mta_id in (" + MtaMetadataUtil.getHashedLabel(name)));
         Mockito.verify(client)
-               .getServiceInstancesByMetadataLabelSelector(Mockito.contains("mta_id=" + MtaMetadataUtil.getHashedLabel(name)));
+               .getServiceInstancesByMetadataLabelSelector(Mockito.contains("mta_id in (" + MtaMetadataUtil.getHashedLabel(name)));
     }
 
     private List<CloudApplication> parseApps(String appsResourceLocation) {

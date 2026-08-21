@@ -10,8 +10,8 @@
       "mta_resource" : "{\"name\":\"java-hdi-container\"}"
     },
     "labels" : {
-      "mta_id" : "c232c91455fc92b226129257682792b2",
-      "mta_namespace" : "597179610e593e09b3dd04d4dc6327fb"
+      "mta_id" : "d0c0b094ae15f84d44022588991f2b04329606a2169e3f3c2d5bb509d07153",
+      "mta_namespace" : "e85581af87cad59269b780274f5f78d09399c4105cf1076b9df2d187555b17"
     }
   },
   "label" : "hana",
@@ -36,8 +36,8 @@
       "mta_resource" : "{\"name\":\"uaa\"}"
     },
     "labels" : {
-      "mta_id" : "c232c91455fc92b226129257682792b2",
-      "mta_namespace" : "597179610e593e09b3dd04d4dc6327fb"
+      "mta_id" : "d0c0b094ae15f84d44022588991f2b04329606a2169e3f3c2d5bb509d07153",
+      "mta_namespace" : "e85581af87cad59269b780274f5f78d09399c4105cf1076b9df2d187555b17"
     }
   },
   "credentials" : {

@@ -11,8 +11,8 @@
         "mta_bound_services": "[]"
       },
       "labels": {
-        "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba",
-        "mta_namespace": "437b930db84b8079c2dd804a71936b5f"
+        "mta_id": "726f2da21cc3ae9ec51d9311a777f6dd038ab32bca51e35fbdd19385cb98ce",
+        "mta_namespace": "3ae3c5fc342497c274c50f11609eecc460328cf0b6027d865bf205955c81e4"
       }
     },
     "moduleName": "module-1",
@@ -66,8 +66,8 @@
         "mta_bound_services": "[]"
       },
       "labels": {
-        "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba",
-        "mta_namespace": "437b930db84b8079c2dd804a71936b5f"
+        "mta_id": "726f2da21cc3ae9ec51d9311a777f6dd038ab32bca51e35fbdd19385cb98ce",
+        "mta_namespace": "3ae3c5fc342497c274c50f11609eecc460328cf0b6027d865bf205955c81e4"
       }
     },
     "moduleName": "module-2",

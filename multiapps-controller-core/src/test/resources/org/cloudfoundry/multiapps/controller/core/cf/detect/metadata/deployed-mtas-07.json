@@ -18,7 +18,7 @@
             "mta_resource": "{\"name\":\"resource-name-1\"}"
           },
           "labels": {
-            "mta_id": "9fb045bba26522b2a50bb3e7a06ae30d"
+            "mta_id": "c7838d730f0762ff0a6641a000d23e55744146838848d20eb109a3872d5a5d"
           }
         },
         "credentials" : { },
@@ -37,7 +37,7 @@
             "mta_resource": "{\"name\":\"resource-name-2\"}"
           },
           "labels": {
-            "mta_id": "9fb045bba26522b2a50bb3e7a06ae30d"
+            "mta_id": "c7838d730f0762ff0a6641a000d23e55744146838848d20eb109a3872d5a5d"
           }
         },
         "credentials" : { },

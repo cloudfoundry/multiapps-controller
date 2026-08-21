@@ -270,8 +270,8 @@ class CustomServiceKeysClientTest extends CustomControllerClientBaseTest {
 
         String capturedUri = capturedResolvedUris.getFirst();
         assertTrue(capturedUri.contains("space_guid=" + SPACE_GUID));
-        assertTrue(capturedUri.contains("mta_id="));
-        assertTrue(capturedUri.contains("mta_namespace="));
+        assertTrue(capturedUri.contains("mta_id in ("));
+        assertTrue(capturedUri.contains("mta_namespace in ("));
     }
 
     @Test

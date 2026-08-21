@@ -9,7 +9,7 @@
       "mta_resource" : "{\"name\":\"pricing-db-service\"}"
     },
     "labels" : {
-      "mta_id" : "57675a73021035bde9f4f77efa07dad8"
+      "mta_id" : "2fc3483c7e5cb4f28c1a2ddc6e90974a72d40ba9eac9161978479c650a4ccf"
     }
   },
   "credentials" : { },
@@ -33,7 +33,7 @@
       "mta_resource" : "{\"name\":\"internal-odata-service\"}"
     },
     "labels" : {
-      "mta_id" : "57675a73021035bde9f4f77efa07dad8"
+      "mta_id" : "2fc3483c7e5cb4f28c1a2ddc6e90974a72d40ba9eac9161978479c650a4ccf"
     }
   },
   "credentials" : {
