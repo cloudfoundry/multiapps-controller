@@ -389,6 +389,7 @@ public class Messages {
     public static final String DELETING_SERVICE_KEY_FOR_SERVICE_INSTANCE = "Deleting service key \"{0}\" for service instance \"{1}\"...";
     public static final String CREATING_APP_FROM_MODULE = "Creating application \"{0}\" from MTA module \"{1}\"...";
     public static final String UPDATING_APP = "Updating application \"{0}\"...";
+    public static final String MIGRATED_MTA_LABEL_FROM_MD5_TO_SHA384 = "Migrated application \"{0}\" MTA label from legacy MD5 to SHA-384";
     public static final String UPLOADING_APP = "Uploading application \"{0}\"...";
     public static final String SCALING_APP_0_TO_X_INSTANCES = "Scaling application \"{0}\" to \"{1}\" instances... ";
     public static final String PUBLISHING_PUBLIC_PROVIDED_DEPENDENCY = "Publishing publicly provided dependency \"{0}\"...";

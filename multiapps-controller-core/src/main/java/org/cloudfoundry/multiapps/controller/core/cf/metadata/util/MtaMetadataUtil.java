@@ -1,5 +1,8 @@
 package org.cloudfoundry.multiapps.controller.core.cf.metadata.util;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Set;
 
@@ -11,6 +14,8 @@ import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.springframework.util.DigestUtils;
 
 public class MtaMetadataUtil {
+
+    private static final int LEGACY_MD5_LABEL_LENGTH = 32;
 
     public static final List<String> MTA_METADATA_MANDATORY_LABELS = List.of(MtaMetadataLabels.MTA_ID);
     public static final List<String> MTA_METADATA_MANDATORY_ANNOTATIONS = List.of(MtaMetadataAnnotations.MTA_ID,
@@ -38,7 +43,45 @@ public class MtaMetadataUtil {
             return mtaLabel;
         }
 
+        try {
+            byte[] digest = MessageDigest.getInstance("SHA-384")
+                                         .digest(mtaLabel.getBytes());
+            return HexFormat.of()
+                            .formatHex(digest, 0, 31);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public static String getLegacyHashedLabel(String mtaLabel) {
+        if (StringUtils.isEmpty(mtaLabel)) {
+            return mtaLabel;
+        }
+        if (!isMd5Available()) {
+            return null;
+        }
         return DigestUtils.md5DigestAsHex(mtaLabel.getBytes());
+    }
+
+    public static boolean isLegacyMd5Label(String labelValue) {
+        return labelValue != null && labelValue.length() == LEGACY_MD5_LABEL_LENGTH;
+    }
+
+    private static boolean isMd5Available() {
+        try {
+            MessageDigest.getInstance("MD5")
+                         .digest(new byte[] { 0 });
+            return true;
+        } catch (NoSuchAlgorithmException | RuntimeException e) {
+            return false;
+        } catch (Error e) {
+            if (e.getClass()
+                 .getName()
+                 .endsWith("FipsUnapprovedOperationError")) {
+                return false;
+            }
+            throw e;
+        }
     }
 
     public static Metadata getMetadataWithoutMtaFields(Metadata metadata) {

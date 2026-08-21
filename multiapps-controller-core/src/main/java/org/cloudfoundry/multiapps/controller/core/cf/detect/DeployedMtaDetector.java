@@ -54,7 +54,8 @@ public class DeployedMtaDetector {
     public List<DeployedMta> detectDeployedMtasByName(String mtaName, CloudControllerClient client) {
         MtaMetadataCriteria selectionCriteria = MtaMetadataCriteriaBuilder.builder()
                                                                           .label(MtaMetadataLabels.MTA_ID)
-                                                                          .hasValue(MtaMetadataUtil.getHashedLabel(mtaName))
+                                                                          .hasValueWithLegacyFallback(MtaMetadataUtil.getHashedLabel(mtaName),
+                                                                                                      MtaMetadataUtil.getLegacyHashedLabel(mtaName))
                                                                           .build();
 
         return getDeployedMtasByMetadataSelectionCriteria(selectionCriteria, client);
@@ -66,8 +67,9 @@ public class DeployedMtaDetector {
                                                                           .exists()
                                                                           .and()
                                                                           .label(MtaMetadataLabels.MTA_NAMESPACE)
-                                                                          .hasValueOrIsntPresent(
-                                                                              MtaMetadataUtil.getHashedLabel(mtaNamespace))
+                                                                          .hasValueWithLegacyFallbackOrIsntPresent(
+                                                                              MtaMetadataUtil.getHashedLabel(mtaNamespace),
+                                                                              MtaMetadataUtil.getLegacyHashedLabel(mtaNamespace))
                                                                           .build();
 
         return getDeployedMtasByMetadataSelectionCriteria(selectionCriteria, client);
@@ -76,11 +78,13 @@ public class DeployedMtaDetector {
     public Optional<DeployedMta> detectDeployedMtaByNameAndNamespace(String mtaName, String mtaNamespace, CloudControllerClient client) {
         MtaMetadataCriteria selectionCriteria = MtaMetadataCriteriaBuilder.builder()
                                                                           .label(MtaMetadataLabels.MTA_ID)
-                                                                          .hasValue(MtaMetadataUtil.getHashedLabel(mtaName))
+                                                                          .hasValueWithLegacyFallback(MtaMetadataUtil.getHashedLabel(mtaName),
+                                                                                                      MtaMetadataUtil.getLegacyHashedLabel(mtaName))
                                                                           .and()
                                                                           .label(MtaMetadataLabels.MTA_NAMESPACE)
-                                                                          .hasValueOrIsntPresent(
-                                                                              MtaMetadataUtil.getHashedLabel(mtaNamespace))
+                                                                          .hasValueWithLegacyFallbackOrIsntPresent(
+                                                                              MtaMetadataUtil.getHashedLabel(mtaNamespace),
+                                                                              MtaMetadataUtil.getLegacyHashedLabel(mtaNamespace))
                                                                           .build();
 
         return getDeployedMtasByMetadataSelectionCriteria(selectionCriteria, client).stream()

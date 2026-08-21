@@ -72,10 +72,12 @@ public class CustomServiceKeysClient extends CustomControllerClient {
                                          .hasValue(spaceGuid)
                                          .and()
                                          .label(MtaMetadataLabels.MTA_NAMESPACE)
-                                         .hasValueOrIsntPresent(MtaMetadataUtil.getHashedLabel(mtaNamespace))
+                                         .hasValueWithLegacyFallbackOrIsntPresent(MtaMetadataUtil.getHashedLabel(mtaNamespace),
+                                                                                  MtaMetadataUtil.getLegacyHashedLabel(mtaNamespace))
                                          .and()
                                          .label(MtaMetadataLabels.MTA_ID)
-                                         .hasValue(MtaMetadataUtil.getHashedLabel(mtaId))
+                                         .hasValueWithLegacyFallback(MtaMetadataUtil.getHashedLabel(mtaId),
+                                                                     MtaMetadataUtil.getLegacyHashedLabel(mtaId))
                                          .build()
                                          .get();
     }

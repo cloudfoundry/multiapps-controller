@@ -26,6 +26,8 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApp
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceKeyToInject;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.AppBoundServiceInstanceNamesGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.WebClientFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
+import org.cloudfoundry.multiapps.controller.core.cf.metadata.util.MtaMetadataUtil;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationFileDigestDetector;
 import org.cloudfoundry.multiapps.controller.core.model.BlueGreenApplicationNameSuffix;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
@@ -251,7 +253,23 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                 return;
             }
             if (!Objects.equals(existingApp.getV3Metadata(), app.getV3Metadata())) {
+                logLabelMigration();
                 client.updateApplicationMetadata(existingApp.getGuid(), app.getV3Metadata());
+            }
+        }
+
+        private void logLabelMigration() {
+            if (existingApp.getV3Metadata() == null) {
+                return;
+            }
+            String existingMtaId = existingApp.getV3Metadata()
+                                              .getLabels()
+                                              .get(MtaMetadataLabels.MTA_ID);
+            String newMtaId = app.getV3Metadata()
+                                 .getLabels()
+                                 .get(MtaMetadataLabels.MTA_ID);
+            if (MtaMetadataUtil.isLegacyMd5Label(existingMtaId) && !MtaMetadataUtil.isLegacyMd5Label(newMtaId)) {
+                getStepLogger().info(Messages.MIGRATED_MTA_LABEL_FROM_MD5_TO_SHA384, app.getName());
             }
         }
 

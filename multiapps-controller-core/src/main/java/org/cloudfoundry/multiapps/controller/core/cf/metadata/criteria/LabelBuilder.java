@@ -27,9 +27,25 @@ public class LabelBuilder {
         return hasValue(value);
     }
 
-    public FinalizingBuilder hasValue(String value) {        
+    public FinalizingBuilder hasValue(String value) {
         MtaMetadataCriteriaValidator.validateLabelValue(value);
         return completeQuery(label + "=" + value);
+    }
+
+    public FinalizingBuilder hasValueWithLegacyFallback(String value, String legacyValue) {
+        if (StringUtils.isEmpty(legacyValue)) {
+            return hasValue(value);
+        }
+        MtaMetadataCriteriaValidator.validateLabelValue(value);
+        MtaMetadataCriteriaValidator.validateLabelValue(legacyValue);
+        return completeQuery(label + " in (" + value + "," + legacyValue + ")");
+    }
+
+    public FinalizingBuilder hasValueWithLegacyFallbackOrIsntPresent(String value, String legacyValue) {
+        if (StringUtils.isEmpty(value)) {
+            return doesNotExist();
+        }
+        return hasValueWithLegacyFallback(value, legacyValue);
     }
 
     private FinalizingBuilder completeQuery(String query) {
