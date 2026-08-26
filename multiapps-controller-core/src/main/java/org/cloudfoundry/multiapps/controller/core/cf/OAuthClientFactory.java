@@ -6,6 +6,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuthClient;
 import org.cloudfoundry.multiapps.controller.client.facade.util.RestUtil;
 import org.cloudfoundry.multiapps.controller.client.uaa.UAAClient;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 
 @Named
 public class OAuthClientFactory {
@@ -16,9 +17,11 @@ public class OAuthClientFactory {
     private TokenService tokenService;
     @Inject
     private UAAClient uaaClient;
+    @Inject
+    private ApplicationConfiguration configuration;
 
     public OAuthClient createOAuthClient() {
-        return new OAuthClientExtended(uaaClient.getUaaUrl(), tokenService, restUtil.createWebClient(true));
+        return new OAuthClientExtended(uaaClient.getUaaUrl(), tokenService, restUtil.createWebClient(configuration.shouldSkipSslValidation()));
     }
 
 }
