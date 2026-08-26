@@ -113,6 +113,9 @@
         <flowable:in source="mtaMajorSchemaVersion" target="mtaMajorSchemaVersion"></flowable:in>
         <flowable:in source="namespace" target="namespace"></flowable:in>
         <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
+        <flowable:in source="keepFiles" target="keepFiles"></flowable:in>
+        <flowable:in source="appArchiveId" target="appArchiveId"></flowable:in>
+        <flowable:in source="mtaExtDescriptorId" target="mtaExtDescriptorId"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="appsToUndeploy" flowable:elementVariable="appToProcess">
         <extensionElements></extensionElements>
