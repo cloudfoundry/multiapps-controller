@@ -54,9 +54,32 @@
     </intermediateCatchEvent>
     <serviceTask id="incrementServiceBrokerSubscribersToRestartIndexTask" name="Increment Index" flowable:async="true" flowable:delegateExpression="${incrementIndexStep}"></serviceTask>
     <sequenceFlow id="flow38" sourceRef="incrementServiceBrokerSubscribersToRestartIndexTask" targetRef="areAllServiceBrokerSubscribersRestartedGateway"></sequenceFlow>
-    <callActivity id="deleteServicesCallActivity" name="Delete Services Sub Process" flowable:async="true" calledElement="deleteServiceSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+    <callActivity id="deleteServicesCallActivity" name="Delete Services Sub Process" flowable:async="true" calledElement="deleteServiceSubProcess" flowable:calledElementType="key" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
       <extensionElements>
         <flowable:in source="serviceToDelete" target="serviceToDelete"></flowable:in>
+        <flowable:in source="servicesToDelete" target="servicesToDelete"></flowable:in>
+        <flowable:in source="completeMtaDeploymentDescriptor" target="completeMtaDeploymentDescriptor"></flowable:in>
+        <flowable:in source="serviceActionsToExecute" target="serviceActionsToExecute"></flowable:in>
+        <flowable:in source="correlationId" target="correlationId"></flowable:in>
+        <flowable:in source="user" target="user"></flowable:in>
+        <flowable:in source="userGuid" target="userGuid"></flowable:in>
+        <flowable:in source="processId" target="processId"></flowable:in>
+        <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
+        <flowable:in source="__SERVICE_ID" target="__SERVICE_ID"></flowable:in>
+        <flowable:in source="__TASK_ID" target="__TASK_ID"></flowable:in>
+        <flowable:in source="appToProcess" target="appToProcess"></flowable:in>
+        <flowable:in source="mtaId" target="mtaId"></flowable:in>
+        <flowable:in source="bindingName" target="bindingName"></flowable:in>
+        <flowable:in source="serviceBindingParameters" target="serviceBindingParameters"></flowable:in>
+        <flowable:in source="serviceToUnbindBind" target="serviceToUnbindBind"></flowable:in>
+        <flowable:in source="shouldRecreateServiceBinding" target="shouldRecreateServiceBinding"></flowable:in>
+        <flowable:in source="useLastOperationForServiceBindingDeletion" target="useLastOperationForServiceBindingDeletion"></flowable:in>
+        <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
+        <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
+        <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
+        <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
+        <flowable:in source="externalLoggingServiceConfigurations" target="externalLoggingServiceConfigurations"></flowable:in>
+        <flowable:in source="stepPhase" target="stepPhase"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToDelete" flowable:elementVariable="serviceToDelete">
         <extensionElements></extensionElements>
