@@ -1,12 +1,14 @@
 package org.cloudfoundry.multiapps.controller.client.facade.util;
 
 import java.net.MalformedURLException;
+import java.net.Socket;
 import java.net.URL;
 import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
 
+import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.X509ExtendedTrustManager;
 
 import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -17,6 +19,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuthClient;
 
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslProvider;
 import reactor.netty.http.client.HttpClient;
 
 /**
@@ -72,6 +75,7 @@ public class RestUtil {
     private SslContext buildSslContext() {
         try {
             return SslContextBuilder.forClient()
+                                    .sslProvider(SslProvider.JDK)
                                     .trustManager(createDummyTrustManager())
                                     .build();
         } catch (SSLException e) {
@@ -79,8 +83,8 @@ public class RestUtil {
         }
     }
 
-    private X509TrustManager createDummyTrustManager() {
-        return new X509TrustManager() {
+    private X509ExtendedTrustManager createDummyTrustManager() {
+        return new X509ExtendedTrustManager() {
 
             @Override
             public void checkClientTrusted(X509Certificate[] xcs, String string) {
@@ -89,6 +93,26 @@ public class RestUtil {
 
             @Override
             public void checkServerTrusted(X509Certificate[] xcs, String string) {
+                // NOSONAR
+            }
+
+            @Override
+            public void checkClientTrusted(X509Certificate[] xcs, String string, Socket socket) {
+                // NOSONAR
+            }
+
+            @Override
+            public void checkServerTrusted(X509Certificate[] xcs, String string, Socket socket) {
+                // NOSONAR
+            }
+
+            @Override
+            public void checkClientTrusted(X509Certificate[] xcs, String string, SSLEngine sslEngine) {
+                // NOSONAR
+            }
+
+            @Override
+            public void checkServerTrusted(X509Certificate[] xcs, String string, SSLEngine sslEngine) {
                 // NOSONAR
             }
 
