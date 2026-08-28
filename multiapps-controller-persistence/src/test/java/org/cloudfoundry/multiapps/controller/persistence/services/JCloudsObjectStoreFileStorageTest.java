@@ -49,7 +49,7 @@ class JCloudsObjectStoreFileStorageTest {
 
     protected static final String TEST_FILE_LOCATION = "src/test/resources/pexels-photo-401794.jpeg";
     protected static final String SECOND_FILE_TEST_LOCATION = "src/test/resources/pexels-photo-463467.jpeg";
-    protected static final String DIGEST_METHOD = "MD5";
+    protected static final String DIGEST_METHOD = "SHA256";
     protected static final String CONTAINER = "container4e";
     private static final LocalDateTime FAR_FUTURE = LocalDateTime.of(9999, Month.JANUARY, 1, 0, 0);
 
