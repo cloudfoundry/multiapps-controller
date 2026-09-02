@@ -43,7 +43,7 @@
         <guava.version>33.5.0-jre</guava.version>
         <resilience4j.version>2.4.0</resilience4j.version>
         <immutables.version>2.12.1</immutables.version>
-        <micrometer.version>1.17.0</micrometer.version>
+        <micrometer.version>1.17.1</micrometer.version>
         <aliyun-sdk-oss.version>3.18.5</aliyun-sdk-oss.version>
         <aws.sdk.version>2.47.5</aws.sdk.version>
         <!-- auto-service hasn't had a new release since 12.06.2023 - should check for alternatives in the future -->
