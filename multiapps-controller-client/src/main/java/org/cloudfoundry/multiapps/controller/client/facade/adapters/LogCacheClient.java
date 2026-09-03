@@ -21,13 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestClient;
 
-/**
- * Fetches recent application logs from Log-Cache. Reimplemented on a plain synchronous Spring {@link RestClient} against Log-Cache's
- * JSON {@code read} REST API ({@code GET /api/v1/read/{source_id}}), removing the previous dependency on the OSS cf-java-client
- * ({@code org.cloudfoundry.logcache.v1.*} / {@code org.cloudfoundry.reactor.*}). The {@link RestClient} is pre-configured with the
- * log-cache base URL, bearer-token auth and request tags by the factory; this class only builds the request and maps the response to
- * {@link ApplicationLog}, preserving the previous behaviour exactly.
- */
 public class LogCacheClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LogCacheClient.class);
@@ -47,6 +40,7 @@ public class LogCacheClient {
         if (response == null) {
             throw new CloudException(MessageFormat.format(Messages.FAILED_TO_FETCH_APP_LOGS_FOR_APP, applicationGuid));
         }
+
         LOGGER.info(Messages.APP_LOGS_WERE_FETCHED_SUCCESSFULLY);
         return response.batch()
                        .stream()
@@ -61,6 +55,7 @@ public class LogCacheClient {
         var secondsInNanos = Duration.ofSeconds(instant.getEpochSecond())
                                      .toNanos();
         long startTime = secondsInNanos + instant.getNano() + 1;
+
         return restClient.get()
                          .uri(uriBuilder -> uriBuilder.path("/api/v1/read/{sourceId}")
                                                       .queryParam("envelope_types", "LOG")

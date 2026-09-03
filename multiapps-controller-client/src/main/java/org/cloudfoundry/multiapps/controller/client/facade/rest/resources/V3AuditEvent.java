@@ -12,10 +12,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *   "target": { "guid": "...", "type": "app",         "name": "..." },
  *   "data": { ... }, "space": {...}, "organization": {...} }
  * </pre>
- *
- * Only the fields the domain {@code CloudEvent} needs are mapped; everything else is ignored so CF can evolve the payload without breaking
- * us. Mirrors the CF v3 JSON consumed by the OSS {@code AuditEventResource} adapter (whose {@code actor}/{@code target} carry
- * {@code guid}/{@code name}/{@code type}).
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record V3AuditEvent(@JsonProperty("guid") String guid, @JsonProperty("created_at") String createdAt,

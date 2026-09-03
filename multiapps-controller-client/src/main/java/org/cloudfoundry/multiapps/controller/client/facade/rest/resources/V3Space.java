@@ -20,6 +20,7 @@ public record V3Space(@JsonProperty("guid") String guid, @JsonProperty("name") S
                                                                                           .data() == null) {
             return null;
         }
+
         return relationships.organization()
                             .data()
                             .guid();

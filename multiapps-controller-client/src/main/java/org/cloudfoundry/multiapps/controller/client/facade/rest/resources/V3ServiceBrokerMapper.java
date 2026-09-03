@@ -5,15 +5,6 @@ import java.util.Optional;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBroker;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceBroker;
 
-/**
- * Maps the {@link V3ServiceBroker} wire model to the project's {@link CloudServiceBroker} domain object. Mirrors the OSS
- * {@code RawCloudServiceBroker} adapter field-for-field, so both client implementations yield identical domain objects.
- *
- * <p>
- * As in the OSS adapter, {@code username}/{@code password} are write-only credentials that CF never returns, so they are not mapped;
- * only {@code name}, {@code url} and the (optional) space GUID from {@code relationships.space.data.guid} are populated.
- * </p>
- */
 public final class V3ServiceBrokerMapper {
 
     private V3ServiceBrokerMapper() {

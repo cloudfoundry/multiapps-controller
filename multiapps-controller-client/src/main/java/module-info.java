@@ -38,5 +38,7 @@ open module org.cloudfoundry.multiapps.controller.client {
     requires static java.compiler;
     requires static jakarta.inject;
     requires static org.immutables.value;
+    requires io.netty.codec;
+    requires java.desktop;
 
 }

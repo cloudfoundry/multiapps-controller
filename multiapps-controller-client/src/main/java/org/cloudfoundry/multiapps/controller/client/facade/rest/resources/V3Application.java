@@ -42,10 +42,6 @@ public record V3Application(@JsonProperty("guid") String guid, @JsonProperty("na
     public record V3RelationshipData(@JsonProperty("guid") String guid) {
     }
 
-    /**
-     * The CF v3 app environment variables response ({@code GET /v3/apps/{guid}/environment_variables}):
-     * {@code { "var": { "KEY": "VALUE", ... } }}.
-     */
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record V3EnvironmentVariables(@JsonProperty("var") Map<String, String> var) {
     }

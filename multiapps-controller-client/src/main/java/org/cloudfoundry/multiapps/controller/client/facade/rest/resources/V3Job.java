@@ -12,9 +12,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * { "guid": "...", "created_at": "...", "updated_at": "...", "state": "PROCESSING|POLLING|COMPLETE|FAILED", "operation": "...",
  *   "errors": [ { "detail": "...", "title": "...", "code": N } ], "warnings": [ { "detail": "..." } ] }
  * </pre>
- *
- * The async job poller in {@link org.cloudfoundry.multiapps.controller.client.facade.rest.CloudControllerV3Client} polls this until
- * {@code state} reaches a terminal value (COMPLETE / FAILED), mirroring the OSS {@code JobV3Util} behaviour.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record V3Job(@JsonProperty("guid") String guid, @JsonProperty("created_at") String createdAt,

@@ -10,10 +10,6 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableLifec
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Lifecycle;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.LifecycleType;
 
-/**
- * Maps the {@link V3Application} wire model to the project's {@link CloudApplication} domain object. Mirrors the OSS
- * {@code RawCloudApplication} adapter field-for-field, so both client implementations yield identical domain objects.
- */
 public final class V3ApplicationMapper {
 
     private static final String BUILDPACKS = "buildpacks";
@@ -41,6 +37,7 @@ public final class V3ApplicationMapper {
         if (lifecycle == null || lifecycle.type() == null) {
             return null;
         }
+
         return ImmutableLifecycle.builder()
                                  .type(LifecycleType.valueOf(lifecycle.type()
                                                                       .toUpperCase()))
@@ -52,6 +49,7 @@ public final class V3ApplicationMapper {
         if (data == null) {
             return Collections.emptyMap();
         }
+
         return Map.of(BUILDPACKS, data.buildpacks() == null ? Collections.emptyList() : data.buildpacks(),
                       STACK, data.stack() == null ? "" : data.stack());
     }

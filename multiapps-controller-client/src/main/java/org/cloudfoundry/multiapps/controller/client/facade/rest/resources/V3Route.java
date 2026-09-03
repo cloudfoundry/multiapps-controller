@@ -16,9 +16,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *   "metadata": { "labels": {...}, "annotations": {...} },
  *   "relationships": { "space": { "data": { "guid": "..." } }, "domain": { "data": { "guid": "..." } } } }
  * </pre>
- *
- * Mirrors exactly the fields the OSS {@code RawCloudRoute} adapter consumes from {@code org.cloudfoundry.client.v3.routes.Route}, so
- * both client implementations yield identical {@code CloudRoute} domain objects.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record V3Route(@JsonProperty("guid") String guid, @JsonProperty("host") String host, @JsonProperty("path") String path,

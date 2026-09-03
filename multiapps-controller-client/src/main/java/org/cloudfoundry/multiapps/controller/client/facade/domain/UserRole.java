@@ -1,8 +1,11 @@
 package org.cloudfoundry.multiapps.controller.client.facade.domain;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.cloudfoundry.multiapps.controller.Messages;
 
 public enum UserRole {
 
@@ -16,17 +19,15 @@ public enum UserRole {
 
     private static final Map<String, UserRole> NAMES_TO_VALUES = Arrays.stream(values())
                                                                        .collect(Collectors.toMap(UserRole::getName,
-                                                                                                 roleType ->  roleType));
+                                                                                                 roleType -> roleType));
 
-    /**
-     * Resolve from the CF v3 role {@code type} wire value (e.g. {@code space_developer}). Takes the raw string rather than the OSS
-     * {@code RoleType} enum, so the domain no longer depends on cf-java-client.
-     */
     public static UserRole fromRoleType(String roleTypeValue) {
         UserRole userRole = NAMES_TO_VALUES.get(roleTypeValue);
+
         if (userRole == null) {
-            throw new IllegalArgumentException("Unknown user role: " + roleTypeValue);
+            throw new IllegalArgumentException(MessageFormat.format(Messages.UNKNOWN_USER_ROLE_0, roleTypeValue));
         }
+
         return userRole;
     }
 

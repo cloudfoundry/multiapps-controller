@@ -1,15 +1,12 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest.resources;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.BitsData;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableBitsData;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudPackage;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDockerData;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Status;
 
-/**
- * Maps the {@link V3Package} wire model to the project's {@link CloudPackage} domain object. Mirrors the OSS {@code RawCloudPackage}
- * adapter field-for-field, so both client implementations yield identical domain objects.
- */
 public final class V3PackageMapper {
 
     private V3PackageMapper() {
@@ -37,6 +34,7 @@ public final class V3PackageMapper {
         if (resource.type() != null && CloudPackage.Type.from(resource.type()) == CloudPackage.Type.BITS) {
             return parseBitsData(resource.data());
         }
+
         return parseDockerData(resource.data());
     }
 
@@ -45,17 +43,19 @@ public final class V3PackageMapper {
             return ImmutableBitsData.builder()
                                     .build();
         }
+
         return ImmutableBitsData.builder()
                                 .checksum(parseBitsChecksum(data.checksum()))
                                 .error(data.error())
                                 .build();
     }
 
-    private static org.cloudfoundry.multiapps.controller.client.facade.domain.BitsData.Checksum
-            parseBitsChecksum(V3Package.V3Checksum checksum) {
+    private static BitsData.Checksum
+    parseBitsChecksum(V3Package.V3Checksum checksum) {
         if (checksum == null) {
             return null;
         }
+
         return ImmutableBitsData.ImmutableChecksum.builder()
                                                   .algorithm(checksum.type())
                                                   .value(checksum.value())

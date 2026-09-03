@@ -9,15 +9,6 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloud
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 
-/**
- * Maps the {@link V3ServiceBinding} wire model to the project's {@link CloudServiceBinding} domain object. Mirrors the OSS
- * {@code RawCloudServiceBinding} adapter field-for-field, so both client implementations yield identical domain objects:
- * <ul>
- * <li>{@code applicationGuid} — nullable; from {@code relationships.app.data.guid} (absent for {@code type=key} bindings);</li>
- * <li>{@code serviceInstanceGuid} — required; from {@code relationships.service_instance.data.guid};</li>
- * <li>{@code serviceBindingOperation} — from {@code last_operation}, mirroring {@link ServiceCredentialBindingOperation#from}.</li>
- * </ul>
- */
 public final class V3ServiceBindingMapper {
 
     private V3ServiceBindingMapper() {
@@ -37,9 +28,11 @@ public final class V3ServiceBindingMapper {
         V3ServiceBinding.V3ToOneRelationship application = binding.relationships() == null ? null
             : binding.relationships()
                      .application();
+
         if (application == null || application.data() == null) {
             return null;
         }
+
         return V3ResourceMappers.parseNullableGuid(application.data()
                                                               .guid());
     }
@@ -55,6 +48,7 @@ public final class V3ServiceBindingMapper {
         if (lastOperation == null) {
             return null;
         }
+
         return ImmutableServiceCredentialBindingOperation.builder()
                                                          .type(ServiceCredentialBindingOperation.Type.fromString(lastOperation.type()))
                                                          .state(ServiceCredentialBindingOperation.State.fromString(lastOperation.state()))

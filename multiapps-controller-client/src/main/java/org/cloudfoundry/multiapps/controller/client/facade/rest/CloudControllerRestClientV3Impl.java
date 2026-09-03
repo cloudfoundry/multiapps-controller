@@ -1,15 +1,16 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
-import java.net.URL;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 
-import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
+import org.cloudfoundry.multiapps.controller.Messages;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.UploadStatusCallback;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
@@ -31,103 +32,55 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudTask;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.DockerInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.DropletInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.InstancesInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServicePlanVisibility;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Upload;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.UserRole;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
-import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuthClient;
-import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Application;
-import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ApplicationMapper;
-import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClient;
 
-/**
- * A {@link CloudControllerRestClient} implementation that talks to the Cloud Controller v3 REST API directly through a blocking Spring
- * {@link RestClient}, with no dependency on the OSS cf-java-client.
- * <p>
- * This is the target implementation of the "migrate off cf-java-client" PoC. It is selected in
- * {@link CloudControllerRestClientFactory} via a feature flag; when the flag is off, the OSS-backed
- * {@link CloudControllerRestClientImpl} is used instead, so the two can be A/B compared against the same live Cloud Foundry.
- * <p>
- * SCAFFOLD STATE: every operation currently throws {@link UnsupportedOperationException}. Operations are being filled in
- * resource-group by resource-group per docs/cf-java-client-migration/02-endpoint-inventory.md. The shared machinery (pagination walker,
- * async job poller, JSON model) lands first and is reused by every operation.
- */
 public class CloudControllerRestClientV3Impl implements CloudControllerRestClient {
 
-    // CF v3 caps per_page at 5000; use a large page to minimise round-trips (the pagination walker still handles multiple pages).
-    private static final int DEFAULT_PAGE_SIZE = 5000;
-    // Matches the OSS impl's DELETE_JOB_TIMEOUT for async resource deletions.
-    private static final Duration DELETE_JOB_TIMEOUT = Duration.ofMinutes(5);
-
-    private final URL v3ApiUrl;
-    private final OAuthClient oAuthClient;
     private final CloudSpace target;
-    private final RestClient restClient;
-    private final CloudControllerV3Client cc;
-    private final BuildsV3Operations buildsOps;
-    private final DomainsV3Operations domainsOps;
-    private final EventsV3Operations eventsOps;
-    private final JobsV3Operations jobsOps;
-    private final PackagesV3Operations packagesOps;
-    private final ProcessesV3Operations processesOps;
-    private final RolesV3Operations rolesOps;
-    private final RoutesV3Operations routesOps;
-    private final ServiceBindingsV3Operations serviceBindingsOps;
-    private final ServiceBrokersV3Operations serviceBrokersOps;
-    private final ServiceInstancesV3Operations serviceInstancesOps;
-    private final ServiceKeysV3Operations serviceKeysOps;
-    private final ServiceOfferingsV3Operations serviceOfferingsOps;
-    private final ServicePlansV3Operations servicePlansOps;
-    private final StacksV3Operations stacksOps;
-    private final TasksV3Operations tasksOps;
 
-    public CloudControllerRestClientV3Impl(URL v3ApiUrl, OAuthClient oAuthClient, CloudSpace target, RestClient restClient) {
-        this(v3ApiUrl, oAuthClient, target, restClient, null);
-    }
+    private final ApplicationsV3Operations applicationsOperations;
+    private final BuildsV3Operations buildsOperations;
+    private final DomainsV3Operations domainsOperations;
+    private final EventsV3Operations eventsOperations;
+    private final JobsV3Operations jobsOperations;
+    private final PackagesV3Operations packagesOperations;
+    private final ProcessesV3Operations processesOperations;
+    private final RolesV3Operations rolesOperations;
+    private final RoutesV3Operations routesOperations;
+    private final ServiceBindingsV3Operations serviceBindingsOperations;
+    private final ServiceBrokersV3Operations serviceBrokersOperations;
+    private final ServiceInstancesV3Operations serviceInstancesOperations;
+    private final ServiceKeysV3Operations serviceKeysOperations;
+    private final ServiceOfferingsV3Operations serviceOfferingsOperations;
+    private final StacksV3Operations stacksOperations;
+    private final TasksV3Operations tasksOperations;
 
-    public CloudControllerRestClientV3Impl(URL v3ApiUrl, OAuthClient oAuthClient, CloudSpace target, RestClient restClient,
-                                           java.util.function.Function<java.time.Duration, RestClient> uploadRestClientFactory) {
-        this(v3ApiUrl, oAuthClient, target, restClient, new CloudControllerV3Client(restClient), uploadRestClientFactory);
-    }
-
-    public CloudControllerRestClientV3Impl(URL v3ApiUrl, OAuthClient oAuthClient, CloudSpace target, RestClient restClient,
-                                           CloudControllerV3Client cc,
-                                           java.util.function.Function<java.time.Duration, RestClient> uploadRestClientFactory) {
-        this.v3ApiUrl = v3ApiUrl;
-        this.oAuthClient = oAuthClient;
+    public CloudControllerRestClientV3Impl(CloudSpace target, CloudControllerV3Client cloudControllerClient,
+                                           Function<Duration, RestClient> uploadRestClientFactory) {
         this.target = target;
-        this.restClient = restClient;
-        this.cc = cc;
-        this.buildsOps = new BuildsV3Operations(cc, target);
-        this.domainsOps = new DomainsV3Operations(cc, target);
-        this.eventsOps = new EventsV3Operations(cc, target);
-        this.jobsOps = new JobsV3Operations(cc, target);
-        this.packagesOps = new PackagesV3Operations(cc, target, uploadRestClientFactory);
-        this.processesOps = new ProcessesV3Operations(cc, target);
-        this.rolesOps = new RolesV3Operations(cc, target);
-        this.routesOps = new RoutesV3Operations(cc, target);
-        this.serviceBindingsOps = new ServiceBindingsV3Operations(cc, target);
-        this.serviceBrokersOps = new ServiceBrokersV3Operations(cc, target);
-        this.serviceInstancesOps = new ServiceInstancesV3Operations(cc, target);
-        this.serviceKeysOps = new ServiceKeysV3Operations(cc, target);
-        this.serviceOfferingsOps = new ServiceOfferingsV3Operations(cc, target);
-        this.servicePlansOps = new ServicePlansV3Operations(cc, target);
-        this.stacksOps = new StacksV3Operations(cc, target);
-        this.tasksOps = new TasksV3Operations(cc, target);
-    }
-
-    private static UnsupportedOperationException notImplemented() {
-        StackWalker.StackFrame caller = StackWalker.getInstance()
-                                                   .walk(frames -> frames.skip(1)
-                                                                         .findFirst()
-                                                                         .orElse(null));
-        String operation = caller == null ? "operation" : caller.getMethodName();
-        return new UnsupportedOperationException(
-            "CloudControllerRestClientV3Impl." + operation + " is not implemented yet (cf-java-client migration PoC scaffold).");
+        this.applicationsOperations = new ApplicationsV3Operations(cloudControllerClient, target);
+        this.buildsOperations = new BuildsV3Operations(cloudControllerClient);
+        this.domainsOperations = new DomainsV3Operations(cloudControllerClient, target);
+        this.eventsOperations = new EventsV3Operations(cloudControllerClient, target);
+        this.jobsOperations = new JobsV3Operations(cloudControllerClient);
+        this.packagesOperations = new PackagesV3Operations(cloudControllerClient, target, uploadRestClientFactory);
+        this.processesOperations = new ProcessesV3Operations(cloudControllerClient, target);
+        this.rolesOperations = new RolesV3Operations(cloudControllerClient);
+        this.routesOperations = new RoutesV3Operations(cloudControllerClient, target);
+        this.serviceBindingsOperations = new ServiceBindingsV3Operations(cloudControllerClient, target);
+        this.serviceBrokersOperations = new ServiceBrokersV3Operations(cloudControllerClient, target);
+        this.serviceInstancesOperations = new ServiceInstancesV3Operations(cloudControllerClient, target);
+        this.serviceKeysOperations = new ServiceKeysV3Operations(cloudControllerClient);
+        this.serviceOfferingsOperations = new ServiceOfferingsV3Operations(cloudControllerClient, target);
+        this.stacksOperations = new StacksV3Operations(cloudControllerClient);
+        this.tasksOperations = new TasksV3Operations(cloudControllerClient, target);
     }
 
     @Override
@@ -137,454 +90,349 @@ public class CloudControllerRestClientV3Impl implements CloudControllerRestClien
 
     @Override
     public void addDomain(String domainName) {
-        domainsOps.addDomain(domainName);
+        domainsOperations.addDomain(domainName);
     }
 
     @Override
     public void addRoute(String host, String domainName, String path) {
-        routesOps.addRoute(host, domainName, path);
+        routesOperations.addRoute(host, domainName, path);
     }
 
     @Override
     public Optional<String> bindServiceInstance(String bindingName, String applicationName, String serviceInstanceName) {
-        return serviceBindingsOps.bindServiceInstance(bindingName, applicationName, serviceInstanceName);
+        return serviceBindingsOperations.bindServiceInstance(bindingName, applicationName, serviceInstanceName);
     }
 
     @Override
     public Optional<String> bindServiceInstance(String bindingName, String applicationName, String serviceInstanceName,
                                                 Map<String, Object> parameters) {
-        return serviceBindingsOps.bindServiceInstance(bindingName, applicationName, serviceInstanceName, parameters);
+        return serviceBindingsOperations.bindServiceInstance(bindingName, applicationName, serviceInstanceName, parameters);
     }
 
     @Override
     public void createApplication(ApplicationToCreateDto dto) {
-        if (target == null || target.getGuid() == null) {
-            throw new CloudOperationException(HttpStatus.BAD_REQUEST, "Bad Request", "A target space is required to create an application.");
-        }
-        Map<String, Object> body = new java.util.HashMap<>();
-        body.put("name", dto.getName());
-        body.put("lifecycle", buildLifecycle(dto.getStaging()));
-        body.put("relationships", Map.of("space", Map.of("data", Map.of("guid", target.getGuid()
-                                                                                       .toString()))));
-        if (dto.getEnv() != null) {
-            body.put("environment_variables", dto.getEnv());
-        }
-        if (dto.getMetadata() != null) {
-            body.put("metadata", Map.of("labels", dto.getMetadata()
-                                                     .getLabels(),
-                                        "annotations", dto.getMetadata()
-                                                          .getAnnotations()));
-        }
-        V3Application created = cc.getRestClient()
-                                 .post()
-                                 .uri("/v3/apps")
-                                 .body(body)
-                                 .retrieve()
-                                 .body(V3Application.class);
-        UUID appGuid = UUID.fromString(created.guid());
-        // Follow-up attributes, mirroring the OSS updateApplicationAttributes: staging/process, memory+disk scale, then routes.
+        applicationsOperations.createApplication(dto);
+
         if (dto.getStaging() != null) {
-            processesOps.updateApplicationStaging(dto.getName(), dto.getStaging());
+            updateApplicationStaging(dto.getName(), dto.getStaging());
         }
-        Map<String, Object> scale = new java.util.HashMap<>();
-        if (dto.getMemoryInMb() != null) {
-            scale.put("memory_in_mb", dto.getMemoryInMb());
-        }
-        if (dto.getDiskQuotaInMb() != null) {
-            scale.put("disk_in_mb", dto.getDiskQuotaInMb());
-        }
-        if (!scale.isEmpty()) {
-            scaleWebProcess(appGuid, scale);
-        }
+
         if (dto.getRoutes() != null && !dto.getRoutes()
                                            .isEmpty()) {
             updateApplicationRoutes(dto.getName(), dto.getRoutes());
         }
     }
 
-    // Builds the CF v3 lifecycle object: docker when DockerInfo is present, otherwise buildpack/cnb with buildpacks + stack.
-    private Map<String, Object> buildLifecycle(Staging staging) {
-        if (staging == null) {
-            return Map.of("type", "buildpack", "data", Map.of());
-        }
-        if (staging.getDockerInfo() != null) {
-            return Map.of("type", "docker", "data", Map.of());
-        }
-        String type = staging.getLifecycleType() != null ? staging.getLifecycleType()
-                                                                  .name()
-                                                                  .toLowerCase()
-            : "buildpack";
-        Map<String, Object> data = new java.util.HashMap<>();
-        if (staging.getBuildpacks() != null) {
-            data.put("buildpacks", staging.getBuildpacks());
-        }
-        if (staging.getStackName() != null) {
-            data.put("stack", staging.getStackName());
-        }
-        return Map.of("type", type, "data", data);
-    }
-
     @Override
     public void createServiceInstance(CloudServiceInstance serviceInstance) {
-        serviceInstancesOps.createServiceInstance(serviceInstance);
+        serviceInstancesOperations.createServiceInstance(serviceInstance);
     }
 
     @Override
     public String createServiceBroker(CloudServiceBroker serviceBroker) {
-        return serviceBrokersOps.createServiceBroker(serviceBroker);
+        return serviceBrokersOperations.createServiceBroker(serviceBroker);
     }
 
     @Override
     public CloudServiceKey createAndFetchServiceKey(CloudServiceKey keyModel, String serviceInstanceName) {
-        return serviceKeysOps.createAndFetchServiceKey(keyModel, getServiceInstance(serviceInstanceName));
+        return serviceKeysOperations.createAndFetchServiceKey(keyModel, getServiceInstance(serviceInstanceName));
     }
 
     @Override
     public Optional<String> createServiceKey(CloudServiceKey keyModel, String serviceInstanceName) {
-        return serviceKeysOps.createServiceKey(keyModel, getServiceInstance(serviceInstanceName));
+        return serviceKeysOperations.createServiceKey(keyModel, getServiceInstance(serviceInstanceName));
     }
 
     @Override
     public Optional<String> createServiceKey(String serviceInstanceName, String serviceKeyName, Map<String, Object> parameters) {
-        return serviceKeysOps.createServiceKey(getServiceInstance(serviceInstanceName), serviceKeyName, parameters);
+        return serviceKeysOperations.createServiceKey(getServiceInstance(serviceInstanceName), serviceKeyName, parameters);
     }
 
     @Override
     public void createUserProvidedServiceInstance(CloudServiceInstance serviceInstance) {
-        serviceInstancesOps.createUserProvidedServiceInstance(serviceInstance);
+        serviceInstancesOperations.createUserProvidedServiceInstance(serviceInstance);
     }
 
     @Override
     public void deleteApplication(String applicationName) {
-        UUID applicationGuid = getApplicationGuid(applicationName);
-        var response = cc.getRestClient()
-                         .delete()
-                         .uri("/v3/apps/{guid}", applicationGuid)
-                         .retrieve()
-                         .toBodilessEntity();
-        cc.followAsyncJob(response, DELETE_JOB_TIMEOUT);
+        applicationsOperations.deleteApplication(applicationName);
     }
 
     @Override
     public void deleteDomain(String domainName) {
-        domainsOps.deleteDomain(domainName);
+        domainsOperations.deleteDomain(domainName);
     }
 
     @Override
     public void deleteOrphanedRoutes() {
-        routesOps.deleteOrphanedRoutes();
+        routesOperations.deleteOrphanedRoutes();
     }
 
     @Override
     public void deleteRoute(String host, String domainName, String path) {
-        routesOps.deleteRoute(host, domainName, path);
+        routesOperations.deleteRoute(host, domainName, path);
     }
 
     @Override
     public void deleteServiceInstance(String serviceInstanceName) {
-        serviceInstancesOps.deleteServiceInstance(serviceInstanceName);
+        serviceInstancesOperations.deleteServiceInstance(serviceInstanceName);
     }
 
     @Override
     public void deleteServiceInstance(CloudServiceInstance serviceInstance) {
-        serviceInstancesOps.deleteServiceInstance(serviceInstance);
+        serviceInstancesOperations.deleteServiceInstance(serviceInstance);
     }
 
     @Override
     public String deleteServiceBroker(String name) {
-        return serviceBrokersOps.deleteServiceBroker(name);
+        return serviceBrokersOperations.deleteServiceBroker(name);
     }
 
     @Override
     public Optional<String> deleteServiceBinding(String serviceInstanceName, String serviceKeyName) {
-        // Mirrors the OSS impl: resolve the named service key, then delete its binding by GUID.
         CloudServiceKey serviceKey = getServiceKey(serviceInstanceName, serviceKeyName);
+
         if (serviceKey == null) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, "Not Found", "Service key " + serviceKeyName + " not found.");
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+                                              MessageFormat.format(Messages.SERVICE_KEY_0_NOT_FOUND, serviceKeyName));
         }
+
         return deleteServiceBinding(serviceKey.getGuid());
     }
 
     @Override
     public Optional<String> deleteServiceBinding(UUID bindingGuid) {
-        return serviceBindingsOps.deleteServiceBinding(bindingGuid);
+        return serviceBindingsOperations.deleteServiceBinding(bindingGuid);
     }
 
     @Override
     public CloudApplication getApplication(String applicationName) {
-        return getApplication(applicationName, true);
+        return applicationsOperations.getApplication(applicationName);
     }
 
     @Override
     public CloudApplication getApplication(String applicationName, boolean required) {
-        V3Application app = findApplicationByName(applicationName);
-        if (app == null) {
-            if (required) {
-                throw new CloudOperationException(HttpStatus.NOT_FOUND, "Not Found", "Application " + applicationName + " not found.");
-            }
-            return null;
-        }
-        return V3ApplicationMapper.toCloudApplication(app, target);
+        return applicationsOperations.getApplication(applicationName, required);
     }
 
     @Override
     public UUID getApplicationGuid(String applicationName) {
-        return getApplication(applicationName).getGuid();
+        return applicationsOperations.getApplicationGuid(applicationName);
     }
 
     @Override
     public String getApplicationName(UUID applicationGuid) {
-        V3Application app = cc.get("/v3/apps/" + applicationGuid, V3Application.class);
-        return app == null ? null : app.name();
+        return applicationsOperations.getApplicationName(applicationGuid);
     }
 
     @Override
     public Map<String, String> getApplicationEnvironment(UUID applicationGuid) {
-        V3Application.V3EnvironmentVariables env = cc.get("/v3/apps/" + applicationGuid + "/environment_variables",
-                                                          V3Application.V3EnvironmentVariables.class);
-        return env == null || env.var() == null ? Map.of() : env.var();
+        return applicationsOperations.getApplicationEnvironment(applicationGuid);
     }
 
     @Override
     public Map<String, String> getApplicationEnvironment(String applicationName) {
-        return getApplicationEnvironment(getApplicationGuid(applicationName));
+        return applicationsOperations.getApplicationEnvironment(applicationName);
     }
 
     @Override
     public List<CloudApplication> getApplications() {
-        return listApplications(applicationsQuery(null)).stream()
-                                                        .map(app -> V3ApplicationMapper.toCloudApplication(app, target))
-                                                        .toList();
+        return applicationsOperations.getApplications();
     }
 
     @Override
     public List<CloudApplication> getApplicationsByMetadataLabelSelector(String labelSelector) {
-        String query = applicationsQuery(null);
-        if (labelSelector != null) {
-            query = query + "&label_selector=" + labelSelector;
-        }
-        return listApplications(query).stream()
-                                      .map(app -> V3ApplicationMapper.toCloudApplication(app, target))
-                                      .toList();
-    }
-
-    private V3Application findApplicationByName(String applicationName) {
-        List<V3Application> apps = listApplications(applicationsQuery(applicationName));
-        return apps.isEmpty() ? null : apps.get(0);
-    }
-
-    private List<V3Application> listApplications(String query) {
-        return cc.list(query, new ParameterizedTypeReference<V3ListResponse<V3Application>>() {
-        });
-    }
-
-    // Applications in the target space, optionally filtered by exact name.
-    private String applicationsQuery(String name) {
-        StringBuilder query = new StringBuilder("/v3/apps?per_page=" + DEFAULT_PAGE_SIZE);
-        if (target != null && target.getGuid() != null) {
-            query.append("&space_guids=")
-                 .append(target.getGuid());
-        }
-        if (name != null) {
-            query.append("&names=")
-                 .append(name);
-        }
-        return query.toString();
+        return applicationsOperations.getApplicationsByMetadataLabelSelector(labelSelector);
     }
 
     @Override
     public List<CloudEvent> getApplicationEvents(String applicationName) {
-        return eventsOps.getApplicationEvents(applicationName);
+        return eventsOperations.getApplicationEvents(applicationName);
     }
 
     @Override
     public List<CloudEvent> getEventsByTarget(UUID uuid) {
-        return eventsOps.getEventsByTarget(uuid);
+        return eventsOperations.getEventsByTarget(uuid);
     }
 
     @Override
     public InstancesInfo getApplicationInstances(CloudApplication app) {
-        return processesOps.getApplicationInstances(app);
+        return processesOperations.getApplicationInstances(app);
     }
 
     @Override
     public InstancesInfo getApplicationInstances(UUID applicationGuid) {
-        return processesOps.getApplicationInstances(applicationGuid);
+        return processesOperations.getApplicationInstances(applicationGuid);
     }
 
     @Override
     public CloudProcess getApplicationProcess(UUID applicationGuid) {
-        return processesOps.getApplicationProcess(applicationGuid);
+        return processesOperations.getApplicationProcess(applicationGuid);
     }
 
     @Override
     public List<CloudRoute> getApplicationRoutes(UUID applicationGuid) {
-        return routesOps.getApplicationRoutes(applicationGuid);
+        return routesOperations.getApplicationRoutes(applicationGuid);
     }
 
     @Override
     public boolean getApplicationSshEnabled(UUID applicationGuid) {
-        return processesOps.getApplicationSshEnabled(applicationGuid);
+        return processesOperations.getApplicationSshEnabled(applicationGuid);
     }
 
     @Override
     public Map<String, Boolean> getApplicationFeatures(UUID applicationGuid) {
-        return processesOps.getApplicationFeatures(applicationGuid);
+        return processesOperations.getApplicationFeatures(applicationGuid);
     }
 
     @Override
     public CloudDomain getDefaultDomain() {
-        return domainsOps.getDefaultDomain();
+        return domainsOperations.getDefaultDomain();
     }
 
     @Override
     public List<CloudDomain> getDomains() {
-        return domainsOps.getDomains();
+        return domainsOperations.getDomains();
     }
 
     @Override
     public List<CloudDomain> getDomainsForOrganization() {
-        return domainsOps.getDomainsForOrganization();
+        return domainsOperations.getDomainsForOrganization();
     }
 
     @Override
     public List<CloudEvent> getEvents() {
-        return eventsOps.getEvents();
+        return eventsOperations.getEvents();
     }
 
     @Override
     public List<CloudDomain> getPrivateDomains() {
-        return domainsOps.getPrivateDomains();
+        return domainsOperations.getPrivateDomains();
     }
 
     @Override
     public List<CloudRoute> getRoutes(String domainName) {
-        return routesOps.getRoutes(domainName);
+        return routesOperations.getRoutes(domainName);
     }
 
     @Override
     public UUID getRequiredServiceInstanceGuid(String name) {
-        return serviceInstancesOps.getRequiredServiceInstanceGuid(name);
+        return serviceInstancesOperations.getRequiredServiceInstanceGuid(name);
     }
 
     @Override
     public CloudServiceInstance getServiceInstance(String serviceInstanceName) {
-        return serviceInstancesOps.getServiceInstance(serviceInstanceName);
+        return serviceInstancesOperations.getServiceInstance(serviceInstanceName);
     }
 
     @Override
     public CloudServiceInstance getServiceInstance(String serviceInstanceName, boolean required) {
-        return serviceInstancesOps.getServiceInstance(serviceInstanceName, required);
+        return serviceInstancesOperations.getServiceInstance(serviceInstanceName, required);
     }
 
     @Override
     public String getServiceInstanceName(UUID serviceInstanceGuid) {
-        return serviceInstancesOps.getServiceInstanceName(serviceInstanceGuid);
+        return serviceInstancesOperations.getServiceInstanceName(serviceInstanceGuid);
     }
 
     @Override
     public CloudServiceInstance getServiceInstanceWithoutAuxiliaryContent(String serviceInstanceName) {
-        return serviceInstancesOps.getServiceInstanceWithoutAuxiliaryContent(serviceInstanceName);
+        return serviceInstancesOperations.getServiceInstanceWithoutAuxiliaryContent(serviceInstanceName);
     }
 
     @Override
     public CloudServiceInstance getServiceInstanceWithoutAuxiliaryContent(String serviceInstanceName, boolean required) {
-        return serviceInstancesOps.getServiceInstanceWithoutAuxiliaryContent(serviceInstanceName, required);
+        return serviceInstancesOperations.getServiceInstanceWithoutAuxiliaryContent(serviceInstanceName, required);
     }
 
     @Override
     public CloudServiceBinding getServiceBinding(UUID serviceBindingGuid) {
-        return serviceBindingsOps.getServiceBinding(serviceBindingGuid);
+        return serviceBindingsOperations.getServiceBinding(serviceBindingGuid);
     }
 
     @Override
     public List<CloudServiceBinding> getServiceAppBindings(UUID serviceInstanceGuid) {
-        return serviceBindingsOps.getServiceAppBindings(serviceInstanceGuid);
+        return serviceBindingsOperations.getServiceAppBindings(serviceInstanceGuid);
     }
 
     @Override
     public List<CloudServiceBinding> getAppBindings(UUID applicationGuid) {
-        return serviceBindingsOps.getAppBindings(applicationGuid);
+        return serviceBindingsOperations.getAppBindings(applicationGuid);
     }
 
     @Override
     public List<CloudServiceBinding> getServiceBindingsForApplication(UUID applicationId, UUID serviceInstanceGuid) {
-        return serviceBindingsOps.getServiceBindingsForApplication(applicationId, serviceInstanceGuid);
+        return serviceBindingsOperations.getServiceBindingsForApplication(applicationId, serviceInstanceGuid);
     }
 
     @Override
     public CloudServiceBroker getServiceBroker(String name) {
-        return serviceBrokersOps.getServiceBroker(name);
+        return serviceBrokersOperations.getServiceBroker(name);
     }
 
     @Override
     public CloudServiceBroker getServiceBroker(String name, boolean required) {
-        return serviceBrokersOps.getServiceBroker(name, required);
+        return serviceBrokersOperations.getServiceBroker(name, required);
     }
 
     @Override
     public List<CloudServiceBroker> getServiceBrokers() {
-        return serviceBrokersOps.getServiceBrokers();
+        return serviceBrokersOperations.getServiceBrokers();
     }
 
     @Override
     public CloudServiceKey getServiceKey(String serviceInstanceName, String serviceKeyName) {
-        return serviceKeysOps.getServiceKey(getServiceInstance(serviceInstanceName), serviceKeyName);
+        return serviceKeysOperations.getServiceKey(getServiceInstance(serviceInstanceName), serviceKeyName);
     }
 
     @Override
     public List<CloudServiceKey> getServiceKeys(String serviceInstanceName) {
-        return serviceKeysOps.getServiceKeys(getServiceInstance(serviceInstanceName));
+        return serviceKeysOperations.getServiceKeys(getServiceInstance(serviceInstanceName));
     }
 
     @Override
     public List<CloudServiceKey> getServiceKeysWithCredentials(String serviceInstanceName) {
-        return serviceKeysOps.getServiceKeysWithCredentials(getServiceInstance(serviceInstanceName));
+        return serviceKeysOperations.getServiceKeysWithCredentials(getServiceInstance(serviceInstanceName));
     }
 
     @Override
     public List<CloudServiceKey> getServiceKeys(CloudServiceInstance serviceInstance) {
-        return serviceKeysOps.getServiceKeys(serviceInstance);
+        return serviceKeysOperations.getServiceKeys(serviceInstance);
     }
 
     @Override
     public List<CloudServiceKey> getServiceKeysWithCredentials(CloudServiceInstance serviceInstance) {
-        return serviceKeysOps.getServiceKeysWithCredentials(serviceInstance);
+        return serviceKeysOperations.getServiceKeysWithCredentials(serviceInstance);
     }
 
     @Override
     public List<CloudServiceOffering> getServiceOfferings() {
-        return serviceOfferingsOps.getServiceOfferings();
+        return serviceOfferingsOperations.getServiceOfferings();
     }
 
     @Override
     public List<CloudDomain> getSharedDomains() {
-        return domainsOps.getSharedDomains();
+        return domainsOperations.getSharedDomains();
     }
 
     @Override
     public CloudStack getStack(String name) {
-        return stacksOps.getStack(name);
+        return stacksOperations.getStack(name);
     }
 
     @Override
     public CloudStack getStack(String name, boolean required) {
-        return stacksOps.getStack(name, required);
+        return stacksOperations.getStack(name, required);
     }
 
     @Override
     public List<CloudStack> getStacks() {
-        return stacksOps.getStacks();
+        return stacksOperations.getStacks();
     }
 
     @Override
     public void startApplication(String applicationName) {
-        UUID guid = getApplicationGuid(applicationName);
-        cc.getRestClient()
-          .post()
-          .uri("/v3/apps/{guid}/actions/start", guid)
-          .retrieve()
-          .toBodilessEntity();
+        applicationsOperations.startApplication(applicationName);
     }
 
     @Override
@@ -595,257 +443,212 @@ public class CloudControllerRestClientV3Impl implements CloudControllerRestClien
 
     @Override
     public void stopApplication(String applicationName) {
-        UUID guid = getApplicationGuid(applicationName);
-        cc.getRestClient()
-          .post()
-          .uri("/v3/apps/{guid}/actions/stop", guid)
-          .retrieve()
-          .toBodilessEntity();
+        applicationsOperations.stopApplication(applicationName);
     }
 
     @Override
     public void rename(String applicationName, String newName) {
-        UUID guid = getApplicationGuid(applicationName);
-        try {
-            cc.getRestClient()
-              .patch()
-              .uri("/v3/apps/{guid}", guid)
-              .body(Map.of("name", newName))
-              .retrieve()
-              .toBodilessEntity();
-        } catch (CloudOperationException e) {
-            // Idempotent-rename tolerance (mirrors the OSS fallbackApplicationRename): the CC can answer 503 to a rename that in fact
-            // already took effect. If the app is already named newName, treat the rename as successful; otherwise propagate.
-            if (e.getStatusCode() == HttpStatus.SERVICE_UNAVAILABLE && newName.equals(getApplicationName(guid))) {
-                return;
-            }
-            throw e;
-        }
+        applicationsOperations.rename(applicationName, newName);
     }
 
     @Override
     public void updateApplicationInstances(String applicationName, int instances) {
-        scaleWebProcess(getApplicationGuid(applicationName), Map.of("instances", instances));
+        applicationsOperations.updateApplicationInstances(applicationName, instances);
     }
 
     @Override
     public void updateApplicationMemory(String applicationName, int memory) {
-        scaleWebProcess(getApplicationGuid(applicationName), Map.of("memory_in_mb", memory));
+        applicationsOperations.updateApplicationMemory(applicationName, memory);
     }
 
     @Override
     public void updateApplicationDiskQuota(String applicationName, int disk) {
-        scaleWebProcess(getApplicationGuid(applicationName), Map.of("disk_in_mb", disk));
+        applicationsOperations.updateApplicationDiskQuota(applicationName, disk);
     }
 
     @Override
     public void updateApplicationEnv(String applicationName, Map<String, String> env) {
-        UUID guid = getApplicationGuid(applicationName);
-        cc.getRestClient()
-          .patch()
-          .uri("/v3/apps/{guid}/environment_variables", guid)
-          .body(Map.of("var", env))
-          .retrieve()
-          .toBodilessEntity();
+        applicationsOperations.updateApplicationEnv(applicationName, env);
     }
 
     @Override
     public void bindDropletToApp(UUID dropletGuid, UUID applicationGuid) {
-        cc.getRestClient()
-          .patch()
-          .uri("/v3/apps/{guid}/relationships/current_droplet", applicationGuid)
-          .body(Map.of("data", Map.of("guid", dropletGuid.toString())))
-          .retrieve()
-          .toBodilessEntity();
-    }
-
-    private void scaleWebProcess(UUID applicationGuid, Map<String, Object> scaleBody) {
-        cc.getRestClient()
-          .post()
-          .uri("/v3/apps/{guid}/processes/web/actions/scale", applicationGuid)
-          .body(scaleBody)
-          .retrieve()
-          .toBodilessEntity();
+        applicationsOperations.bindDropletToApp(dropletGuid, applicationGuid);
     }
 
     @Override
     public List<String> unbindServiceInstance(String applicationName, String serviceInstanceName) {
-        return serviceBindingsOps.unbindServiceInstance(applicationName, serviceInstanceName);
+        return serviceBindingsOperations.unbindServiceInstance(applicationName, serviceInstanceName);
     }
 
     @Override
     public List<String> unbindServiceInstance(UUID applicationGuid, UUID serviceInstanceGuid) {
-        return serviceBindingsOps.unbindServiceInstance(applicationGuid, serviceInstanceGuid);
+        return serviceBindingsOperations.unbindServiceInstance(applicationGuid, serviceInstanceGuid);
     }
 
     @Override
     public void updateApplicationStaging(String applicationName, Staging staging) {
-        processesOps.updateApplicationStaging(applicationName, staging);
+        processesOperations.updateApplicationStaging(applicationName, staging);
     }
 
     @Override
     public void updateApplicationRoutes(String applicationName, Set<CloudRoute> routes) {
-        routesOps.updateApplicationRoutes(applicationName, routes);
+        routesOperations.updateApplicationRoutes(applicationName, routes);
     }
 
     @Override
     public String updateServiceBroker(CloudServiceBroker serviceBroker) {
-        return serviceBrokersOps.updateServiceBroker(serviceBroker);
+        return serviceBrokersOperations.updateServiceBroker(serviceBroker);
     }
 
     @Override
     public void updateServicePlanVisibilityForBroker(String name, ServicePlanVisibility visibility) {
-        serviceBrokersOps.updateServicePlanVisibilityForBroker(name, visibility);
+        serviceBrokersOperations.updateServicePlanVisibilityForBroker(name, visibility);
     }
 
     @Override
     public void updateServicePlan(String serviceName, String planName) {
-        serviceInstancesOps.updateServicePlan(serviceName, planName);
+        serviceInstancesOperations.updateServicePlan(serviceName, planName);
     }
 
     @Override
     public void updateServiceParameters(String serviceName, Map<String, Object> parameters) {
-        serviceInstancesOps.updateServiceParameters(serviceName, parameters);
+        serviceInstancesOperations.updateServiceParameters(serviceName, parameters);
     }
 
     @Override
     public void updateServiceSyslogDrainUrl(String serviceName, String syslogDrainUrl) {
-        serviceInstancesOps.updateServiceSyslogDrainUrl(serviceName, syslogDrainUrl);
+        serviceInstancesOperations.updateServiceSyslogDrainUrl(serviceName, syslogDrainUrl);
     }
 
     @Override
     public void updateServiceTags(String serviceName, List<String> tags) {
-        serviceInstancesOps.updateServiceTags(serviceName, tags);
+        serviceInstancesOperations.updateServiceTags(serviceName, tags);
     }
 
     @Override
     public CloudPackage asyncUploadApplication(String applicationName, Path file, UploadStatusCallback callback, Duration uploadTimeout) {
-        return packagesOps.asyncUploadApplication(applicationName, file, callback, uploadTimeout);
+        return packagesOperations.asyncUploadApplication(applicationName, file, callback, uploadTimeout);
     }
 
     @Override
     public Upload getUploadStatus(UUID packageGuid) {
-        return packagesOps.getUploadStatus(packageGuid);
+        return packagesOperations.getUploadStatus(packageGuid);
     }
 
     @Override
     public CloudTask getTask(UUID taskGuid) {
-        return tasksOps.getTask(taskGuid);
+        return tasksOperations.getTask(taskGuid);
     }
 
     @Override
     public List<CloudTask> getTasks(String applicationName) {
-        return tasksOps.getTasks(applicationName);
+        return tasksOperations.getTasks(applicationName);
     }
 
     @Override
     public CloudTask runTask(String applicationName, CloudTask task) {
-        return tasksOps.runTask(applicationName, task);
+        return tasksOperations.runTask(applicationName, task);
     }
 
     @Override
     public CloudTask cancelTask(UUID taskGuid) {
-        return tasksOps.cancelTask(taskGuid);
+        return tasksOperations.cancelTask(taskGuid);
     }
 
     @Override
     public CloudBuild createBuild(UUID packageGuid) {
-        return buildsOps.createBuild(packageGuid);
+        return buildsOperations.createBuild(packageGuid);
     }
 
     @Override
     public CloudBuild getBuild(UUID packageGuid) {
-        return buildsOps.getBuild(packageGuid);
+        return buildsOperations.getBuild(packageGuid);
     }
 
     @Override
     public List<CloudBuild> getBuildsForApplication(UUID applicationGuid) {
-        return buildsOps.getBuildsForApplication(applicationGuid);
+        return buildsOperations.getBuildsForApplication(applicationGuid);
     }
 
     @Override
     public Map<String, Object> getServiceInstanceParameters(UUID guid) {
-        return serviceInstancesOps.getServiceInstanceParameters(guid);
+        return serviceInstancesOperations.getServiceInstanceParameters(guid);
     }
 
     @Override
     public Map<String, Object> getUserProvidedServiceInstanceParameters(UUID guid) {
-        return serviceInstancesOps.getUserProvidedServiceInstanceParameters(guid);
+        return serviceInstancesOperations.getUserProvidedServiceInstanceParameters(guid);
     }
 
     @Override
     public Map<String, Object> getServiceBindingParameters(UUID guid) {
-        return serviceBindingsOps.getServiceBindingParameters(guid);
+        return serviceBindingsOperations.getServiceBindingParameters(guid);
     }
 
     @Override
     public List<CloudBuild> getBuildsForPackage(UUID packageGuid) {
-        return buildsOps.getBuildsForPackage(packageGuid);
+        return buildsOperations.getBuildsForPackage(packageGuid);
     }
 
     @Override
     public List<CloudServiceInstance> getServiceInstancesWithoutAuxiliaryContentByNames(List<String> names) {
-        return serviceInstancesOps.getServiceInstancesWithoutAuxiliaryContentByNames(names);
+        return serviceInstancesOperations.getServiceInstancesWithoutAuxiliaryContentByNames(names);
     }
 
     @Override
     public List<CloudServiceInstance> getServiceInstancesByMetadataLabelSelector(String labelSelector) {
-        return serviceInstancesOps.getServiceInstancesByMetadataLabelSelector(labelSelector);
+        return serviceInstancesOperations.getServiceInstancesByMetadataLabelSelector(labelSelector);
     }
 
     @Override
     public List<CloudServiceInstance> getServiceInstancesWithoutAuxiliaryContentByMetadataLabelSelector(String labelSelector) {
-        return serviceInstancesOps.getServiceInstancesWithoutAuxiliaryContentByMetadataLabelSelector(labelSelector);
+        return serviceInstancesOperations.getServiceInstancesWithoutAuxiliaryContentByMetadataLabelSelector(labelSelector);
     }
 
     @Override
     public void updateApplicationMetadata(UUID guid, Metadata metadata) {
-        cc.getRestClient()
-          .patch()
-          .uri("/v3/apps/{guid}", guid)
-          .body(Map.of("metadata", Map.of("labels", metadata.getLabels(), "annotations", metadata.getAnnotations())))
-          .retrieve()
-          .toBodilessEntity();
+        applicationsOperations.updateApplicationMetadata(guid, metadata);
     }
 
     @Override
     public void updateServiceInstanceMetadata(UUID guid, Metadata metadata) {
-        serviceInstancesOps.updateServiceInstanceMetadata(guid, metadata);
+        serviceInstancesOperations.updateServiceInstanceMetadata(guid, metadata);
     }
 
     @Override
     public void updateServiceBindingMetadata(UUID guid, Metadata metadata) {
-        serviceBindingsOps.updateServiceBindingMetadata(guid, metadata);
+        serviceBindingsOperations.updateServiceBindingMetadata(guid, metadata);
     }
 
     @Override
     public DropletInfo getCurrentDropletForApplication(UUID applicationGuid) {
-        return processesOps.getCurrentDropletForApplication(applicationGuid);
+        return processesOperations.getCurrentDropletForApplication(applicationGuid);
     }
 
     @Override
     public CloudPackage getPackage(UUID packageGuid) {
-        return packagesOps.getPackage(packageGuid);
+        return packagesOperations.getPackage(packageGuid);
     }
 
     @Override
     public List<CloudPackage> getPackagesForApplication(UUID applicationGuid) {
-        return packagesOps.getPackagesForApplication(applicationGuid);
+        return packagesOperations.getPackagesForApplication(applicationGuid);
     }
 
     @Override
     public Set<UserRole> getUserRolesBySpaceAndUser(UUID spaceGuid, UUID userGuid) {
-        return rolesOps.getUserRolesBySpaceAndUser(spaceGuid, userGuid);
+        return rolesOperations.getUserRolesBySpaceAndUser(spaceGuid, userGuid);
     }
 
     @Override
     public CloudPackage createDockerPackage(UUID applicationGuid, DockerInfo dockerInfo) {
-        return packagesOps.createDockerPackage(applicationGuid, dockerInfo);
+        return packagesOperations.createDockerPackage(applicationGuid, dockerInfo);
     }
 
     @Override
     public CloudAsyncJob getAsyncJob(String jobId) {
-        return jobsOps.getAsyncJob(jobId);
+        return jobsOperations.getAsyncJob(jobId);
     }
 
 }
