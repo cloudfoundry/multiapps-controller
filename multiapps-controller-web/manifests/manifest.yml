@@ -15,7 +15,10 @@ applications:
       VERSION: ${project.version}
       XS_TYPE: CF
       DB_TYPE: POSTGRESQL
-      CATALINA_OPTS: "-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true"
+      # Encoded forward slashes (%2F) are enabled via the Tomcat connector attribute
+      # encodedSolidusHandling="decode"; the org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH
+      # system property was removed in Tomcat 11 and has no effect.
+      JBP_CONFIG_RESOURCE_CONFIGURATION: "['tomcat/conf/server.xml': {'connector.encodedSolidusHandling': 'decode'}]"
       JBP_CONFIG_SAP_MACHINE_JRE: '{ jre: { version: "25.+" } }'
       JBP_CONFIG_TOMCAT: '{ tomcat: { version: 11.+ } }'
       JBP_CONFIG_COMPONENTS: '{jres: ["JavaBuildpack::Jre::SapMachineJRE"]}'
