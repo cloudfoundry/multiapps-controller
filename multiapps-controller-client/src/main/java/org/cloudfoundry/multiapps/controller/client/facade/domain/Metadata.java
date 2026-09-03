@@ -8,15 +8,6 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * Project-owned replacement for {@code org.cloudfoundry.client.v3.Metadata} (CF v3 resource labels + annotations), so the domain model no
- * longer depends on the OSS cf-java-client.
- * <p>
- * It is a faithful drop-in: the fluent {@link Builder} exposes the same {@code label(k,v)} / {@code annotation(k,v)} /
- * {@code labels(map)} / {@code annotations(map)} methods the codebase already calls, and JSON (de)serialization uses the same
- * {@code {"labels": {...}, "annotations": {...}}} shape as the OSS type, so persisted models (e.g. {@code CloudEntity.getV3Metadata()})
- * round-trip identically.
- */
 public final class Metadata {
 
     private final Map<String, String> labels;
@@ -47,9 +38,11 @@ public final class Metadata {
         if (this == o) {
             return true;
         }
+
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
+
         Metadata metadata = (Metadata) o;
         return labels.equals(metadata.labels) && annotations.equals(metadata.annotations);
     }
@@ -72,14 +65,12 @@ public final class Metadata {
         private Builder() {
         }
 
-        /**
-         * Copy labels and annotations from an existing {@link Metadata}. Mirrors the OSS builder's {@code from(Metadata)}.
-         */
         public Builder from(Metadata metadata) {
             if (metadata != null) {
                 this.labels.putAll(metadata.getLabels());
                 this.annotations.putAll(metadata.getAnnotations());
             }
+
             return this;
         }
 
@@ -92,6 +83,7 @@ public final class Metadata {
             if (labels != null) {
                 this.labels.putAll(labels);
             }
+
             return this;
         }
 
@@ -108,6 +100,7 @@ public final class Metadata {
             if (annotations != null) {
                 this.annotations.putAll(annotations);
             }
+
             return this;
         }
 

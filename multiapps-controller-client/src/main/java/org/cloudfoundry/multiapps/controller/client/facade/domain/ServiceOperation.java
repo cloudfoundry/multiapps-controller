@@ -83,10 +83,11 @@ public class ServiceOperation {
         if (lastOperation == null || lastOperation.type() == null || lastOperation.state() == null) {
             return null;
         }
-        Type type = Type.fromString(lastOperation.type());
-        State state = State.fromString(lastOperation.state());
-        String description = lastOperation.description();
-        return new ServiceOperation(type, description, state);
+
+        Type operationType = Type.fromString(lastOperation.type());
+        State operationState = State.fromString(lastOperation.state());
+        String operationDescription = lastOperation.description();
+        return new ServiceOperation(operationType, operationDescription, operationState);
     }
 
     @Override

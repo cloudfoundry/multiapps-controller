@@ -12,9 +12,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *   "relationships": { "user": { "data": { "guid": "..." } }, "space": { "data": { "guid": "..." } | null },
  *                      "organization": { "data": { "guid": "..." } | null } } }
  * </pre>
- *
- * Only {@code type} is consumed by the mapper (mirroring the OSS {@code RawUserRole}); the remaining fields are documented for
- * completeness and ignored so CF can evolve the payload without breaking us.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record V3Role(@JsonProperty("guid") String guid, @JsonProperty("created_at") String createdAt,

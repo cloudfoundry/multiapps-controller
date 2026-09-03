@@ -3,10 +3,6 @@ package org.cloudfoundry.multiapps.controller.client.facade.rest.resources;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudTask;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudTask;
 
-/**
- * Maps the {@link V3Task} wire model to the project's {@link CloudTask} domain object. Mirrors the OSS {@code RawCloudTask} adapter
- * field-for-field, so both client implementations yield identical domain objects.
- */
 public final class V3TaskMapper {
 
     private V3TaskMapper() {
@@ -27,6 +23,7 @@ public final class V3TaskMapper {
         if (task.result() == null) {
             return null;
         }
+
         return ImmutableCloudTask.ImmutableResult.of(task.result()
                                                          .failureReason());
     }

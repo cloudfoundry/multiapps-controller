@@ -7,10 +7,6 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloud
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudBuild.ImmutablePackageInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDropletInfo;
 
-/**
- * Maps the {@link V3Build} wire model to the project's {@link CloudBuild} domain object. Mirrors the OSS {@code RawCloudBuild} adapter
- * field-for-field, so both client implementations yield identical domain objects.
- */
 public final class V3BuildMapper {
 
     private V3BuildMapper() {
@@ -31,6 +27,7 @@ public final class V3BuildMapper {
         if (createdBy == null) {
             return null;
         }
+
         return ImmutableCreatedBy.builder()
                                  .guid(V3ResourceMappers.parseNullableGuid(createdBy.guid()))
                                  .name(createdBy.name())
@@ -41,6 +38,7 @@ public final class V3BuildMapper {
         if (inputPackage == null) {
             return null;
         }
+
         return ImmutablePackageInfo.of(V3ResourceMappers.parseNullableGuid(inputPackage.guid()));
     }
 
@@ -48,6 +46,7 @@ public final class V3BuildMapper {
         if (droplet == null || droplet.guid() == null) {
             return null;
         }
+
         return ImmutableDropletInfo.builder()
                                    .guid(V3ResourceMappers.parseNullableGuid(droplet.guid()))
                                    .build();

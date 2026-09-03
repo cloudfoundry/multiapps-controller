@@ -14,24 +14,23 @@ import org.springframework.http.HttpStatus;
 class ReactiveFanOutTest {
 
     @Test
-    void testEmptyReturnsEmpty() {
+    void testMapConcurrentlyReturnsEmptyWhenEmpty() {
         Assertions.assertEquals(List.of(), ReactiveFanOut.mapConcurrently(List.of(), x -> x));
     }
 
     @Test
-    void testSingleElementShortCircuits() {
+    void testMapConcurrentlyShortCircuitsWhenSingleElement() {
         List<String> result = ReactiveFanOut.mapConcurrently(List.of("a"), s -> s + "!");
 
         Assertions.assertEquals(List.of("a!"), result);
     }
 
     @Test
-    void testResultsPreserveInputOrderEvenWhenTasksFinishOutOfOrder() {
+    void testMapConcurrentlyResultPreserveInputOrderEvenWhenTasksFinishOutOfOrder() {
         List<Integer> input = IntStream.rangeClosed(1, 20)
                                        .boxed()
                                        .toList();
 
-        // Later items finish sooner (inverse sleep) — the result must still be in input order.
         List<Integer> result = ReactiveFanOut.mapConcurrently(input, i -> {
             sleep((20 - i));
             return i * 10;
@@ -45,7 +44,7 @@ class ReactiveFanOutTest {
 
     @Test
     @Timeout(10)
-    void testWorkRunsConcurrently() throws Exception {
+    void testMapConcurrentlyWorkRunsConcurrently() throws Exception {
         int n = 8;
         // If the mapper ran sequentially, the barrier (which needs all n parties) would never trip and the test would time out.
         CyclicBarrier barrier = new CyclicBarrier(n);

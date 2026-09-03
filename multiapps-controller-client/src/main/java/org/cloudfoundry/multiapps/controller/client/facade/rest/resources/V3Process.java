@@ -7,12 +7,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Thin Jackson wire-models for the CF v3 <em>process</em> family of endpoints consumed by the client:
- * <ul>
- * <li>{@link V3Process} — {@code GET /v3/apps/{guid}/processes/web} (also {@code GET /v3/processes/{guid}});</li>
- * <li>{@link V3ProcessStats} — {@code GET /v3/apps/{guid}/processes/web/stats};</li>
- * <li>{@link V3AppFeatures} / {@link V3AppFeature} — {@code GET /v3/apps/{guid}/features};</li>
- * <li>{@link V3SshEnabled} — {@code GET /v3/apps/{guid}/ssh_enabled}.</li>
- * </ul>
  *
  * <pre>
  * // process
@@ -20,8 +14,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *   "health_check": { "type": "port|http|process", "data": { "timeout": N, "invocation_timeout": N, "endpoint": "...", "interval": N } },
  *   "readiness_health_check": { "type": "process|http|port", "data": { "invocation_timeout": N, "endpoint": "...", "interval": N } } }
  * </pre>
- *
- * Every record ignores unknown fields so CF can evolve the payload without breaking us.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record V3Process(@JsonProperty("guid") String guid, @JsonProperty("command") String command,
@@ -39,10 +31,6 @@ public record V3Process(@JsonProperty("guid") String guid, @JsonProperty("comman
                                     @JsonProperty("endpoint") String endpoint, @JsonProperty("interval") Integer interval) {
     }
 
-    /**
-     * The CF v3 process statistics response ({@code GET /v3/apps/{guid}/processes/web/stats}):
-     * {@code { "resources": [ { "index": 0, "state": "RUNNING", "routable": true }, ... ] }}.
-     */
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record V3ProcessStats(@JsonProperty("resources") List<V3ProcessStatsResource> resources) {
     }
@@ -52,18 +40,10 @@ public record V3Process(@JsonProperty("guid") String guid, @JsonProperty("comman
                                          @JsonProperty("routable") String routable) {
     }
 
-    /**
-     * The CF v3 app features response ({@code GET /v3/apps/{guid}/features}):
-     * {@code { "resources": [ { "name": "ssh", "enabled": true }, ... ] }}.
-     */
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record V3AppFeature(@JsonProperty("name") String name, @JsonProperty("enabled") Boolean enabled) {
     }
 
-    /**
-     * The CF v3 app SSH-enabled response ({@code GET /v3/apps/{guid}/ssh_enabled}):
-     * {@code { "enabled": true, "reason": "..." }}.
-     */
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record V3SshEnabled(@JsonProperty("enabled") Boolean enabled, @JsonProperty("reason") String reason) {
     }

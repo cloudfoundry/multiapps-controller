@@ -12,9 +12,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *   "metadata": { "labels": {...}, "annotations": {...} },
  *   "relationships": { "organization": { "data": { "guid": "..." } | null } } }
  * </pre>
- *
- * The {@code relationships.organization.data} discriminates shared domains (data == null) from private domains (data != null); this
- * mirrors the filtering the OSS impl applied on {@code DomainResource.getRelationships().getOrganization().getData()}.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record V3Domain(@JsonProperty("guid") String guid, @JsonProperty("name") String name,
@@ -33,10 +30,6 @@ public record V3Domain(@JsonProperty("guid") String guid, @JsonProperty("name") 
     public record V3RelationshipData(@JsonProperty("guid") String guid) {
     }
 
-    /**
-     * True when this domain is scoped to an organization (a private domain), i.e. its {@code relationships.organization.data} is present.
-     * A shared domain has {@code data == null}. Mirrors the OSS {@code getPrivateDomainResources}/{@code getSharedDomainResources} filters.
-     */
     public boolean isPrivate() {
         return relationships != null && relationships.organization() != null && relationships.organization()
                                                                                              .data() != null;

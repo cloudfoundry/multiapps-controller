@@ -3,13 +3,8 @@ package org.cloudfoundry.multiapps.controller.client.facade.rest.resources;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServicePlan;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServicePlan;
 
-/**
- * Maps the {@link V3ServicePlan} wire model to the project's {@link CloudServicePlan} domain object. Mirrors the OSS
- * {@code RawCloudServicePlan} adapter field-for-field, so both client implementations yield identical domain objects.
- */
 public final class V3ServicePlanMapper {
-
-    // CF v3 visibility_type value that maps to the domain's isPublic flag (see RawCloudServicePlan#derive).
+    
     private static final String PUBLIC_VISIBILITY = "public";
 
     private V3ServicePlanMapper() {
@@ -40,9 +35,10 @@ public final class V3ServicePlanMapper {
 
     private static String extractServiceOfferingId(V3ServicePlan.V3Relationships relationships) {
         if (relationships == null || relationships.serviceOffering() == null || relationships.serviceOffering()
-                                                                                              .data() == null) {
+                                                                                             .data() == null) {
             return null;
         }
+
         return relationships.serviceOffering()
                             .data()
                             .guid();

@@ -7,11 +7,6 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceOf
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServicePlan;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceOffering;
 
-/**
- * Maps the {@link V3ServiceOffering} wire model (plus the service plans fetched separately for it) to the project's
- * {@link CloudServiceOffering} domain object. Mirrors the OSS {@code RawCloudServiceOffering} adapter field-for-field, so both client
- * implementations yield identical domain objects.
- */
 public final class V3ServiceOfferingMapper {
 
     private V3ServiceOfferingMapper() {
@@ -39,6 +34,7 @@ public final class V3ServiceOfferingMapper {
         if (brokerCatalog == null || brokerCatalog.features() == null) {
             return null;
         }
+
         return brokerCatalog.features()
                             .bindable();
     }
@@ -56,6 +52,7 @@ public final class V3ServiceOfferingMapper {
                                                                                            .data() == null) {
             return null;
         }
+
         return relationships.serviceBroker()
                             .data()
                             .guid();

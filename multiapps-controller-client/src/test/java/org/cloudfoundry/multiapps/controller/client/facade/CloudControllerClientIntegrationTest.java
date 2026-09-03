@@ -12,6 +12,8 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableLifec
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Lifecycle;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.LifecycleType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
+import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuthClient;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudControllerRestClientFactory;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudSpaceClient;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.ImmutableCloudControllerRestClientFactory;
 import org.cloudfoundry.multiapps.controller.client.facade.util.RestUtil;
@@ -37,10 +39,10 @@ abstract class CloudControllerClientIntegrationTest {
         CloudCredentials credentials = getCloudCredentials();
         URL apiUrl = URI.create(ITVariable.CF_API.getValue())
                         .toURL();
-        var clientFactory = ImmutableCloudControllerRestClientFactory.builder()
-                                                                     .shouldTrustSelfSignedCertificates(true)
-                                                                     .build();
-        var oauthClient = new RestUtil().createOAuthClientByControllerUrl(apiUrl, true);
+        CloudControllerRestClientFactory clientFactory = ImmutableCloudControllerRestClientFactory.builder()
+                                                                                                  .shouldTrustSelfSignedCertificates(true)
+                                                                                                  .build();
+        OAuthClient oauthClient = new RestUtil().createOAuthClientByControllerUrl(apiUrl, true);
         oauthClient.init(credentials);
         CloudSpaceClient spaceClient = clientFactory.createSpaceClient(apiUrl, oauthClient, Collections.emptyMap());
         target = spaceClient.getSpace(ITVariable.ORG.getValue(), ITVariable.SPACE.getValue());
@@ -66,7 +68,7 @@ abstract class CloudControllerClientIntegrationTest {
                                      .build();
         }
 
-        var data = new HashMap<String, Object>();
+        HashMap<String, Object> data = new HashMap<String, Object>();
         data.put("buildpacks", staging.getBuildpacks());
         data.put("stack", DEFAULT_STACK);
 

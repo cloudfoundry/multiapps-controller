@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 class CloudControllerV3ClientPageUriTest {
 
     @Test
-    void testAddsPageWhenAbsentAndKeepsExistingQuery() {
+    void testPageUriAddsPageWhenAbsentAndKeepsExistingQuery() {
         String uri = CloudControllerV3Client.pageUri("/v3/apps?per_page=5000&space_guids=abc", 3);
 
         Assertions.assertTrue(uri.contains("page=3"), uri);
@@ -15,17 +15,16 @@ class CloudControllerV3ClientPageUriTest {
     }
 
     @Test
-    void testReplacesExistingPageParam() {
+    void testPageUriReplacesExistingPageParam() {
         String uri = CloudControllerV3Client.pageUri("/v3/apps?per_page=5000&page=1", 4);
 
         Assertions.assertTrue(uri.contains("page=4"), uri);
         Assertions.assertFalse(uri.contains("page=1"), uri);
-        // per_page must survive the replacement.
         Assertions.assertTrue(uri.contains("per_page=5000"), uri);
     }
 
     @Test
-    void testPreservesMultipleFilters() {
+    void testPageUriPreservesMultipleFilters() {
         String first = "/v3/service_credential_bindings?per_page=5000&type=key&service_instance_guids=g1&names=n1";
 
         String uri = CloudControllerV3Client.pageUri(first, 2);

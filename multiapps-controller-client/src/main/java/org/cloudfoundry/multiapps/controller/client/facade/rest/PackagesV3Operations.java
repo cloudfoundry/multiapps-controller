@@ -1,11 +1,18 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.cloudfoundry.multiapps.controller.Constants;
+import org.cloudfoundry.multiapps.controller.Messages;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.UploadStatusCallback;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.BitsData;
@@ -30,87 +37,77 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
-/**
- * CF v3 <em>packages</em> operations of the cf-java-client replacement. Reproduces the HTTP shape and domain mapping of the OSS
- * {@code CloudControllerRestClientImpl} package methods:
- * <ul>
- * <li>{@code getPackage(guid)} &rarr; {@code GET /v3/packages/{guid}};</li>
- * <li>{@code getPackagesForApplication(appGuid)} &rarr; {@code GET /v3/apps/{guid}/packages} (paginated);</li>
- * <li>{@code createDockerPackage(appGuid, dockerInfo)} &rarr; {@code POST /v3/packages} then re-fetch;</li>
- * <li>{@code asyncUploadApplication(...)} &rarr; create a bits package ({@code POST /v3/packages}),
- * upload the bits multipart ({@code POST /v3/packages/{guid}/upload}), then poll status in a background thread;</li>
- * <li>{@code getUploadStatus(guid)} &rarr; derived from {@code getPackage(guid)}.</li>
- * </ul>
- */
 public class PackagesV3Operations {
-
-    // CF v3 caps per_page at 5000; use a large page to minimise round-trips (the pagination walker still handles multiple pages).
-    private static final int DEFAULT_PAGE_SIZE = 5000;
-    // Mirrors the OSS CloudControllerRestClientImpl.PACKAGE_UPLOAD_JOB_POLLING_PERIOD.
-    private static final long PACKAGE_UPLOAD_JOB_POLLING_PERIOD = TimeUnit.SECONDS.toMillis(5);
 
     private static final ParameterizedTypeReference<V3ListResponse<V3Package>> PACKAGE_PAGE = new ParameterizedTypeReference<>() {
     };
 
     private final CloudControllerV3Client cc;
     private final CloudSpace target;
-    // Builds a RestClient whose response timeout is the given per-upload timeout, so a stalled bits upload is bounded by the
-    // user-configured UPLOAD_TIMEOUT (mirrors the OSS .timeout(uploadTimeout)). May be null, in which case the shared client is used.
-    private final java.util.function.Function<java.time.Duration, RestClient> uploadRestClientFactory;
+
+    private final Function<Duration, RestClient> uploadRestClientFactory;
 
     public PackagesV3Operations(CloudControllerV3Client cc, CloudSpace target) {
         this(cc, target, null);
     }
 
     public PackagesV3Operations(CloudControllerV3Client cc, CloudSpace target,
-                                java.util.function.Function<java.time.Duration, RestClient> uploadRestClientFactory) {
+                                Function<java.time.Duration, RestClient> uploadRestClientFactory) {
         this.cc = cc;
         this.target = target;
         this.uploadRestClientFactory = uploadRestClientFactory;
     }
 
     public CloudPackage getPackage(UUID packageGuid) {
-        V3Package resource = cc.get("/v3/packages/" + packageGuid, V3Package.class);
+        V3Package resource = cc.get(CloudControllerV3Endpoints.PACKAGES + "/" + packageGuid, V3Package.class);
+
         return resource == null ? null : V3PackageMapper.toCloudPackage(resource);
     }
 
     public List<CloudPackage> getPackagesForApplication(UUID applicationGuid) {
-        return cc.list("/v3/apps/" + applicationGuid + "/packages?per_page=" + DEFAULT_PAGE_SIZE, PACKAGE_PAGE)
+        return cc.list(CloudControllerV3Endpoints.APPS + "/" + applicationGuid + "/packages" + CloudControllerV3Endpoints.QUERY_PER_PAGE
+                           + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, PACKAGE_PAGE)
                  .stream()
                  .map(V3PackageMapper::toCloudPackage)
                  .toList();
     }
 
     public CloudPackage createDockerPackage(UUID applicationGuid, DockerInfo dockerInfo) {
-        java.util.Map<String, Object> data = new java.util.HashMap<>();
+        Map<String, Object> data = new HashMap<>();
         data.put("image", dockerInfo.getImage());
+
         DockerCredentials credentials = dockerInfo.getCredentials();
         if (credentials != null) {
             if (credentials.getUsername() != null) {
                 data.put("username", credentials.getUsername());
             }
+
             if (credentials.getPassword() != null) {
                 data.put("password", credentials.getPassword());
             }
         }
+
         V3Package created = cc.getRestClient()
                               .post()
-                              .uri("/v3/packages")
-                              .body(java.util.Map.of("type", "docker", "data", data, "relationships",
-                                                     applicationRelationship(applicationGuid)))
+                              .uri(CloudControllerV3Endpoints.PACKAGES)
+                              .body(Map.of("type", "docker", "data", data, "relationships",
+                                           applicationRelationship(applicationGuid)))
                               .retrieve()
                               .body(V3Package.class);
+
         return getPackage(UUID.fromString(created.guid()));
     }
 
     public Upload getUploadStatus(UUID packageGuid) {
         CloudPackage cloudPackage = getPackage(packageGuid);
         ErrorDetails errorDetails = null;
+
         if (cloudPackage.getType() == CloudPackage.Type.BITS) {
             errorDetails = ImmutableErrorDetails.builder()
                                                 .description(((BitsData) cloudPackage.getData()).getError())
                                                 .build();
         }
+
         return ImmutableUpload.builder()
                               .status(cloudPackage.getStatus())
                               .errorDetails(errorDetails)
@@ -132,11 +129,10 @@ public class PackagesV3Operations {
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("bits", new FileSystemResource(file));
-        // Bound the bits upload by the caller's per-MTA uploadTimeout via a dedicated RestClient whose response timeout is that value
-        // (see CloudControllerRestClientFactory). Fall back to the shared client if no factory/timeout was supplied.
+
         RestClient uploadClient = resolveUploadClient(uploadTimeout);
         uploadClient.post()
-                    .uri("/v3/packages/{guid}/upload", packageGuid)
+                    .uri(CloudControllerV3Endpoints.PACKAGE_UPLOAD, packageGuid)
                     .contentType(MediaType.MULTIPART_FORM_DATA)
                     .body(body)
                     .retrieve()
@@ -149,38 +145,46 @@ public class PackagesV3Operations {
         if (uploadRestClientFactory != null && uploadTimeout != null && !uploadTimeout.isZero() && !uploadTimeout.isNegative()) {
             return uploadRestClientFactory.apply(uploadTimeout);
         }
+
         return cc.getRestClient();
     }
 
     private CloudPackage createBitsPackage(UUID applicationGuid) {
         V3Package created = cc.getRestClient()
                               .post()
-                              .uri("/v3/packages")
-                              .body(java.util.Map.of("type", "bits", "relationships", applicationRelationship(applicationGuid)))
+                              .uri(CloudControllerV3Endpoints.PACKAGES)
+                              .body(Map.of("type", "bits", "relationships", applicationRelationship(applicationGuid)))
                               .retrieve()
                               .body(V3Package.class);
+
         return getPackage(UUID.fromString(created.guid()));
     }
 
-    private static java.util.Map<String, Object> applicationRelationship(UUID applicationGuid) {
-        return java.util.Map.of("app", java.util.Map.of("data", java.util.Map.of("guid", applicationGuid.toString())));
+    private static Map<String, Object> applicationRelationship(UUID applicationGuid) {
+        return Map.of("app", java.util.Map.of("data", java.util.Map.of("guid", applicationGuid.toString())));
     }
 
     private UUID getRequiredApplicationGuid(String applicationName) {
-        StringBuilder query = new StringBuilder("/v3/apps?per_page=" + DEFAULT_PAGE_SIZE);
+        StringBuilder query = new StringBuilder(CloudControllerV3Endpoints.APPS + CloudControllerV3Endpoints.QUERY_PER_PAGE
+                                                    + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
+
         if (target != null && target.getGuid() != null) {
-            query.append("&space_guids=")
+            query.append(CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
                  .append(target.getGuid());
         }
-        query.append("&names=")
+
+        query.append(CloudControllerV3Endpoints.AMPERSAND_NAMES)
              .append(applicationName);
         List<V3App> apps = cc.list(query.toString(), new ParameterizedTypeReference<V3ListResponse<V3App>>() {
         });
-        if (apps.isEmpty() || apps.get(0)
+
+        if (apps.isEmpty() || apps.getFirst()
                                   .guid() == null) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, "Not Found", "Application " + applicationName + " not found.");
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+                                              MessageFormat.format(Messages.APPLICATION_0_NOT_FOUND, applicationName));
         }
-        return UUID.fromString(apps.get(0)
+
+        return UUID.fromString(apps.getFirst()
                                    .guid());
     }
 
@@ -194,16 +198,19 @@ public class PackagesV3Operations {
             Upload upload = getUploadStatus(cloudPackage.getGuid());
             Status uploadStatus = upload.getStatus();
             boolean unsubscribe = callback.onProgress(uploadStatus.toString());
+
             if (unsubscribe || isUploadReady(uploadStatus)) {
                 return;
             }
+
             if (hasUploadFailed(uploadStatus)) {
                 callback.onError(upload.getErrorDetails()
                                        .getDescription());
                 return;
             }
+
             try {
-                Thread.sleep(PACKAGE_UPLOAD_JOB_POLLING_PERIOD);
+                Thread.sleep(Constants.PACKAGE_UPLOAD_JOB_POLLING_PERIOD);
             } catch (InterruptedException e) {
                 Thread.currentThread()
                       .interrupt();
@@ -220,12 +227,8 @@ public class PackagesV3Operations {
         return status == Status.EXPIRED || status == Status.FAILED;
     }
 
-    /**
-     * Minimal wire-model of a v3 app resource, used only to resolve an application's GUID by name when starting an upload. The
-     * fully-featured app wire model lives in {@code V3Application}; this local record keeps the packages helper self-contained.
-     */
-    @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
-    private record V3App(@com.fasterxml.jackson.annotation.JsonProperty("guid") String guid) {
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record V3App(@JsonProperty("guid") String guid) {
     }
 
 }

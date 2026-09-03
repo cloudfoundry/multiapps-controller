@@ -7,10 +7,6 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudAsyncJob;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.JobState;
 
-/**
- * Maps the {@link V3Job} wire model to the project's {@link CloudAsyncJob} domain object. Mirrors the OSS {@code RawCloudAsyncJob} adapter
- * field-for-field, so both client implementations yield identical domain objects.
- */
 public final class V3JobMapper {
 
     private V3JobMapper() {
@@ -35,6 +31,7 @@ public final class V3JobMapper {
         if (warnings == null) {
             return "";
         }
+
         return warnings.stream()
                        .map(V3Job.V3Warning::detail)
                        .collect(Collectors.joining(","));
@@ -45,6 +42,7 @@ public final class V3JobMapper {
         if (errors == null) {
             return "";
         }
+
         return errors.stream()
                      .map(V3JobMapper::joinErrorDetails)
                      .collect(Collectors.joining(","));

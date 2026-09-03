@@ -13,9 +13,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * <pre>
  * { "credentials": { ... }, "syslog_drain_url": "...", "volume_mounts": [ ... ] }
  * </pre>
- *
- * Mirrors the OSS impl's {@code serviceBindingsV3().getDetails(...)} call. The CF v3 API returns a 404 when fetching the details of a
- * service key whose creation failed; callers translate that into empty credentials (see {@code ServiceKeysV3Operations}).
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record V3ServiceKeyDetails(@JsonProperty("credentials") Map<String, Object> credentials,

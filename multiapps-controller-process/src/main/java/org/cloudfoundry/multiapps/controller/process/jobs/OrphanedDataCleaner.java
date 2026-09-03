@@ -8,8 +8,10 @@ import java.util.UUID;
 
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
-import org.cloudfoundry.multiapps.controller.client.facade.rest.ImmutableCloudControllerRestClientFactory;
+import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuthClient;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudControllerRestClientFactory;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudSpaceClient;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.ImmutableCloudControllerRestClientFactory;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.MtaConfigurationPurgerAuditLog;
 import org.cloudfoundry.multiapps.controller.core.cf.OAuthClientFactory;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
@@ -97,13 +99,13 @@ public abstract class OrphanedDataCleaner<T extends AuditableConfiguration> impl
         CloudCredentials cloudCredentials = new CloudCredentials(configuration.getGlobalAuditorUser(),
                                                                  configuration.getGlobalAuditorPassword(), SecurityUtil.CLIENT_ID,
                                                                  SecurityUtil.CLIENT_SECRET, configuration.getGlobalAuditorOrigin());
-        var clientFactory = ImmutableCloudControllerRestClientFactory.builder()
-                                                              .connectTimeout(Duration.ofMinutes(5))
-                                                              .responseTimeout(Duration.ofMinutes(5))
-                                                              .connectionPoolSize(1)
-                                                              .threadPoolSize(1)
-                                                              .build();
-        var oauthClient = oAuthClientFactory.createOAuthClient();
+        CloudControllerRestClientFactory clientFactory = ImmutableCloudControllerRestClientFactory.builder()
+                                                                                                  .connectTimeout(Duration.ofMinutes(5))
+                                                                                                  .responseTimeout(Duration.ofMinutes(5))
+                                                                                                  .connectionPoolSize(1)
+                                                                                                  .threadPoolSize(1)
+                                                                                                  .build();
+        OAuthClient oauthClient = oAuthClientFactory.createOAuthClient();
         oauthClient.init(cloudCredentials);
         spaceClient = clientFactory.createSpaceClient(configuration.getControllerUrl(), oauthClient, Collections.emptyMap());
     }

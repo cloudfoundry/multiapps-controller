@@ -4,10 +4,6 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudProcess;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.HealthCheckType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudProcess;
 
-/**
- * Maps the {@link V3Process} wire model to the project's {@link CloudProcess} domain object. Mirrors the OSS
- * {@code RawCloudProcess} adapter field-for-field, so both client implementations yield identical domain objects.
- */
 public final class V3ProcessMapper {
 
     private V3ProcessMapper() {
@@ -21,6 +17,7 @@ public final class V3ProcessMapper {
         String healthCheckHttpEndpoint = null;
         Integer healthCheckInvocationTimeout = null;
         Integer healthCheckInterval = null;
+
         if (healthCheck != null && healthCheck.data() != null) {
             V3Process.V3HealthCheckData healthCheckData = healthCheck.data();
             healthCheckTimeout = healthCheckData.timeout();
@@ -32,6 +29,7 @@ public final class V3ProcessMapper {
         Integer readinessHealthCheckInvocationTimeout = null;
         String readinessHealthCheckHttpEndpoint = null;
         Integer readinessHealthCheckInterval = null;
+
         if (readinessHealthCheck != null && readinessHealthCheck.data() != null) {
             V3Process.V3HealthCheckData readinessHealthCheckData = readinessHealthCheck.data();
             readinessHealthCheckInvocationTimeout = readinessHealthCheckData.invocationTimeout();

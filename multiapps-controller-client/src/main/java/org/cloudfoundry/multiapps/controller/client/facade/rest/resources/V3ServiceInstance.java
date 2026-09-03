@@ -16,14 +16,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *   "metadata": { "labels": {...}, "annotations": {...} },
  *   "relationships": { "space": { "data": { "guid": "..." } }, "service_plan": { "data": { "guid": "..." } } } }
  * </pre>
- *
- * Only the fields the client needs are mapped; everything else is ignored so CF can evolve the payload without breaking us.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record V3ServiceInstance(@JsonProperty("guid") String guid, @JsonProperty("name") String name, @JsonProperty("type") String type,
                                 @JsonProperty("created_at") String createdAt, @JsonProperty("updated_at") String updatedAt,
                                 @JsonProperty("tags") List<String> tags, @JsonProperty("syslog_drain_url") String syslogDrainUrl,
-                                @JsonProperty("last_operation") V3LastOperation lastOperation, @JsonProperty("metadata") V3Metadata metadata,
+                                @JsonProperty("last_operation") V3LastOperation lastOperation,
+                                @JsonProperty("metadata") V3Metadata metadata,
                                 @JsonProperty("relationships") V3Relationships relationships) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)

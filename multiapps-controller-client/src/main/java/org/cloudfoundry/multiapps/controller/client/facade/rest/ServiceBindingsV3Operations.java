@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
 import java.net.URI;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,10 +9,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.cloudfoundry.multiapps.controller.Messages;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Application;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ServiceBinding;
@@ -21,37 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 
-/**
- * CF v3 <em>service credential bindings</em> (application bindings) operations of the in-house {@code CloudControllerRestClient}.
- * Reproduces the HTTP shape, filtering, async handling and domain mapping of the OSS {@code CloudControllerRestClientImpl} binding
- * methods on top of the shared {@link CloudControllerV3Client} machinery.
- *
- * <p>
- * Endpoint map (see {@code docs/cf-java-client-migration/02-endpoint-inventory.md}):
- * </p>
- * <ul>
- * <li>{@code bindServiceInstance} &rarr; {@code POST /v3/service_credential_bindings} (type=app, async job)</li>
- * <li>{@code unbindServiceInstance} / {@code deleteServiceBinding} &rarr; {@code DELETE /v3/service_credential_bindings/{guid}} (async
- * job)</li>
- * <li>{@code getServiceBinding} &rarr; {@code GET /v3/service_credential_bindings?guids={guid}} (single)</li>
- * <li>{@code getServiceAppBindings} &rarr; {@code GET /v3/service_credential_bindings?service_instance_guids=…&type=app} (paginated)</li>
- * <li>{@code getAppBindings} &rarr; {@code GET /v3/service_credential_bindings?app_guids=…} (paginated)</li>
- * <li>{@code getServiceBindingsForApplication} &rarr; {@code GET /v3/service_credential_bindings?app_guids=…&service_instance_guids=…}
- * (paginated)</li>
- * <li>{@code getServiceBindingParameters} &rarr; {@code GET /v3/service_credential_bindings/{guid}/parameters}</li>
- * <li>{@code updateServiceBindingMetadata} &rarr; {@code PATCH /v3/service_credential_bindings/{guid}}</li>
- * </ul>
- *
- * <p>
- * As in the OSS impl, the async create/delete operations do <em>not</em> block on the job: they return the job GUID (extracted from the
- * {@code Location} header of the 202 response) so the caller can poll it. This matches
- * {@code delegate.serviceBindingsV3().create(...).getJobId()} / {@code .delete(...).block()} which yield the job id without waiting.
- * </p>
- */
 public class ServiceBindingsV3Operations {
-
-    // CF v3 caps per_page at 5000; use a large page to minimise round-trips (the pagination walker still handles multiple pages).
-    private static final int PER_PAGE = 5000;
 
     private static final ParameterizedTypeReference<V3ListResponse<V3ServiceBinding>> BINDING_LIST_TYPE = new ParameterizedTypeReference<>() {
     };
@@ -80,22 +54,25 @@ public class ServiceBindingsV3Operations {
         body.put("type", "app");
         body.put("relationships", Map.of("app", toOneRelationship(applicationGuid), "service_instance",
                                          toOneRelationship(serviceInstanceGuid)));
+
         if (!CollectionUtils.isEmpty(parameters)) {
             body.put("parameters", parameters);
         }
 
         ResponseEntity<Void> response = cc.getRestClient()
                                           .post()
-                                          .uri("/v3/service_credential_bindings")
+                                          .uri(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS)
                                           .body(body)
                                           .retrieve()
                                           .toBodilessEntity();
-        return extractJobGuid(response);
+
+        return extractJobGuidFromResponseHeader(response);
     }
 
     public List<String> unbindServiceInstance(String applicationName, String serviceInstanceName) {
         UUID applicationGuid = getRequiredApplicationGuid(applicationName);
         UUID serviceInstanceGuid = getRequiredServiceInstanceGuid(serviceInstanceName);
+
         return doUnbindServiceInstance(applicationGuid, serviceInstanceGuid);
     }
 
@@ -108,7 +85,9 @@ public class ServiceBindingsV3Operations {
     }
 
     public CloudServiceBinding getServiceBinding(UUID serviceBindingGuid) {
-        String uri = "/v3/service_credential_bindings?guids=" + serviceBindingGuid + "&per_page=" + PER_PAGE;
+        String uri = CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS + CloudControllerV3Endpoints.QUERY_GUIDS + serviceBindingGuid
+            + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+
         return cc.list(uri, BINDING_LIST_TYPE)
                  .stream()
                  .findFirst()
@@ -117,24 +96,34 @@ public class ServiceBindingsV3Operations {
     }
 
     public List<CloudServiceBinding> getServiceAppBindings(UUID serviceInstanceGuid) {
-        String uri = "/v3/service_credential_bindings?service_instance_guids=" + serviceInstanceGuid + "&type=app&per_page=" + PER_PAGE;
+        String uri = CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS + CloudControllerV3Endpoints.QUERY_SERVICE_INSTANCE_GUIDS
+            + serviceInstanceGuid + CloudControllerV3Endpoints.AMPERSAND_TYPE + "app" + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE
+            + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+
         return listBindings(uri);
     }
 
     public List<CloudServiceBinding> getAppBindings(UUID applicationGuid) {
-        String uri = "/v3/service_credential_bindings?app_guids=" + applicationGuid + "&per_page=" + PER_PAGE;
+        String uri = CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS + CloudControllerV3Endpoints.QUERY_APP_GUIDS + applicationGuid
+            + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+
         return listBindings(uri);
     }
 
     public List<CloudServiceBinding> getServiceBindingsForApplication(UUID applicationId, UUID serviceInstanceGuid) {
-        String uri = "/v3/service_credential_bindings?app_guids=" + applicationId + "&service_instance_guids=" + serviceInstanceGuid
-            + "&per_page=" + PER_PAGE;
+        String uri = CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS + CloudControllerV3Endpoints.QUERY_APP_GUIDS + applicationId
+            + CloudControllerV3Endpoints.AMPERSAND_SERVICE_INSTANCE_GUIDS + serviceInstanceGuid
+            + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE
+            + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+
         return listBindings(uri);
     }
 
     public Map<String, Object> getServiceBindingParameters(UUID guid) {
         @SuppressWarnings("unchecked")
-        Map<String, Object> parameters = cc.get("/v3/service_credential_bindings/" + guid + "/parameters", Map.class);
+        Map<String, Object> parameters = cc.get(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS + "/" + guid + "/parameters",
+                                                Map.class);
+
         return parameters;
     }
 
@@ -142,9 +131,10 @@ public class ServiceBindingsV3Operations {
         Map<String, Object> metadataBody = new HashMap<>();
         metadataBody.put("labels", metadata.getLabels());
         metadataBody.put("annotations", metadata.getAnnotations());
+
         cc.getRestClient()
           .patch()
-          .uri("/v3/service_credential_bindings/{guid}", guid)
+          .uri(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDING_BY_GUID, guid)
           .body(Map.of("metadata", metadataBody))
           .retrieve()
           .toBodilessEntity();
@@ -157,20 +147,24 @@ public class ServiceBindingsV3Operations {
                  .toList();
     }
 
-    // Mirrors the OSS doUnbindServiceInstance: resolve the app<->service bindings and 404 when none exist, then delete each.
     private List<String> doUnbindServiceInstance(UUID applicationGuid, UUID serviceInstanceGuid) {
         List<UUID> serviceBindingGuids = getServiceBindingGuids(applicationGuid, serviceInstanceGuid);
+
         if (serviceBindingGuids.isEmpty()) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, "Not Found",
-                                              "Service binding between service with GUID " + serviceInstanceGuid
-                                                  + " and application with GUID " + applicationGuid + " not found.");
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND, MessageFormat.format(
+                Messages.SERVICE_BINDING_BETWEEN_SERVICE_WITH_GUID_0_AND_APPLICATION_WITH_GUID_1_NOT_FOUND, serviceInstanceGuid,
+                applicationGuid));
         }
+
         return doDeleteServiceBindings(serviceBindingGuids);
     }
 
     private List<UUID> getServiceBindingGuids(UUID applicationGuid, UUID serviceInstanceGuid) {
-        String uri = "/v3/service_credential_bindings?app_guids=" + applicationGuid + "&service_instance_guids=" + serviceInstanceGuid
-            + "&per_page=" + PER_PAGE;
+        String uri = CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS + CloudControllerV3Endpoints.QUERY_APP_GUIDS + applicationGuid
+            + CloudControllerV3Endpoints.AMPERSAND_SERVICE_INSTANCE_GUIDS + serviceInstanceGuid
+            + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE
+            + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+
         return cc.list(uri, BINDING_LIST_TYPE)
                  .stream()
                  .map(binding -> UUID.fromString(binding.guid()))
@@ -180,6 +174,7 @@ public class ServiceBindingsV3Operations {
     private List<String> doDeleteServiceBindings(List<UUID> guids) {
         List<String> jobIds = new ArrayList<>();
         List<CloudOperationException> errors = new ArrayList<>();
+
         for (UUID guid : guids) {
             try {
                 deleteSingleServiceBinding(guid).ifPresent(jobIds::add);
@@ -187,6 +182,7 @@ public class ServiceBindingsV3Operations {
                 errors.add(e);
             }
         }
+
         throwOnErrors(errors);
         return jobIds;
     }
@@ -194,29 +190,33 @@ public class ServiceBindingsV3Operations {
     private Optional<String> deleteSingleServiceBinding(UUID guid) {
         ResponseEntity<Void> response = cc.getRestClient()
                                           .delete()
-                                          .uri("/v3/service_credential_bindings/{guid}", guid)
+                                          .uri(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDING_BY_GUID, guid)
                                           .retrieve()
                                           .toBodilessEntity();
-        return extractJobGuid(response);
+
+        return extractJobGuidFromResponseHeader(response);
     }
 
     private void throwOnErrors(List<CloudOperationException> errors) {
         if (errors.isEmpty()) {
             return;
         }
-        CloudOperationException first = errors.get(0);
+
+        CloudOperationException firstException = errors.getFirst();
         errors.subList(1, errors.size())
-              .forEach(first::addSuppressed);
-        throw first;
+              .forEach(firstException::addSuppressed);
+
+        throw firstException;
     }
 
-    // Extract the job GUID from the Location header of a 202-Accepted response (path ends in /v3/jobs/{guid}); empty if synchronous.
-    private Optional<String> extractJobGuid(ResponseEntity<Void> response) {
+    private Optional<String> extractJobGuidFromResponseHeader(ResponseEntity<Void> response) {
         URI location = response.getHeaders()
                                .getLocation();
+
         if (location == null) {
             return Optional.empty();
         }
+
         String path = location.getPath();
         return Optional.of(path.substring(path.lastIndexOf('/') + 1));
     }
@@ -225,45 +225,55 @@ public class ServiceBindingsV3Operations {
         return Map.of("data", Map.of("guid", guid.toString()));
     }
 
-    // Mirrors the OSS getRequiredApplicationGuid: look up the app in the target space and 404 if it is absent.
     private UUID getRequiredApplicationGuid(String applicationName) {
-        StringBuilder query = new StringBuilder("/v3/apps?per_page=" + PER_PAGE);
+        StringBuilder query = new StringBuilder(
+            CloudControllerV3Endpoints.APPS + CloudControllerV3Endpoints.QUERY_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
+
         if (target != null && target.getGuid() != null) {
-            query.append("&space_guids=")
+            query.append(CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
                  .append(target.getGuid());
         }
-        query.append("&names=")
+
+        query.append(CloudControllerV3Endpoints.AMPERSAND_NAMES)
              .append(applicationName);
+
         List<V3Application> apps = cc.list(query.toString(), APPLICATION_LIST_TYPE);
+
         if (apps.isEmpty()) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, "Not Found", "Application " + applicationName + " not found.");
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+                                              MessageFormat.format(Messages.APPLICATION_0_NOT_FOUND, applicationName));
         }
-        return UUID.fromString(apps.get(0)
+
+        return UUID.fromString(apps.getFirst()
                                    .guid());
     }
 
-    // Mirrors the OSS getRequiredServiceInstanceGuid: look up the service instance in the target space and 404 if it is absent.
     private UUID getRequiredServiceInstanceGuid(String name) {
-        StringBuilder query = new StringBuilder("/v3/service_instances?per_page=" + PER_PAGE);
+        StringBuilder query = new StringBuilder(CloudControllerV3Endpoints.SERVICE_INSTANCES + CloudControllerV3Endpoints.QUERY_PER_PAGE
+                                                    + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
+
         if (target != null && target.getGuid() != null) {
-            query.append("&space_guids=")
+            query.append(CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
                  .append(target.getGuid());
         }
-        query.append("&names=")
+
+        query.append(CloudControllerV3Endpoints.AMPERSAND_NAMES)
              .append(name);
         List<V3ServiceInstanceRef> instances = cc.list(query.toString(),
                                                        new ParameterizedTypeReference<V3ListResponse<V3ServiceInstanceRef>>() {
                                                        });
+
         if (instances.isEmpty()) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, "Not Found", "Service instance " + name + " not found.");
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+                                              MessageFormat.format(Messages.SERVICE_INSTANCE_0_NOT_FOUND, name));
         }
-        return UUID.fromString(instances.get(0)
+
+        return UUID.fromString(instances.getFirst()
                                         .guid());
     }
 
-    // Minimal wire model to resolve a service instance GUID by name without depending on the (separately-owned) ServiceInstances group.
-    @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
-    private record V3ServiceInstanceRef(@com.fasterxml.jackson.annotation.JsonProperty("guid") String guid) {
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record V3ServiceInstanceRef(@JsonProperty("guid") String guid) {
     }
 
 }

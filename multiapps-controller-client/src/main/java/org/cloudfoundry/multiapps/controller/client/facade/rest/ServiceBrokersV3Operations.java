@@ -1,11 +1,15 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
 import java.net.URI;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.cloudfoundry.multiapps.controller.Messages;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBroker;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
@@ -18,34 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-/**
- * CF v3 <em>service broker</em> operations of the in-house {@code CloudControllerRestClient}. Reproduces the HTTP shape, filtering,
- * async job handling and domain mapping of the OSS {@code CloudControllerRestClientImpl} service-broker methods on top of the shared
- * {@link CloudControllerV3Client} machinery.
- *
- * <p>
- * Endpoint map (see {@code docs/cf-java-client-migration/02-endpoint-inventory.md}):
- * </p>
- * <ul>
- * <li>{@code createServiceBroker} &rarr; {@code POST /v3/service_brokers} (async job; returns the job GUID)</li>
- * <li>{@code deleteServiceBroker} &rarr; {@code DELETE /v3/service_brokers/{guid}} (async job; returns the job GUID)</li>
- * <li>{@code getServiceBroker(name[, required])} &rarr; {@code GET /v3/service_brokers?names=<name>} (paginated, first match)</li>
- * <li>{@code getServiceBrokers} &rarr; {@code GET /v3/service_brokers} (paginated)</li>
- * <li>{@code updateServiceBroker} &rarr; {@code PATCH /v3/service_brokers/{guid}} (async job; returns the job GUID or {@code null})</li>
- * <li>{@code updateServicePlanVisibilityForBroker} &rarr; per plan {@code PATCH /v3/service_plans/{guid}/visibility}</li>
- * </ul>
- *
- * <p>
- * As in the OSS impl, {@code createServiceBroker}/{@code deleteServiceBroker}/{@code updateServiceBroker} return the async job GUID
- * <em>without</em> waiting for the job to complete — the caller polls the job separately.
- * </p>
- */
 public class ServiceBrokersV3Operations {
-
-    private static final int PER_PAGE = 5000;
 
     private static final ParameterizedTypeReference<V3ListResponse<V3ServiceBroker>> BROKER_PAGE = new ParameterizedTypeReference<>() {
     };
@@ -69,13 +46,14 @@ public class ServiceBrokersV3Operations {
         body.put("name", serviceBroker.getName());
         body.put("url", serviceBroker.getUrl());
         body.put("authentication", basicAuthentication(serviceBroker));
+
         if (serviceBroker.getSpaceGuid() != null) {
             body.put("relationships", Map.of("space", Map.of("data", Map.of("guid", serviceBroker.getSpaceGuid()))));
         }
 
         ResponseEntity<Void> response = cc.getRestClient()
                                           .post()
-                                          .uri("/v3/service_brokers")
+                                          .uri(CloudControllerV3Endpoints.SERVICE_BROKERS)
                                           .body(body)
                                           .retrieve()
                                           .toBodilessEntity();
@@ -86,11 +64,13 @@ public class ServiceBrokersV3Operations {
         CloudServiceBroker broker = getServiceBroker(name);
         UUID guid = broker.getMetadata()
                           .getGuid();
+
         ResponseEntity<Void> response = cc.getRestClient()
                                           .delete()
-                                          .uri("/v3/service_brokers/{guid}", guid.toString())
+                                          .uri(CloudControllerV3Endpoints.SERVICE_BROKER_BY_GUID, guid.toString())
                                           .retrieve()
                                           .toBodilessEntity();
+
         return extractJobGuid(response);
     }
 
@@ -100,14 +80,18 @@ public class ServiceBrokersV3Operations {
 
     public CloudServiceBroker getServiceBroker(String name, boolean required) {
         CloudServiceBroker serviceBroker = findServiceBrokerByName(name);
+
         if (serviceBroker == null && required) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, "Not Found", "Service broker " + name + " not found.");
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+                                              MessageFormat.format(Messages.SERVICE_BROKER_0_NOT_FOUND, name));
         }
+
         return serviceBroker;
     }
 
     public List<CloudServiceBroker> getServiceBrokers() {
-        return cc.list("/v3/service_brokers?per_page=" + PER_PAGE, BROKER_PAGE)
+        return cc.list(CloudControllerV3Endpoints.SERVICE_BROKERS + CloudControllerV3Endpoints.QUERY_PER_PAGE
+                           + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, BROKER_PAGE)
                  .stream()
                  .map(V3ServiceBrokerMapper::toCloudServiceBroker)
                  .toList();
@@ -125,11 +109,11 @@ public class ServiceBrokersV3Operations {
 
         ResponseEntity<Void> response = cc.getRestClient()
                                           .patch()
-                                          .uri("/v3/service_brokers/{guid}", brokerGuid.toString())
+                                          .uri(CloudControllerV3Endpoints.SERVICE_BROKER_BY_GUID, brokerGuid.toString())
                                           .body(body)
                                           .retrieve()
                                           .toBodilessEntity();
-        // A synchronous update returns 200 with no Location header (no job); an async update returns 202 with a job GUID.
+
         return extractJobGuid(response);
     }
 
@@ -137,13 +121,17 @@ public class ServiceBrokersV3Operations {
         CloudServiceBroker broker = getServiceBroker(name);
         UUID brokerGuid = broker.getMetadata()
                                 .getGuid();
+
         for (UUID servicePlanGuid : findServicePlanGuidsByBrokerGuid(brokerGuid)) {
             updateServicePlanVisibility(servicePlanGuid, visibility);
         }
     }
 
     private CloudServiceBroker findServiceBrokerByName(String name) {
-        return cc.list("/v3/service_brokers?names=" + name + "&per_page=" + PER_PAGE, BROKER_PAGE)
+        return cc.list(
+                     CloudControllerV3Endpoints.SERVICE_BROKERS + CloudControllerV3Endpoints.QUERY_NAMES + name
+                         + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE
+                         + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, BROKER_PAGE)
                  .stream()
                  .findFirst()
                  .map(V3ServiceBrokerMapper::toCloudServiceBroker)
@@ -158,8 +146,10 @@ public class ServiceBrokersV3Operations {
     }
 
     private List<UUID> findServiceOfferingGuidsByBrokerGuid(UUID brokerGuid) {
-        String uri = "/v3/service_offerings?service_broker_guids=" + brokerGuid + "&space_guids=" + getTargetSpaceGuid() + "&per_page="
-            + PER_PAGE;
+        String uri = CloudControllerV3Endpoints.SERVICE_OFFERINGS + CloudControllerV3Endpoints.QUERY_SERVICE_BROKER_GUIDS + brokerGuid
+            + CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS + getTargetSpaceGuid() + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE
+            + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+
         return cc.list(uri, OFFERING_PAGE)
                  .stream()
                  .map(ServiceOfferingRef::guid)
@@ -168,7 +158,10 @@ public class ServiceBrokersV3Operations {
     }
 
     private List<UUID> findServicePlanGuidsByOfferingGuid(UUID serviceOfferingGuid) {
-        String uri = "/v3/service_plans?service_offering_guids=" + serviceOfferingGuid + "&per_page=" + PER_PAGE;
+        String uri =
+            CloudControllerV3Endpoints.SERVICE_PLANS + CloudControllerV3Endpoints.QUERY_SERVICE_OFFERING_GUIDS + serviceOfferingGuid
+                + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+
         return cc.list(uri, PLAN_PAGE)
                  .stream()
                  .map(ServicePlanRef::guid)
@@ -177,11 +170,9 @@ public class ServiceBrokersV3Operations {
     }
 
     private void updateServicePlanVisibility(UUID servicePlanGuid, ServicePlanVisibility visibility) {
-        // ServicePlanVisibility.toString() yields the lowercase CF visibility type (public/admin/organization),
-        // matching the OSS Visibility.from(visibility.toString()) mapping.
         cc.getRestClient()
           .patch()
-          .uri("/v3/service_plans/{guid}/visibility", servicePlanGuid.toString())
+          .uri(CloudControllerV3Endpoints.SERVICE_PLAN_VISIBILITY, servicePlanGuid.toString())
           .body(Map.of("type", visibility.toString()))
           .retrieve()
           .toBodilessEntity();
@@ -202,19 +193,22 @@ public class ServiceBrokersV3Operations {
                      .toString();
     }
 
-    // A 202-Accepted async response carries the job in its Location header (/v3/jobs/{guid}); a synchronous 200 has none.
     private static String extractJobGuid(ResponseEntity<Void> response) {
         URI location = response.getHeaders()
                                .getLocation();
+
         if (location == null) {
             return null;
         }
+
         String value = location.toString();
-        int idx = value.lastIndexOf("/v3/jobs/");
-        if (idx < 0) {
+        int index = value.lastIndexOf("/v3/jobs/");
+
+        if (index < 0) {
             return value.substring(value.lastIndexOf('/') + 1);
         }
-        return value.substring(idx + "/v3/jobs/".length());
+
+        return value.substring(index + "/v3/jobs/".length());
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

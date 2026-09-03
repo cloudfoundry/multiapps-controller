@@ -11,8 +11,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *   "metadata": { "labels": {...}, "annotations": {...} },
  *   "relationships": { "space": { "data": { "guid": "..." } | null } } }
  * </pre>
- *
- * Only the fields the client maps into {@code CloudServiceBroker} are declared; everything else is ignored.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record V3ServiceBroker(@JsonProperty("guid") String guid, @JsonProperty("name") String name, @JsonProperty("url") String url,

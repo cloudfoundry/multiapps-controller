@@ -15,12 +15,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *   "resources":  [ ... ]
  * }
  * </pre>
- *
- * Only the fields the client actually needs are mapped; everything else is ignored so CF can evolve the payload without breaking us.
- * The {@link org.cloudfoundry.multiapps.controller.client.facade.rest.CloudControllerV3Client pagination walker} follows
- * {@code pagination.next.href} until it is {@code null}, accumulating {@link #resources()} from every page.
- *
- * @param <R> the wire type of a single resource in this list
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record V3ListResponse<R>(@JsonProperty("pagination") Pagination pagination, @JsonProperty("resources") List<R> resources) {
@@ -33,6 +27,7 @@ public record V3ListResponse<R>(@JsonProperty("pagination") Pagination paginatio
         if (pagination == null || pagination.next() == null) {
             return null;
         }
+
         return pagination.next()
                          .href();
     }

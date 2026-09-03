@@ -11,8 +11,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * <pre>
  * { "guid": "...", "links": { "package": { "href": "https://.../v3/packages/{guid}" }, ... } }
  * </pre>
- *
- * The client only needs the droplet {@code guid} and the {@code package} link, from which the package GUID is derived.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record V3Droplet(@JsonProperty("guid") String guid, @JsonProperty("links") Map<String, V3Link> links) {
