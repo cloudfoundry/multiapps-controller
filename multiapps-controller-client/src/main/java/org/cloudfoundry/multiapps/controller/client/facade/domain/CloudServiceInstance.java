@@ -3,8 +3,7 @@ package org.cloudfoundry.multiapps.controller.client.facade.domain;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudfoundry.AllowNulls;
-import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceType;
+import org.cloudfoundry.multiapps.controller.client.facade.AllowNulls;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

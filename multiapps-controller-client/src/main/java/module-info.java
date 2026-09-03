@@ -12,7 +12,6 @@ open module org.cloudfoundry.multiapps.controller.client {
     exports org.cloudfoundry.multiapps.controller.client.facade.util;
     exports org.cloudfoundry.multiapps.controller.client.facade.dto;
 
-    requires transitive org.cloudfoundry.client;
     requires spring.security.oauth2.core;
     requires transitive spring.web;
 
@@ -20,9 +19,7 @@ open module org.cloudfoundry.multiapps.controller.client {
     requires org.apache.commons.collections4;
     requires org.apache.commons.io;
     requires org.apache.commons.logging;
-    requires org.cloudfoundry.client.reactor;
     requires org.cloudfoundry.multiapps.common;
-    requires org.cloudfoundry.util;
     requires org.slf4j;
     requires java.net.http;
     requires spring.core;
@@ -41,5 +38,7 @@ open module org.cloudfoundry.multiapps.controller.client {
     requires static java.compiler;
     requires static jakarta.inject;
     requires static org.immutables.value;
+    requires io.netty.codec;
+    requires java.desktop;
 
 }
