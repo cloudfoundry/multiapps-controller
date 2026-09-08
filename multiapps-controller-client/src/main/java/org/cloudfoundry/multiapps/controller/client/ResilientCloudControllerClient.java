@@ -47,9 +47,16 @@ import org.springframework.http.HttpStatus;
 public class ResilientCloudControllerClient implements CloudControllerClient {
 
     private final CloudControllerClientImpl delegate;
+    private final Supplier<ResilientCloudOperationExecutor> executorFactory;
 
     public ResilientCloudControllerClient(CloudControllerRestClient delegate) {
+        this(delegate, ResilientCloudOperationExecutor::new);
+    }
+
+    protected ResilientCloudControllerClient(CloudControllerRestClient delegate,
+                                   Supplier<ResilientCloudOperationExecutor> executorFactory) {
         this.delegate = new CloudControllerClientImpl(delegate);
+        this.executorFactory = executorFactory;
     }
 
     @Override
@@ -631,12 +638,14 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     private <T> T executeWithRetry(Supplier<T> operation, HttpStatus... statusesToIgnore) {
-        ResilientCloudOperationExecutor executor = new ResilientCloudOperationExecutor().withStatusesToIgnore(statusesToIgnore);
+        ResilientCloudOperationExecutor executor = executorFactory.get()
+                                                                  .withStatusesToIgnore(statusesToIgnore);
         return executor.execute(operation);
     }
 
     private <T> T executeWithExponentialBackoff(Function<Duration, T> operation, HttpStatus... statusesToIgnore) {
-        ResilientCloudOperationExecutor executor = new ResilientCloudOperationExecutor().withStatusesToIgnore(statusesToIgnore);
+        ResilientCloudOperationExecutor executor = executorFactory.get()
+                                                                  .withStatusesToIgnore(statusesToIgnore);
         return executor.executeWithExponentialBackoff(operation);
     }
 
