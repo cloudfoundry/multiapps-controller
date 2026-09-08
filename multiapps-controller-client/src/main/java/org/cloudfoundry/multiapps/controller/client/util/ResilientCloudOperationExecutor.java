@@ -62,13 +62,13 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
         return this;
     }
 
-    ResilientCloudOperationExecutor withSleeper(LongConsumer sleeper) {
-        this.sleeper = sleeper;
+    public ResilientCloudOperationExecutor withRandomDelaySupplier(LongSupplier randomDelaySupplier) {
+        this.randomDelaySupplier = randomDelaySupplier;
         return this;
     }
 
-    ResilientCloudOperationExecutor withRandomDelaySupplier(LongSupplier randomDelaySupplier) {
-        this.randomDelaySupplier = randomDelaySupplier;
+    ResilientCloudOperationExecutor withSleeper(LongConsumer sleeper) {
+        this.sleeper = sleeper;
         return this;
     }
 

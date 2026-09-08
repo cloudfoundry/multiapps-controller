@@ -15,6 +15,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudStack;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.CloudControllerRestClient;
+import org.cloudfoundry.multiapps.controller.client.util.ResilientCloudOperationExecutor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,8 @@ class ResilientCloudControllerClientTest {
     @BeforeEach
     void setUp() {
         restClient = Mockito.mock(CloudControllerRestClient.class);
-        client = new ResilientCloudControllerClient(restClient);
+        client = new ResilientCloudControllerClient(restClient,
+                                                    () -> new ResilientCloudOperationExecutor().withWaitTimeBetweenRetriesInMillis(0));
     }
 
     @Test

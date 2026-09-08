@@ -76,7 +76,7 @@ class CustomControllerClientErrorHandlerTest {
     @Test
     void testHandleErrorsWithWrongExceptionType() {
         ResilientCloudOperationExecutor resilientCloudOperationExecutor = new ResilientCloudOperationExecutor().withWaitTimeBetweenRetriesInMillis(
-            0);
+            0).withRandomDelaySupplier(() -> 0);
         CustomControllerClientErrorHandler customControllerClientErrorHandler = new CustomControllerClientErrorHandler().withExecutorFactory(
             () -> resilientCloudOperationExecutor);
         Assertions.assertThrows(IllegalArgumentException.class, () -> customControllerClientErrorHandler.handleErrors(() -> {
