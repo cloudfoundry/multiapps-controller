@@ -10,6 +10,7 @@ import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.util.BucketStore;
 import org.cloudfoundry.multiapps.controller.web.Messages;
+import org.cloudfoundry.multiapps.controller.web.monitoring.OperationRateLimitMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,12 +34,14 @@ public class OperationRateLimiter {
     private final ApplicationConfiguration applicationConfiguration;
     private final OperationService operationService;
     private final BucketStore bucketStore;
+    private final OperationRateLimitMetrics metrics;
 
     public OperationRateLimiter(ApplicationConfiguration applicationConfiguration, OperationService operationService,
-                                BucketStore bucketStore) {
+                                BucketStore bucketStore, OperationRateLimitMetrics metrics) {
         this.applicationConfiguration = applicationConfiguration;
         this.operationService = operationService;
         this.bucketStore = bucketStore;
+        this.metrics = metrics;
     }
 
     public void checkStartAllowed(String user, String spaceGuid) {
@@ -51,6 +54,7 @@ public class OperationRateLimiter {
 
     private void rejectAndLog(String user, String spaceGuid, String reason, long retryAfterSeconds) {
         LOGGER.info(MessageFormat.format(Messages.OPERATION_START_RATE_LIMITED_STRUCTURED, user, spaceGuid, reason));
+        metrics.recordRejection();
         throw new OperationRateLimitExceededException(reason, retryAfterSeconds);
     }
 
