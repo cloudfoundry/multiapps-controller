@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.web.util;
 
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
@@ -9,6 +10,8 @@ import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.util.BucketStore;
 import org.cloudfoundry.multiapps.controller.web.Messages;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
@@ -22,6 +25,7 @@ import io.github.bucket4j.ConsumptionProbe;
 @Named
 public class OperationRateLimiter {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OperationRateLimiter.class);
     private static final Duration REFILL_PERIOD = Duration.ofHours(1);
     private static final long TOKENS_PER_OPERATION = 1;
     private static final long NO_RETRY_AFTER_SECONDS = 0;
@@ -45,6 +49,11 @@ public class OperationRateLimiter {
         checkTokenBuckets(user, spaceGuid);
     }
 
+    private void rejectAndLog(String user, String spaceGuid, String reason, long retryAfterSeconds) {
+        LOGGER.info(MessageFormat.format(Messages.OPERATION_START_RATE_LIMITED_STRUCTURED, user, spaceGuid, reason));
+        throw new OperationRateLimitExceededException(reason, retryAfterSeconds);
+    }
+
     private void checkActiveOperationCaps(String user, String spaceGuid) {
         int activeOperationsPerSpace = operationService.createQuery()
                                                        .spaceId(spaceGuid)
@@ -52,7 +61,7 @@ public class OperationRateLimiter {
                                                        .list()
                                                        .size();
         if (activeOperationsPerSpace >= applicationConfiguration.getMaxActiveOperationsPerSpace()) {
-            throw new OperationRateLimitExceededException(Messages.TOO_MANY_ACTIVE_OPERATIONS_IN_SPACE, NO_RETRY_AFTER_SECONDS);
+            rejectAndLog(user, spaceGuid, Messages.TOO_MANY_ACTIVE_OPERATIONS_IN_SPACE, NO_RETRY_AFTER_SECONDS);
         }
         int activeOperationsPerUser = operationService.createQuery()
                                                       .user(user)
@@ -61,27 +70,27 @@ public class OperationRateLimiter {
                                                       .list()
                                                       .size();
         if (activeOperationsPerUser >= applicationConfiguration.getMaxActiveOperationsPerUser()) {
-            throw new OperationRateLimitExceededException(Messages.TOO_MANY_ACTIVE_OPERATIONS_FOR_USER, NO_RETRY_AFTER_SECONDS);
+            rejectAndLog(user, spaceGuid, Messages.TOO_MANY_ACTIVE_OPERATIONS_FOR_USER, NO_RETRY_AFTER_SECONDS);
         }
     }
 
     private void checkTokenBuckets(String user, String spaceGuid) {
-        consumeSpaceToken(spaceGuid);
+        consumeSpaceToken(spaceGuid, user);
         consumeUserToken(spaceGuid, user);
     }
 
-    private void consumeSpaceToken(String spaceGuid) {
+    private void consumeSpaceToken(String spaceGuid, String user) {
         BucketConfiguration configuration = buildBucketConfiguration(applicationConfiguration.getOperationRateLimitPerSpaceCapacity(),
                                                                      applicationConfiguration.getOperationRateLimitPerSpaceRefillPerHour());
         Bucket bucket = bucketStore.getBucket(OperationRateLimitKeys.spaceKey(spaceGuid), configuration);
-        consumeToken(bucket);
+        consumeToken(bucket, user, spaceGuid);
     }
 
     private void consumeUserToken(String spaceGuid, String user) {
         BucketConfiguration configuration = buildBucketConfiguration(applicationConfiguration.getOperationRateLimitPerUserCapacity(),
                                                                      applicationConfiguration.getOperationRateLimitPerUserRefillPerHour());
         Bucket bucket = bucketStore.getBucket(OperationRateLimitKeys.userKey(spaceGuid, user), configuration);
-        consumeToken(bucket);
+        consumeToken(bucket, user, spaceGuid);
     }
 
     private BucketConfiguration buildBucketConfiguration(int capacity, int refillTokensPerHour) {
@@ -94,11 +103,11 @@ public class OperationRateLimiter {
                                   .build();
     }
 
-    private void consumeToken(Bucket bucket) {
+    private void consumeToken(Bucket bucket, String user, String spaceGuid) {
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(TOKENS_PER_OPERATION);
         if (!probe.isConsumed()) {
             long retryAfterSeconds = TimeUnit.NANOSECONDS.toSeconds(probe.getNanosToWaitForRefill());
-            throw new OperationRateLimitExceededException(Messages.OPERATION_RATE_LIMIT_EXCEEDED, retryAfterSeconds);
+            rejectAndLog(user, spaceGuid, Messages.OPERATION_RATE_LIMIT_EXCEEDED, retryAfterSeconds);
         }
     }
 }
