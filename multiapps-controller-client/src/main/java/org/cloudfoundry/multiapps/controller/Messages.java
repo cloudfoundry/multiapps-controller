@@ -8,6 +8,10 @@ public class Messages {
     public static final String RATE_LIMITED_BY_CC_NO_HEADER_WAITING_MS = "CC returned 429 without Retry-After header. Waiting {} ms before retrying.";
     public static final String RANDOM_WAIT_BEFORE_RETRY_MS = "Waiting {} ms (randomized) before retrying failed CC operation.";
 
+    // WARN messages
+    public static final String COULD_NOT_PARSE_GUID_STRING = "Could not parse GUID string: \"{0}\"";
+    public static final String COULD_NOT_PARSE_DATE_STRING = "Could not parse date string: \"{0}\"";
+
     // Exception messages
     public static final String ERROR_OCCURRED_SETTING_UP_DEFAULT_SSL_CONTEXT = "An error occurred while setting up the default SSLContext.";
     public static final String ERROR_OCCURRED_SETTING_UP_ALWAYS_APPROVING_SSL_CONTEXT = "An error occurred while setting up the always approving SSLContext.";
@@ -43,6 +47,8 @@ public class Messages {
     public static final String UNKNOWN_JOB_STATE_0 = "Unknown job state: \"{0}\"";
     public static final String UNKNOWN_SERVICE_INSTANCE_TYPE_0 = "Unknown service instance type: \"{0}\"";
     public static final String UNKNOWN_USER_ROLE_0 = "Unknown user role: \"{0}\"";
+    public static final String CANNOT_CREATE_DOMAIN_0_WITHOUT_ORGANIZATION = "Cannot create domain \"{0}\" without specifying an organization.";
+    public static final String PACKAGE_0_NOT_FOUND = "Package \"{0}\" not found.";
 
     //Status texts
     public static final String NOT_FOUND = "Not Found";

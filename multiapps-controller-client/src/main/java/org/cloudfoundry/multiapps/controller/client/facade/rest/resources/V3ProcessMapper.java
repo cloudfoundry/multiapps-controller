@@ -42,8 +42,9 @@ public final class V3ProcessMapper {
                                     .instances(process.instances())
                                     .memoryInMb(process.memoryInMb())
                                     .diskInMb(process.diskInMb())
-                                    .healthCheckType(HealthCheckType.valueOf(healthCheck.type()
-                                                                                        .toUpperCase()))
+                                    .healthCheckType(healthCheck == null ? HealthCheckType.PORT
+                                                         : HealthCheckType.valueOf(healthCheck.type()
+                                                                                              .toUpperCase()))
                                     .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
                                     .healthCheckTimeout(healthCheckTimeout)
                                     .healthCheckInvocationTimeout(healthCheckInvocationTimeout)

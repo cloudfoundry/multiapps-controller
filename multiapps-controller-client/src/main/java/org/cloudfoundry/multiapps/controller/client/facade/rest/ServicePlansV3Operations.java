@@ -36,6 +36,7 @@ public class ServicePlansV3Operations {
     public void updateServicePlanVisibilityForBroker(String name, ServicePlanVisibility visibility) {
         UUID brokerGuid = getRequiredServiceBrokerGuid(name);
         List<UUID> servicePlanGuids = findServicePlanGuidsByBrokerGuid(brokerGuid);
+
         for (UUID servicePlanGuid : servicePlanGuids) {
             updateServicePlanVisibility(servicePlanGuid, visibility);
         }

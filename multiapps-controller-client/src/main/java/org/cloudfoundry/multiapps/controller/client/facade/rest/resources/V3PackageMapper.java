@@ -66,6 +66,7 @@ public final class V3PackageMapper {
         if (data == null) {
             return null;
         }
+
         return ImmutableDockerData.builder()
                                   .image(data.image())
                                   .username(data.username())

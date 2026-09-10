@@ -86,9 +86,7 @@ public final class CloudControllerRestClientBuilder {
                 requestBuilder.header(HttpHeaders.AUTHORIZATION, authorizationValue);
             }
 
-            requestTags.forEach((String key, String value) -> {
-                requestBuilder.header(key, value);
-            });
+            requestTags.forEach(requestBuilder::header);
 
             return next.exchange(requestBuilder.build());
         };

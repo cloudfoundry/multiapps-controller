@@ -25,17 +25,20 @@ public class BuildsV3Operations {
                           .body(Map.of("package", Map.of("guid", packageGuid.toString())))
                           .retrieve()
                           .body(V3Build.class);
+
         return V3BuildMapper.toCloudBuild(build);
     }
 
     public CloudBuild getBuild(UUID buildGuid) {
         V3Build build = cc.get(CloudControllerV3Endpoints.BUILDS + "/" + buildGuid, V3Build.class);
+
         return V3BuildMapper.toCloudBuild(build);
     }
 
     public List<CloudBuild> getBuildsForApplication(UUID applicationGuid) {
         String uri = CloudControllerV3Endpoints.APPS + "/" + applicationGuid + "/builds" + CloudControllerV3Endpoints.QUERY_PER_PAGE
             + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+
         return cc.list(uri, new ParameterizedTypeReference<V3ListResponse<V3Build>>() {
                  })
                  .stream()
@@ -46,6 +49,7 @@ public class BuildsV3Operations {
     public List<CloudBuild> getBuildsForPackage(UUID packageGuid) {
         String uri = CloudControllerV3Endpoints.BUILDS + CloudControllerV3Endpoints.QUERY_PACKAGE_GUIDS + packageGuid
             + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+
         return cc.list(uri, new ParameterizedTypeReference<V3ListResponse<V3Build>>() {
                  })
                  .stream()

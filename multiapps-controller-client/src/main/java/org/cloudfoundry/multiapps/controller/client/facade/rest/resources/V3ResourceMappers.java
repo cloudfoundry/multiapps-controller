@@ -1,10 +1,12 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest.resources;
 
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.UUID;
 
+import org.cloudfoundry.multiapps.controller.Messages;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
@@ -45,7 +47,7 @@ public final class V3ResourceMappers {
         try {
             return UUID.fromString(guid);
         } catch (IllegalArgumentException e) {
-            LOGGER.warn("Could not parse GUID string: \"{}\"", guid, e);
+            LOGGER.warn(MessageFormat.format(Messages.COULD_NOT_PARSE_GUID_STRING, guid), e);
             return null;
         }
     }
@@ -56,11 +58,10 @@ public final class V3ResourceMappers {
         }
 
         try {
-            // CF v3 timestamps are ISO-8601 with offset, e.g. 2026-08-04T10:15:30Z
             return OffsetDateTime.parse(date)
                                  .toLocalDateTime();
         } catch (DateTimeParseException e) {
-            LOGGER.warn("Could not parse date string: \"{}\"", date, e);
+            LOGGER.warn(MessageFormat.format(Messages.COULD_NOT_PARSE_DATE_STRING, date), e);
             return null;
         }
     }

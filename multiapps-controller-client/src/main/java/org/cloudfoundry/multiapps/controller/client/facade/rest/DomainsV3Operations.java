@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.controller.Constants;
 import org.cloudfoundry.multiapps.controller.Messages;
@@ -58,21 +57,21 @@ public class DomainsV3Operations {
     public List<CloudDomain> getDomains() {
         return getAllDomains().stream()
                               .map(V3DomainMapper::toCloudDomain)
-                              .collect(Collectors.toList());
+                              .toList();
     }
 
     public List<CloudDomain> getSharedDomains() {
         return getAllDomains().stream()
                               .filter(domain -> !domain.isPrivate())
                               .map(V3DomainMapper::toCloudDomain)
-                              .collect(Collectors.toList());
+                              .toList();
     }
 
     public List<CloudDomain> getPrivateDomains() {
         return getAllDomains().stream()
                               .filter(V3Domain::isPrivate)
                               .map(V3DomainMapper::toCloudDomain)
-                              .collect(Collectors.toList());
+                              .toList();
     }
 
     public List<CloudDomain> getDomainsForOrganization() {
@@ -83,7 +82,7 @@ public class DomainsV3Operations {
         return cc.list(uri, DOMAIN_LIST_TYPE)
                  .stream()
                  .map(V3DomainMapper::toCloudDomain)
-                 .collect(Collectors.toList());
+                 .toList();
     }
 
     private List<V3Domain> getAllDomains() {
@@ -114,6 +113,12 @@ public class DomainsV3Operations {
     }
 
     private void doCreateDomain(String name) {
+        UUID organizationGuid = getTargetOrganizationGuid();
+        if (organizationGuid == null) {
+            throw new CloudOperationException(HttpStatus.BAD_REQUEST, Messages.BAD_REQUEST,
+                                              MessageFormat.format(Messages.CANNOT_CREATE_DOMAIN_0_WITHOUT_ORGANIZATION, name));
+        }
+
         cc.getRestClient()
           .post()
           .uri(CloudControllerV3Endpoints.DOMAINS)

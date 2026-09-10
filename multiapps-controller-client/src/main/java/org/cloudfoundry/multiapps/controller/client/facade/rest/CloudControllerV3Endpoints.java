@@ -1,22 +1,6 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
-/**
- * The Cloud Controller v3 API surface used by the in-house CF client — resource roots, {@code {guid}} path templates, and query-parameter
- * fragments — in one place, so the {@code <Group>V3Operations} classes reference named constants instead of inline "magic string" URLs.
- * <p>
- * Two URI mechanisms are represented, matching how the operations classes issue requests:
- * <ul>
- * <li><b>Path templates</b> (e.g. {@link #APP_BY_GUID}) contain Spring {@code {placeholder}}s expanded by {@code RestClient.uri(template,
- * args...)} — the placeholders are intentionally kept literally.</li>
- * <li><b>Roots + query fragments</b> (e.g. {@link #APPS} + {@link #QUERY_PER_PAGE} + {@link #AMPERSAND_SPACE_GUIDS}) are concatenated by the caller
- * into a query string. The fragments include their leading {@code ?}/{@code &} and trailing {@code =} exactly as the callers write them,
- * so swapping a literal for a constant is a byte-identical substitution.</li>
- * </ul>
- */
 public final class CloudControllerV3Endpoints {
-
-    private CloudControllerV3Endpoints() {
-    }
 
     public static final int DEFAULT_PAGE_SIZE = 5000;
 
@@ -31,7 +15,8 @@ public final class CloudControllerV3Endpoints {
     public static final String PACKAGES = "/v3/packages";
     public static final String BUILDS = "/v3/builds";
     public static final String TASKS = "/v3/tasks";
-    public static final String PROCESSES = "/v3/processes";
+    //    public static final String PROCESSES = "/v3/processes";
+    public static final String PROCESSES = "/processes/";
     public static final String STACKS = "/v3/stacks";
     public static final String AUDIT_EVENTS = "/v3/audit_events";
     public static final String JOBS = "/v3/jobs";
