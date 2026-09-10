@@ -39,7 +39,7 @@ public class ProcessesV3Operations {
 
     public CloudProcess getApplicationProcess(UUID applicationGuid) {
         V3Process applicationProcess = cc.get(
-            CloudControllerV3Endpoints.APPS + "/" + applicationGuid + "/processes/" + Constants.WEB_PROCESS_TYPE,
+            CloudControllerV3Endpoints.APPS + "/" + applicationGuid + CloudControllerV3Endpoints.PROCESSES + Constants.WEB_PROCESS_TYPE,
             V3Process.class);
 
         return applicationProcess == null ? null : V3ProcessMapper.toCloudProcess(applicationProcess);
@@ -61,9 +61,10 @@ public class ProcessesV3Operations {
     }
 
     private InstancesInfo findApplicationInstances(UUID applicationGuid) {
-        V3Process.V3ProcessStats stats = cc.get(CloudControllerV3Endpoints.APPS + "/" + applicationGuid + "/processes/"
-                                                    + Constants.WEB_PROCESS_TYPE + "/stats",
-                                                V3Process.V3ProcessStats.class);
+        V3Process.V3ProcessStats stats = cc.get(
+            CloudControllerV3Endpoints.APPS + "/" + applicationGuid + CloudControllerV3Endpoints.PROCESSES + Constants.WEB_PROCESS_TYPE
+                + "/stats",
+            V3Process.V3ProcessStats.class);
 
         return V3InstancesInfoMapper.toInstancesInfo(stats);
     }
@@ -165,8 +166,9 @@ public class ProcessesV3Operations {
         staging.getAppFeatures()
                .forEach((featureName, enabled) -> updateAppFeature(applicationGuid, featureName, enabled));
 
-        V3Process process = cc.get(CloudControllerV3Endpoints.APPS + "/" + applicationGuid + "/processes/" + Constants.WEB_PROCESS_TYPE,
-                                   V3Process.class);
+        V3Process process = cc.get(
+            CloudControllerV3Endpoints.APPS + "/" + applicationGuid + CloudControllerV3Endpoints.PROCESSES + Constants.WEB_PROCESS_TYPE,
+            V3Process.class);
 
         Map<String, Object> updateProcessBody = new HashMap<>();
         updateProcessBody.put("command", staging.getCommand());

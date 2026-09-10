@@ -2,14 +2,11 @@ package org.cloudfoundry.multiapps.controller.client.facade.domain;
 
 import java.util.UUID;
 
-import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
-
 import org.cloudfoundry.multiapps.controller.client.facade.Nullable;
 
 /**
  * Do not extend {@code Derivable<T>} in this interface. It is tempting, because all of its children have the same implementation, but
  * implementing the {@code derive()} method here leads to this bug: https://github.com/immutables/immutables/issues/1045
- *
  */
 public abstract class CloudEntity {
 

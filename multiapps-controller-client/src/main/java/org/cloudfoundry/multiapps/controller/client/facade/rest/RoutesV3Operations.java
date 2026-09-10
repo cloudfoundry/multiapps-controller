@@ -73,6 +73,7 @@ public class RoutesV3Operations {
     public List<CloudRoute> getRoutes(String domainName) {
         assertSpaceProvided("get routes for domain");
         UUID domainGuid = getRequiredDomainGuid(domainName);
+
         return findRoutesByDomainGuid(domainGuid);
     }
 

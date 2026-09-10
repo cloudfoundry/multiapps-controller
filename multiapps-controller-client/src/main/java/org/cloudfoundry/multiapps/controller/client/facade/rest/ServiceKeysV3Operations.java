@@ -170,8 +170,7 @@ public class ServiceKeysV3Operations {
         }
 
         String href = location.toString();
-        int index = href.lastIndexOf("/v3/jobs/");
-        String jobGuid = index < 0 ? href.substring(href.lastIndexOf('/') + 1) : href.substring(index + "/v3/jobs/".length());
+        String jobGuid = href.substring(href.lastIndexOf('/') + 1);
 
         return Optional.of(jobGuid);
     }

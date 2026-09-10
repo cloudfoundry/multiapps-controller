@@ -43,7 +43,7 @@ public record V3Application(@JsonProperty("guid") String guid, @JsonProperty("na
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3EnvironmentVariables(@JsonProperty("var") Map<String, String> var) {
+    public record V3EnvironmentVariables(@JsonProperty("var") Map<String, String> environmentVariables) {
     }
 
 }

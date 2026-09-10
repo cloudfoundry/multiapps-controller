@@ -56,6 +56,10 @@ public class CloudControllerV3Client {
     }
 
     public <R> List<R> list(String firstPageUri, ParameterizedTypeReference<V3ListResponse<R>> pageType) {
+        if (firstPageUri == null) {
+            return new ArrayList<>();
+        }
+        
         String firstPageRelativeUri = toRelativeIfAbsolute(firstPageUri);
 
         V3ListResponse<R> firstPage = restClient.get()
@@ -146,7 +150,7 @@ public class CloudControllerV3Client {
         Duration interval = Constants.JOB_POLL_MIN_INTERVAL;
 
         while (true) {
-            V3Job asyncJob = get("/v3/jobs/" + jobGuid, V3Job.class);
+            V3Job asyncJob = get(CloudControllerV3Endpoints.JOBS + jobGuid, V3Job.class);
 
             if (asyncJob != null && asyncJob.isTerminal()) {
 
@@ -202,13 +206,13 @@ public class CloudControllerV3Client {
     }
 
     private static String extractJobGuid(String location) {
-        int index = location.lastIndexOf("/v3/jobs/");
+        int index = location.lastIndexOf(CloudControllerV3Endpoints.JOBS);
 
         if (index < 0) {
             return location.substring(location.lastIndexOf('/') + 1);
         }
 
-        return location.substring(index + "/v3/jobs/".length());
+        return location.substring(index + CloudControllerV3Endpoints.JOBS.length());
     }
 
     private String toRelativeIfAbsolute(String href) {

@@ -59,9 +59,14 @@ public class PackagesV3Operations {
     }
 
     public CloudPackage getPackage(UUID packageGuid) {
-        V3Package resource = cc.get(CloudControllerV3Endpoints.PACKAGES + "/" + packageGuid, V3Package.class);
+        V3Package packageResource = cc.get(CloudControllerV3Endpoints.PACKAGES + "/" + packageGuid, V3Package.class);
 
-        return resource == null ? null : V3PackageMapper.toCloudPackage(resource);
+        if (packageResource == null) {
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+                                              MessageFormat.format(Messages.PACKAGE_0_NOT_FOUND, packageGuid));
+        }
+
+        return V3PackageMapper.toCloudPackage(packageResource);
     }
 
     public List<CloudPackage> getPackagesForApplication(UUID applicationGuid) {

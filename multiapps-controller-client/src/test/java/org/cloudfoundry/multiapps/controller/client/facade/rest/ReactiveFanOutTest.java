@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
@@ -26,13 +27,25 @@ class ReactiveFanOutTest {
     }
 
     @Test
-    void testMapConcurrentlyResultPreserveInputOrderEvenWhenTasksFinishOutOfOrder() {
+    @Timeout(10)
+    void testMapConcurrentlyResultPreserveInputOrderEvenWhenTasksFinishOutOfOrder() throws Exception {
         List<Integer> input = IntStream.rangeClosed(1, 20)
                                        .boxed()
                                        .toList();
+        CountDownLatch lastItemDone = new CountDownLatch(1);
 
         List<Integer> result = ReactiveFanOut.mapConcurrently(input, i -> {
-            sleep((20 - i));
+            if (i == 20) {
+                lastItemDone.countDown();
+            } else if (i == 1) {
+                try {
+                    lastItemDone.await();
+                } catch (InterruptedException e) {
+                    Thread.currentThread()
+                          .interrupt();
+                    throw new IllegalStateException(e);
+                }
+            }
             return i * 10;
         });
 
@@ -44,9 +57,8 @@ class ReactiveFanOutTest {
 
     @Test
     @Timeout(10)
-    void testMapConcurrentlyWorkRunsConcurrently() throws Exception {
+    void testMapConcurrentlyWorkRunsConcurrently() {
         int n = 8;
-        // If the mapper ran sequentially, the barrier (which needs all n parties) would never trip and the test would time out.
         CyclicBarrier barrier = new CyclicBarrier(n);
         List<Integer> input = IntStream.range(0, n)
                                        .boxed()
@@ -65,7 +77,7 @@ class ReactiveFanOutTest {
     }
 
     @Test
-    void testFirstFailurePropagatesUnwrapped() {
+    void testMapConcurrentlyPropagatesUnwrappedOnFirstFailure() {
         List<Integer> input = List.of(1, 2, 3, 4);
 
         CloudOperationException thrown = Assertions.assertThrows(CloudOperationException.class,
@@ -80,7 +92,7 @@ class ReactiveFanOutTest {
     }
 
     @Test
-    void testMapperInvokedOncePerItem() {
+    void testMapConcurrentlyIsInvokedOncePerItem() {
         List<Integer> input = IntStream.range(0, 50)
                                        .boxed()
                                        .toList();
@@ -93,15 +105,6 @@ class ReactiveFanOutTest {
 
         Assertions.assertEquals(input, result);
         Assertions.assertEquals(input.size(), invocations.get());
-    }
-
-    private static void sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            Thread.currentThread()
-                  .interrupt();
-        }
     }
 
 }

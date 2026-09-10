@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.controller.Constants;
 import org.cloudfoundry.multiapps.controller.Messages;
@@ -173,7 +172,7 @@ public class ServiceInstancesV3Operations {
         return cc.list(uri, SERVICE_INSTANCE_LIST_TYPE)
                  .stream()
                  .map(resource -> V3ServiceInstanceMapper.toCloudServiceInstance(resource, null, null))
-                 .collect(Collectors.toList());
+                 .toList();
     }
 
     public void updateServicePlan(String serviceName, String planName) {
@@ -399,7 +398,7 @@ public class ServiceInstancesV3Operations {
                  })
                  .stream()
                  .map(V3ServiceOffering::guid)
-                 .collect(Collectors.toList());
+                 .toList();
     }
 
     private void doDeleteServiceInstance(UUID serviceInstanceGuid) {
