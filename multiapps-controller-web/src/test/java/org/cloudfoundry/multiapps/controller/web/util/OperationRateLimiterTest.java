@@ -5,7 +5,6 @@ import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.query.OperationQuery;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.util.BucketStore;
-import org.cloudfoundry.multiapps.controller.web.monitoring.OperationRateLimitMetrics;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -49,8 +48,6 @@ class OperationRateLimiterTest {
     private OperationService operationService;
     @Mock
     private BucketStore bucketStore;
-    @Mock
-    private OperationRateLimitMetrics metrics;
     @Mock
     private Bucket spaceBucket;
     @Mock
