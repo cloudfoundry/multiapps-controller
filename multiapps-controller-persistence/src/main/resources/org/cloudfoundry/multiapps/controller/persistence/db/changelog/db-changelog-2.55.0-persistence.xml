@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="sap.com" id="idx_process_log_space_operation_id_modified" runInTransaction="false" dbms="postgresql">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists indexName="idx_process_log_space_operation_id_modified"/>
+            </not>
+        </preConditions>
+        <sql>CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_process_log_space_operation_id_modified
+             ON process_log (space, operation_id, modified)</sql>
+    </changeSet>
+
+</databaseChangeLog>
