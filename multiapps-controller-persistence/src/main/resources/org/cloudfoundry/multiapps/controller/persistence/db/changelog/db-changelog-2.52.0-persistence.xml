@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="sap.com" id="add_table_operation_rate_limit_bucket">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="operation_rate_limit_bucket"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="operation_rate_limit_bucket">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="operation_rate_limit_bucket_pk"/>
+            </column>
+
+            <column name="state" type="${small-blob.type}"/>
+
+            <column name="expires_at" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

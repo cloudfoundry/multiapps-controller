@@ -39,6 +39,8 @@ import org.cloudfoundry.multiapps.controller.process.metadata.ProcessTypeToOpera
 import org.cloudfoundry.multiapps.controller.process.util.OperationsHelper;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.controller.web.monitoring.ApiUsageLogger;
+import org.cloudfoundry.multiapps.controller.web.util.OperationRateLimitExceededException;
+import org.cloudfoundry.multiapps.controller.web.util.OperationRateLimiter;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,6 +52,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -91,6 +95,8 @@ class OperationsApiServiceImplTest {
     private ApiUsageLogger apiUsageLogger;
     @Mock
     private HttpServletRequest httpServletRequest;
+    @Mock
+    private OperationRateLimiter operationRateLimiter;
 
     private OperationsApiServiceImpl operationsApiService;
 
@@ -120,7 +126,7 @@ class OperationsApiServiceImplTest {
         operationsApiService = new OperationsApiServiceImpl(clientFactory, tokenService, operationService, operationMetadataMapper,
                                                             logsService, flowableFacade, operationsHelper, progressMessageService,
                                                             processActionRegistry, operationsApiServiceAuditLog, apiUsageLogger,
-                                                            httpServletRequest);
+                                                            httpServletRequest, operationRateLimiter);
         operations = new LinkedList<>();
         operations.add(createOperation(FINISHED_PROCESS, Operation.State.FINISHED, Collections.emptyMap()));
         operations.add(createOperation(RUNNING_PROCESS, Operation.State.RUNNING, Collections.emptyMap()));
@@ -210,6 +216,44 @@ class OperationsApiServiceImplTest {
                .thenReturn(new StringBuffer("test/api/path"));
         operationsApiService.startOperation(SPACE_GUID, operation, httpServletRequestMock);
         Mockito.verify(flowableFacade)
+               .startProcess(Mockito.any(), Mockito.anyMap());
+    }
+
+    @Test
+    void testStartOperationWhenRateLimitAllowsStartsProcess() {
+        Map<String, Object> parameters = Map.of(Variables.MTA_ID.getName(), "test");
+        Operation operation = createOperation(null, null, parameters);
+        Mockito.when(operationsHelper.getProcessDefinitionKey(operation))
+               .thenReturn("deploy");
+        HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(httpServletRequestMock.getRequestURL())
+               .thenReturn(new StringBuffer("test/api/path"));
+
+        ResponseEntity<Operation> response = operationsApiService.startOperation(SPACE_GUID, operation, httpServletRequestMock);
+
+        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
+        Mockito.verify(operationRateLimiter)
+               .checkStartAllowed(EXAMPLE_USER, SPACE_GUID);
+        Mockito.verify(flowableFacade)
+               .startProcess(Mockito.any(), Mockito.anyMap());
+    }
+
+    @Test
+    void testStartOperationWhenRateLimitExceededReturnsTooManyRequests() {
+        long retryAfterSeconds = 42;
+        Map<String, Object> parameters = Map.of(Variables.MTA_ID.getName(), "test");
+        Operation operation = createOperation(null, null, parameters);
+        Mockito.doThrow(new OperationRateLimitExceededException("Operation rate limit exceeded", retryAfterSeconds))
+               .when(operationRateLimiter)
+               .checkStartAllowed(EXAMPLE_USER, SPACE_GUID);
+        HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
+
+        ResponseEntity<Operation> response = operationsApiService.startOperation(SPACE_GUID, operation, httpServletRequestMock);
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS, response.getStatusCode());
+        assertEquals(String.valueOf(retryAfterSeconds), response.getHeaders()
+                                                                .getFirst(HttpHeaders.RETRY_AFTER));
+        Mockito.verify(flowableFacade, Mockito.never())
                .startProcess(Mockito.any(), Mockito.anyMap());
     }
 

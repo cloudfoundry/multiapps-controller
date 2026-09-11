@@ -24,6 +24,9 @@ public final class Messages {
     public static final String MISSING_PROPERTIES_FOR_CREATING_THE_SPECIFIC_PROVIDER = "Missing properties for creating the specific provider!";
     public static final String DEPLOY_FROM_URL_WRONG_CREDENTIALS_FOR_JOB_WITH_ID = "Credentials to {0} are wrong. Make sure that they are correct. Job id: {1}";
     public static final String JOB_NOT_UPDATED_FOR_0_SECONDS = "Job not updated for {0} seconds";
+    public static final String TOO_MANY_ACTIVE_OPERATIONS_IN_SPACE = "Too many active operations in space";
+    public static final String TOO_MANY_ACTIVE_OPERATIONS_FOR_USER = "Too many active operations for user";
+    public static final String OPERATION_RATE_LIMIT_EXCEEDED = "Operation rate limit exceeded";
 
     public static final String FAILED_TO_CREATE_BLOB_STORE_CONTEXT = "Failed to create BlobStoreContext";
 
@@ -87,6 +90,8 @@ public final class Messages {
     public static final String ASYNC_UPLOAD_JOB_EXISTS = "Async upload job for URL {} exists: {}";
     public static final String CREATING_ASYNC_UPLOAD_JOB = "Creating async upload job for URL {} with ID: {}";
     public static final String ASYNC_UPLOAD_JOB_REJECTED = "Async upload job with space guid: {}, namespace: {}, URL: {} rejected.";
+    public static final String OPERATION_START_RATE_LIMITED = "Start of operation in space {} rejected due to rate limiting: {}";
+    public static final String OPERATION_START_RATE_LIMITED_STRUCTURED = "Operation start rejected: user=\"{0}\" spaceGuid=\"{1}\" reason=\"{2}\"";
     public static final String STARTING_DOWNLOAD_OF_MTAR_WITH_JOB_ID = "Starting download of MTAR from remote endpoint: {}. Job id: {}";
     public static final String UPLOADED_MTAR_FROM_REMOTE_ENDPOINT_AND_JOB_ID = "Uploaded MTAR from remote endpoint {}. Job id: {} in {} ms";
     public static final String ASYNC_UPLOAD_JOB_FINISHED = "Async upload job {} finished";
