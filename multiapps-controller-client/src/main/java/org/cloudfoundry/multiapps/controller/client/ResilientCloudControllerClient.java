@@ -10,7 +10,6 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClientImpl;
@@ -35,6 +34,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudTask;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.DockerInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.DropletInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.InstancesInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServicePlanVisibility;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Upload;

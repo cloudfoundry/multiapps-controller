@@ -103,6 +103,14 @@
             <artifactId>multiapps-controller-core-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- jjwt-api: used by ApplicationConfigurationTest (io.jsonwebtoken.lang.Strings). Previously came transitively via
+             cloudfoundry-client; declared explicitly now that the OSS client has been removed. -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.cloudfoundry.multiapps</groupId>
             <artifactId>multiapps-controller-client</artifactId>

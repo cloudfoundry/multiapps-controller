@@ -23,8 +23,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.cloudfoundry.client.v3.jobs.JobState;
-import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceType;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.JobState;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceInstanceType;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;

@@ -3,8 +3,6 @@ package org.cloudfoundry.multiapps.controller.client.facade.domain;
 import java.text.MessageFormat;
 import java.util.Objects;
 
-import org.cloudfoundry.client.v3.LastOperation;
-
 public class ServiceOperation {
 
     public enum Type {
@@ -82,13 +80,14 @@ public class ServiceOperation {
     }
 
     public static ServiceOperation fromLastOperation(LastOperation lastOperation) {
-        if (lastOperation == null || lastOperation.getType() == null || lastOperation.getState() == null) {
+        if (lastOperation == null || lastOperation.type() == null || lastOperation.state() == null) {
             return null;
         }
-        Type type = Type.fromString(lastOperation.getType());
-        State state = State.fromString(lastOperation.getState());
-        String description = lastOperation.getDescription();
-        return new ServiceOperation(type, description, state);
+
+        Type operationType = Type.fromString(lastOperation.type());
+        State operationState = State.fromString(lastOperation.state());
+        String operationDescription = lastOperation.description();
+        return new ServiceOperation(operationType, operationDescription, operationState);
     }
 
     @Override

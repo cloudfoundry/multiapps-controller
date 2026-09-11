@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.client.facade.domain;
 
 import java.util.UUID;
 
-import org.cloudfoundry.Nullable;
+import org.cloudfoundry.multiapps.controller.client.facade.Nullable;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

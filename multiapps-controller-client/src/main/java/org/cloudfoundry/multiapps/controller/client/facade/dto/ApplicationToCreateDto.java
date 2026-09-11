@@ -3,7 +3,7 @@ package org.cloudfoundry.multiapps.controller.client.facade.dto;
 import java.util.Map;
 import java.util.Set;
 
-import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

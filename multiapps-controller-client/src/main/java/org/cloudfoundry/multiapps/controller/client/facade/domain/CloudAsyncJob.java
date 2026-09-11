@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.client.facade.domain;
 
-import org.cloudfoundry.client.v3.jobs.JobState;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -12,6 +11,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.Nullable;
 @JsonDeserialize(as = ImmutableCloudAsyncJob.class)
 public abstract class CloudAsyncJob extends CloudEntity implements Derivable<CloudAsyncJob> {
 
+    @Nullable
     public abstract JobState getState();
 
     @Nullable

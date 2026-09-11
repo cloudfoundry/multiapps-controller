@@ -45,8 +45,6 @@ open module org.cloudfoundry.multiapps.controller.core {
     requires transitive org.cloudfoundry.multiapps.controller.client;
     requires transitive org.cloudfoundry.multiapps.controller.persistence;
     requires transitive org.cloudfoundry.multiapps.mta;
-
-    requires org.cloudfoundry.client;
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.databind;
