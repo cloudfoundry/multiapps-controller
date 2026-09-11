@@ -50,9 +50,9 @@ class ServiceOfferingsV3OperationsTest {
         List<CloudServiceOffering> result = operations.getServiceOfferings();
 
         Assertions.assertEquals(1, result.size());
-        Assertions.assertEquals("my-offering", result.get(0)
+        Assertions.assertEquals("my-offering", result.getFirst()
                                                      .getName());
-        Assertions.assertEquals(2, result.get(0)
+        Assertions.assertEquals(2, result.getFirst()
                                          .getServicePlans()
                                          .size());
     }
@@ -61,6 +61,7 @@ class ServiceOfferingsV3OperationsTest {
     void testGetServiceOfferingsScopesQueryToSpaceWhenTargetHasGuid() {
         Mockito.when(target.getGuid())
                .thenReturn(SPACE_GUID);
+
         Mockito.when(cc.list(ArgumentMatchers.contains("/v3/service_offerings"),
                              ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>>> any()))
                .thenReturn(List.of());
@@ -78,6 +79,7 @@ class ServiceOfferingsV3OperationsTest {
     void testGetServiceOfferingsExcludesSpaceGuidWhenTargetGuidNull() {
         Mockito.when(target.getGuid())
                .thenReturn(null);
+
         Mockito.when(cc.list(ArgumentMatchers.contains("/v3/service_offerings"),
                              ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>>> any()))
                .thenReturn(List.of());
