@@ -45,40 +45,57 @@ public class ActiveOperationsJmxReporter {
     @Scheduled(fixedRate = 1, timeUnit = TimeUnit.MINUTES)
     public void refresh() {
         try {
-            Map<String, Long> byUser = new HashMap<>();
-            Map<String, Long> bySpace = new HashMap<>();
-            operationService.createQuery()
-                            .inNonFinalState()
-                            .list()
-                            .forEach(op -> {
-                                byUser.merge(hashUser(op.getUser()), 1L, Long::sum);
-                                bySpace.merge(op.getSpaceId(), 1L, Long::sum);
-                            });
-            syncMBeans(byUser, USER_OBJECT_NAME_PATTERN, userBeans);
-            syncMBeans(bySpace, SPACE_OBJECT_NAME_PATTERN, spaceBeans);
+            syncMBeans(countActiveOperationsByUser(), USER_OBJECT_NAME_PATTERN, userBeans);
+            syncMBeans(countActiveOperationsBySpace(), SPACE_OBJECT_NAME_PATTERN, spaceBeans);
         } catch (Exception e) {
             LOGGER.warn("Failed to refresh active operations JMX metrics", e);
         }
     }
 
+    private Map<String, Long> countActiveOperationsByUser() {
+        Map<String, Long> counts = new HashMap<>();
+        operationService.createQuery()
+                        .inNonFinalState()
+                        .list()
+                        .forEach(op -> counts.merge(hashUser(op.getUser()), 1L, Long::sum));
+        return counts;
+    }
+
+    private Map<String, Long> countActiveOperationsBySpace() {
+        Map<String, Long> counts = new HashMap<>();
+        operationService.createQuery()
+                        .inNonFinalState()
+                        .list()
+                        .forEach(op -> counts.merge(op.getSpaceId(), 1L, Long::sum));
+        return counts;
+    }
+
     private void syncMBeans(Map<String, Long> counts, String pattern,
                              Map<ObjectName, ActiveOperationsCount> registry) throws Exception {
-        Set<ObjectName> toRemove = new HashSet<>(registry.keySet());
-
+        Set<ObjectName> stale = new HashSet<>(registry.keySet());
         for (Map.Entry<String, Long> entry : counts.entrySet()) {
             ObjectName name = new ObjectName(pattern.formatted(ObjectName.quote(entry.getKey())));
-            toRemove.remove(name);
-            ActiveOperationsCount bean = registry.get(name);
-            if (bean == null) {
-                bean = new ActiveOperationsCount(entry.getValue());
-                mBeanServer.registerMBean(bean, name);
-                registry.put(name, bean);
-            } else {
-                bean.setCount(entry.getValue());
-            }
+            stale.remove(name);
+            upsertMBean(name, entry.getValue(), registry);
         }
+        removeStaleMBeans(stale, registry);
+    }
 
-        for (ObjectName name : toRemove) {
+    private void upsertMBean(ObjectName name, long count,
+                              Map<ObjectName, ActiveOperationsCount> registry) throws Exception {
+        ActiveOperationsCount bean = registry.get(name);
+        if (bean == null) {
+            bean = new ActiveOperationsCount(count);
+            mBeanServer.registerMBean(bean, name);
+            registry.put(name, bean);
+        } else {
+            bean.setCount(count);
+        }
+    }
+
+    private void removeStaleMBeans(Set<ObjectName> stale,
+                                    Map<ObjectName, ActiveOperationsCount> registry) throws Exception {
+        for (ObjectName name : stale) {
             mBeanServer.unregisterMBean(name);
             registry.remove(name);
         }
