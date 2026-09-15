@@ -10,12 +10,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.client.response.MockRestResponseCreators;
+
+import static org.mockito.Mockito.when;
 
 class TasksV3OperationsTest {
 
@@ -85,8 +86,8 @@ class TasksV3OperationsTest {
 
     @Test
     void testRunTaskThrowsWhenApplicationNotFound() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&names=missing-app"))
@@ -101,8 +102,8 @@ class TasksV3OperationsTest {
     }
 
     private void stubAppLookup() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&names=my-app"))

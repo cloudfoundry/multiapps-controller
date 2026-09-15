@@ -69,7 +69,8 @@ class BuildsV3OperationsTest {
                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
                .andRespond(MockRestResponseCreators.withStatus(HttpStatus.NOT_FOUND));
 
-        Assertions.assertThrows(CloudOperationException.class, () -> operations.getBuild(UUID.fromString(BUILD_GUID)));
+        UUID buildGuid = UUID.fromString(BUILD_GUID);
+        Assertions.assertThrows(CloudOperationException.class, () -> operations.getBuild(buildGuid));
     }
 
     @Test

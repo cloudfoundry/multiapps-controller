@@ -14,13 +14,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.client.response.MockRestResponseCreators;
+
+import static org.mockito.Mockito.when;
 
 class ServiceBrokersV3OperationsTest {
 
@@ -217,11 +218,11 @@ class ServiceBrokersV3OperationsTest {
 
     @Test
     void testUpdateServicePlanVisibilityForBrokerUpdatesEachPlan() {
-        Mockito.when(target.getMetadata())
-               .thenReturn(targetMetadata);
+        when(target.getMetadata())
+            .thenReturn(targetMetadata);
 
-        Mockito.when(targetMetadata.getGuid())
-               .thenReturn(UUID.fromString(SPACE_GUID));
+        when(targetMetadata.getGuid())
+            .thenReturn(UUID.fromString(SPACE_GUID));
 
         stubBrokerLookup("broker-a", "{\"resources\":[" + getBrokerJson("broker-a") + "]}");
 
@@ -253,11 +254,11 @@ class ServiceBrokersV3OperationsTest {
 
     @Test
     void testUpdateServicePlanVisibilityForBrokerWithNoOfferingsUpdatesNothing() {
-        Mockito.when(target.getMetadata())
-               .thenReturn(targetMetadata);
+        when(target.getMetadata())
+            .thenReturn(targetMetadata);
 
-        Mockito.when(targetMetadata.getGuid())
-               .thenReturn(UUID.fromString(SPACE_GUID));
+        when(targetMetadata.getGuid())
+            .thenReturn(UUID.fromString(SPACE_GUID));
 
         stubBrokerLookup("broker-a", "{\"resources\":[" + getBrokerJson("broker-a") + "]}");
 

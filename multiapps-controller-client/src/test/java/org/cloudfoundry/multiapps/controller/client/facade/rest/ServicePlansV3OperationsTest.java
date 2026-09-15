@@ -9,13 +9,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.client.response.MockRestResponseCreators;
+
+import static org.mockito.Mockito.when;
 
 class ServicePlansV3OperationsTest {
 
@@ -41,8 +42,8 @@ class ServicePlansV3OperationsTest {
 
     @Test
     void testUpdateServicePlanVisibilityForBrokerUpdatesAllPlansWhenNoSpaceFilter() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         stubBrokerLookup("{\"resources\":[{\"guid\":\"" + BROKER_GUID + "\"}]}");
         stubOfferingLookup(null, "{\"resources\":[{\"guid\":\"" + OFFERING_GUID + "\"}]}");
@@ -56,8 +57,8 @@ class ServicePlansV3OperationsTest {
 
     @Test
     void testUpdateServicePlanVisibilityForBrokerAppendsSpaceGuidWhenTargetHasGuid() {
-        Mockito.when(target.getGuid())
-               .thenReturn(SPACE_GUID);
+        when(target.getGuid())
+            .thenReturn(SPACE_GUID);
         stubBrokerLookup("{\"resources\":[{\"guid\":\"" + BROKER_GUID + "\"}]}");
         stubOfferingLookup(SPACE_GUID, "{\"resources\":[{\"guid\":\"" + OFFERING_GUID + "\"}]}");
         stubPlanLookup("{\"resources\":[{\"guid\":\"" + PLAN_GUID + "\"}]}");
@@ -79,8 +80,8 @@ class ServicePlansV3OperationsTest {
 
     @Test
     void testUpdateServicePlanVisibilityForBrokerDoesNothingWhenNoOfferings() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         stubBrokerLookup("{\"resources\":[{\"guid\":\"" + BROKER_GUID + "\"}]}");
         stubOfferingLookup(null, "{\"resources\":[]}");
@@ -92,8 +93,8 @@ class ServicePlansV3OperationsTest {
 
     @Test
     void testUpdateServicePlanVisibilityForBrokerDoesNothingWhenNoPlans() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         stubBrokerLookup("{\"resources\":[{\"guid\":\"" + BROKER_GUID + "\"}]}");
         stubOfferingLookup(null, "{\"resources\":[{\"guid\":\"" + OFFERING_GUID + "\"}]}");

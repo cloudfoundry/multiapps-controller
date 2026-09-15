@@ -15,13 +15,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.client.response.MockRestResponseCreators;
+
+import static org.mockito.Mockito.when;
 
 class ServiceInstancesV3OperationsTest {
 
@@ -44,10 +45,10 @@ class ServiceInstancesV3OperationsTest {
         MockitoAnnotations.openMocks(this)
                           .close();
         factory = MockControllerClientFactory.create();
-        Mockito.when(target.getMetadata())
-               .thenReturn(targetMetadata);
-        Mockito.when(targetMetadata.getGuid())
-               .thenReturn(SPACE_GUID);
+        when(target.getMetadata())
+            .thenReturn(targetMetadata);
+        when(targetMetadata.getGuid())
+            .thenReturn(SPACE_GUID);
         operations = new ServiceInstancesV3Operations(factory.client(), target);
     }
 
@@ -299,7 +300,8 @@ class ServiceInstancesV3OperationsTest {
     void testUpdateServiceTagsThrowsWhenNotFound() {
         stubServiceInstanceLookup("missing", null);
 
-        Assertions.assertThrows(CloudOperationException.class, () -> operations.updateServiceTags("missing", List.of("tag1")));
+        List<String> tags = List.of("tag1");
+        Assertions.assertThrows(CloudOperationException.class, () -> operations.updateServiceTags("missing", tags));
     }
 
     @Test

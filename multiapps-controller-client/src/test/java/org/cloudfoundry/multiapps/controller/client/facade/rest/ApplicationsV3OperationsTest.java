@@ -15,13 +15,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.client.response.MockRestResponseCreators;
+
+import static org.mockito.Mockito.when;
 
 class ApplicationsV3OperationsTest {
 
@@ -46,8 +47,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testCreateApplicationPostsAndReturnsGuid() {
-        Mockito.when(target.getGuid())
-               .thenReturn(UUID.fromString(SPACE_GUID));
+        when(target.getGuid())
+            .thenReturn(UUID.fromString(SPACE_GUID));
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps"))
@@ -66,8 +67,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testCreateApplicationWithScaleAlsoScalesWebProcess() {
-        Mockito.when(target.getGuid())
-               .thenReturn(UUID.fromString(SPACE_GUID));
+        when(target.getGuid())
+            .thenReturn(UUID.fromString(SPACE_GUID));
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps"))
@@ -102,8 +103,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testCreateApplicationThrowsWhenTargetGuidIsNull() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         ApplicationToCreateDto dto = ImmutableApplicationToCreateDto.builder()
                                                                     .name("my-app")
@@ -114,8 +115,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testDeleteApplicationLooksUpGuidAndDeletes() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         stubAppLookupByName("my-app", APP_GUID);
 
@@ -131,8 +132,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testDeleteApplicationThrowsWhenApplicationNotFound() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         stubEmptyAppLookupByName("missing-app");
 
@@ -141,8 +142,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testGetApplicationReturnsMappedApplication() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(APPS_BASE + "&names=my-app"))
@@ -160,8 +161,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testGetApplicationThrowsWhenRequiredAndNotFound() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         stubEmptyAppLookupByName("missing-app");
 
@@ -170,8 +171,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testGetApplicationReturnsNullWhenNotRequiredAndNotFound() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         stubEmptyAppLookupByName("missing-app");
 
@@ -183,8 +184,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testGetApplicationGuidReturnsGuid() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         stubAppLookupByName("my-app", APP_GUID);
 
@@ -196,8 +197,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testGetApplicationQueryIncludesSpaceGuidWhenPresent() {
-        Mockito.when(target.getGuid())
-               .thenReturn(UUID.fromString(SPACE_GUID));
+        when(target.getGuid())
+            .thenReturn(UUID.fromString(SPACE_GUID));
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(APPS_BASE + "&space_guids=" + SPACE_GUID + "&names=my-app"))
                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
@@ -253,8 +254,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testGetApplicationEnvironmentByNameResolvesGuidFirst() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         stubAppLookupByName("my-app", APP_GUID);
 
@@ -272,8 +273,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testGetApplicationsReturnsMappedList() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(APPS_BASE))
@@ -291,8 +292,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testGetApplicationsReturnsEmptyList() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(APPS_BASE))
@@ -307,8 +308,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testGetApplicationsByMetadataLabelSelectorAppendsSelector() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(APPS_BASE + "&label_selector=env"))
@@ -324,8 +325,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testGetApplicationsByMetadataLabelSelectorWithNullSelector() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(APPS_BASE))
@@ -340,8 +341,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testStartApplicationPostsToStartAction() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         stubAppLookupByName("my-app", APP_GUID);
 
@@ -358,8 +359,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testStopApplicationPostsToStopAction() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         stubAppLookupByName("my-app", APP_GUID);
 
@@ -376,8 +377,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testRenameUpdatesName() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         stubAppLookupByName("my-app", APP_GUID);
 
@@ -393,8 +394,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testRenameSwallowsServiceUnavailableWhenAlreadyRenamed() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         stubAppLookupByName("my-app", APP_GUID);
 
@@ -415,8 +416,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testRenameRethrowsServiceUnavailableWhenNotRenamed() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         stubAppLookupByName("my-app", APP_GUID);
 
@@ -462,8 +463,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testUpdateApplicationEnvUpdatesEnvVars() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         stubAppLookupByName("my-app", APP_GUID);
 
@@ -511,11 +512,11 @@ class ApplicationsV3OperationsTest {
     }
 
     private void stubScaleFlow() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         stubAppLookupByName("my-app", APP_GUID);
-        
+
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
                                                              + "/processes/web/actions/scale"))

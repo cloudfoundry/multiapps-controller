@@ -14,13 +14,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.client.response.MockRestResponseCreators;
+
+import static org.mockito.Mockito.when;
 
 class ServiceBindingsV3OperationsTest {
 
@@ -45,8 +46,8 @@ class ServiceBindingsV3OperationsTest {
 
     @Test
     void testBindServiceInstanceReturnsJobGuidFromLocation() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         stubAppLookup("my-app");
         stubServiceInstanceLookup("my-service");
@@ -66,8 +67,8 @@ class ServiceBindingsV3OperationsTest {
 
     @Test
     void testBindServiceInstanceWithParametersReturnsEmptyWhenNoLocation() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         stubAppLookup("my-app");
         stubServiceInstanceLookup("my-service");
@@ -86,8 +87,8 @@ class ServiceBindingsV3OperationsTest {
     @Test
     void testBindServiceInstanceUsesSpaceGuidInLookupWhenTargetHasGuid() {
         UUID spaceGuid = UUID.randomUUID();
-        Mockito.when(target.getGuid())
-               .thenReturn(spaceGuid);
+        when(target.getGuid())
+            .thenReturn(spaceGuid);
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&space_guids="
@@ -113,8 +114,8 @@ class ServiceBindingsV3OperationsTest {
 
     @Test
     void testBindServiceInstanceThrowsWhenApplicationNotFound() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&names=missing-app"))
@@ -126,8 +127,8 @@ class ServiceBindingsV3OperationsTest {
 
     @Test
     void testBindServiceInstanceThrowsWhenServiceInstanceNotFound() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         stubAppLookup("my-app");
         factory.server()
@@ -141,8 +142,8 @@ class ServiceBindingsV3OperationsTest {
 
     @Test
     void testUnbindServiceInstanceByNameDeletesFoundBindings() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         stubAppLookup("my-app");
         stubServiceInstanceLookup("my-service");
@@ -323,8 +324,9 @@ class ServiceBindingsV3OperationsTest {
                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
                .andRespond(MockRestResponseCreators.withStatus(HttpStatus.NOT_FOUND));
 
+        UUID bindingGuid = UUID.fromString(BINDING_GUID);
         Assertions.assertThrows(CloudOperationException.class,
-                                () -> operations.getServiceBindingParameters(UUID.fromString(BINDING_GUID)));
+                                () -> operations.getServiceBindingParameters(bindingGuid));
     }
 
     @Test
@@ -354,8 +356,9 @@ class ServiceBindingsV3OperationsTest {
         Metadata metadata = Metadata.builder()
                                     .build();
 
+        UUID bindingGuid = UUID.fromString(BINDING_GUID);
         Assertions.assertThrows(CloudOperationException.class,
-                                () -> operations.updateServiceBindingMetadata(UUID.fromString(BINDING_GUID), metadata));
+                                () -> operations.updateServiceBindingMetadata(bindingGuid, metadata));
     }
 
     private void stubAppLookup(String appName) {

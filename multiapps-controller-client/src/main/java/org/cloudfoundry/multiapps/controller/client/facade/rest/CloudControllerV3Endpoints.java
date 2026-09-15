@@ -15,7 +15,6 @@ public final class CloudControllerV3Endpoints {
     public static final String PACKAGES = "/v3/packages";
     public static final String BUILDS = "/v3/builds";
     public static final String TASKS = "/v3/tasks";
-    //    public static final String PROCESSES = "/v3/processes";
     public static final String PROCESSES = "/processes/";
     public static final String STACKS = "/v3/stacks";
     public static final String AUDIT_EVENTS = "/v3/audit_events";
@@ -69,5 +68,9 @@ public final class CloudControllerV3Endpoints {
     public static final String AMPERSAND_TARGET_GUIDS = "&target_guids=";
     public static final String AMPERSAND_HOSTS = "&hosts=";
     public static final String AMPERSAND_PATHS = "&paths=";
+
+    private CloudControllerV3Endpoints() {
+
+    }
 
 }
