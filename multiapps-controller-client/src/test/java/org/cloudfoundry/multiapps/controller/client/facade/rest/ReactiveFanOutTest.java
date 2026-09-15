@@ -28,7 +28,7 @@ class ReactiveFanOutTest {
 
     @Test
     @Timeout(10)
-    void testMapConcurrentlyResultPreserveInputOrderEvenWhenTasksFinishOutOfOrder() throws Exception {
+    void testMapConcurrentlyResultPreserveInputOrderEvenWhenTasksFinishOutOfOrder() {
         List<Integer> input = IntStream.rangeClosed(1, 20)
                                        .boxed()
                                        .toList();

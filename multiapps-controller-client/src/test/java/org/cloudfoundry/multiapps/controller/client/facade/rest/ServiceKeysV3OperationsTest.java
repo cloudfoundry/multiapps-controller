@@ -140,8 +140,10 @@ class ServiceKeysV3OperationsTest {
 
     @Test
     void testCreateServiceKeyThrowsForUserProvidedService() {
+        CloudServiceInstance userProvidedServiceInstance = getUserProvidedServiceInstance();
+        
         Assertions.assertThrows(IllegalArgumentException.class,
-                                () -> operations.createServiceKey(getUserProvidedServiceInstance(), KEY_NAME, null));
+                                () -> operations.createServiceKey(userProvidedServiceInstance, KEY_NAME, null));
     }
 
     @Test

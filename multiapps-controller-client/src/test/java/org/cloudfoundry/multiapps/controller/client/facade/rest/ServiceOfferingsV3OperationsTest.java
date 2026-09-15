@@ -14,9 +14,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.core.ParameterizedTypeReference;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class ServiceOfferingsV3OperationsTest {
 
@@ -40,12 +42,12 @@ class ServiceOfferingsV3OperationsTest {
 
     @Test
     void testGetServiceOfferingsMapsOfferingWithItsPlans() {
-        Mockito.when(cc.list(ArgumentMatchers.contains("/v3/service_offerings"),
-                             ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>>> any()))
-               .thenReturn(List.of(getOffering()));
-        Mockito.when(cc.list(ArgumentMatchers.contains("/v3/service_plans"),
-                             ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServicePlan>>> any()))
-               .thenReturn(List.of(getPlan("plan-a"), getPlan("plan-b")));
+        when(cc.list(ArgumentMatchers.contains("/v3/service_offerings"),
+                     ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>>> any()))
+            .thenReturn(List.of(getOffering()));
+        when(cc.list(ArgumentMatchers.contains("/v3/service_plans"),
+                     ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServicePlan>>> any()))
+            .thenReturn(List.of(getPlan("plan-a"), getPlan("plan-b")));
 
         List<CloudServiceOffering> result = operations.getServiceOfferings();
 
@@ -59,36 +61,36 @@ class ServiceOfferingsV3OperationsTest {
 
     @Test
     void testGetServiceOfferingsScopesQueryToSpaceWhenTargetHasGuid() {
-        Mockito.when(target.getGuid())
-               .thenReturn(SPACE_GUID);
+        when(target.getGuid())
+            .thenReturn(SPACE_GUID);
 
-        Mockito.when(cc.list(ArgumentMatchers.contains("/v3/service_offerings"),
-                             ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>>> any()))
-               .thenReturn(List.of());
+        when(cc.list(ArgumentMatchers.contains("/v3/service_offerings"),
+                     ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>>> any()))
+            .thenReturn(List.of());
 
         operations.getServiceOfferings();
 
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(cc)
-               .list(uriCaptor.capture(), ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>>> any());
+        verify(cc)
+            .list(uriCaptor.capture(), ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>>> any());
         Assertions.assertTrue(uriCaptor.getValue()
                                        .contains("space_guids=" + SPACE_GUID), uriCaptor.getValue());
     }
 
     @Test
     void testGetServiceOfferingsExcludesSpaceGuidWhenTargetGuidNull() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
-        Mockito.when(cc.list(ArgumentMatchers.contains("/v3/service_offerings"),
-                             ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>>> any()))
-               .thenReturn(List.of());
+        when(cc.list(ArgumentMatchers.contains("/v3/service_offerings"),
+                     ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>>> any()))
+            .thenReturn(List.of());
 
         operations.getServiceOfferings();
 
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(cc)
-               .list(uriCaptor.capture(), ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>>> any());
+        verify(cc)
+            .list(uriCaptor.capture(), ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>>> any());
         Assertions.assertFalse(uriCaptor.getValue()
                                         .contains("space_guids="), uriCaptor.getValue());
     }

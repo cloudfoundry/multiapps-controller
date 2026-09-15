@@ -12,10 +12,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class StacksV3OperationsTest {
 
@@ -78,8 +80,8 @@ class StacksV3OperationsTest {
         operations.getStacks();
 
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(cc)
-               .list(uriCaptor.capture(), ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Stack>>> any());
+        verify(cc)
+            .list(uriCaptor.capture(), ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Stack>>> any());
         Assertions.assertTrue(uriCaptor.getValue()
                                        .contains("/v3/stacks"), uriCaptor.getValue());
         Assertions.assertTrue(uriCaptor.getValue()
@@ -87,9 +89,9 @@ class StacksV3OperationsTest {
     }
 
     private void mockStackList(V3Stack... stacks) {
-        Mockito.when(cc.list(ArgumentMatchers.anyString(),
-                             ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Stack>>> any()))
-               .thenReturn(List.of(stacks));
+        when(cc.list(ArgumentMatchers.anyString(),
+                     ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Stack>>> any()))
+            .thenReturn(List.of(stacks));
     }
 
 }

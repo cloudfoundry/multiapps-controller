@@ -20,7 +20,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -28,6 +27,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.client.response.MockRestResponseCreators;
+
+import static org.mockito.Mockito.when;
 
 class DomainsV3OperationsTest {
 
@@ -97,8 +98,8 @@ class DomainsV3OperationsTest {
 
     @Test
     void testAddDomainCreatesWhenAbsent() {
-        Mockito.when(target.getOrganization())
-               .thenReturn(getOrganizationWithGuid(ORG_GUID));
+        when(target.getOrganization())
+            .thenReturn(getOrganizationWithGuid(ORG_GUID));
 
         stubEmptyDomainLookup(DOMAIN_NAME);
 
@@ -172,8 +173,8 @@ class DomainsV3OperationsTest {
 
     @Test
     void testGetDefaultDomainReturnsMappedDomain() {
-        Mockito.when(target.getOrganization())
-               .thenReturn(getOrganizationWithGuid(ORG_GUID));
+        when(target.getOrganization())
+            .thenReturn(getOrganizationWithGuid(ORG_GUID));
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(
@@ -190,8 +191,8 @@ class DomainsV3OperationsTest {
 
     @Test
     void testGetDomainsForOrganizationReturnsMappedDomains() {
-        Mockito.when(target.getOrganization())
-               .thenReturn(getOrganizationWithGuid(ORG_GUID));
+        when(target.getOrganization())
+            .thenReturn(getOrganizationWithGuid(ORG_GUID));
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(
@@ -210,8 +211,8 @@ class DomainsV3OperationsTest {
 
     @Test
     void testGetDomainsForOrganizationReturnsEmptyWhenNoDomains() {
-        Mockito.when(target.getOrganization())
-               .thenReturn(getOrganizationWithGuid(ORG_GUID));
+        when(target.getOrganization())
+            .thenReturn(getOrganizationWithGuid(ORG_GUID));
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(
@@ -260,9 +261,9 @@ class DomainsV3OperationsTest {
     }
 
     private void mockDomainList(V3Domain... domains) {
-        Mockito.when(cc.list(ArgumentMatchers.anyString(),
-                             ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Domain>>> any()))
-               .thenReturn(List.of(domains));
+        when(cc.list(ArgumentMatchers.anyString(),
+                     ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Domain>>> any()))
+            .thenReturn(List.of(domains));
     }
 
     private static V3Domain getSharedDomain(String name) {
@@ -271,7 +272,7 @@ class DomainsV3OperationsTest {
 
     private static V3Domain getPrivateDomain(String name) {
         V3DomainRelationships relationships = new V3DomainRelationships(new V3ToOneRelationship(new V3RelationshipData(ORG_GUID)));
-        
+
         return new V3Domain(GUID_STRING, name, null, null, null, relationships);
     }
 

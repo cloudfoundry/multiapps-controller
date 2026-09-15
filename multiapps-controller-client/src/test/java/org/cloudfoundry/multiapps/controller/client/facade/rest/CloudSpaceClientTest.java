@@ -59,7 +59,8 @@ class CloudSpaceClientTest {
                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
                .andRespond(MockRestResponseCreators.withStatus(HttpStatus.NOT_FOUND));
 
-        Assertions.assertThrows(CloudOperationException.class, () -> client.getSpace(UUID.fromString(SPACE_GUID)));
+        UUID spaceGuid = UUID.fromString(SPACE_GUID);
+        Assertions.assertThrows(CloudOperationException.class, () -> client.getSpace(spaceGuid));
     }
 
     @Test
@@ -73,7 +74,8 @@ class CloudSpaceClientTest {
                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
                .andRespond(MockRestResponseCreators.withStatus(HttpStatus.NOT_FOUND));
 
-        Assertions.assertThrows(CloudOperationException.class, () -> client.getSpace(UUID.fromString(SPACE_GUID)));
+        UUID spaceGuid = UUID.fromString(SPACE_GUID);
+        Assertions.assertThrows(CloudOperationException.class, () -> client.getSpace(spaceGuid));
     }
 
     @Test

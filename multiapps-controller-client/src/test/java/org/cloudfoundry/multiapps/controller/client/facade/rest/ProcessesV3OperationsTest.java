@@ -20,13 +20,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.client.response.MockRestResponseCreators;
+
+import static org.mockito.Mockito.when;
 
 class ProcessesV3OperationsTest {
 
@@ -236,14 +237,15 @@ class ProcessesV3OperationsTest {
                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
                .andRespond(MockRestResponseCreators.withStatus(HttpStatus.NO_CONTENT));
 
+        UUID appGuid = UUID.fromString(APP_GUID);
         Assertions.assertThrows(CloudOperationException.class,
-                                () -> operations.getCurrentDropletForApplication(UUID.fromString(APP_GUID)));
+                                () -> operations.getCurrentDropletForApplication(appGuid));
     }
 
     @Test
     void testUpdateApplicationStagingUpdatesAppAndProcess() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&names=my-app"))
@@ -285,8 +287,8 @@ class ProcessesV3OperationsTest {
 
     @Test
     void testUpdateApplicationStagingUpdatesAppFeatures() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&names=my-app"))
@@ -328,8 +330,8 @@ class ProcessesV3OperationsTest {
     @Test
     void testUpdateApplicationStagingIncludesSpaceGuidInLookupQuery() {
         UUID spaceGuid = UUID.randomUUID();
-        Mockito.when(target.getGuid())
-               .thenReturn(spaceGuid);
+        when(target.getGuid())
+            .thenReturn(spaceGuid);
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&space_guids="
@@ -365,8 +367,8 @@ class ProcessesV3OperationsTest {
 
     @Test
     void testUpdateApplicationStagingThrowsWhenApplicationNotFound() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL
@@ -383,8 +385,8 @@ class ProcessesV3OperationsTest {
 
     @Test
     void testUpdateApplicationStagingWithCnbLifecycleWithoutBuildpacksThrows() {
-        Mockito.when(target.getGuid())
-               .thenReturn(null);
+        when(target.getGuid())
+            .thenReturn(null);
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&names=my-app"))

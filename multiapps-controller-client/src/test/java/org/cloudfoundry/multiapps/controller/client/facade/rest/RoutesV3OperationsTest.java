@@ -14,13 +14,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.client.response.MockRestResponseCreators;
+
+import static org.mockito.Mockito.when;
 
 class RoutesV3OperationsTest {
 
@@ -48,8 +49,8 @@ class RoutesV3OperationsTest {
 
     @Test
     void testAddRoutePostsToRoutes() {
-        Mockito.when(target.getGuid())
-               .thenReturn(UUID.fromString(SPACE_GUID));
+        when(target.getGuid())
+            .thenReturn(UUID.fromString(SPACE_GUID));
 
         stubDomainLookup(DOMAIN_NAME, DOMAIN_GUID);
         factory.server()
@@ -64,8 +65,8 @@ class RoutesV3OperationsTest {
 
     @Test
     void testAddRouteThrowsWhenDomainNotFound() {
-        Mockito.when(target.getGuid())
-               .thenReturn(UUID.fromString(SPACE_GUID));
+        when(target.getGuid())
+            .thenReturn(UUID.fromString(SPACE_GUID));
         stubEmptyDomainLookup(DOMAIN_NAME);
 
         Assertions.assertThrows(CloudOperationException.class, () -> operations.addRoute("myhost", DOMAIN_NAME, "/mypath"));
@@ -80,8 +81,8 @@ class RoutesV3OperationsTest {
 
     @Test
     void testDeleteRouteDeletesFoundRoute() {
-        Mockito.when(target.getGuid())
-               .thenReturn(UUID.fromString(SPACE_GUID));
+        when(target.getGuid())
+            .thenReturn(UUID.fromString(SPACE_GUID));
 
         stubDomainLookup(DOMAIN_NAME, DOMAIN_GUID);
         stubRouteLookupWithResult();
@@ -94,8 +95,8 @@ class RoutesV3OperationsTest {
 
     @Test
     void testDeleteRouteThrowsWhenRouteNotFound() {
-        Mockito.when(target.getGuid())
-               .thenReturn(UUID.fromString(SPACE_GUID));
+        when(target.getGuid())
+            .thenReturn(UUID.fromString(SPACE_GUID));
 
         stubDomainLookup(DOMAIN_NAME, DOMAIN_GUID);
         factory.server()
@@ -114,8 +115,8 @@ class RoutesV3OperationsTest {
 
     @Test
     void testDeleteOrphanedRoutes() {
-        Mockito.when(target.getGuid())
-               .thenReturn(UUID.fromString(SPACE_GUID));
+        when(target.getGuid())
+            .thenReturn(UUID.fromString(SPACE_GUID));
 
         stubAsyncDelete(MockControllerClientFactory.BASE_URL + "/v3/spaces/" + SPACE_GUID + "/routes?unmapped=true");
 
@@ -126,8 +127,8 @@ class RoutesV3OperationsTest {
 
     @Test
     void testGetRoutesReturnsMappedRoutes() {
-        Mockito.when(target.getGuid())
-               .thenReturn(UUID.fromString(SPACE_GUID));
+        when(target.getGuid())
+            .thenReturn(UUID.fromString(SPACE_GUID));
 
         stubDomainLookup(DOMAIN_NAME, DOMAIN_GUID);
         factory.server()
@@ -146,8 +147,8 @@ class RoutesV3OperationsTest {
 
     @Test
     void testGetRoutesThrowsWhenDomainNotFound() {
-        Mockito.when(target.getGuid())
-               .thenReturn(UUID.fromString(SPACE_GUID));
+        when(target.getGuid())
+            .thenReturn(UUID.fromString(SPACE_GUID));
 
         stubEmptyDomainLookup(DOMAIN_NAME);
 
@@ -193,8 +194,8 @@ class RoutesV3OperationsTest {
 
     @Test
     void testUpdateApplicationRoutesAddsNewRoute() {
-        Mockito.when(target.getGuid())
-               .thenReturn(UUID.fromString(SPACE_GUID));
+        when(target.getGuid())
+            .thenReturn(UUID.fromString(SPACE_GUID));
 
         stubAppLookup("my-app");
 
@@ -243,8 +244,8 @@ class RoutesV3OperationsTest {
 
     @Test
     void testUpdateApplicationRoutesRemovesOutdatedRoute() {
-        Mockito.when(target.getGuid())
-               .thenReturn(UUID.fromString(SPACE_GUID));
+        when(target.getGuid())
+            .thenReturn(UUID.fromString(SPACE_GUID));
 
         stubAppLookup("my-app");
 
@@ -268,8 +269,8 @@ class RoutesV3OperationsTest {
 
     @Test
     void testUpdateApplicationRoutesThrowsWhenApplicationNotFound() {
-        Mockito.when(target.getGuid())
-               .thenReturn(UUID.fromString(SPACE_GUID));
+        when(target.getGuid())
+            .thenReturn(UUID.fromString(SPACE_GUID));
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&names=missing-app"

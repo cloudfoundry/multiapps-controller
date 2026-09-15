@@ -15,10 +15,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
+
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class EventsV3OperationsTest {
 
@@ -42,28 +45,28 @@ class EventsV3OperationsTest {
 
     @Test
     void testGetEventsMapsResults() {
-        Mockito.when(
-                   cc.list(ArgumentMatchers.anyString(), ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3AuditEvent>>> any()))
-               .thenReturn(List.of(getAuditEvent("audit.app.update"), getAuditEvent("audit.app.create")));
+        when(cc.list(ArgumentMatchers.anyString(),
+                     ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3AuditEvent>>> any())).thenReturn(
+            List.of(getAuditEvent("audit.app.update"), getAuditEvent("audit.app.create")));
 
         List<CloudEvent> result = operations.getEvents();
 
         Assertions.assertEquals(2, result.size());
-        Assertions.assertEquals("audit.app.update", result.get(0)
+        Assertions.assertEquals("audit.app.update", result.getFirst()
                                                           .getType());
     }
 
     @Test
     void testGetEventsByTargetIncludesTargetGuidInQuery() {
-        Mockito.when(
-                   cc.list(ArgumentMatchers.anyString(), ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3AuditEvent>>> any()))
-               .thenReturn(List.of());
+        when(
+            cc.list(ArgumentMatchers.anyString(), ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3AuditEvent>>> any()))
+            .thenReturn(List.of());
 
         operations.getEventsByTarget(TARGET_GUID);
 
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(cc)
-               .list(uriCaptor.capture(), ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3AuditEvent>>> any());
+        verify(cc)
+            .list(uriCaptor.capture(), ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3AuditEvent>>> any());
         Assertions.assertTrue(uriCaptor.getValue()
                                        .contains("/v3/audit_events"), uriCaptor.getValue());
         Assertions.assertTrue(uriCaptor.getValue()
@@ -72,12 +75,12 @@ class EventsV3OperationsTest {
 
     @Test
     void testGetApplicationEventsThrowsWhenApplicationNotFound() {
-        Mockito.when(target.getGuid())
-               .thenReturn(SPACE_GUID);
+        when(target.getGuid())
+            .thenReturn(SPACE_GUID);
 
-        Mockito.when(cc.list(ArgumentMatchers.contains("/v3/apps"),
-                             ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Application>>> any()))
-               .thenReturn(List.of());
+        when(cc.list(ArgumentMatchers.contains("/v3/apps"),
+                     ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Application>>> any()))
+            .thenReturn(List.of());
 
         CloudOperationException thrown = Assertions.assertThrows(CloudOperationException.class,
                                                                  () -> operations.getApplicationEvents("missing-app"));
@@ -87,20 +90,20 @@ class EventsV3OperationsTest {
 
     @Test
     void testGetApplicationEventsQueryScopesAppsToSpaceWhenTargetPresent() {
-        Mockito.when(target.getGuid())
-               .thenReturn(SPACE_GUID);
-        Mockito.when(cc.list(ArgumentMatchers.contains("/v3/apps"),
-                             ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Application>>> any()))
-               .thenReturn(List.of(new V3Application(GUID_STRING, "my-app", "STARTED", null, null, null, null, null)));
-        Mockito.when(cc.list(ArgumentMatchers.contains("/v3/audit_events"),
-                             ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3AuditEvent>>> any()))
-               .thenReturn(List.of());
+        when(target.getGuid())
+            .thenReturn(SPACE_GUID);
+        when(cc.list(ArgumentMatchers.contains("/v3/apps"),
+                     ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Application>>> any()))
+            .thenReturn(List.of(new V3Application(GUID_STRING, "my-app", "STARTED", null, null, null, null, null)));
+        when(cc.list(ArgumentMatchers.contains("/v3/audit_events"),
+                     ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3AuditEvent>>> any()))
+            .thenReturn(List.of());
 
         operations.getApplicationEvents("my-app");
 
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(cc, Mockito.times(2))
-               .list(uriCaptor.capture(), ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Application>>> any());
+        verify(cc, times(2))
+            .list(uriCaptor.capture(), ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Application>>> any());
         String appsQuery = uriCaptor.getAllValues()
                                     .stream()
                                     .filter(uri -> uri.contains("/v3/apps"))
