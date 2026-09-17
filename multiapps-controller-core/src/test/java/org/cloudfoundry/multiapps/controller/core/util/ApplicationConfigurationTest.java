@@ -22,7 +22,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -88,8 +87,8 @@ class ApplicationConfigurationTest {
     @ParameterizedTest
     @ValueSource(strings = { "", "invalid", "{}" })
     void testGetSpaceGuidReturnsDefault(String envValue) {
-        Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
-               .thenReturn(envValue);
+        when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
+            .thenReturn(envValue);
         assertEquals(ApplicationConfiguration.DEFAULT_SPACE_GUID, configuration.getSpaceGuid());
     }
 
@@ -127,55 +126,55 @@ class ApplicationConfigurationTest {
 
     @Test
     void testGetMaxUploadSize() {
-        Mockito.when(environment.getLong(ApplicationConfiguration.CFG_MAX_UPLOAD_SIZE, ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE))
-               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE);
+        when(environment.getLong(ApplicationConfiguration.CFG_MAX_UPLOAD_SIZE, ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE))
+            .thenReturn(ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE, configuration.getMaxUploadSize());
     }
 
     @Test
     void testGetMaxMtaDescriptorSize() {
-        Mockito.when(environment.getLong(ApplicationConfiguration.CFG_MAX_MTA_DESCRIPTOR_SIZE,
-                                         ApplicationConfiguration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE))
-               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
+        when(environment.getLong(ApplicationConfiguration.CFG_MAX_MTA_DESCRIPTOR_SIZE,
+                                 ApplicationConfiguration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE))
+            .thenReturn(ApplicationConfiguration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE, configuration.getMaxMtaDescriptorSize());
     }
 
     @Test
     void testGetMaxManifestFileSize() {
-        Mockito.when(environment.getLong(ApplicationConfiguration.CFG_MAX_MANIFEST_SIZE,
-                                         ApplicationConfiguration.DEFAULT_MAX_MANIFEST_SIZE))
-               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_MANIFEST_SIZE);
+        when(environment.getLong(ApplicationConfiguration.CFG_MAX_MANIFEST_SIZE,
+                                 ApplicationConfiguration.DEFAULT_MAX_MANIFEST_SIZE))
+            .thenReturn(ApplicationConfiguration.DEFAULT_MAX_MANIFEST_SIZE);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_MAX_MANIFEST_SIZE, configuration.getMaxManifestSize());
     }
 
     @Test
     void testGetMaxResourceFileSize() {
-        Mockito.when(environment.getLong(ApplicationConfiguration.CFG_MAX_RESOURCE_FILE_SIZE,
-                                         ApplicationConfiguration.DEFAULT_MAX_RESOURCE_FILE_SIZE))
-               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_RESOURCE_FILE_SIZE);
+        when(environment.getLong(ApplicationConfiguration.CFG_MAX_RESOURCE_FILE_SIZE,
+                                 ApplicationConfiguration.DEFAULT_MAX_RESOURCE_FILE_SIZE))
+            .thenReturn(ApplicationConfiguration.DEFAULT_MAX_RESOURCE_FILE_SIZE);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_MAX_RESOURCE_FILE_SIZE, configuration.getMaxResourceFileSize());
     }
 
     @Test
     void testGetCronExpressionForOldData() {
-        Mockito.when(environment.getString(ApplicationConfiguration.CFG_CRON_EXPRESSION_FOR_OLD_DATA))
-               .thenReturn(ApplicationConfiguration.DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA);
+        when(environment.getString(ApplicationConfiguration.CFG_CRON_EXPRESSION_FOR_OLD_DATA))
+            .thenReturn(ApplicationConfiguration.DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA, configuration.getCronExpressionForOldData());
     }
 
     @Test
     void testGetExecutionTimeForFinishedProcesses() {
-        Mockito.when(environment.getString(ApplicationConfiguration.CFG_EXECUTION_TIME_FOR_FINISHED_PROCESSES))
-               .thenReturn(ApplicationConfiguration.DEFAULT_EXECUTION_TIME_FOR_FINISHED_PROCESSES);
+        when(environment.getString(ApplicationConfiguration.CFG_EXECUTION_TIME_FOR_FINISHED_PROCESSES))
+            .thenReturn(ApplicationConfiguration.DEFAULT_EXECUTION_TIME_FOR_FINISHED_PROCESSES);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_EXECUTION_TIME_FOR_FINISHED_PROCESSES,
                                 configuration.getExecutionTimeForFinishedProcesses());
     }
 
     @Test
     void testGetMaxTtlForOldDataFromEnvironment() {
-        Mockito.when(environment.getLong(ApplicationConfiguration.CFG_MAX_TTL_FOR_OLD_DATA,
-                                         ApplicationConfiguration.DEFAULT_MAX_TTL_FOR_OLD_DATA))
-               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_TTL_FOR_OLD_DATA);
+        when(environment.getLong(ApplicationConfiguration.CFG_MAX_TTL_FOR_OLD_DATA,
+                                 ApplicationConfiguration.DEFAULT_MAX_TTL_FOR_OLD_DATA))
+            .thenReturn(ApplicationConfiguration.DEFAULT_MAX_TTL_FOR_OLD_DATA);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_MAX_TTL_FOR_OLD_DATA, configuration.getMaxTtlForOldData());
     }
 
@@ -207,104 +206,104 @@ class ApplicationConfigurationTest {
 
     @Test
     void testIsBasicAuthEnabled() {
-        Mockito.when(environment.getBoolean(ApplicationConfiguration.CFG_BASIC_AUTH_ENABLED,
-                                            ApplicationConfiguration.DEFAULT_BASIC_AUTH_ENABLED))
-               .thenReturn(ApplicationConfiguration.DEFAULT_BASIC_AUTH_ENABLED);
+        when(environment.getBoolean(ApplicationConfiguration.CFG_BASIC_AUTH_ENABLED,
+                                    ApplicationConfiguration.DEFAULT_BASIC_AUTH_ENABLED))
+            .thenReturn(ApplicationConfiguration.DEFAULT_BASIC_AUTH_ENABLED);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_BASIC_AUTH_ENABLED, configuration.isBasicAuthEnabled());
     }
 
     @Test
     void testGetGlobalAuditorUser() {
         String globalAuditorUser = "globalAuditorUserName";
-        Mockito.when(environment.getString(ApplicationConfiguration.CFG_GLOBAL_AUDITOR_USER))
-               .thenReturn(globalAuditorUser);
+        when(environment.getString(ApplicationConfiguration.CFG_GLOBAL_AUDITOR_USER))
+            .thenReturn(globalAuditorUser);
         Assertions.assertEquals(globalAuditorUser, configuration.getGlobalAuditorUser());
     }
 
     @Test
     void testGetGlobalAuditorPasswordFromEnvironment() {
         String globalAuditorPassword = "globalAuditorUserPassword";
-        Mockito.when(environment.getString(ApplicationConfiguration.CFG_GLOBAL_AUDITOR_PASSWORD))
-               .thenReturn(globalAuditorPassword);
+        when(environment.getString(ApplicationConfiguration.CFG_GLOBAL_AUDITOR_PASSWORD))
+            .thenReturn(globalAuditorPassword);
         Assertions.assertEquals(globalAuditorPassword, configuration.getGlobalAuditorPassword());
     }
 
     @Test
     void testGetDbConnectionThreadsFromEnvironment() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_DB_CONNECTION_THREADS,
-                                                    ApplicationConfiguration.DEFAULT_DB_CONNECTION_THREADS))
-               .thenReturn(ApplicationConfiguration.DEFAULT_DB_CONNECTION_THREADS);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_DB_CONNECTION_THREADS,
+                                            ApplicationConfiguration.DEFAULT_DB_CONNECTION_THREADS))
+            .thenReturn(ApplicationConfiguration.DEFAULT_DB_CONNECTION_THREADS);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_DB_CONNECTION_THREADS, configuration.getDbConnectionThreads());
     }
 
     @Test
     void testGetStepPollingIntervalInSeconds() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_STEP_POLLING_INTERVAL_IN_SECONDS,
-                                                    ApplicationConfiguration.DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS))
-               .thenReturn(ApplicationConfiguration.DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_STEP_POLLING_INTERVAL_IN_SECONDS,
+                                            ApplicationConfiguration.DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS))
+            .thenReturn(ApplicationConfiguration.DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS,
                                 configuration.getStepPollingIntervalInSeconds());
     }
 
     @Test
     void testShouldSkipSslValidation() {
-        Mockito.when(environment.getBoolean(ApplicationConfiguration.CFG_SKIP_SSL_VALIDATION,
-                                            ApplicationConfiguration.DEFAULT_SKIP_SSL_VALIDATION))
-               .thenReturn(ApplicationConfiguration.DEFAULT_SKIP_SSL_VALIDATION);
+        when(environment.getBoolean(ApplicationConfiguration.CFG_SKIP_SSL_VALIDATION,
+                                    ApplicationConfiguration.DEFAULT_SKIP_SSL_VALIDATION))
+            .thenReturn(ApplicationConfiguration.DEFAULT_SKIP_SSL_VALIDATION);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_SKIP_SSL_VALIDATION, configuration.shouldSkipSslValidation());
     }
 
     @Test
     void testGetVersionFromEnvironment() {
-        Mockito.when(environment.getString(ApplicationConfiguration.CFG_VERSION, ApplicationConfiguration.DEFAULT_VERSION))
-               .thenReturn(ApplicationConfiguration.DEFAULT_VERSION);
+        when(environment.getString(ApplicationConfiguration.CFG_VERSION, ApplicationConfiguration.DEFAULT_VERSION))
+            .thenReturn(ApplicationConfiguration.DEFAULT_VERSION);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_VERSION, configuration.getVersion());
     }
 
     @Test
     void testGetChangeLogLockPollRate() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_CHANGE_LOG_LOCK_POLL_RATE,
-                                                    ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_POLL_RATE))
-               .thenReturn(ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_POLL_RATE);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_CHANGE_LOG_LOCK_POLL_RATE,
+                                            ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_POLL_RATE))
+            .thenReturn(ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_POLL_RATE);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_POLL_RATE, configuration.getChangeLogLockPollRate());
     }
 
     @Test
     void testGetControllerClientSslHandshakeTimeout() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_CONTROLLER_CLIENT_SSL_HANDSHAKE_TIMEOUT_IN_SECONDS,
-                                                    ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_SSL_HANDSHAKE_TIMEOUT_IN_SECONDS))
-               .thenReturn(120);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_CONTROLLER_CLIENT_SSL_HANDSHAKE_TIMEOUT_IN_SECONDS,
+                                            ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_SSL_HANDSHAKE_TIMEOUT_IN_SECONDS))
+            .thenReturn(120);
         assertEquals(Duration.ofSeconds(120), configuration.getControllerClientSslHandshakeTimeout());
     }
 
     @Test
     void testGetControllerClientConnectTimeout() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS,
-                                                    ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS))
-               .thenReturn(10);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS,
+                                            ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS))
+            .thenReturn(10);
         assertEquals(Duration.ofSeconds(10), configuration.getControllerClientConnectTimeout());
     }
 
     void testGetChangeLogLockDuration() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_CHANGE_LOG_LOCK_DURATION,
-                                                    ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_DURATION))
-               .thenReturn(ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_DURATION);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_CHANGE_LOG_LOCK_DURATION,
+                                            ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_DURATION))
+            .thenReturn(ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_DURATION);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_DURATION, configuration.getChangeLogLockDuration());
     }
 
     @Test
     void testGetChangeLogLockAttempts() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_CHANGE_LOG_LOCK_ATTEMPTS,
-                                                    ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS))
-               .thenReturn(ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_CHANGE_LOG_LOCK_ATTEMPTS,
+                                            ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS))
+            .thenReturn(ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS, configuration.getChangeLogLockAttempts());
     }
 
     @Test
     void testGetGlobalConfigSpace() {
         String globalConfigSpace = "globalConfigSpace";
-        Mockito.when(environment.getString(ApplicationConfiguration.CFG_GLOBAL_CONFIG_SPACE))
-               .thenReturn(globalConfigSpace);
+        when(environment.getString(ApplicationConfiguration.CFG_GLOBAL_CONFIG_SPACE))
+            .thenReturn(globalConfigSpace);
         Assertions.assertEquals(globalConfigSpace, configuration.getGlobalConfigSpace());
     }
 
@@ -314,15 +313,15 @@ class ApplicationConfigurationTest {
         String healthCheckMtaId = "healthCheckMtaId";
         String healthCheckUserName = "healthCheckUserId";
         int healthCheckTimeRange = 10;
-        Mockito.when(environment.getString(ApplicationConfiguration.CFG_HEALTH_CHECK_SPACE_GUID))
-               .thenReturn(healthCheckSpaceId);
-        Mockito.when(environment.getString(ApplicationConfiguration.CFG_HEALTH_CHECK_MTA_ID))
-               .thenReturn(healthCheckMtaId);
-        Mockito.when(environment.getString(ApplicationConfiguration.CFG_HEALTH_CHECK_USER))
-               .thenReturn(healthCheckUserName);
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_HEALTH_CHECK_TIME_RANGE,
-                                                    ApplicationConfiguration.DEFAULT_HEALTH_CHECK_TIME_RANGE))
-               .thenReturn(healthCheckTimeRange);
+        when(environment.getString(ApplicationConfiguration.CFG_HEALTH_CHECK_SPACE_GUID))
+            .thenReturn(healthCheckSpaceId);
+        when(environment.getString(ApplicationConfiguration.CFG_HEALTH_CHECK_MTA_ID))
+            .thenReturn(healthCheckMtaId);
+        when(environment.getString(ApplicationConfiguration.CFG_HEALTH_CHECK_USER))
+            .thenReturn(healthCheckUserName);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_HEALTH_CHECK_TIME_RANGE,
+                                            ApplicationConfiguration.DEFAULT_HEALTH_CHECK_TIME_RANGE))
+            .thenReturn(healthCheckTimeRange);
         HealthCheckConfiguration healthCheckConfiguration = configuration.getHealthCheckConfiguration();
         Assertions.assertEquals(healthCheckSpaceId, healthCheckConfiguration.getSpaceId());
         Assertions.assertEquals(healthCheckMtaId, healthCheckConfiguration.getMtaId());
@@ -339,95 +338,95 @@ class ApplicationConfigurationTest {
     @Test
     void testGetApplicationInstanceIndex() {
         Integer instanceIndex = 1;
-        Mockito.when(environment.getInteger(ApplicationConfiguration.CFG_CF_INSTANCE_INDEX))
-               .thenReturn(instanceIndex);
+        when(environment.getInteger(ApplicationConfiguration.CFG_CF_INSTANCE_INDEX))
+            .thenReturn(instanceIndex);
         Assertions.assertEquals(instanceIndex, configuration.getApplicationInstanceIndex());
     }
 
     @Test
     void testGetFlowableJobExecutorCoreThreads() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS,
-                                                    ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_CORE_THREADS))
-               .thenReturn(ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_CORE_THREADS);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS,
+                                            ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_CORE_THREADS))
+            .thenReturn(ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_CORE_THREADS);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_CORE_THREADS,
                                 configuration.getFlowableJobExecutorCoreThreads());
     }
 
     @Test
     void testGetFlowableJobExecutorMaxThreads() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS,
-                                                    ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_MAX_THREADS))
-               .thenReturn(ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_MAX_THREADS);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS,
+                                            ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_MAX_THREADS))
+            .thenReturn(ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_MAX_THREADS);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_MAX_THREADS,
                                 configuration.getFlowableJobExecutorMaxThreads());
     }
 
     @Test
     void testGetFlowableJobExecutorQueueCapacity() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY,
-                                                    ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY))
-               .thenReturn(ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY,
+                                            ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY))
+            .thenReturn(ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY,
                                 configuration.getFlowableJobExecutorQueueCapacity());
     }
 
     @Test
     void testGetFssCacheUpdateTimeoutMinutes() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_FSS_CACHE_UPDATE_TIMEOUT_MINUTES,
-                                                    ApplicationConfiguration.DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES))
-               .thenReturn(ApplicationConfiguration.DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_FSS_CACHE_UPDATE_TIMEOUT_MINUTES,
+                                            ApplicationConfiguration.DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES))
+            .thenReturn(ApplicationConfiguration.DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES,
                                 configuration.getFssCacheUpdateTimeoutMinutes());
     }
 
     @Test
     void testGetSpaceDeveloperCacheExpirationInSeconds() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS,
-                                                    ApplicationConfiguration.DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS))
-               .thenReturn(ApplicationConfiguration.DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS,
+                                            ApplicationConfiguration.DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS))
+            .thenReturn(ApplicationConfiguration.DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS,
                                 configuration.getSpaceDeveloperCacheExpirationInSeconds());
     }
 
     @Test
     void testGetControllerClientConnectionPoolSize() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE,
-                                                    ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE))
-               .thenReturn(ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE,
+                                            ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE))
+            .thenReturn(ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE,
                                 configuration.getControllerClientConnectionPoolSize());
     }
 
     @Test
     void testGetControllerClientThreadPoolSize() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE,
-                                                    ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE))
-               .thenReturn(ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE,
+                                            ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE))
+            .thenReturn(ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE,
                                 configuration.getControllerClientThreadPoolSize());
     }
 
     @Test
     void testGetSnakeyamlMaxAliasesForCollections() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS,
-                                                    ApplicationConfiguration.DEFAULT_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS))
-               .thenReturn(ApplicationConfiguration.DEFAULT_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS,
+                                            ApplicationConfiguration.DEFAULT_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS))
+            .thenReturn(ApplicationConfiguration.DEFAULT_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS);
         Assertions.assertEquals(ApplicationConfiguration.DEFAULT_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS,
                                 configuration.getSnakeyamlMaxAliasesForCollections());
     }
 
     @Test
     void testIsInternalEnvironment() {
-        Mockito.when(environment.getBoolean(ApplicationConfiguration.SAP_INTERNAL_DELIVERY,
-                                            ApplicationConfiguration.DEFAULT_SAP_INTERNAL_DELIVERY))
-               .thenReturn(true);
+        when(environment.getBoolean(ApplicationConfiguration.SAP_INTERNAL_DELIVERY,
+                                    ApplicationConfiguration.DEFAULT_SAP_INTERNAL_DELIVERY))
+            .thenReturn(true);
         assertTrue(configuration.isInternalEnvironment());
     }
 
     @Test
     void testGetCloudComponentsInvalidJson() {
-        Mockito.when(environment.getString(ApplicationConfiguration.SUPPORT_COMPONENTS))
-               .thenReturn("Invalid json");
+        when(environment.getString(ApplicationConfiguration.SUPPORT_COMPONENTS))
+            .thenReturn("Invalid json");
         Map<String, Object> cloudComponents = configuration.getCloudComponents();
         Assertions.assertEquals(0, cloudComponents.size());
     }
@@ -442,50 +441,50 @@ class ApplicationConfigurationTest {
     @Test
     void testGetInternalSupportChannel() {
         String internalSupportChannel = "internal-support-channel";
-        Mockito.when(environment.getString(ApplicationConfiguration.INTERNAL_SUPPORT_CHANNEL))
-               .thenReturn(internalSupportChannel);
+        when(environment.getString(ApplicationConfiguration.INTERNAL_SUPPORT_CHANNEL))
+            .thenReturn(internalSupportChannel);
         Assertions.assertEquals(internalSupportChannel, configuration.getInternalSupportChannel());
     }
 
     @Test
     void testGetCertificateCN() {
         String certificateCN = "cert-cn";
-        Mockito.when(environment.getString(ApplicationConfiguration.CFG_CERTIFICATE_CN))
-               .thenReturn(certificateCN);
+        when(environment.getString(ApplicationConfiguration.CFG_CERTIFICATE_CN))
+            .thenReturn(certificateCN);
         Assertions.assertEquals(certificateCN, configuration.getCertificateCN());
     }
 
     @Test
     void testGetSpringSchedulerTaskExecutorThreads() {
         int executorThreads = 2;
-        Mockito.when(environment.getInteger(ApplicationConfiguration.CFG_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS,
-                                            ApplicationConfiguration.DEFAULT_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS))
-               .thenReturn(executorThreads);
+        when(environment.getInteger(ApplicationConfiguration.CFG_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS,
+                                    ApplicationConfiguration.DEFAULT_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS))
+            .thenReturn(executorThreads);
         Assertions.assertEquals(executorThreads, configuration.getSpringSchedulerTaskExecutorThreads());
     }
 
     @Test
     void testIsOperationRateLimitingEnabled() {
-        Mockito.when(environment.getBoolean(ApplicationConfiguration.CFG_OPERATION_RATE_LIMITING_ENABLED,
-                                            ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMITING_ENABLED))
-               .thenReturn(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMITING_ENABLED);
+        when(environment.getBoolean(ApplicationConfiguration.CFG_OPERATION_RATE_LIMITING_ENABLED,
+                                    ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMITING_ENABLED))
+            .thenReturn(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMITING_ENABLED);
         assertEquals(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMITING_ENABLED,
                      configuration.isOperationRateLimitingEnabled());
     }
 
     @Test
     void testIsOperationRateLimitingEnabledWithCustomValue() {
-        Mockito.when(environment.getBoolean(ApplicationConfiguration.CFG_OPERATION_RATE_LIMITING_ENABLED,
-                                            ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMITING_ENABLED))
-               .thenReturn(true);
+        when(environment.getBoolean(ApplicationConfiguration.CFG_OPERATION_RATE_LIMITING_ENABLED,
+                                    ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMITING_ENABLED))
+            .thenReturn(true);
         assertTrue(configuration.isOperationRateLimitingEnabled());
     }
 
     @Test
     void testGetMaxActiveOperationsPerSpace() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_MAX_ACTIVE_OPERATIONS_PER_SPACE,
-                                                    ApplicationConfiguration.DEFAULT_MAX_ACTIVE_OPERATIONS_PER_SPACE))
-               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_ACTIVE_OPERATIONS_PER_SPACE);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_MAX_ACTIVE_OPERATIONS_PER_SPACE,
+                                            ApplicationConfiguration.DEFAULT_MAX_ACTIVE_OPERATIONS_PER_SPACE))
+            .thenReturn(ApplicationConfiguration.DEFAULT_MAX_ACTIVE_OPERATIONS_PER_SPACE);
         assertEquals(ApplicationConfiguration.DEFAULT_MAX_ACTIVE_OPERATIONS_PER_SPACE,
                      configuration.getMaxActiveOperationsPerSpace());
     }
@@ -493,17 +492,17 @@ class ApplicationConfigurationTest {
     @Test
     void testGetMaxActiveOperationsPerSpaceWithCustomValue() {
         int customValue = 750;
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_MAX_ACTIVE_OPERATIONS_PER_SPACE,
-                                                    ApplicationConfiguration.DEFAULT_MAX_ACTIVE_OPERATIONS_PER_SPACE))
-               .thenReturn(customValue);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_MAX_ACTIVE_OPERATIONS_PER_SPACE,
+                                            ApplicationConfiguration.DEFAULT_MAX_ACTIVE_OPERATIONS_PER_SPACE))
+            .thenReturn(customValue);
         assertEquals(customValue, configuration.getMaxActiveOperationsPerSpace());
     }
 
     @Test
     void testGetMaxActiveOperationsPerUser() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_MAX_ACTIVE_OPERATIONS_PER_USER,
-                                                    ApplicationConfiguration.DEFAULT_MAX_ACTIVE_OPERATIONS_PER_USER))
-               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_ACTIVE_OPERATIONS_PER_USER);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_MAX_ACTIVE_OPERATIONS_PER_USER,
+                                            ApplicationConfiguration.DEFAULT_MAX_ACTIVE_OPERATIONS_PER_USER))
+            .thenReturn(ApplicationConfiguration.DEFAULT_MAX_ACTIVE_OPERATIONS_PER_USER);
         assertEquals(ApplicationConfiguration.DEFAULT_MAX_ACTIVE_OPERATIONS_PER_USER,
                      configuration.getMaxActiveOperationsPerUser());
     }
@@ -511,17 +510,17 @@ class ApplicationConfigurationTest {
     @Test
     void testGetMaxActiveOperationsPerUserWithCustomValue() {
         int customValue = 250;
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_MAX_ACTIVE_OPERATIONS_PER_USER,
-                                                    ApplicationConfiguration.DEFAULT_MAX_ACTIVE_OPERATIONS_PER_USER))
-               .thenReturn(customValue);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_MAX_ACTIVE_OPERATIONS_PER_USER,
+                                            ApplicationConfiguration.DEFAULT_MAX_ACTIVE_OPERATIONS_PER_USER))
+            .thenReturn(customValue);
         assertEquals(customValue, configuration.getMaxActiveOperationsPerUser());
     }
 
     @Test
     void testGetOperationRateLimitPerSpaceCapacity() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY,
-                                                    ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY))
-               .thenReturn(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY,
+                                            ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY))
+            .thenReturn(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY);
         assertEquals(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY,
                      configuration.getOperationRateLimitPerSpaceCapacity());
     }
@@ -529,17 +528,17 @@ class ApplicationConfigurationTest {
     @Test
     void testGetOperationRateLimitPerSpaceCapacityWithCustomValue() {
         int customValue = 400;
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY,
-                                                    ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY))
-               .thenReturn(customValue);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY,
+                                            ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY))
+            .thenReturn(customValue);
         assertEquals(customValue, configuration.getOperationRateLimitPerSpaceCapacity());
     }
 
     @Test
     void testGetOperationRateLimitPerSpaceRefillPerHour() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR,
-                                                    ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR))
-               .thenReturn(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR,
+                                            ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR))
+            .thenReturn(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR);
         assertEquals(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR,
                      configuration.getOperationRateLimitPerSpaceRefillPerHour());
     }
@@ -547,17 +546,17 @@ class ApplicationConfigurationTest {
     @Test
     void testGetOperationRateLimitPerSpaceRefillPerHourWithCustomValue() {
         int customValue = 1000;
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR,
-                                                    ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR))
-               .thenReturn(customValue);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR,
+                                            ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR))
+            .thenReturn(customValue);
         assertEquals(customValue, configuration.getOperationRateLimitPerSpaceRefillPerHour());
     }
 
     @Test
     void testGetOperationRateLimitPerUserCapacity() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_USER_CAPACITY,
-                                                    ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_USER_CAPACITY))
-               .thenReturn(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_USER_CAPACITY);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_USER_CAPACITY,
+                                            ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_USER_CAPACITY))
+            .thenReturn(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_USER_CAPACITY);
         assertEquals(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_USER_CAPACITY,
                      configuration.getOperationRateLimitPerUserCapacity());
     }
@@ -565,17 +564,17 @@ class ApplicationConfigurationTest {
     @Test
     void testGetOperationRateLimitPerUserCapacityWithCustomValue() {
         int customValue = 200;
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_USER_CAPACITY,
-                                                    ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_USER_CAPACITY))
-               .thenReturn(customValue);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_USER_CAPACITY,
+                                            ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_USER_CAPACITY))
+            .thenReturn(customValue);
         assertEquals(customValue, configuration.getOperationRateLimitPerUserCapacity());
     }
 
     @Test
     void testGetOperationRateLimitPerUserRefillPerHour() {
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR,
-                                                    ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR))
-               .thenReturn(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR,
+                                            ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR))
+            .thenReturn(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR);
         assertEquals(ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR,
                      configuration.getOperationRateLimitPerUserRefillPerHour());
     }
@@ -583,9 +582,9 @@ class ApplicationConfigurationTest {
     @Test
     void testGetOperationRateLimitPerUserRefillPerHourWithCustomValue() {
         int customValue = 500;
-        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR,
-                                                    ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR))
-               .thenReturn(customValue);
+        when(environment.getPositiveInteger(ApplicationConfiguration.CFG_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR,
+                                            ApplicationConfiguration.DEFAULT_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR))
+            .thenReturn(customValue);
         assertEquals(customValue, configuration.getOperationRateLimitPerUserRefillPerHour());
     }
 
@@ -593,8 +592,8 @@ class ApplicationConfigurationTest {
     void testGetFilteredEnv() {
         Map<String, String> filteredEnvironment = new HashMap<>();
         filteredEnvironment.put(ApplicationConfiguration.CFG_MAX_MTA_DESCRIPTOR_SIZE, "1024");
-        Mockito.when(environment.getAllVariables())
-               .thenReturn(filteredEnvironment);
+        when(environment.getAllVariables())
+            .thenReturn(filteredEnvironment);
         Map<String, String> filteredEnv = configuration.getNotSensitiveVariables();
         assertTrue(filteredEnv.containsKey(ApplicationConfiguration.CFG_MAX_MTA_DESCRIPTOR_SIZE));
     }
@@ -606,16 +605,16 @@ class ApplicationConfigurationTest {
 
     @Test
     void testIsOnStartFilesWithoutContentCleanerEnabledThroughEnvironmentWithEnv() {
-        Mockito.when(environment.getBoolean(ApplicationConfiguration.CFG_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER,
-                                            ApplicationConfiguration.DEFAULT_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER))
-               .thenReturn(true);
+        when(environment.getBoolean(ApplicationConfiguration.CFG_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER,
+                                    ApplicationConfiguration.DEFAULT_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER))
+            .thenReturn(true);
         assertTrue(configuration.isOnStartFilesWithoutContentCleanerEnabled());
     }
 
     @Test
     void testLoad() {
-        Mockito.when(environment.getString(ApplicationConfiguration.OBJECTSTORE_REGIONS, Strings.EMPTY))
-               .thenReturn(Strings.EMPTY);
+        when(environment.getString(ApplicationConfiguration.OBJECTSTORE_REGIONS, Strings.EMPTY))
+            .thenReturn(Strings.EMPTY);
         Map<String, Object> vcapApplication = injectFileInEnvironment(VCAP_APPLICATION, ApplicationConfiguration.CFG_VCAP_APPLICATION);
         configuration.load();
         Assertions.assertEquals(vcapApplication.get("cf_api"), configuration.getControllerUrl()
@@ -624,8 +623,8 @@ class ApplicationConfigurationTest {
 
     private Map<String, Object> injectFileInEnvironment(String filename, String envVariable) {
         String vcapApplicationJson = TestUtil.getResourceAsString(filename, getClass());
-        Mockito.when(environment.getString(envVariable))
-               .thenReturn(vcapApplicationJson);
+        when(environment.getString(envVariable))
+            .thenReturn(vcapApplicationJson);
         return JsonUtil.convertJsonToMap(vcapApplicationJson);
     }
 

@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OperationRateLimitKeysTest {
 
@@ -67,6 +66,6 @@ class OperationRateLimitKeysTest {
     void testSpaceKeyIsStableAcrossRuns() {
         long firstValue = OperationRateLimitKeys.spaceKey(SPACE_GUID);
         long secondValue = OperationRateLimitKeys.spaceKey(SPACE_GUID);
-        assertTrue(firstValue == secondValue);
+        assertEquals(firstValue, secondValue);
     }
 }
