@@ -64,7 +64,7 @@
         <azure-storage-blob.version>12.35.0</azure-storage-blob.version>
         <azure-core-http-jdk-httpclient.version>1.0.4</azure-core-http-jdk-httpclient.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
-        <wire-runtime.version>6.3.0</wire-runtime.version>
+        <wire-runtime.version>6.4.5</wire-runtime.version>
     </properties>
     <modules>
         <module>multiapps-controller-client</module>
