@@ -1,5 +1,12 @@
 package org.cloudfoundry.multiapps.controller.web.util;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.BucketConfiguration;
+import io.github.bucket4j.ConsumptionProbe;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.query.OperationQuery;
@@ -7,21 +14,11 @@ import org.cloudfoundry.multiapps.controller.persistence.services.OperationServi
 import org.cloudfoundry.multiapps.controller.process.util.BucketStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import io.github.bucket4j.Bucket;
-import io.github.bucket4j.BucketConfiguration;
-import io.github.bucket4j.ConsumptionProbe;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -52,13 +49,18 @@ class OperationRateLimiterTest {
     private Bucket spaceBucket;
     @Mock
     private Bucket userBucket;
-    @InjectMocks
+
     private OperationRateLimiter operationRateLimiter;
 
     @BeforeEach
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
+        when(applicationConfiguration.getOperationRateLimitPerSpaceCapacity()).thenReturn(PER_SPACE_CAPACITY);
+        when(applicationConfiguration.getOperationRateLimitPerSpaceRefillPerHour()).thenReturn(PER_SPACE_REFILL_PER_HOUR);
+        when(applicationConfiguration.getOperationRateLimitPerUserCapacity()).thenReturn(PER_USER_CAPACITY);
+        when(applicationConfiguration.getOperationRateLimitPerUserRefillPerHour()).thenReturn(PER_USER_REFILL_PER_HOUR);
+        operationRateLimiter = new OperationRateLimiter(applicationConfiguration, operationService, bucketStore);
     }
 
     private void enableRateLimiting() {
@@ -118,7 +120,9 @@ class OperationRateLimiterTest {
         enableRateLimiting();
         stubRateLimitConfiguration();
         stubActiveOperationCounts(0, 0);
+        stubBucketForKey(OperationRateLimitKeys.userKey(SPACE_GUID, USER), userBucket);
         stubBucketForKey(OperationRateLimitKeys.spaceKey(SPACE_GUID), spaceBucket);
+        stubConsumption(userBucket, true);
         stubConsumption(spaceBucket, false);
 
         OperationRateLimitExceededException exception = assertThrows(OperationRateLimitExceededException.class,
@@ -156,38 +160,39 @@ class OperationRateLimiterTest {
         enableRateLimiting();
         when(applicationConfiguration.getMaxActiveOperationsPerSpace()).thenReturn(MAX_ACTIVE_OPERATIONS_PER_SPACE);
         when(applicationConfiguration.getMaxActiveOperationsPerUser()).thenReturn(MAX_ACTIVE_OPERATIONS_PER_USER);
-        stubActiveOperationCounts(0, MAX_ACTIVE_OPERATIONS_PER_USER);
+        stubActiveOperationCounts(MAX_ACTIVE_OPERATIONS_PER_USER, MAX_ACTIVE_OPERATIONS_PER_USER);
 
         assertThrows(OperationRateLimitExceededException.class, () -> operationRateLimiter.checkStartAllowed(USER, SPACE_GUID));
         verifyNoInteractions(bucketStore);
     }
 
     private void stubActiveOperationCounts(int perSpace, int perUser) {
+        List<Operation> ops = activeOperations(perSpace, perUser);
         OperationQuery spaceQuery = mockQuery();
         when(spaceQuery.spaceId(SPACE_GUID)).thenReturn(spaceQuery);
         when(spaceQuery.inNonFinalState()).thenReturn(spaceQuery);
-        when(spaceQuery.list()).thenReturn(activeOperations(perSpace));
+        when(spaceQuery.list()).thenReturn(ops);
 
-        OperationQuery userQuery = mockQuery();
-        when(userQuery.user(USER)).thenReturn(userQuery);
-        when(userQuery.spaceId(SPACE_GUID)).thenReturn(userQuery);
-        when(userQuery.inNonFinalState()).thenReturn(userQuery);
-        when(userQuery.list()).thenReturn(activeOperations(perUser));
-
-        when(operationService.createQuery()).thenReturn(spaceQuery, userQuery);
+        when(operationService.createQuery()).thenReturn(spaceQuery);
     }
 
     private OperationQuery mockQuery() {
         return mock(OperationQuery.class);
     }
 
-    private List<Operation> activeOperations(int count) {
-        if (count == 0) {
-            return Collections.emptyList();
+    private List<Operation> activeOperations(int total, int byUser) {
+        List<Operation> ops = new ArrayList<>();
+        for (int i = 0; i < byUser; i++) {
+            Operation op = mock(Operation.class);
+            when(op.getUser()).thenReturn(USER);
+            ops.add(op);
         }
-        return Stream.generate(() -> mock(Operation.class))
-                     .limit(count)
-                     .toList();
+        for (int i = byUser; i < total; i++) {
+            Operation op = mock(Operation.class);
+            when(op.getUser()).thenReturn("other.user");
+            ops.add(op);
+        }
+        return ops;
     }
 
     private void stubBucketForKey(long key, Bucket bucket) {

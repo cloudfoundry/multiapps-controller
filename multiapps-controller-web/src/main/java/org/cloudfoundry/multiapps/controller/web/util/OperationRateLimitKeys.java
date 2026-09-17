@@ -1,10 +1,10 @@
 package org.cloudfoundry.multiapps.controller.web.util;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.common.primitives.Longs;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Derives stable {@code long} bucket keys for operation rate limiting.
@@ -18,7 +18,7 @@ public final class OperationRateLimitKeys {
     private static final String SPACE_NAMESPACE_PREFIX = "space:";
     private static final String USER_NAMESPACE_PREFIX = "user:";
     private static final String SEGMENT_SEPARATOR = ":";
-    private static final HashFunction HASH_FUNCTION = Hashing.sha256();
+    private static final HashFunction HASH_FUNCTION = Hashing.sha384();
 
     private OperationRateLimitKeys() {
     }

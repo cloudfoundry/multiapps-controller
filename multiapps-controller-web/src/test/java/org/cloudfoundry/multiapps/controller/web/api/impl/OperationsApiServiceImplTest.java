@@ -47,9 +47,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.springframework.http.HttpHeaders;
@@ -64,6 +62,19 @@ import static org.cloudfoundry.multiapps.controller.core.util.SecurityUtil.USER_
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class OperationsApiServiceImplTest {
 
@@ -182,8 +193,8 @@ class OperationsApiServiceImplTest {
     void testExecuteOperationAction() {
         String processId = RUNNING_PROCESS;
         operationsApiService.executeOperationAction(SPACE_GUID, processId, Action.ABORT.getActionId());
-        Mockito.verify(processAction)
-               .execute(Mockito.argThat(userInfo -> EXAMPLE_USER.equals(userInfo.getName())), Mockito.eq(processId));
+        verify(processAction)
+            .execute(argThat(userInfo -> EXAMPLE_USER.equals(userInfo.getName())), eq(processId));
     }
 
     @Test
@@ -209,33 +220,33 @@ class OperationsApiServiceImplTest {
     void testStartOperation() {
         Map<String, Object> parameters = Map.of(Variables.MTA_ID.getName(), "test");
         Operation operation = createOperation(null, null, parameters);
-        Mockito.when(operationsHelper.getProcessDefinitionKey(operation))
-               .thenReturn("deploy");
-        HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
-        Mockito.when(httpServletRequestMock.getRequestURL())
-               .thenReturn(new StringBuffer("test/api/path"));
+        when(operationsHelper.getProcessDefinitionKey(operation))
+            .thenReturn("deploy");
+        HttpServletRequest httpServletRequestMock = mock(HttpServletRequest.class);
+        when(httpServletRequestMock.getRequestURL())
+            .thenReturn(new StringBuffer("test/api/path"));
         operationsApiService.startOperation(SPACE_GUID, operation, httpServletRequestMock);
-        Mockito.verify(flowableFacade)
-               .startProcess(Mockito.any(), Mockito.anyMap());
+        verify(flowableFacade)
+            .startProcess(any(), anyMap());
     }
 
     @Test
     void testStartOperationWhenRateLimitAllowsStartsProcess() {
         Map<String, Object> parameters = Map.of(Variables.MTA_ID.getName(), "test");
         Operation operation = createOperation(null, null, parameters);
-        Mockito.when(operationsHelper.getProcessDefinitionKey(operation))
-               .thenReturn("deploy");
-        HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
-        Mockito.when(httpServletRequestMock.getRequestURL())
-               .thenReturn(new StringBuffer("test/api/path"));
+        when(operationsHelper.getProcessDefinitionKey(operation))
+            .thenReturn("deploy");
+        HttpServletRequest httpServletRequestMock = mock(HttpServletRequest.class);
+        when(httpServletRequestMock.getRequestURL())
+            .thenReturn(new StringBuffer("test/api/path"));
 
         ResponseEntity<Operation> response = operationsApiService.startOperation(SPACE_GUID, operation, httpServletRequestMock);
 
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
-        Mockito.verify(operationRateLimiter)
-               .checkStartAllowed(EXAMPLE_USER, SPACE_GUID);
-        Mockito.verify(flowableFacade)
-               .startProcess(Mockito.any(), Mockito.anyMap());
+        verify(operationRateLimiter)
+            .checkStartAllowed(EXAMPLE_USER, SPACE_GUID);
+        verify(flowableFacade)
+            .startProcess(any(), anyMap());
     }
 
     @Test
@@ -243,43 +254,43 @@ class OperationsApiServiceImplTest {
         long retryAfterSeconds = 42;
         Map<String, Object> parameters = Map.of(Variables.MTA_ID.getName(), "test");
         Operation operation = createOperation(null, null, parameters);
-        Mockito.doThrow(new OperationRateLimitExceededException("Operation rate limit exceeded", retryAfterSeconds))
-               .when(operationRateLimiter)
-               .checkStartAllowed(EXAMPLE_USER, SPACE_GUID);
-        HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
+        doThrow(new OperationRateLimitExceededException("Operation rate limit exceeded", retryAfterSeconds))
+            .when(operationRateLimiter)
+            .checkStartAllowed(EXAMPLE_USER, SPACE_GUID);
+        HttpServletRequest httpServletRequestMock = mock(HttpServletRequest.class);
 
         ResponseEntity<Operation> response = operationsApiService.startOperation(SPACE_GUID, operation, httpServletRequestMock);
 
         assertEquals(HttpStatus.TOO_MANY_REQUESTS, response.getStatusCode());
         assertEquals(String.valueOf(retryAfterSeconds), response.getHeaders()
                                                                 .getFirst(HttpHeaders.RETRY_AFTER));
-        Mockito.verify(flowableFacade, Mockito.never())
-               .startProcess(Mockito.any(), Mockito.anyMap());
+        verify(flowableFacade, never())
+            .startProcess(any(), anyMap());
     }
 
     @Test
     void testStartOperationLogsUserGuidAndOriginButNotUsername() {
         String processInstanceId = "process-instance-id-1";
-        ProcessInstance processInstance = Mockito.mock(ProcessInstance.class);
-        Mockito.when(processInstance.getProcessInstanceId())
-               .thenReturn(processInstanceId);
-        Mockito.when(flowableFacade.startProcess(Mockito.any(), Mockito.anyMap()))
-               .thenReturn(processInstance);
+        ProcessInstance processInstance = mock(ProcessInstance.class);
+        when(processInstance.getProcessInstanceId())
+            .thenReturn(processInstanceId);
+        when(flowableFacade.startProcess(any(), anyMap()))
+            .thenReturn(processInstance);
 
         Map<String, Object> parameters = Map.of(Variables.MTA_ID.getName(), "test");
         Operation operation = createOperation(null, null, parameters);
-        Mockito.when(operationsHelper.getProcessDefinitionKey(operation))
-               .thenReturn("deploy");
-        HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
-        Mockito.when(httpServletRequestMock.getRequestURL())
-               .thenReturn(new StringBuffer("test/api/path"));
+        when(operationsHelper.getProcessDefinitionKey(operation))
+            .thenReturn("deploy");
+        HttpServletRequest httpServletRequestMock = mock(HttpServletRequest.class);
+        when(httpServletRequestMock.getRequestURL())
+            .thenReturn(new StringBuffer("test/api/path"));
 
-        OperationsApiServiceImpl operationsApiServiceSpy = Mockito.spy(operationsApiService);
+        OperationsApiServiceImpl operationsApiServiceSpy = spy(operationsApiService);
         operationsApiServiceSpy.startOperation(SPACE_GUID, operation, httpServletRequestMock);
 
         ArgumentCaptor<UserInfo> userInfoCaptor = ArgumentCaptor.forClass(UserInfo.class);
-        Mockito.verify(operationsApiServiceSpy)
-               .logStartOperation(Mockito.eq(processInstanceId), userInfoCaptor.capture());
+        verify(operationsApiServiceSpy)
+            .logStartOperation(eq(processInstanceId), userInfoCaptor.capture());
         UserInfo authenticatedUser = userInfoCaptor.getValue();
         assertEquals(USER_GUID, authenticatedUser.getId(), "logStartOperation must receive the user GUID");
         assertEquals("test-origin", authenticatedUser.getToken()
@@ -296,18 +307,18 @@ class OperationsApiServiceImplTest {
                                                 Variables.CTS_PROCESS_ID.getName(), "cts_test", Variables.DEPLOY_URI.getName(),
                                                 "deploy_test");
         Operation operation = createOperation(null, null, parameters);
-        Mockito.when(operationsHelper.getProcessDefinitionKey(operation))
-               .thenReturn("deploy");
+        when(operationsHelper.getProcessDefinitionKey(operation))
+            .thenReturn("deploy");
 
-        HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
-        Mockito.when(httpServletRequestMock.getRequestURL())
-               .thenReturn(new StringBuffer("test/api/path"));
+        HttpServletRequest httpServletRequestMock = mock(HttpServletRequest.class);
+        when(httpServletRequestMock.getRequestURL())
+            .thenReturn(new StringBuffer("test/api/path"));
         operationsApiService.startOperation(SPACE_GUID, operation, httpServletRequestMock);
 
-        Mockito.verify(flowableFacade)
-               .startProcess(ArgumentMatchers.eq("deploy"), ArgumentMatchers.argThat(
-                   map -> map.containsKey(Variables.MTA_ID.getName()) && map.containsKey(Variables.EXT_DESCRIPTOR_FILE_ID.getName())
-                       && !map.containsKey(Variables.CTS_PROCESS_ID.getName()) && !map.containsKey(Variables.CTS_PASSWORD.getName())));
+        verify(flowableFacade)
+            .startProcess(eq("deploy"), argThat(
+                map -> map.containsKey(Variables.MTA_ID.getName()) && map.containsKey(Variables.EXT_DESCRIPTOR_FILE_ID.getName())
+                    && !map.containsKey(Variables.CTS_PROCESS_ID.getName()) && !map.containsKey(Variables.CTS_PASSWORD.getName())));
     }
 
     @Test
@@ -315,25 +326,25 @@ class OperationsApiServiceImplTest {
         Map<String, Object> parameters = Map.of(Variables.MTA_ID.getName(), "test", Variables.EXT_DESCRIPTOR_FILE_ID.getName(), "ext_test",
                                                 Variables.NO_START.getName(), false, Variables.MTA_NAMESPACE.getName(), "namespace_test");
         Operation operation = createOperation(null, null, parameters);
-        Mockito.when(operationsHelper.getProcessDefinitionKey(operation))
-               .thenReturn("deploy");
-        HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
-        Mockito.when(httpServletRequestMock.getRequestURL())
-               .thenReturn(new StringBuffer("test/api/path"));
+        when(operationsHelper.getProcessDefinitionKey(operation))
+            .thenReturn("deploy");
+        HttpServletRequest httpServletRequestMock = mock(HttpServletRequest.class);
+        when(httpServletRequestMock.getRequestURL())
+            .thenReturn(new StringBuffer("test/api/path"));
         operationsApiService.startOperation(SPACE_GUID, operation, httpServletRequestMock);
 
-        Mockito.verify(flowableFacade)
-               .startProcess(ArgumentMatchers.eq("deploy"), ArgumentMatchers.argThat(
-                   map -> map.containsKey(Variables.MTA_ID.getName()) && map.containsKey(Variables.EXT_DESCRIPTOR_FILE_ID.getName())
-                       && map.containsKey(Variables.NO_START.getName()) && map.containsKey(Variables.MTA_NAMESPACE.getName())));
+        verify(flowableFacade)
+            .startProcess(eq("deploy"), argThat(
+                map -> map.containsKey(Variables.MTA_ID.getName()) && map.containsKey(Variables.EXT_DESCRIPTOR_FILE_ID.getName())
+                    && map.containsKey(Variables.NO_START.getName()) && map.containsKey(Variables.MTA_NAMESPACE.getName())));
     }
 
     @Test
     void testGetOperationLogs() throws Exception {
         String processId = FINISHED_PROCESS;
         operationsApiService.getOperationLogs(SPACE_GUID, processId);
-        Mockito.verify(logsService)
-               .getLogNames(Mockito.eq(SPACE_GUID), Mockito.eq(processId));
+        verify(logsService)
+            .getLogNames(eq(SPACE_GUID), eq(processId));
     }
 
     @Test
@@ -344,8 +355,8 @@ class OperationsApiServiceImplTest {
     @Test
     void testGetOperationLogsServiceException() throws Exception {
         String processId = FINISHED_PROCESS;
-        Mockito.when(logsService.getLogNames(Mockito.eq(SPACE_GUID), Mockito.eq(processId)))
-               .thenThrow(new FileStorageException("something went wrong"));
+        when(logsService.getLogNames(eq(SPACE_GUID), eq(processId)))
+            .thenThrow(new FileStorageException("something went wrong"));
         Assertions.assertThrows(ContentException.class, () -> operationsApiService.getOperationLogs(SPACE_GUID, processId));
     }
 
@@ -354,8 +365,8 @@ class OperationsApiServiceImplTest {
         String processId = FINISHED_PROCESS;
         String logName = "OPERATION.log";
         String expectedLogContent = "somelogcontentstring\n1234";
-        Mockito.when(logsService.getOperationLog(Mockito.eq(SPACE_GUID), Mockito.eq(processId), Mockito.eq(logName)))
-               .thenReturn(expectedLogContent);
+        when(logsService.getOperationLog(eq(SPACE_GUID), eq(processId), eq(logName)))
+            .thenReturn(expectedLogContent);
         ResponseEntity<String> response = operationsApiService.getOperationLogContent(SPACE_GUID, processId, logName);
         String logContent = response.getBody();
         assertEquals(expectedLogContent, logContent);
@@ -365,8 +376,8 @@ class OperationsApiServiceImplTest {
     void testGetOperationLogContentNotFound() throws Exception {
         String processId = FINISHED_PROCESS;
         String logName = "OPERATION.log";
-        Mockito.when(logsService.getOperationLog(Mockito.eq(SPACE_GUID), Mockito.eq(processId), Mockito.eq(logName)))
-               .thenThrow(new NoResultException("log file not found"));
+        when(logsService.getOperationLog(eq(SPACE_GUID), eq(processId), eq(logName)))
+            .thenThrow(new NoResultException("log file not found"));
         Assertions.assertThrows(NoResultException.class, () -> operationsApiService.getOperationLogContent(SPACE_GUID, processId, logName));
     }
 
@@ -411,19 +422,17 @@ class OperationsApiServiceImplTest {
     }
 
     private void mockFlowableFacade() {
-        Mockito.when(flowableFacade.startProcess(Mockito.any(), Mockito.anyMap()))
-               .thenReturn(Mockito.mock(ProcessInstance.class));
+        when(flowableFacade.startProcess(any(), anyMap())).thenReturn(mock(ProcessInstance.class));
     }
 
     private void mockClientProvider(boolean shouldReturnAuthorizedClient) {
         mockClientAuth(shouldReturnAuthorizedClient);
         CloudSpaceClient mockedClient = mockClient();
-        Mockito.when(clientFactory.createSpaceClient(Mockito.any()))
-               .thenReturn(mockedClient);
+        when(clientFactory.createSpaceClient(any())).thenReturn(mockedClient);
     }
 
     private void mockClientAuth(boolean shouldReturnAuthorizedClient) {
-        org.springframework.security.core.context.SecurityContext securityContextMock = Mockito.mock(
+        org.springframework.security.core.context.SecurityContext securityContextMock = mock(
             org.springframework.security.core.context.SecurityContext.class);
         SecurityContextHolder.setContext(securityContextMock);
         if (shouldReturnAuthorizedClient) {
@@ -432,23 +441,23 @@ class OperationsApiServiceImplTest {
                                                                                                                   TokenProperties.USER_ID_KEY,
                                                                                                                   USER_GUID, "origin",
                                                                                                                   "test-origin")));
-            OAuth2AuthenticationToken auth = Mockito.mock(OAuth2AuthenticationToken.class);
+            OAuth2AuthenticationToken auth = mock(OAuth2AuthenticationToken.class);
             Map<String, Object> attributes = Map.of(USER_INFO, userInfo);
-            OAuth2User principal = Mockito.mock(OAuth2User.class);
-            Mockito.when(principal.getAttributes())
-                   .thenReturn(attributes);
-            Mockito.when(auth.getPrincipal())
-                   .thenReturn(principal);
-            Mockito.when(securityContextMock.getAuthentication())
-                   .thenReturn(auth);
+            OAuth2User principal = mock(OAuth2User.class);
+            when(principal.getAttributes())
+                .thenReturn(attributes);
+            when(auth.getPrincipal())
+                .thenReturn(principal);
+            when(securityContextMock.getAuthentication())
+                .thenReturn(auth);
             return;
         }
-        Mockito.when(securityContextMock.getAuthentication())
-               .thenReturn(null);
+        when(securityContextMock.getAuthentication())
+            .thenReturn(null);
     }
 
     private CloudSpaceClient mockClient() {
-        CloudSpaceClient client = Mockito.mock(CloudSpaceClient.class);
+        CloudSpaceClient client = mock(CloudSpaceClient.class);
         ImmutableCloudOrganization organization = ImmutableCloudOrganization.builder()
                                                                             .metadata(ImmutableCloudMetadata.builder()
                                                                                                             .guid(UUID.fromString(ORG_GUID))
@@ -462,74 +471,74 @@ class OperationsApiServiceImplTest {
                                                        .name(SPACE_NAME)
                                                        .organization(organization)
                                                        .build();
-        Mockito.when(client.getSpace(Mockito.any()))
-               .thenReturn(space);
+        when(client.getSpace(any()))
+            .thenReturn(space);
         return client;
     }
 
     private void mockProcessActionRegistry() {
-        Mockito.when(processActionRegistry.getAction(Mockito.any()))
-               .thenReturn(processAction);
+        when(processActionRegistry.getAction(any()))
+            .thenReturn(processAction);
     }
 
     private HttpServletRequest mockHttpServletRequest(String user) {
-        HttpServletRequest requestMock = Mockito.mock(HttpServletRequest.class);
+        HttpServletRequest requestMock = mock(HttpServletRequest.class);
         if (user != null) {
-            Principal principalMock = Mockito.mock(Principal.class);
-            Mockito.when(principalMock.getName())
-                   .thenReturn(user);
-            Mockito.when(requestMock.getUserPrincipal())
-                   .thenReturn(principalMock);
+            Principal principalMock = mock(Principal.class);
+            when(principalMock.getName())
+                .thenReturn(user);
+            when(requestMock.getUserPrincipal())
+                .thenReturn(principalMock);
         }
         return requestMock;
     }
 
     @SuppressWarnings("unchecked")
     private void setupOperationServiceMock() {
-        Mockito.when(operationService.createQuery())
-               .thenReturn(operationQuery);
+        when(operationService.createQuery())
+            .thenReturn(operationQuery);
 
-        Mockito.doAnswer(invocation -> {
-                   processId = (String) invocation.getArguments()[0];
-                   return operationQuery;
-               })
-               .when(operationQuery)
-               .processId(Mockito.anyString());
-        Mockito.doAnswer(invocation -> {
-                   Optional<Operation> foundOperation = operations.stream()
-                                                                  .filter(operation -> operation.getProcessId()
-                                                                                                .equals(processId))
-                                                                  .findFirst();
-                   if (!foundOperation.isPresent()) {
-                       throw new NoResultException("not found");
-                   }
-                   return foundOperation.get();
-               })
-               .when(operationQuery)
-               .singleResult();
+        doAnswer(invocation -> {
+            processId = (String) invocation.getArguments()[0];
+            return operationQuery;
+        })
+            .when(operationQuery)
+            .processId(anyString());
+        doAnswer(invocation -> {
+            Optional<Operation> foundOperation = operations.stream()
+                                                           .filter(operation -> operation.getProcessId()
+                                                                                         .equals(processId))
+                                                           .findFirst();
+            if (!foundOperation.isPresent()) {
+                throw new NoResultException("not found");
+            }
+            return foundOperation.get();
+        })
+            .when(operationQuery)
+            .singleResult();
 
-        Mockito.doAnswer(invocation -> {
-                   operationStatesToFilter = (List<Operation.State>) invocation.getArguments()[0];
-                   return operationQuery;
-               })
-               .when(operationQuery)
-               .withStateAnyOf(Mockito.anyList());
-        Mockito.doAnswer(invocation -> operations.stream()
-                                                 .filter(operation -> operationStatesToFilter == null || operationStatesToFilter.contains(
-                                                     operation.getState()))
-                                                 .collect(Collectors.toList()))
-               .when(operationQuery)
-               .list();
+        doAnswer(invocation -> {
+            operationStatesToFilter = (List<Operation.State>) invocation.getArguments()[0];
+            return operationQuery;
+        })
+            .when(operationQuery)
+            .withStateAnyOf(anyList());
+        doAnswer(invocation -> operations.stream()
+                                         .filter(operation -> operationStatesToFilter == null || operationStatesToFilter.contains(
+                                             operation.getState()))
+                                         .collect(Collectors.toList()))
+            .when(operationQuery)
+            .list();
     }
 
     @SuppressWarnings("unchecked")
     private void setupOperationsHelperMock() {
-        Mockito.when(operationsHelper.addErrorType(Mockito.any()))
-               .thenAnswer(invocation -> invocation.getArgument(0));
-        Mockito.when(operationsHelper.releaseLockIfNeeded(Mockito.any()))
-               .thenAnswer(invocation -> invocation.getArgument(0));
-        Mockito.when(operationsHelper.releaseLocksIfNeeded(Mockito.any()))
-               .thenAnswer(invocation -> invocation.getArgument(0));
+        when(operationsHelper.addErrorType(any()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+        when(operationsHelper.releaseLockIfNeeded(any()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+        when(operationsHelper.releaseLocksIfNeeded(any()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
     }
 
     private Operation createOperation(String processId, Operation.State state, Map<String, Object> parameters) {
