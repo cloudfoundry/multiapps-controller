@@ -1,10 +1,11 @@
 package org.cloudfoundry.multiapps.controller.client.facade.domain;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.client.v3.roles.RoleType;
+import org.cloudfoundry.multiapps.controller.Messages;
 
 public enum UserRole {
 
@@ -18,13 +19,15 @@ public enum UserRole {
 
     private static final Map<String, UserRole> NAMES_TO_VALUES = Arrays.stream(values())
                                                                        .collect(Collectors.toMap(UserRole::getName,
-                                                                                                 roleType ->  roleType));
+                                                                                                 roleType -> roleType));
 
-    public static UserRole fromRoleType(RoleType roleType) {
-        UserRole userRole = NAMES_TO_VALUES.get(roleType.getValue());
+    public static UserRole fromRoleType(String roleTypeValue) {
+        UserRole userRole = NAMES_TO_VALUES.get(roleTypeValue);
+
         if (userRole == null) {
-            throw new IllegalArgumentException("Unknown user role: " + roleType.getValue());
+            throw new IllegalArgumentException(MessageFormat.format(Messages.UNKNOWN_USER_ROLE_0, roleTypeValue));
         }
+
         return userRole;
     }
 

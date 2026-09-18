@@ -3,10 +3,10 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.util.List;
 import java.util.UUID;
 
-import org.cloudfoundry.client.v3.jobs.JobState;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudAsyncJob;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.JobState;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 

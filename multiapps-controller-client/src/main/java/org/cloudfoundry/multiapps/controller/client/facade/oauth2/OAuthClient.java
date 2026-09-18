@@ -8,9 +8,7 @@ import java.util.Map;
 
 import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
 import org.cloudfoundry.multiapps.controller.client.facade.Constants;
-import org.cloudfoundry.multiapps.controller.client.facade.adapters.OAuthTokenProvider;
 import org.cloudfoundry.multiapps.controller.client.facade.util.JsonUtil;
-import org.cloudfoundry.reactor.TokenProvider;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
@@ -76,10 +74,6 @@ public class OAuthClient {
             return accessToken.getAuthorizationHeaderValue();
         }
         return null;
-    }
-
-    public TokenProvider getTokenProvider() {
-        return new OAuthTokenProvider(this);
     }
 
     private boolean shouldRefreshToken() {

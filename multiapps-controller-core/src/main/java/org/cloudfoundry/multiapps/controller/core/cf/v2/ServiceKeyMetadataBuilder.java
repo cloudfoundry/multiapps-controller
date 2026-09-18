@@ -1,7 +1,7 @@
 package org.cloudfoundry.multiapps.controller.core.cf.v2;
 
-import org.cloudfoundry.client.v3.Metadata;
-import org.cloudfoundry.client.v3.Metadata.Builder;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata.Builder;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 

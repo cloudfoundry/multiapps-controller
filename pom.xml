@@ -35,7 +35,6 @@
         <fasterxml.jackson.version>2.22.2</fasterxml.jackson.version>
         <liquibase.version>4.33.0</liquibase.version>
         <liquibase-slf4j.version>5.1.0</liquibase-slf4j.version>
-        <cloudfoundry-client.version>5.16.0.RELEASE</cloudfoundry-client.version>
         <reactor-netty.version>1.3.7</reactor-netty.version>
         <netty.version>4.2.17.Final</netty.version>
         <swagger.version>1.6.16</swagger.version>
@@ -59,12 +58,12 @@
         <apache.compress.version>1.28.0</apache.compress.version>
         <tika-core.version>3.3.2</tika-core.version>
         <commons-logging.version>1.3.6</commons-logging.version>
+        <jjwt.version>0.12.6</jjwt.version>
         <google-cloud.version>2.70.0</google-cloud.version>
         <google-cloud-nio.version>0.134.0</google-cloud-nio.version>
         <azure-storage-blob.version>12.35.0</azure-storage-blob.version>
         <azure-core-http-jdk-httpclient.version>1.0.4</azure-core-http-jdk-httpclient.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
-        <wire-runtime.version>6.3.0</wire-runtime.version>
     </properties>
     <modules>
         <module>multiapps-controller-client</module>
@@ -825,13 +824,6 @@
                 <artifactId>resilience4j-ratelimiter</artifactId>
                 <version>${resilience4j.version}</version>
             </dependency>
-            <!-- Transitive dependency from org.cloudfoundry:cloudfoundry-client-reactor. Version 3.7.1 has security vulnerabilities and in order to avoid them, an explicit version is required. -->
-            <!-- https://mvnrepository.com/artifact/com.squareup.wire/wire-runtime -->
-            <dependency>
-                <groupId>com.squareup.wire</groupId>
-                <artifactId>wire-runtime</artifactId>
-                <version>${wire-runtime.version}</version>
-            </dependency>
             <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-fips -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
@@ -849,12 +841,6 @@
                 <groupId>io.pivotal.cfenv</groupId>
                 <artifactId>java-cfenv-jdbc</artifactId>
                 <version>${java-cfenv.version}</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/org.cloudfoundry/cloudfoundry-client-reactor -->
-            <dependency>
-                <groupId>org.cloudfoundry</groupId>
-                <artifactId>cloudfoundry-client-reactor</artifactId>
-                <version>${cloudfoundry-client.version}</version>
             </dependency>
             <!-- Transitive dependency from cloudfoundry-client. Pin the version, because the one they're using (1.0.3) contains vulnerabilities -->
             <!-- https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty -->
