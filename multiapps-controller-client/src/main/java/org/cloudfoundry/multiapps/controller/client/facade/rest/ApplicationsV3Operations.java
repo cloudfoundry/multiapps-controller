@@ -27,25 +27,38 @@ public class ApplicationsV3Operations {
 
     private static final Duration DELETE_JOB_TIMEOUT = Duration.ofMinutes(5);
 
-    private final CloudControllerV3Client cc;
-    private final CloudSpace target;
+    private final CloudControllerV3Client client;
+    private final CloudSpace targetSpace;
 
-    public ApplicationsV3Operations(CloudControllerV3Client cc, CloudSpace target) {
-        this.cc = cc;
-        this.target = target;
+    public ApplicationsV3Operations(CloudControllerV3Client client, CloudSpace targetSpace) {
+        this.client = client;
+        this.targetSpace = targetSpace;
     }
 
     public UUID createApplication(ApplicationToCreateDto dto) {
-        if (target == null || target.getGuid() == null) {
+        validateTargetSpace();
+
+        Map<String, Object> body = buildApplicationBody(dto);
+        UUID appGuid = sendCreateApplicationRequest(body);
+
+        scaleApplicationIfNeeded(appGuid, dto);
+
+        return appGuid;
+    }
+
+    private void validateTargetSpace() {
+        if (targetSpace == null || targetSpace.getGuid() == null) {
             throw new CloudOperationException(HttpStatus.BAD_REQUEST, Messages.BAD_REQUEST,
                                               Messages.TARGET_SPACE_REQUIRED_TO_CREATE_AN_APPLICATION);
         }
+    }
 
+    private Map<String, Object> buildApplicationBody(ApplicationToCreateDto dto) {
         Map<String, Object> body = new HashMap<>();
         body.put("name", dto.getName());
         body.put("lifecycle", buildLifecycle(dto.getStaging()));
-        body.put("relationships", Map.of("space", Map.of("data", Map.of("guid", target.getGuid()
-                                                                                      .toString()))));
+        body.put("relationships", Map.of("space", Map.of("data", Map.of("guid", targetSpace.getGuid()
+                                                                                           .toString()))));
         if (dto.getEnv() != null) {
             body.put("environment_variables", dto.getEnv());
         }
@@ -57,14 +70,20 @@ public class ApplicationsV3Operations {
                                                           .getAnnotations()));
         }
 
-        V3Application created = cc.getRestClient()
-                                  .post()
-                                  .uri(CloudControllerV3Endpoints.APPS)
-                                  .body(body)
-                                  .retrieve()
-                                  .body(V3Application.class);
-        UUID appGuid = UUID.fromString(created.guid());
+        return body;
+    }
 
+    private UUID sendCreateApplicationRequest(Map<String, Object> body) {
+        V3Application created = client.getRestClient()
+                                      .post()
+                                      .uri(CloudControllerV3Endpoints.APPS)
+                                      .body(body)
+                                      .retrieve()
+                                      .body(V3Application.class);
+        return UUID.fromString(created.guid());
+    }
+
+    private void scaleApplicationIfNeeded(UUID appGuid, ApplicationToCreateDto dto) {
         Map<String, Object> scale = new HashMap<>();
         if (dto.getMemoryInMb() != null) {
             scale.put("memory_in_mb", dto.getMemoryInMb());
@@ -77,8 +96,6 @@ public class ApplicationsV3Operations {
         if (!scale.isEmpty()) {
             scaleWebProcess(appGuid, scale);
         }
-
-        return appGuid;
     }
 
     private Map<String, Object> buildLifecycle(Staging staging) {
@@ -110,13 +127,13 @@ public class ApplicationsV3Operations {
     public void deleteApplication(String applicationName) {
         UUID applicationGuid = getApplicationGuid(applicationName);
 
-        var response = cc.getRestClient()
-                         .delete()
-                         .uri(CloudControllerV3Endpoints.APP_BY_GUID, applicationGuid)
-                         .retrieve()
-                         .toBodilessEntity();
+        var response = client.getRestClient()
+                             .delete()
+                             .uri(CloudControllerV3Endpoints.APP_BY_GUID, applicationGuid)
+                             .retrieve()
+                             .toBodilessEntity();
 
-        cc.followAsyncJob(response, DELETE_JOB_TIMEOUT);
+        client.followAsyncJob(response, DELETE_JOB_TIMEOUT);
     }
 
     public CloudApplication getApplication(String applicationName) {
@@ -126,15 +143,16 @@ public class ApplicationsV3Operations {
     public CloudApplication getApplication(String applicationName, boolean required) {
         V3Application app = findApplicationByName(applicationName);
 
-        if (app == null) {
-            if (required) {
-                throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
-                                                  MessageFormat.format(Messages.APPLICATION_0_NOT_FOUND, applicationName));
-            }
-            return null;
+        if (app != null) {
+            return V3ApplicationMapper.toCloudApplication(app, targetSpace);
         }
 
-        return V3ApplicationMapper.toCloudApplication(app, target);
+        if (required) {
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+                                              MessageFormat.format(Messages.APPLICATION_0_NOT_FOUND, applicationName));
+        }
+
+        return null;
     }
 
     public UUID getApplicationGuid(String applicationName) {
@@ -142,15 +160,15 @@ public class ApplicationsV3Operations {
     }
 
     public String getApplicationName(UUID applicationGuid) {
-        V3Application app = cc.get(CloudControllerV3Endpoints.APPS + "/" + applicationGuid, V3Application.class);
+        V3Application app = client.get(CloudControllerV3Endpoints.APPS + "/" + applicationGuid, V3Application.class);
 
         return app == null ? null : app.name();
     }
 
     public Map<String, String> getApplicationEnvironment(UUID applicationGuid) {
-        V3Application.V3EnvironmentVariables environmentVariablesJson = cc.get(CloudControllerV3Endpoints.APPS + "/" + applicationGuid
-                                                                                   + "/environment_variables",
-                                                                               V3Application.V3EnvironmentVariables.class);
+        V3Application.V3EnvironmentVariables environmentVariablesJson = client.get(CloudControllerV3Endpoints.APPS + "/" + applicationGuid
+                                                                                       + "/environment_variables",
+                                                                                   V3Application.V3EnvironmentVariables.class);
 
         return environmentVariablesJson == null || environmentVariablesJson.environmentVariables() == null
             ? Map.of()
@@ -163,7 +181,7 @@ public class ApplicationsV3Operations {
 
     public List<CloudApplication> getApplications() {
         return listApplications(applicationsQuery(null)).stream()
-                                                        .map(app -> V3ApplicationMapper.toCloudApplication(app, target))
+                                                        .map(app -> V3ApplicationMapper.toCloudApplication(app, targetSpace))
                                                         .toList();
     }
 
@@ -175,40 +193,40 @@ public class ApplicationsV3Operations {
         }
 
         return listApplications(query).stream()
-                                      .map(app -> V3ApplicationMapper.toCloudApplication(app, target))
+                                      .map(app -> V3ApplicationMapper.toCloudApplication(app, targetSpace))
                                       .toList();
     }
 
     public void startApplication(String applicationName) {
         UUID guid = getApplicationGuid(applicationName);
 
-        cc.getRestClient()
-          .post()
-          .uri(CloudControllerV3Endpoints.APP_START, guid)
-          .retrieve()
-          .toBodilessEntity();
+        client.getRestClient()
+              .post()
+              .uri(CloudControllerV3Endpoints.APP_START, guid)
+              .retrieve()
+              .toBodilessEntity();
     }
 
     public void stopApplication(String applicationName) {
         UUID guid = getApplicationGuid(applicationName);
 
-        cc.getRestClient()
-          .post()
-          .uri(CloudControllerV3Endpoints.APP_STOP, guid)
-          .retrieve()
-          .toBodilessEntity();
+        client.getRestClient()
+              .post()
+              .uri(CloudControllerV3Endpoints.APP_STOP, guid)
+              .retrieve()
+              .toBodilessEntity();
     }
 
     public void rename(String applicationName, String newName) {
         UUID guid = getApplicationGuid(applicationName);
 
         try {
-            cc.getRestClient()
-              .patch()
-              .uri(CloudControllerV3Endpoints.APP_BY_GUID, guid)
-              .body(Map.of("name", newName))
-              .retrieve()
-              .toBodilessEntity();
+            client.getRestClient()
+                  .patch()
+                  .uri(CloudControllerV3Endpoints.APP_BY_GUID, guid)
+                  .body(Map.of("name", newName))
+                  .retrieve()
+                  .toBodilessEntity();
         } catch (CloudOperationException e) {
             //the Cloud Controller can return 503 but the rename might have happened already
             if (e.getStatusCode() == HttpStatus.SERVICE_UNAVAILABLE && newName.equals(getApplicationName(guid))) {
@@ -233,39 +251,39 @@ public class ApplicationsV3Operations {
     public void updateApplicationEnv(String applicationName, Map<String, String> env) {
         UUID guid = getApplicationGuid(applicationName);
 
-        cc.getRestClient()
-          .patch()
-          .uri(CloudControllerV3Endpoints.APP_ENV_VARS, guid)
-          .body(Map.of("var", env))
-          .retrieve()
-          .toBodilessEntity();
+        client.getRestClient()
+              .patch()
+              .uri(CloudControllerV3Endpoints.APP_ENV_VARS, guid)
+              .body(Map.of("var", env))
+              .retrieve()
+              .toBodilessEntity();
     }
 
     public void bindDropletToApp(UUID dropletGuid, UUID applicationGuid) {
-        cc.getRestClient()
-          .patch()
-          .uri(CloudControllerV3Endpoints.APP_CURRENT_DROPLET, applicationGuid)
-          .body(Map.of("data", Map.of("guid", dropletGuid.toString())))
-          .retrieve()
-          .toBodilessEntity();
+        client.getRestClient()
+              .patch()
+              .uri(CloudControllerV3Endpoints.APP_CURRENT_DROPLET, applicationGuid)
+              .body(Map.of("data", Map.of("guid", dropletGuid.toString())))
+              .retrieve()
+              .toBodilessEntity();
     }
 
     public void updateApplicationMetadata(UUID guid, Metadata metadata) {
-        cc.getRestClient()
-          .patch()
-          .uri(CloudControllerV3Endpoints.APP_BY_GUID, guid)
-          .body(Map.of("metadata", Map.of("labels", metadata.getLabels(), "annotations", metadata.getAnnotations())))
-          .retrieve()
-          .toBodilessEntity();
+        client.getRestClient()
+              .patch()
+              .uri(CloudControllerV3Endpoints.APP_BY_GUID, guid)
+              .body(Map.of("metadata", Map.of("labels", metadata.getLabels(), "annotations", metadata.getAnnotations())))
+              .retrieve()
+              .toBodilessEntity();
     }
 
     private void scaleWebProcess(UUID applicationGuid, Map<String, Object> scaleBody) {
-        cc.getRestClient()
-          .post()
-          .uri(CloudControllerV3Endpoints.APP_WEB_PROCESS_SCALE, applicationGuid)
-          .body(scaleBody)
-          .retrieve()
-          .toBodilessEntity();
+        client.getRestClient()
+              .post()
+              .uri(CloudControllerV3Endpoints.APP_WEB_PROCESS_SCALE, applicationGuid)
+              .body(scaleBody)
+              .retrieve()
+              .toBodilessEntity();
     }
 
     private V3Application findApplicationByName(String applicationName) {
@@ -275,16 +293,16 @@ public class ApplicationsV3Operations {
     }
 
     private List<V3Application> listApplications(String query) {
-        return cc.list(query, APPLICATION_PAGE);
+        return client.list(query, APPLICATION_PAGE);
     }
 
     private String applicationsQuery(String name) {
         StringBuilder query = new StringBuilder(CloudControllerV3Endpoints.APPS + CloudControllerV3Endpoints.QUERY_PER_PAGE
                                                     + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
 
-        if (target != null && target.getGuid() != null) {
+        if (targetSpace != null && targetSpace.getGuid() != null) {
             query.append(CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
-                 .append(target.getGuid());
+                 .append(targetSpace.getGuid());
         }
 
         if (name != null) {

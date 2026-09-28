@@ -21,52 +21,63 @@ public class CloudSpaceClient {
 
     private static final List<String> CHARS_TO_ENCODE = List.of(",");
 
-    private final CloudControllerV3Client cc;
+    private final CloudControllerV3Client client;
 
-    public CloudSpaceClient(CloudControllerV3Client cc) {
-        this.cc = cc;
+    public CloudSpaceClient(CloudControllerV3Client client) {
+        this.client = client;
     }
 
     public CloudSpace getSpace(UUID spaceGuid) {
-        V3Space space = cc.getOptional(CloudControllerV3Endpoints.SPACES + "/" + spaceGuid, V3Space.class)
-                          .orElseThrow(() -> new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
-                                                                         MessageFormat.format(Messages.SPACE_WITH_GUID_0_NOT_FOUND,
-                                                                                              spaceGuid)));
+        V3Space space = client.getOptional(CloudControllerV3Endpoints.SPACES + "/" + spaceGuid, V3Space.class)
+                              .orElseThrow(() -> new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+                                                                             MessageFormat.format(Messages.SPACE_WITH_GUID_0_NOT_FOUND,
+                                                                                                  spaceGuid)));
 
         String orgGuid = space.organizationGuid();
-        V3Organization org = cc.getOptional(CloudControllerV3Endpoints.ORGANIZATIONS + "/" + orgGuid, V3Organization.class)
-                               .orElseThrow(() -> new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
-                                                                              MessageFormat.format(
-                                                                                  Messages.ORGANIZATION_WITH_GUID_0_NOT_FOUND, orgGuid)));
+        V3Organization org = client.getOptional(CloudControllerV3Endpoints.ORGANIZATIONS + "/" + orgGuid, V3Organization.class)
+                                   .orElseThrow(() -> new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+                                                                                  MessageFormat.format(
+                                                                                      Messages.ORGANIZATION_WITH_GUID_0_NOT_FOUND,
+                                                                                      orgGuid)));
 
         return mapToCloudSpace(space, org);
     }
 
     public CloudSpace getSpace(String organizationName, String spaceName) {
-        List<V3Organization> orgs = cc.list(CloudControllerV3Endpoints.ORGANIZATIONS + CloudControllerV3Endpoints.QUERY_NAMES
-                                                + encodeAsQueryParam(organizationName),
-                                            new ParameterizedTypeReference<V3ListResponse<V3Organization>>() {
-                                            });
+        V3Organization organization = findOrganizationByName(organizationName);
+        V3Space space = findSpaceByName(spaceName, organization);
 
-        if (orgs.isEmpty()) {
+        return mapToCloudSpace(space, organization);
+    }
+
+    private V3Organization findOrganizationByName(String organizationName) {
+        List<V3Organization> organizations = client.list(CloudControllerV3Endpoints.ORGANIZATIONS + CloudControllerV3Endpoints.QUERY_NAMES
+                                                             + encodeAsQueryParam(organizationName),
+                                                         new ParameterizedTypeReference<V3ListResponse<V3Organization>>() {
+                                                         });
+
+        if (organizations.isEmpty()) {
             throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
                                               MessageFormat.format(Messages.ORGANISATION_0_NOT_FOUND, organizationName));
         }
 
-        V3Organization org = orgs.get(0);
+        return organizations.getFirst();
+    }
 
-        List<V3Space> spaces = cc.list(CloudControllerV3Endpoints.SPACES + CloudControllerV3Endpoints.QUERY_ORGANIZATION_GUIDS + org.guid()
-                                           + CloudControllerV3Endpoints.AMPERSAND_NAMES + encodeAsQueryParam(spaceName),
-                                       new ParameterizedTypeReference<V3ListResponse<V3Space>>() {
-                                       });
+    private V3Space findSpaceByName(String spaceName, V3Organization org) {
+        List<V3Space> spaces = client.list(
+            CloudControllerV3Endpoints.SPACES + CloudControllerV3Endpoints.QUERY_ORGANIZATION_GUIDS + org.guid()
+                + CloudControllerV3Endpoints.AMPERSAND_NAMES + encodeAsQueryParam(spaceName),
+            new ParameterizedTypeReference<V3ListResponse<V3Space>>() {
+            });
 
         if (spaces.isEmpty()) {
             throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
                                               MessageFormat.format(Messages.SPACE_0_NOT_FOUND_IN_ORGANIZATION_1, spaceName,
-                                                                   organizationName));
+                                                                   org.name()));
         }
 
-        return mapToCloudSpace(spaces.get(0), org);
+        return spaces.getFirst();
     }
 
     private String encodeAsQueryParam(String param) {

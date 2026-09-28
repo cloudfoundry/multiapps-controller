@@ -15,21 +15,21 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * </pre>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record V3Build(@JsonProperty("guid") String guid, @JsonProperty("created_at") String createdAt,
-                      @JsonProperty("updated_at") String updatedAt, @JsonProperty("state") String state,
+public record V3Build(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty(V3Fields.CREATED_AT) String createdAt,
+                      @JsonProperty(V3Fields.UPDATED_AT) String updatedAt, @JsonProperty(V3Fields.STATE) String state,
                       @JsonProperty("error") String error, @JsonProperty("created_by") V3CreatedBy createdBy,
                       @JsonProperty("package") V3PackageReference inputPackage, @JsonProperty("droplet") V3DropletReference droplet) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3CreatedBy(@JsonProperty("guid") String guid, @JsonProperty("name") String name) {
+    public record V3CreatedBy(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty(V3Fields.NAME) String name) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3PackageReference(@JsonProperty("guid") String guid) {
+    public record V3PackageReference(@JsonProperty(V3Fields.GUID) String guid) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3DropletReference(@JsonProperty("guid") String guid) {
+    public record V3DropletReference(@JsonProperty(V3Fields.GUID) String guid) {
     }
 
 }

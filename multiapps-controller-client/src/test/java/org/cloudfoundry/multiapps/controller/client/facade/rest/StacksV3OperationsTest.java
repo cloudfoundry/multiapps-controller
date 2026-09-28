@@ -24,7 +24,7 @@ class StacksV3OperationsTest {
     private static final String GUID_STRING = "3725a721-6e3f-4b6e-8f2b-1c2d3e4f5a6b";
 
     @Mock
-    private CloudControllerV3Client cc;
+    private CloudControllerV3Client client;
 
     private StacksV3Operations operations;
 
@@ -32,7 +32,7 @@ class StacksV3OperationsTest {
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        operations = new StacksV3Operations(cc);
+        operations = new StacksV3Operations(client);
     }
 
     @Test
@@ -80,7 +80,7 @@ class StacksV3OperationsTest {
         operations.getStacks();
 
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        verify(cc)
+        verify(client)
             .list(uriCaptor.capture(), ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Stack>>> any());
         Assertions.assertTrue(uriCaptor.getValue()
                                        .contains("/v3/stacks"), uriCaptor.getValue());
@@ -89,8 +89,8 @@ class StacksV3OperationsTest {
     }
 
     private void mockStackList(V3Stack... stacks) {
-        when(cc.list(ArgumentMatchers.anyString(),
-                     ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Stack>>> any()))
+        when(client.list(ArgumentMatchers.anyString(),
+                         ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Stack>>> any()))
             .thenReturn(List.of(stacks));
     }
 

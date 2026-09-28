@@ -23,12 +23,21 @@ public enum ServiceInstanceType {
 
     @JsonCreator
     public static ServiceInstanceType from(String value) {
+        ServiceInstanceType serviceInstanceType = mapValue(value);
+        if (serviceInstanceType != null) {
+            return serviceInstanceType;
+        }
+
+        throw new IllegalArgumentException(MessageFormat.format(Messages.UNKNOWN_SERVICE_INSTANCE_TYPE_0, value));
+    }
+
+    public static ServiceInstanceType mapValue(String value) {
         for (ServiceInstanceType type : values()) {
             if (type.value.equals(value)) {
                 return type;
             }
         }
 
-        throw new IllegalArgumentException(MessageFormat.format(Messages.UNKNOWN_SERVICE_INSTANCE_TYPE_0, value));
+        return null;
     }
 }

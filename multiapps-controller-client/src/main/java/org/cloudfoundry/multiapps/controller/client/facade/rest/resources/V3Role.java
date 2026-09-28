@@ -14,6 +14,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * </pre>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record V3Role(@JsonProperty("guid") String guid, @JsonProperty("created_at") String createdAt,
-                     @JsonProperty("updated_at") String updatedAt, @JsonProperty("type") String type) {
+public record V3Role(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty(V3Fields.CREATED_AT) String createdAt,
+                     @JsonProperty(V3Fields.UPDATED_AT) String updatedAt, @JsonProperty(V3Fields.TYPE) String type) {
 }

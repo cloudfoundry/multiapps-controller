@@ -34,12 +34,12 @@ public class RoutesV3Operations {
     private static final ParameterizedTypeReference<V3ListResponse<V3Domain>> DOMAIN_PAGE = new ParameterizedTypeReference<>() {
     };
 
-    private final CloudControllerV3Client cc;
-    private final CloudSpace target;
+    private final CloudControllerV3Client client;
+    private final CloudSpace targetSpace;
 
-    public RoutesV3Operations(CloudControllerV3Client cc, CloudSpace target) {
-        this.cc = cc;
-        this.target = target;
+    public RoutesV3Operations(CloudControllerV3Client client, CloudSpace targetSpace) {
+        this.client = client;
+        this.targetSpace = targetSpace;
     }
 
     public void addRoute(String host, String domainName, String path) {
@@ -61,13 +61,13 @@ public class RoutesV3Operations {
     }
 
     public void deleteOrphanedRoutes() {
-        ResponseEntity<Void> response = cc.getRestClient()
-                                          .delete()
-                                          .uri(CloudControllerV3Endpoints.SPACE_UNMAPPED_ROUTES, getTargetSpaceGuid())
-                                          .retrieve()
-                                          .toEntity(Void.class);
+        ResponseEntity<Void> response = client.getRestClient()
+                                              .delete()
+                                              .uri(CloudControllerV3Endpoints.SPACE_UNMAPPED_ROUTES, getTargetSpaceGuid())
+                                              .retrieve()
+                                              .toEntity(Void.class);
 
-        cc.followAsyncJob(response, Constants.DELETE_JOB_TIMEOUT);
+        client.followAsyncJob(response, Constants.DELETE_JOB_TIMEOUT);
     }
 
     public List<CloudRoute> getRoutes(String domainName) {
@@ -102,21 +102,22 @@ public class RoutesV3Operations {
     }
 
     private List<CloudRoute> findRoutesByDomainGuid(UUID domainGuid) {
-        StringBuilder query = new StringBuilder(
-            CloudControllerV3Endpoints.ROUTES + CloudControllerV3Endpoints.QUERY_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
-
-        query.append(CloudControllerV3Endpoints.AMPERSAND_DOMAIN_GUIDS)
-             .append(domainGuid);
-
-        query.append(CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
-             .append(getTargetSpaceGuid());
-
-        return listRoutes(query.toString()).stream()
-                                           .map(V3RouteMapper::toCloudRoute)
-                                           .toList();
+        return listRoutes(buildRouteQuery(domainGuid, null, null)).stream()
+                                                                  .map(V3RouteMapper::toCloudRoute)
+                                                                  .toList();
     }
 
     private UUID getRouteGuid(UUID domainGuid, String host, String path) {
+        List<V3Route> routes = listRoutes(buildRouteQuery(domainGuid, host, path));
+        if (CollectionUtils.isEmpty(routes)) {
+            return null;
+        }
+
+        return UUID.fromString(routes.getFirst()
+                                     .guid());
+    }
+
+    private String buildRouteQuery(UUID domainGuid, String host, String path) {
         StringBuilder query = new StringBuilder(
             CloudControllerV3Endpoints.ROUTES + CloudControllerV3Endpoints.QUERY_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
 
@@ -136,17 +137,11 @@ public class RoutesV3Operations {
                  .append(path);
         }
 
-        List<V3Route> routes = listRoutes(query.toString());
-        if (CollectionUtils.isEmpty(routes)) {
-            return null;
-        }
-
-        return UUID.fromString(routes.getFirst()
-                                     .guid());
+        return query.toString();
     }
 
     private List<V3Route> listRoutes(String query) {
-        return cc.list(query, ROUTE_PAGE);
+        return client.list(query, ROUTE_PAGE);
     }
 
     private void addRoutes(Set<CloudRoute> routes, UUID applicationGuid) {
@@ -186,43 +181,50 @@ public class RoutesV3Operations {
 
     private UUID doAddRoute(UUID domainGuid, String host, String path) {
         assertSpaceProvided("add route");
-        V3Route created = cc.getRestClient()
-                            .post()
-                            .uri(CloudControllerV3Endpoints.ROUTES)
-                            .body(Map.of("host", host == null ? "" : host, "path", path == null ? "" : path, "relationships",
-                                         Map.of("domain", toOneRelationship(domainGuid), "space",
-                                                toOneRelationship(getTargetSpaceGuid()))))
-                            .retrieve()
-                            .body(V3Route.class);
+        V3Route created = client.getRestClient()
+                                .post()
+                                .uri(CloudControllerV3Endpoints.ROUTES)
+                                .body(buildCreateRouteBody(domainGuid, host, path))
+                                .retrieve()
+                                .body(V3Route.class);
 
         return UUID.fromString(created.guid());
     }
 
-    private void doDeleteRoute(UUID guid) {
-        ResponseEntity<Void> response = cc.getRestClient()
-                                          .delete()
-                                          .uri(CloudControllerV3Endpoints.ROUTE_BY_GUID, guid)
-                                          .retrieve()
-                                          .toEntity(Void.class);
+    private Map<String, Object> buildCreateRouteBody(UUID domainGuid, String host, String path) {
+        Map<String, Object> relationships = Map.of("domain", buildSingleResourceRelationship(domainGuid),
+                                                   "space", buildSingleResourceRelationship(getTargetSpaceGuid()));
 
-        cc.followAsyncJob(response, Constants.DELETE_JOB_TIMEOUT);
+        return Map.of("host", host == null ? "" : host,
+                      "path", path == null ? "" : path,
+                      "relationships", relationships);
+    }
+
+    private void doDeleteRoute(UUID guid) {
+        ResponseEntity<Void> response = client.getRestClient()
+                                              .delete()
+                                              .uri(CloudControllerV3Endpoints.ROUTE_BY_GUID, guid)
+                                              .retrieve()
+                                              .toEntity(Void.class);
+
+        client.followAsyncJob(response, Constants.DELETE_JOB_TIMEOUT);
     }
 
     private void bindRoute(UUID routeGuid, UUID applicationGuid, String protocol) {
-        cc.getRestClient()
-          .post()
-          .uri(CloudControllerV3Endpoints.ROUTE_DESTINATIONS, routeGuid)
-          .body(Map.of("destinations", List.of(createDestination(applicationGuid, protocol))))
-          .retrieve()
-          .toBodilessEntity();
+        client.getRestClient()
+              .post()
+              .uri(CloudControllerV3Endpoints.ROUTE_DESTINATIONS, routeGuid)
+              .body(Map.of("destinations", List.of(createDestination(applicationGuid, protocol))))
+              .retrieve()
+              .toBodilessEntity();
     }
 
     private void unbindRoute(UUID routeGuid, UUID destinationGuid) {
-        cc.getRestClient()
-          .delete()
-          .uri(CloudControllerV3Endpoints.ROUTE_DESTINATION_BY_GUID, routeGuid, destinationGuid)
-          .retrieve()
-          .toBodilessEntity();
+        client.getRestClient()
+              .delete()
+              .uri(CloudControllerV3Endpoints.ROUTE_DESTINATION_BY_GUID, routeGuid, destinationGuid)
+              .retrieve()
+              .toBodilessEntity();
     }
 
     private Map<String, Object> createDestination(UUID applicationGuid, String protocol) {
@@ -233,7 +235,7 @@ public class RoutesV3Operations {
         return Map.of("app", Map.of("guid", applicationGuid.toString()), "protocol", protocol);
     }
 
-    private static Map<String, Object> toOneRelationship(UUID guid) {
+    private Map<String, Object> buildSingleResourceRelationship(UUID guid) {
         return Map.of("data", Map.of("guid", guid.toString()));
     }
 
@@ -246,11 +248,9 @@ public class RoutesV3Operations {
     private boolean isRouteOutdated(UUID applicationGuid, CloudRoute currentRoute, Set<CloudRoute> updatedRoutes) {
         Optional<CloudRoute> updatedRoute = findRoute(currentRoute.getUrl(), updatedRoutes);
 
-        if (updatedRoute.isEmpty()) {
-            return true;
-        }
+        return updatedRoute.map(cloudRoute -> isProtocolChanged(applicationGuid, currentRoute, cloudRoute))
+                           .orElse(true);
 
-        return isProtocolChanged(applicationGuid, currentRoute, updatedRoute.get());
     }
 
     private Set<CloudRoute> getNewRoutes(UUID applicationGuid, List<CloudRoute> currentRoutes, Set<CloudRoute> updatedRoutes) {
@@ -262,11 +262,9 @@ public class RoutesV3Operations {
     private boolean isRouteUpdated(UUID applicationGuid, CloudRoute updatedRoute, List<CloudRoute> currentRoutes) {
         Optional<CloudRoute> currentRoute = findRoute(updatedRoute.getUrl(), currentRoutes);
 
-        if (currentRoute.isEmpty()) {
-            return true;
-        }
+        return currentRoute.map(cloudRoute -> isProtocolChanged(applicationGuid, cloudRoute, updatedRoute))
+                           .orElse(true);
 
-        return isProtocolChanged(applicationGuid, currentRoute.get(), updatedRoute);
     }
 
     private Optional<CloudRoute> findRoute(String url, java.util.Collection<CloudRoute> routes) {
@@ -310,9 +308,10 @@ public class RoutesV3Operations {
     }
 
     private UUID findDomainGuidByName(String name) {
-        List<V3Domain> domains = cc.list(CloudControllerV3Endpoints.DOMAINS + CloudControllerV3Endpoints.QUERY_NAMES + name
-                                             + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE,
-                                         DOMAIN_PAGE);
+        List<V3Domain> domains = client.list(CloudControllerV3Endpoints.DOMAINS + CloudControllerV3Endpoints.QUERY_NAMES + name
+                                                 + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE
+                                                 + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE,
+                                             DOMAIN_PAGE);
 
         if (CollectionUtils.isEmpty(domains)) {
             return null;
@@ -334,26 +333,16 @@ public class RoutesV3Operations {
         }
 
         String names = String.join(",", domainNames);
-        return cc.list(CloudControllerV3Endpoints.DOMAINS + CloudControllerV3Endpoints.QUERY_NAMES + names
-                           + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, DOMAIN_PAGE)
-                 .stream()
-                 .collect(Collectors.toMap(V3Domain::name, domain -> UUID.fromString(domain.guid())));
+        return client.list(CloudControllerV3Endpoints.DOMAINS + CloudControllerV3Endpoints.QUERY_NAMES + names
+                               + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, DOMAIN_PAGE)
+                     .stream()
+                     .collect(Collectors.toMap(V3Domain::name, domain -> UUID.fromString(domain.guid())));
     }
 
     private UUID getRequiredApplicationGuid(String applicationName) {
-        StringBuilder query = new StringBuilder(
-            CloudControllerV3Endpoints.APPS + CloudControllerV3Endpoints.QUERY_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
-
-        query.append(CloudControllerV3Endpoints.AMPERSAND_NAMES)
-             .append(applicationName);
-
-        if (target != null && target.getGuid() != null) {
-            query.append(CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
-                 .append(target.getGuid());
-        }
-
-        List<V3AppRef> apps = cc.list(query.toString(), new ParameterizedTypeReference<V3ListResponse<V3AppRef>>() {
-        });
+        List<V3AppRef> apps = client.list(buildApplicationQuery(applicationName),
+                                          new ParameterizedTypeReference<V3ListResponse<V3AppRef>>() {
+                                          });
 
         if (CollectionUtils.isEmpty(apps)) {
             throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
@@ -364,12 +353,27 @@ public class RoutesV3Operations {
                                    .guid());
     }
 
+    private String buildApplicationQuery(String applicationName) {
+        StringBuilder query = new StringBuilder(
+            CloudControllerV3Endpoints.APPS + CloudControllerV3Endpoints.QUERY_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
+
+        query.append(CloudControllerV3Endpoints.AMPERSAND_NAMES)
+             .append(applicationName);
+
+        if (targetSpace != null && targetSpace.getGuid() != null) {
+            query.append(CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
+                 .append(targetSpace.getGuid());
+        }
+
+        return query.toString();
+    }
+
     private UUID getTargetSpaceGuid() {
-        return target.getGuid();
+        return targetSpace.getGuid();
     }
 
     private void assertSpaceProvided(String operation) {
-        if (target == null) {
+        if (targetSpace == null) {
             throw new IllegalArgumentException(
                 MessageFormat.format(Messages.UNABLE_TO_0_WITHOUT_SPECIFYING_ORGANIZATION_AND_SPACE_TO_USE, operation));
         }

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.Constants;
 import org.cloudfoundry.multiapps.controller.Messages;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudException;
@@ -44,6 +45,13 @@ public class CloudControllerV3Client {
                          .body(responseType);
     }
 
+    private <T> T get(String uri, ParameterizedTypeReference<T> responseType) {
+        return restClient.get()
+                         .uri(uri)
+                         .retrieve()
+                         .body(responseType);
+    }
+
     public <T> Optional<T> getOptional(String uri, Class<T> responseType) {
         try {
             return Optional.ofNullable(get(uri, responseType));
@@ -59,13 +67,10 @@ public class CloudControllerV3Client {
         if (firstPageUri == null) {
             return new ArrayList<>();
         }
-        
+
         String firstPageRelativeUri = toRelativeIfAbsolute(firstPageUri);
 
-        V3ListResponse<R> firstPage = restClient.get()
-                                                .uri(firstPageRelativeUri)
-                                                .retrieve()
-                                                .body(pageType);
+        V3ListResponse<R> firstPage = get(firstPageRelativeUri, pageType);
 
         if (firstPage == null) {
             return new ArrayList<>();
@@ -89,10 +94,7 @@ public class CloudControllerV3Client {
         String nextUri = toRelativeIfAbsolute(firstPage.nextPageHref());
 
         while (nextUri != null) {
-            V3ListResponse<R> currentPage = restClient.get()
-                                                      .uri(nextUri)
-                                                      .retrieve()
-                                                      .body(pageType);
+            V3ListResponse<R> currentPage = get(nextUri, pageType);
 
             if (currentPage == null) {
                 break;
@@ -107,7 +109,7 @@ public class CloudControllerV3Client {
 
     private <R> List<R> fetchRemainingPagesConcurrently(String firstPageRelativeUri, int totalPages,
                                                         ParameterizedTypeReference<V3ListResponse<R>> pageType) {
-        return Flux.range(2, totalPages - 1)
+        return Flux.range(Constants.SECOND_PAGE, totalPages - 1)
                    .flatMapSequential(page -> webClient.get()
                                                        .uri(pageUri(firstPageRelativeUri, page))
                                                        .retrieve()
@@ -161,48 +163,56 @@ public class CloudControllerV3Client {
                 return asyncJob;
             }
 
-            long elapsedNanos = System.nanoTime() - startTimeNanos;
-            if (elapsedNanos >= timeoutNanos) {
-                throw new CloudOperationException(HttpStatus.GATEWAY_TIMEOUT, Messages.JOB_TIMEOUT,
-                                                  MessageFormat.format(Messages.JOB_0_DID_NOT_COMPLETE_WITHIN_1, jobGuid, timeout));
-            }
-
+            long elapsedNanos = determineElapsedTime(startTimeNanos, timeout, jobGuid);
             long remainingNanos = timeoutNanos - elapsedNanos;
-            Duration sleepDuration = interval.toNanos() > remainingNanos ? Duration.ofNanos(remainingNanos) : interval;
 
+            Duration sleepDuration = interval.toNanos() > remainingNanos ? Duration.ofNanos(remainingNanos) : interval;
             sleep(sleepDuration);
+
             interval = nextInterval(interval);
         }
     }
 
     private static Duration nextInterval(Duration current) {
-        Duration doubled = current.multipliedBy(2);
-        return doubled.compareTo(Constants.JOB_POLL_MAX_INTERVAL) > 0 ? Constants.JOB_POLL_MAX_INTERVAL : doubled;
+        Duration increasedInterval = current.multipliedBy(Constants.JOB_POLL_INTERVAL_MULTIPLIER);
+
+        return increasedInterval.compareTo(Constants.JOB_POLL_MAX_INTERVAL) > 0 ? Constants.JOB_POLL_MAX_INTERVAL : increasedInterval;
     }
 
     private static void sleep(Duration interval) {
         try {
-            Thread.sleep(interval.toMillis());
-        } catch (InterruptedException e) {
-            Thread.currentThread()
-                  .interrupt();
+            MiscUtil.sleep(interval.toMillis());
+        } catch (IllegalStateException e) {
             throw new CloudException(MessageFormat.format(Messages.INTERRUPTED_WHILE_POLLING_ASYNC_JOB_0, e.getMessage()), e);
         }
     }
 
     private static CloudOperationException jobFailed(V3Job job) {
-        String detail = "Job failed";
+        String detail = Messages.JOB_FAILED_WITHOUT_DETAILS;
 
         if (job.errors() != null && !job.errors()
                                         .isEmpty()) {
             detail = job.errors()
                         .stream()
-                        .map(V3Job.V3Error::detail)
-                        .reduce((a, b) -> a + "\n" + b)
+                        .map(CloudControllerV3Client::extractErrorMessage)
+                        .reduce((combinedMessages, nextMessage) -> combinedMessages + Constants.NEW_LINE + nextMessage)
                         .orElse(detail);
         }
 
-        return new CloudOperationException(HttpStatus.UNPROCESSABLE_ENTITY, Messages.JOB_FAILED, detail);
+        String message = MessageFormat.format(Messages.JOB_0_WITH_OPERATION_1_FAILED_WITH_2, job.guid(), job.operation(), detail);
+        return new CloudOperationException(HttpStatus.UNPROCESSABLE_ENTITY, Messages.JOB_FAILED, message);
+    }
+
+    private static String extractErrorMessage(V3Job.V3Error error) {
+        if (error.detail() != null) {
+            return error.detail();
+        }
+
+        if (error.title() != null) {
+            return error.title();
+        }
+
+        return Messages.JOB_FAILED_WITHOUT_DETAILS;
     }
 
     private static String extractJobGuid(String location) {
@@ -233,6 +243,18 @@ public class CloudControllerV3Client {
         }
 
         return href;
+    }
+
+    private long determineElapsedTime(long startTimeNanos, Duration timeout, String jobGuid) {
+        long elapsedNanos = System.nanoTime() - startTimeNanos;
+        long timeoutNanos = timeout.toNanos();
+
+        if (elapsedNanos >= timeoutNanos) {
+            throw new CloudOperationException(HttpStatus.GATEWAY_TIMEOUT, Messages.JOB_TIMEOUT,
+                                              MessageFormat.format(Messages.JOB_0_DID_NOT_COMPLETE_WITHIN_1, jobGuid, timeout));
+        }
+
+        return elapsedNanos;
     }
 
     public RestClient getRestClient() {

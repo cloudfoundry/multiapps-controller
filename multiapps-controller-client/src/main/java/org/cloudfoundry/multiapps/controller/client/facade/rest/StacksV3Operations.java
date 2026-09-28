@@ -17,10 +17,10 @@ public class StacksV3Operations {
     private static final ParameterizedTypeReference<V3ListResponse<V3Stack>> STACK_PAGE = new ParameterizedTypeReference<>() {
     };
 
-    private final CloudControllerV3Client cc;
+    private final CloudControllerV3Client client;
 
-    public StacksV3Operations(CloudControllerV3Client cc) {
-        this.cc = cc;
+    public StacksV3Operations(CloudControllerV3Client client) {
+        this.client = client;
     }
 
     public CloudStack getStack(String name) {
@@ -39,20 +39,20 @@ public class StacksV3Operations {
     }
 
     public List<CloudStack> getStacks() {
-        return cc.list(CloudControllerV3Endpoints.STACKS + CloudControllerV3Endpoints.QUERY_PER_PAGE
-                           + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, STACK_PAGE)
-                 .stream()
-                 .map(V3StackMapper::toCloudStack)
-                 .toList();
+        return client.list(CloudControllerV3Endpoints.STACKS + CloudControllerV3Endpoints.QUERY_PER_PAGE
+                               + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, STACK_PAGE)
+                     .stream()
+                     .map(V3StackMapper::toCloudStack)
+                     .toList();
     }
 
     private CloudStack findStackByName(String name) {
-        return cc.list(CloudControllerV3Endpoints.STACKS + CloudControllerV3Endpoints.QUERY_NAMES + name
-                           + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, STACK_PAGE)
-                 .stream()
-                 .map(V3StackMapper::toCloudStack)
-                 .findFirst()
-                 .orElse(null);
+        return client.list(CloudControllerV3Endpoints.STACKS + CloudControllerV3Endpoints.QUERY_NAMES + name
+                               + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, STACK_PAGE)
+                     .stream()
+                     .map(V3StackMapper::toCloudStack)
+                     .findFirst()
+                     .orElse(null);
     }
 
 }

@@ -16,10 +16,10 @@ public class RolesV3Operations {
     private static final ParameterizedTypeReference<V3ListResponse<V3Role>> ROLE_PAGE = new ParameterizedTypeReference<>() {
     };
 
-    private final CloudControllerV3Client cc;
+    private final CloudControllerV3Client client;
 
-    public RolesV3Operations(CloudControllerV3Client cc) {
-        this.cc = cc;
+    public RolesV3Operations(CloudControllerV3Client client) {
+        this.client = client;
     }
 
     public Set<UserRole> getUserRolesBySpaceAndUser(UUID spaceGuid, UUID userGuid) {
@@ -27,10 +27,10 @@ public class RolesV3Operations {
             + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE + CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS + spaceGuid
             + CloudControllerV3Endpoints.AMPERSAND_USER_GUIDS + userGuid;
 
-        return cc.list(uri, ROLE_PAGE)
-                 .stream()
-                 .map(V3RoleMapper::toUserRole)
-                 .collect(Collectors.toCollection(() -> EnumSet.noneOf(UserRole.class)));
+        return client.list(uri, ROLE_PAGE)
+                     .stream()
+                     .map(V3RoleMapper::toUserRole)
+                     .collect(Collectors.toCollection(() -> EnumSet.noneOf(UserRole.class)));
     }
 
 }

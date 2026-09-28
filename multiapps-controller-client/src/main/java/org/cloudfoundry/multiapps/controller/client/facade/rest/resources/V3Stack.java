@@ -13,8 +13,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * </pre>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record V3Stack(@JsonProperty("guid") String guid, @JsonProperty("name") String name,
-                      @JsonProperty("description") String description, @JsonProperty("created_at") String createdAt,
-                      @JsonProperty("updated_at") String updatedAt, @JsonProperty("metadata") V3Metadata metadata) {
+public record V3Stack(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty(V3Fields.NAME) String name,
+                      @JsonProperty(V3Fields.DESCRIPTION) String description, @JsonProperty(V3Fields.CREATED_AT) String createdAt,
+                      @JsonProperty(V3Fields.UPDATED_AT) String updatedAt, @JsonProperty(V3Fields.METADATA) V3Metadata metadata) {
 
 }

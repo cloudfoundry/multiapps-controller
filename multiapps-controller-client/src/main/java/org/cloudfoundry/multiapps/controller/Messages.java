@@ -30,7 +30,15 @@ public class Messages {
     public static final String STACK_0_NOT_FOUND = "Stack \"{0}\" not found.";
     public static final String ORGANISATION_0_NOT_FOUND = "Organization \"{0}\" not found.";
     public static final String SPACE_WITH_GUID_0_NOT_FOUND = "Space with GUID \"{0}\" not found.";
-    public static final String APPLICATION_WITH_GUID_0_DOES_NOT_HAVE_A_DROPLET = "Application with guid \"{0}\" does not have a droplet";
+    public static final String APPLICATION_WITH_GUID_0_DOES_NOT_HAVE_A_DROPLET = "Application with guid \"{0}\" does not have a droplet.";
+    public static final String BUILD_WITH_GUID_0_NOT_FOUND = "Build with guid \"{0}\" not found.";
+    public static final String DOMAIN_WITH_GUID_0_NOT_FOUND = "Domain with guid \"{0}\" not found.";
+    public static final String JOB_WITH_GUID_0_NOT_FOUND = "Job with guid \"{0}\" not found.";
+    public static final String STATISTICS_FOR_APPLICATION_INSTANCES_WITH_GUID_0_NOT_FOUND = "Statistics for application instance with guid \"{0}\" not found.";
+    public static final String APPLICATION_PROCESS_FOR_APPLICATION_WITH_GUID_0_NOT_FOUND = "Application process for application with guid \"{0}\" not found.";
+    public static final String PARAMETERS_OF_SERVICE_BINDING_WITH_GUID_0_NOT_FOUND = "Parameters of service binding with guid \"{0}\" not found.";
+    public static final String PARAMETERS_OF_SERVICE_INSTANCE_WITH_GUID_0_NOT_FOUND = "Parameters of service instance with guid \"{0}\" not found.";
+    public static final String CREDENTIALS_OF_SERVICE_INSTANCE_WITH_GUID_0_NOT_FOUND = "Credentials of service instance with guid \"{0}\" not found.";
     public static final String HOST_0_NOT_FOUND_FOR_DOMAIN_1 = "Host \"{0}\" not found for domain \"{1}\".";
     public static final String UNABLE_TO_0_WITHOUT_SPECIFYING_ORGANIZATION_AND_SPACE_TO_USE = "Unable to \"{0}\" without specifying organization and space to use.";
     public static final String DOMAIN_0_NOT_FOUND_FOR_URI_1 = "Domain \"{0}\" not found for URI \"{1}\"";
@@ -49,11 +57,15 @@ public class Messages {
     public static final String UNKNOWN_USER_ROLE_0 = "Unknown user role: \"{0}\"";
     public static final String CANNOT_CREATE_DOMAIN_0_WITHOUT_ORGANIZATION = "Cannot create domain \"{0}\" without specifying an organization.";
     public static final String PACKAGE_0_NOT_FOUND = "Package \"{0}\" not found.";
+    public static final String BUILDPACKS_ARE_REQUIRED_FOR_THE_BUILDPACK_LIFECYCLE_TYPE = "Buildpacks are required for the buildpack (Cloud Native Buildpack) lifecycle type.";
 
     //Status texts
     public static final String NOT_FOUND = "Not Found";
     public static final String JOB_TIMEOUT = "Job Timeout";
     public static final String JOB_FAILED = "Job Failed";
+    public static final String JOB_FAILED_WITHOUT_DETAILS = "Job failed without any error details";
+    public static final String JOB_0_WITH_OPERATION_1_FAILED_WITH_2 = "Job \"{0}\" (operation \"{1}\") failed with: {2}";
+    public static final String JOB_0_RELATED_TO_OPERATION_1_FAILED_WITH_2 = "Job \"{0}\" related to operation \"{1}\" failed with: \"{2}\"";
     public static final String BAD_REQUEST = "Bad Request";
     public static final String FORBIDDEN = "Forbidden";
 

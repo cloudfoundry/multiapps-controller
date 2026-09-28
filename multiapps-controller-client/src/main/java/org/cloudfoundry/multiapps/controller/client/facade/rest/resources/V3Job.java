@@ -14,8 +14,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * </pre>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record V3Job(@JsonProperty("guid") String guid, @JsonProperty("created_at") String createdAt,
-                    @JsonProperty("updated_at") String updatedAt, @JsonProperty("state") String state,
+public record V3Job(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty(V3Fields.CREATED_AT) String createdAt,
+                    @JsonProperty(V3Fields.UPDATED_AT) String updatedAt, @JsonProperty(V3Fields.STATE) String state,
                     @JsonProperty("operation") String operation, @JsonProperty("errors") List<V3Error> errors,
                     @JsonProperty("warnings") List<V3Warning> warnings) {
 
@@ -32,11 +32,12 @@ public record V3Job(@JsonProperty("guid") String guid, @JsonProperty("created_at
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3Error(@JsonProperty("detail") String detail, @JsonProperty("title") String title, @JsonProperty("code") Integer code) {
+    public record V3Error(@JsonProperty(V3Fields.DETAIL) String detail, @JsonProperty("title") String title,
+                          @JsonProperty("code") Integer code) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3Warning(@JsonProperty("detail") String detail) {
+    public record V3Warning(@JsonProperty(V3Fields.DETAIL) String detail) {
     }
 
 }

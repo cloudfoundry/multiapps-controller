@@ -34,6 +34,8 @@ import reactor.netty.tcp.SslProvider;
 
 public final class CloudControllerRestClientBuilder {
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     private CloudControllerRestClientBuilder() {
     }
 
@@ -50,7 +52,7 @@ public final class CloudControllerRestClientBuilder {
                          .messageConverters(List.of(new ByteArrayHttpMessageConverter(),
                                                     new StringHttpMessageConverter(),
                                                     new FormHttpMessageConverter(),
-                                                    new MappingJackson2HttpMessageConverter(new ObjectMapper())))
+                                                    new MappingJackson2HttpMessageConverter(OBJECT_MAPPER)))
                          .requestInterceptor((request, body, execution) -> {
                              String authorization = oAuthClient.getAuthorizationHeaderValue();
 
@@ -92,50 +94,71 @@ public final class CloudControllerRestClientBuilder {
         };
     }
 
-    static HttpClient buildHttpClient(ClientConfigurationOptions configOptions) {
+    public static HttpClient buildHttpClient(ClientConfigurationOptions configOptions) {
+        HttpClient httpClient = createBaseHttpClient(configOptions);
+        httpClient = configureConnectionTimeout(httpClient, configOptions);
+        httpClient = configureThreadPool(httpClient, configOptions);
+        httpClient = configureResponseTimeout(httpClient, configOptions);
+        httpClient = configureSsl(httpClient, configOptions);
+
+        return httpClient;
+    }
+
+    private static HttpClient createBaseHttpClient(ClientConfigurationOptions configOptions) {
         int poolSize = configOptions.connectionPoolSize()
                                     .orElse(Constants.DEFAULT_CONNECTION_POOL_SIZE);
+
         ConnectionProvider connectionProvider = ConnectionProvider.builder(Constants.CONNECTION_POOL_NAME)
                                                                   .maxConnections(poolSize)
                                                                   .build();
-        HttpClient httpClient = HttpClient.create(connectionProvider)
-                                          .followRedirect(true)
-                                          .proxyWithSystemProperties();
+
+        return HttpClient.create(connectionProvider)
+                         .followRedirect(true)
+                         .proxyWithSystemProperties();
+    }
+
+    private static HttpClient configureConnectionTimeout(HttpClient httpClient, ClientConfigurationOptions configOptions) {
         int connectTimeoutMillis = (int) configOptions.connectionTimeout()
                                                       .orElse(Constants.DEFAULT_CONNECT_TIMEOUT)
                                                       .toMillis();
-        httpClient = httpClient.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeoutMillis);
 
+        return httpClient.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeoutMillis);
+    }
+
+    private static HttpClient configureThreadPool(HttpClient httpClient, ClientConfigurationOptions configOptions) {
         Optional<Integer> threadPoolSize = configOptions.threadPoolSize();
-        if (threadPoolSize.isPresent()) {
-            LoopResources loopResources = LoopResources.create(Constants.CONNECTION_POOL_NAME + Constants.LOOP_RESOURCES_SUFFIX,
-                                                               threadPoolSize.get(), true);
-            httpClient = httpClient.runOn(loopResources);
+        if (threadPoolSize.isEmpty()) {
+            return httpClient;
         }
 
+        LoopResources loopResources = LoopResources.create(Constants.CONNECTION_POOL_NAME + Constants.LOOP_RESOURCES_SUFFIX,
+                                                           threadPoolSize.get(), true);
+
+        return httpClient.runOn(loopResources);
+    }
+
+    private static HttpClient configureResponseTimeout(HttpClient httpClient, ClientConfigurationOptions configOptions) {
         Optional<Duration> responseTimeout = configOptions.responseTimeout();
-        if (responseTimeout.isPresent()) {
-            httpClient = httpClient.responseTimeout(responseTimeout.get());
+        if (responseTimeout.isEmpty()) {
+            return httpClient;
         }
 
+        return httpClient.responseTimeout(responseTimeout.get());
+    }
+
+    private static HttpClient configureSsl(HttpClient httpClient, ClientConfigurationOptions configOptions) {
         Optional<Duration> handshakeTimeout = configOptions.sslHandshakeTimeout();
-        if (configOptions.trustSelfSignedCertificates()) {
-            httpClient = httpClient.secure(sslSpecification -> {
-                SslProvider.Builder sslBuilder = sslSpecification.sslContext(buildTrustAllSslContext());
-                if (handshakeTimeout.isPresent()) {
-                    sslBuilder.handshakeTimeout(handshakeTimeout.get());
-                }
-            });
-        } else if (handshakeTimeout.isPresent()) {
-            httpClient = httpClient.secure(sslSpecification -> {
-                SslProvider.Builder sslBuilder = sslSpecification.sslContext(buildDefaultClientSslContext());
-                sslBuilder.handshakeTimeout(handshakeTimeout.get());
-            });
-        } else {
-            httpClient = httpClient.secure();
+        boolean trustSelfSignedCertificates = configOptions.trustSelfSignedCertificates();
+
+        if (!trustSelfSignedCertificates && handshakeTimeout.isEmpty()) {
+            return httpClient.secure();
         }
 
-        return httpClient;
+        SslContext sslContext = trustSelfSignedCertificates ? buildTrustAllSslContext() : buildDefaultClientSslContext();
+        return httpClient.secure(sslSpecification -> {
+            SslProvider.Builder sslBuilder = sslSpecification.sslContext(sslContext);
+            handshakeTimeout.ifPresent(timeout -> sslBuilder.handshakeTimeout(timeout));
+        });
     }
 
     private static SslContext buildDefaultClientSslContext() {

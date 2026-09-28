@@ -24,12 +24,12 @@ public class DomainsV3Operations {
     private static final ParameterizedTypeReference<V3ListResponse<V3Domain>> DOMAIN_LIST_TYPE = new ParameterizedTypeReference<>() {
     };
 
-    private final CloudControllerV3Client cc;
-    private final CloudSpace target;
+    private final CloudControllerV3Client client;
+    private final CloudSpace targetSpace;
 
-    public DomainsV3Operations(CloudControllerV3Client cc, CloudSpace target) {
-        this.cc = cc;
-        this.target = target;
+    public DomainsV3Operations(CloudControllerV3Client client, CloudSpace targetSpace) {
+        this.client = client;
+        this.targetSpace = targetSpace;
     }
 
     public void addDomain(String domainName) {
@@ -49,8 +49,15 @@ public class DomainsV3Operations {
     }
 
     public CloudDomain getDefaultDomain() {
-        V3Domain domain = cc.get(CloudControllerV3Endpoints.ORGANIZATIONS + "/" + getTargetOrganizationGuid() + "/domains/default",
-                                 V3Domain.class);
+        UUID organizationGuid = getTargetOrganizationGuid();
+        V3Domain domain = client.get(CloudControllerV3Endpoints.ORGANIZATIONS + "/" + organizationGuid + "/domains/default",
+                                     V3Domain.class);
+
+        if (domain == null) {
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+                                              MessageFormat.format(Messages.DOMAIN_WITH_GUID_0_NOT_FOUND, organizationGuid));
+        }
+
         return V3DomainMapper.toCloudDomain(domain);
     }
 
@@ -79,15 +86,15 @@ public class DomainsV3Operations {
         String uri = CloudControllerV3Endpoints.ORGANIZATIONS + "/" + getTargetOrganizationGuid() + "/domains"
             + CloudControllerV3Endpoints.QUERY_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
 
-        return cc.list(uri, DOMAIN_LIST_TYPE)
-                 .stream()
-                 .map(V3DomainMapper::toCloudDomain)
-                 .toList();
+        return client.list(uri, DOMAIN_LIST_TYPE)
+                     .stream()
+                     .map(V3DomainMapper::toCloudDomain)
+                     .toList();
     }
 
     private List<V3Domain> getAllDomains() {
-        return cc.list(CloudControllerV3Endpoints.DOMAINS + CloudControllerV3Endpoints.QUERY_PER_PAGE
-                           + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, DOMAIN_LIST_TYPE);
+        return client.list(CloudControllerV3Endpoints.DOMAINS + CloudControllerV3Endpoints.QUERY_PER_PAGE
+                               + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, DOMAIN_LIST_TYPE);
     }
 
     private CloudDomain findDomainByName(String name, boolean required) {
@@ -105,11 +112,11 @@ public class DomainsV3Operations {
         String uri = CloudControllerV3Endpoints.DOMAINS + CloudControllerV3Endpoints.QUERY_NAMES + name
             + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
 
-        return cc.list(uri, DOMAIN_LIST_TYPE)
-                 .stream()
-                 .findFirst()
-                 .map(V3DomainMapper::toCloudDomain)
-                 .orElse(null);
+        return client.list(uri, DOMAIN_LIST_TYPE)
+                     .stream()
+                     .findFirst()
+                     .map(V3DomainMapper::toCloudDomain)
+                     .orElse(null);
     }
 
     private void doCreateDomain(String name) {
@@ -119,26 +126,29 @@ public class DomainsV3Operations {
                                               MessageFormat.format(Messages.CANNOT_CREATE_DOMAIN_0_WITHOUT_ORGANIZATION, name));
         }
 
-        cc.getRestClient()
-          .post()
-          .uri(CloudControllerV3Endpoints.DOMAINS)
-          .body(Map.of("name", name, "relationships",
-                       Map.of("organization", Map.of("data", Map.of("guid", getTargetOrganizationGuid().toString())))))
-          .retrieve()
-          .toBodilessEntity();
+        client.getRestClient()
+              .post()
+              .uri(CloudControllerV3Endpoints.DOMAINS)
+              .body(Map.of("name", name, "relationships", organizationRelationship(organizationGuid)))
+              .retrieve()
+              .toBodilessEntity();
+    }
+
+    private Map<String, Object> organizationRelationship(UUID organizationGuid) {
+        return Map.of("organization", Map.of("data", Map.of("guid", organizationGuid.toString())));
     }
 
     private void doDeleteDomain(UUID guid) {
-        ResponseEntity<Void> response = cc.getRestClient()
-                                          .delete()
-                                          .uri(CloudControllerV3Endpoints.DOMAIN_BY_GUID, guid.toString())
-                                          .retrieve()
-                                          .toEntity(Void.class);
-        cc.followAsyncJob(response, Constants.DELETE_JOB_TIMEOUT);
+        ResponseEntity<Void> response = client.getRestClient()
+                                              .delete()
+                                              .uri(CloudControllerV3Endpoints.DOMAIN_BY_GUID, guid.toString())
+                                              .retrieve()
+                                              .toEntity(Void.class);
+        client.followAsyncJob(response, Constants.DELETE_JOB_TIMEOUT);
     }
 
     private UUID getTargetOrganizationGuid() {
-        return getGuid(target.getOrganization());
+        return getGuid(targetSpace.getOrganization());
     }
 
     private UUID getGuid(CloudEntity entity) {
@@ -151,7 +161,7 @@ public class DomainsV3Operations {
     }
 
     private void assertSpaceProvided(String operation) {
-        Assert.notNull(target, "Unable to " + operation + " without specifying organization and space to use.");
+        Assert.notNull(targetSpace, "Unable to " + operation + " without specifying organization and space to use.");
     }
 
 }

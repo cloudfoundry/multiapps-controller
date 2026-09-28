@@ -18,14 +18,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * </pre>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record V3ServicePlan(@JsonProperty("guid") String guid, @JsonProperty("name") String name,
-                            @JsonProperty("description") String description, @JsonProperty("free") Boolean free,
-                            @JsonProperty("visibility_type") String visibilityType, @JsonProperty("created_at") String createdAt,
-                            @JsonProperty("updated_at") String updatedAt, @JsonProperty("broker_catalog") V3BrokerCatalog brokerCatalog,
-                            @JsonProperty("relationships") V3Relationships relationships, @JsonProperty("metadata") V3Metadata metadata) {
+public record V3ServicePlan(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty(V3Fields.NAME) String name,
+                            @JsonProperty(V3Fields.DESCRIPTION) String description, @JsonProperty("free") Boolean free,
+                            @JsonProperty("visibility_type") String visibilityType, @JsonProperty(V3Fields.CREATED_AT) String createdAt,
+                            @JsonProperty(V3Fields.UPDATED_AT) String updatedAt, @JsonProperty("broker_catalog") V3BrokerCatalog brokerCatalog,
+                            @JsonProperty(V3Fields.RELATIONSHIPS) V3Relationships relationships, @JsonProperty(V3Fields.METADATA) V3Metadata metadata) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3BrokerCatalog(@JsonProperty("id") String id, @JsonProperty("metadata") Map<String, Object> metadata) {
+    public record V3BrokerCatalog(@JsonProperty("id") String id, @JsonProperty(V3Fields.METADATA) Map<String, Object> metadata) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -33,11 +33,11 @@ public record V3ServicePlan(@JsonProperty("guid") String guid, @JsonProperty("na
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3ToOneRelationship(@JsonProperty("data") V3RelationshipData data) {
+    public record V3ToOneRelationship(@JsonProperty(V3Fields.DATA) V3RelationshipData data) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3RelationshipData(@JsonProperty("guid") String guid) {
+    public record V3RelationshipData(@JsonProperty(V3Fields.GUID) String guid) {
     }
 
 }

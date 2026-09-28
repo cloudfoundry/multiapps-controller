@@ -1,9 +1,13 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest.resources;
 
+import java.util.List;
+
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceInstanceType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
+
+import static org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceInstanceType.mapValue;
 
 public final class V3ServiceInstanceMapper {
 
@@ -34,7 +38,7 @@ public final class V3ServiceInstanceMapper {
                                                                                       serviceInstance.updatedAt()))
                                             .v3Metadata(V3ResourceMappers.toV3Metadata(serviceInstance.metadata()))
                                             .name(serviceInstance.name())
-                                            .tags(serviceInstance.tags() == null ? java.util.Collections.emptyList()
+                                            .tags(serviceInstance.tags() == null ? List.of()
                                                       : serviceInstance.tags())
                                             .build();
     }
@@ -44,14 +48,7 @@ public final class V3ServiceInstanceMapper {
             return null;
         }
 
-        for (ServiceInstanceType serviceInstanceType : ServiceInstanceType.values()) {
-            if (serviceInstanceType.getValue()
-                                   .equals(type)) {
-                return serviceInstanceType;
-            }
-        }
-
-        return null;
+        return mapValue(type);
     }
 
     private static ServiceOperation parseLastOperation(V3ServiceInstance.V3LastOperation lastOperation) {

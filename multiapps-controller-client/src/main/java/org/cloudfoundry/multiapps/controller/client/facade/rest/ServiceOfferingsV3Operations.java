@@ -19,12 +19,12 @@ public class ServiceOfferingsV3Operations {
     private static final ParameterizedTypeReference<V3ListResponse<V3ServicePlan>> PLAN_LIST_TYPE = new ParameterizedTypeReference<>() {
     };
 
-    private final CloudControllerV3Client cc;
-    private final CloudSpace target;
+    private final CloudControllerV3Client client;
+    private final CloudSpace targetSpace;
 
-    public ServiceOfferingsV3Operations(CloudControllerV3Client cc, CloudSpace target) {
-        this.cc = cc;
-        this.target = target;
+    public ServiceOfferingsV3Operations(CloudControllerV3Client client, CloudSpace targetSpace) {
+        this.client = client;
+        this.targetSpace = targetSpace;
     }
 
     public List<CloudServiceOffering> getServiceOfferings() {
@@ -37,12 +37,12 @@ public class ServiceOfferingsV3Operations {
         StringBuilder query = new StringBuilder(CloudControllerV3Endpoints.SERVICE_OFFERINGS + CloudControllerV3Endpoints.QUERY_PER_PAGE
                                                     + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
 
-        if (target != null && target.getGuid() != null) {
+        if (targetSpace != null && targetSpace.getGuid() != null) {
             query.append(CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
-                 .append(target.getGuid());
+                 .append(targetSpace.getGuid());
         }
 
-        return cc.list(query.toString(), OFFERING_LIST_TYPE);
+        return client.list(query.toString(), OFFERING_LIST_TYPE);
     }
 
     private CloudServiceOffering toCloudServiceOfferingWithPlans(V3ServiceOffering serviceOffering) {
@@ -55,11 +55,11 @@ public class ServiceOfferingsV3Operations {
         String uri =
             CloudControllerV3Endpoints.SERVICE_PLANS + CloudControllerV3Endpoints.QUERY_SERVICE_OFFERING_GUIDS + serviceOfferingGuid
                 + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
-        
-        return cc.list(uri, PLAN_LIST_TYPE)
-                 .stream()
-                 .map(V3ServicePlanMapper::toCloudServicePlan)
-                 .toList();
+
+        return client.list(uri, PLAN_LIST_TYPE)
+                     .stream()
+                     .map(V3ServicePlanMapper::toCloudServicePlan)
+                     .toList();
     }
 
 }
