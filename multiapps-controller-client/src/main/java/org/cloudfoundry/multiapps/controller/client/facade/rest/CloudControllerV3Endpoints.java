@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
-public final class CloudControllerV3Endpoints {
+public class CloudControllerV3Endpoints {
 
     public static final int DEFAULT_PAGE_SIZE = 5000;
 

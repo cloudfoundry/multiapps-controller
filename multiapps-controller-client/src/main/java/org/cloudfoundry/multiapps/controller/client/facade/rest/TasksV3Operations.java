@@ -19,16 +19,16 @@ import org.springframework.http.HttpStatus;
 
 public class TasksV3Operations {
 
-    private final CloudControllerV3Client cc;
-    private final CloudSpace target;
+    private final CloudControllerV3Client client;
+    private final CloudSpace targetSpace;
 
-    public TasksV3Operations(CloudControllerV3Client cc, CloudSpace target) {
-        this.cc = cc;
-        this.target = target;
+    public TasksV3Operations(CloudControllerV3Client client, CloudSpace targetSpace) {
+        this.client = client;
+        this.targetSpace = targetSpace;
     }
 
     public CloudTask getTask(UUID taskGuid) {
-        V3Task task = cc.get(CloudControllerV3Endpoints.TASKS + "/" + taskGuid, V3Task.class);
+        V3Task task = client.get(CloudControllerV3Endpoints.TASKS + "/" + taskGuid, V3Task.class);
 
         return task == null ? null : V3TaskMapper.toCloudTask(task);
     }
@@ -39,7 +39,7 @@ public class TasksV3Operations {
         String query = CloudControllerV3Endpoints.TASKS + CloudControllerV3Endpoints.QUERY_PER_PAGE
             + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE + CloudControllerV3Endpoints.AMPERSAND_APP_GUIDS + applicationGuid;
 
-        List<V3Task> tasks = cc.list(query, new ParameterizedTypeReference<V3ListResponse<V3Task>>() {
+        List<V3Task> tasks = client.list(query, new ParameterizedTypeReference<V3ListResponse<V3Task>>() {
         });
 
         return tasks.stream()
@@ -50,22 +50,22 @@ public class TasksV3Operations {
     public CloudTask runTask(String applicationName, CloudTask task) {
         UUID applicationGuid = getRequiredApplicationGuid(applicationName);
 
-        V3Task created = cc.getRestClient()
-                           .post()
-                           .uri(CloudControllerV3Endpoints.APP_TASKS, applicationGuid)
-                           .body(buildCreateTaskBody(task))
-                           .retrieve()
-                           .body(V3Task.class);
+        V3Task created = client.getRestClient()
+                               .post()
+                               .uri(CloudControllerV3Endpoints.APP_TASKS, applicationGuid)
+                               .body(buildCreateTaskBody(task))
+                               .retrieve()
+                               .body(V3Task.class);
 
         return created == null ? null : V3TaskMapper.toCloudTask(created);
     }
 
     public CloudTask cancelTask(UUID taskGuid) {
-        V3Task cancelled = cc.getRestClient()
-                             .post()
-                             .uri(CloudControllerV3Endpoints.TASK_CANCEL, taskGuid)
-                             .retrieve()
-                             .body(V3Task.class);
+        V3Task cancelled = client.getRestClient()
+                                 .post()
+                                 .uri(CloudControllerV3Endpoints.TASK_CANCEL, taskGuid)
+                                 .retrieve()
+                                 .body(V3Task.class);
 
         return cancelled == null ? null : V3TaskMapper.toCloudTask(cancelled);
     }
@@ -93,14 +93,14 @@ public class TasksV3Operations {
         StringBuilder query = new StringBuilder(CloudControllerV3Endpoints.APPS + CloudControllerV3Endpoints.QUERY_PER_PAGE
                                                     + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
 
-        if (target != null && target.getGuid() != null) {
+        if (targetSpace != null && targetSpace.getGuid() != null) {
             query.append(CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
-                 .append(target.getGuid());
+                 .append(targetSpace.getGuid());
         }
 
         query.append(CloudControllerV3Endpoints.AMPERSAND_NAMES)
              .append(applicationName);
-        List<V3Application> apps = cc.list(query.toString(), new ParameterizedTypeReference<V3ListResponse<V3Application>>() {
+        List<V3Application> apps = client.list(query.toString(), new ParameterizedTypeReference<V3ListResponse<V3Application>>() {
         });
 
         if (apps.isEmpty()) {

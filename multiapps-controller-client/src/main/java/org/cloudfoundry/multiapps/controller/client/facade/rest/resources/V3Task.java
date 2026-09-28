@@ -15,11 +15,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * </pre>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record V3Task(@JsonProperty("guid") String guid, @JsonProperty("name") String name, @JsonProperty("command") String command,
-                     @JsonProperty("state") String state, @JsonProperty("memory_in_mb") Integer memoryInMb,
+public record V3Task(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty(V3Fields.NAME) String name,
+                     @JsonProperty(V3Fields.COMMAND) String command,
+                     @JsonProperty(V3Fields.STATE) String state, @JsonProperty("memory_in_mb") Integer memoryInMb,
                      @JsonProperty("disk_in_mb") Integer diskInMb, @JsonProperty("result") V3Result result,
-                     @JsonProperty("created_at") String createdAt, @JsonProperty("updated_at") String updatedAt,
-                     @JsonProperty("metadata") V3Metadata metadata) {
+                     @JsonProperty(V3Fields.CREATED_AT) String createdAt, @JsonProperty(V3Fields.UPDATED_AT) String updatedAt,
+                     @JsonProperty(V3Fields.METADATA) V3Metadata metadata) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record V3Result(@JsonProperty("failure_reason") String failureReason) {

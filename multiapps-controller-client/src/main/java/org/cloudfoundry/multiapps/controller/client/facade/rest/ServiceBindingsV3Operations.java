@@ -32,12 +32,12 @@ public class ServiceBindingsV3Operations {
     private static final ParameterizedTypeReference<V3ListResponse<V3Application>> APPLICATION_LIST_TYPE = new ParameterizedTypeReference<>() {
     };
 
-    private final CloudControllerV3Client cc;
-    private final CloudSpace target;
+    private final CloudControllerV3Client client;
+    private final CloudSpace targetSpace;
 
-    public ServiceBindingsV3Operations(CloudControllerV3Client cc, CloudSpace target) {
-        this.cc = cc;
-        this.target = target;
+    public ServiceBindingsV3Operations(CloudControllerV3Client client, CloudSpace targetSpace) {
+        this.client = client;
+        this.targetSpace = targetSpace;
     }
 
     public Optional<String> bindServiceInstance(String bindingName, String applicationName, String serviceInstanceName) {
@@ -49,22 +49,12 @@ public class ServiceBindingsV3Operations {
         UUID applicationGuid = getRequiredApplicationGuid(applicationName);
         UUID serviceInstanceGuid = getRequiredServiceInstanceGuid(serviceInstanceName);
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("name", bindingName);
-        body.put("type", "app");
-        body.put("relationships", Map.of("app", toOneRelationship(applicationGuid), "service_instance",
-                                         toOneRelationship(serviceInstanceGuid)));
-
-        if (!CollectionUtils.isEmpty(parameters)) {
-            body.put("parameters", parameters);
-        }
-
-        ResponseEntity<Void> response = cc.getRestClient()
-                                          .post()
-                                          .uri(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS)
-                                          .body(body)
-                                          .retrieve()
-                                          .toBodilessEntity();
+        ResponseEntity<Void> response = client.getRestClient()
+                                              .post()
+                                              .uri(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS)
+                                              .body(buildServiceInstanceBody(bindingName, applicationGuid, serviceInstanceGuid, parameters))
+                                              .retrieve()
+                                              .toBodilessEntity();
 
         return extractJobGuidFromResponseHeader(response);
     }
@@ -88,11 +78,11 @@ public class ServiceBindingsV3Operations {
         String uri = CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS + CloudControllerV3Endpoints.QUERY_GUIDS + serviceBindingGuid
             + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
 
-        return cc.list(uri, BINDING_LIST_TYPE)
-                 .stream()
-                 .findFirst()
-                 .map(V3ServiceBindingMapper::toCloudServiceBinding)
-                 .orElse(null);
+        return client.list(uri, BINDING_LIST_TYPE)
+                     .stream()
+                     .findFirst()
+                     .map(V3ServiceBindingMapper::toCloudServiceBinding)
+                     .orElse(null);
     }
 
     public List<CloudServiceBinding> getServiceAppBindings(UUID serviceInstanceGuid) {
@@ -121,8 +111,14 @@ public class ServiceBindingsV3Operations {
 
     public Map<String, Object> getServiceBindingParameters(UUID guid) {
         @SuppressWarnings("unchecked")
-        Map<String, Object> parameters = cc.get(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS + "/" + guid + "/parameters",
-                                                Map.class);
+        Map<String, Object> parameters = client.get(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS + "/" + guid + "/parameters",
+                                                    Map.class);
+
+        if (parameters == null) {
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+                                              MessageFormat.format(Messages.PARAMETERS_OF_SERVICE_BINDING_WITH_GUID_0_NOT_FOUND,
+                                                                   guid));
+        }
 
         return parameters;
     }
@@ -132,19 +128,19 @@ public class ServiceBindingsV3Operations {
         metadataBody.put("labels", metadata.getLabels());
         metadataBody.put("annotations", metadata.getAnnotations());
 
-        cc.getRestClient()
-          .patch()
-          .uri(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDING_BY_GUID, guid)
-          .body(Map.of("metadata", metadataBody))
-          .retrieve()
-          .toBodilessEntity();
+        client.getRestClient()
+              .patch()
+              .uri(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDING_BY_GUID, guid)
+              .body(Map.of("metadata", metadataBody))
+              .retrieve()
+              .toBodilessEntity();
     }
 
     private List<CloudServiceBinding> listBindings(String uri) {
-        return cc.list(uri, BINDING_LIST_TYPE)
-                 .stream()
-                 .map(V3ServiceBindingMapper::toCloudServiceBinding)
-                 .toList();
+        return client.list(uri, BINDING_LIST_TYPE)
+                     .stream()
+                     .map(V3ServiceBindingMapper::toCloudServiceBinding)
+                     .toList();
     }
 
     private List<String> doUnbindServiceInstance(UUID applicationGuid, UUID serviceInstanceGuid) {
@@ -165,10 +161,10 @@ public class ServiceBindingsV3Operations {
             + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE
             + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
 
-        return cc.list(uri, BINDING_LIST_TYPE)
-                 .stream()
-                 .map(binding -> UUID.fromString(binding.guid()))
-                 .toList();
+        return client.list(uri, BINDING_LIST_TYPE)
+                     .stream()
+                     .map(binding -> UUID.fromString(binding.guid()))
+                     .toList();
     }
 
     private List<String> doDeleteServiceBindings(List<UUID> guids) {
@@ -188,11 +184,11 @@ public class ServiceBindingsV3Operations {
     }
 
     private Optional<String> deleteSingleServiceBinding(UUID guid) {
-        ResponseEntity<Void> response = cc.getRestClient()
-                                          .delete()
-                                          .uri(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDING_BY_GUID, guid)
-                                          .retrieve()
-                                          .toBodilessEntity();
+        ResponseEntity<Void> response = client.getRestClient()
+                                              .delete()
+                                              .uri(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDING_BY_GUID, guid)
+                                              .retrieve()
+                                              .toBodilessEntity();
 
         return extractJobGuidFromResponseHeader(response);
     }
@@ -229,15 +225,15 @@ public class ServiceBindingsV3Operations {
         StringBuilder query = new StringBuilder(
             CloudControllerV3Endpoints.APPS + CloudControllerV3Endpoints.QUERY_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
 
-        if (target != null && target.getGuid() != null) {
+        if (targetSpace != null && targetSpace.getGuid() != null) {
             query.append(CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
-                 .append(target.getGuid());
+                 .append(targetSpace.getGuid());
         }
 
         query.append(CloudControllerV3Endpoints.AMPERSAND_NAMES)
              .append(applicationName);
 
-        List<V3Application> apps = cc.list(query.toString(), APPLICATION_LIST_TYPE);
+        List<V3Application> apps = client.list(query.toString(), APPLICATION_LIST_TYPE);
 
         if (apps.isEmpty()) {
             throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
@@ -252,16 +248,16 @@ public class ServiceBindingsV3Operations {
         StringBuilder query = new StringBuilder(CloudControllerV3Endpoints.SERVICE_INSTANCES + CloudControllerV3Endpoints.QUERY_PER_PAGE
                                                     + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
 
-        if (target != null && target.getGuid() != null) {
+        if (targetSpace != null && targetSpace.getGuid() != null) {
             query.append(CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
-                 .append(target.getGuid());
+                 .append(targetSpace.getGuid());
         }
 
         query.append(CloudControllerV3Endpoints.AMPERSAND_NAMES)
              .append(name);
-        List<V3ServiceInstanceRef> instances = cc.list(query.toString(),
-                                                       new ParameterizedTypeReference<V3ListResponse<V3ServiceInstanceRef>>() {
-                                                       });
+        List<V3ServiceInstanceRef> instances = client.list(query.toString(),
+                                                           new ParameterizedTypeReference<V3ListResponse<V3ServiceInstanceRef>>() {
+                                                           });
 
         if (instances.isEmpty()) {
             throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
@@ -270,6 +266,21 @@ public class ServiceBindingsV3Operations {
 
         return UUID.fromString(instances.getFirst()
                                         .guid());
+    }
+
+    private Map<String, Object> buildServiceInstanceBody(String bindingName, UUID applicationGuid, UUID serviceInstanceGuid,
+                                                         Map<String, Object> parameters) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("name", bindingName);
+        body.put("type", "app");
+        body.put("relationships", Map.of("app", toOneRelationship(applicationGuid), "service_instance",
+                                         toOneRelationship(serviceInstanceGuid)));
+
+        if (!CollectionUtils.isEmpty(parameters)) {
+            body.put("parameters", parameters);
+        }
+
+        return body;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

@@ -23,17 +23,17 @@ import org.springframework.http.ResponseEntity;
 
 public class ServiceKeysV3Operations {
 
-    private final CloudControllerV3Client cc;
+    private final CloudControllerV3Client client;
 
-    public ServiceKeysV3Operations(CloudControllerV3Client cc) {
-        this.cc = cc;
+    public ServiceKeysV3Operations(CloudControllerV3Client client) {
+        this.client = client;
     }
 
     public CloudServiceKey createAndFetchServiceKey(CloudServiceKey keyModel, CloudServiceInstance serviceInstance) {
         ResponseEntity<Void> acceptedResponse = postServiceKey(keyModel.getName(), keyModel.getCredentials(), keyModel.getV3Metadata(),
                                                                serviceInstance);
 
-        cc.followAsyncJob(acceptedResponse, Constants.BINDING_OPERATIONS_TIMEOUT);
+        client.followAsyncJob(acceptedResponse, Constants.BINDING_OPERATIONS_TIMEOUT);
 
         V3ServiceBinding createdServiceKey = getServiceKeyResourceByNameAndServiceInstanceGuid(keyModel.getName(),
                                                                                                serviceInstance.getGuid());
@@ -87,12 +87,12 @@ public class ServiceKeysV3Operations {
                 String.format(Messages.CANT_CREATE_SERVICE_KEY_FOR_USER_PROVIDED_SERVICE, serviceInstance.getName()));
         }
 
-        return cc.getRestClient()
-                 .post()
-                 .uri(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS)
-                 .body(buildCreateServiceKeyBody(name, parameters, metadata, serviceInstance.getGuid()))
-                 .retrieve()
-                 .toBodilessEntity();
+        return client.getRestClient()
+                     .post()
+                     .uri(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS)
+                     .body(buildCreateServiceKeyBody(name, parameters, metadata, serviceInstance.getGuid()))
+                     .retrieve()
+                     .toBodilessEntity();
     }
 
     private Map<String, Object> buildCreateServiceKeyBody(String name, Map<String, Object> parameters, Metadata metadata,
@@ -137,7 +137,7 @@ public class ServiceKeysV3Operations {
             + CloudControllerV3Endpoints.AMPERSAND_SERVICE_INSTANCE_GUIDS + serviceInstanceGuid + CloudControllerV3Endpoints.AMPERSAND_NAMES
             + name;
 
-        List<V3ServiceBinding> keys = cc.list(query, new ParameterizedTypeReference<V3ListResponse<V3ServiceBinding>>() {
+        List<V3ServiceBinding> keys = client.list(query, new ParameterizedTypeReference<V3ListResponse<V3ServiceBinding>>() {
         });
 
         return keys.isEmpty() ? null : keys.getFirst();
@@ -148,14 +148,14 @@ public class ServiceKeysV3Operations {
             + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE + CloudControllerV3Endpoints.AMPERSAND_TYPE + "key"
             + CloudControllerV3Endpoints.AMPERSAND_SERVICE_INSTANCE_GUIDS + serviceInstanceGuid;
 
-        return cc.list(query, new ParameterizedTypeReference<V3ListResponse<V3ServiceBinding>>() {
+        return client.list(query, new ParameterizedTypeReference<V3ListResponse<V3ServiceBinding>>() {
         });
     }
 
     private Map<String, Object> getServiceKeyCredentials(String keyGuid) {
-        Optional<V3ServiceKeyDetails> details = cc.getOptional(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS + "/" + keyGuid
-                                                                   + "/details",
-                                                               V3ServiceKeyDetails.class);
+        Optional<V3ServiceKeyDetails> details = client.getOptional(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS + "/" + keyGuid
+                                                                       + "/details",
+                                                                   V3ServiceKeyDetails.class);
 
         return details.map(V3ServiceKeyDetails::credentials)
                       .orElse(Collections.emptyMap());

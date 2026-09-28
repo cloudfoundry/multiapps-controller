@@ -1,7 +1,14 @@
 package org.cloudfoundry.multiapps.controller.client.facade;
 
-import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.HealthCheckType;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudBuild;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
@@ -9,6 +16,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudProcess;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.DockerInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.HealthCheckType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudDomain;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudRoute;
@@ -16,6 +24,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDocke
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.InstancesInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.LifecycleType;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Status;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
@@ -25,15 +34,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
-
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.APPLICATION_HOST;
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.DEFAULT_DOMAIN;
@@ -85,7 +85,7 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
         String applicationName = "test-app-1";
         Staging staging = ImmutableStaging.builder()
                                           .addBuildpack(JAVA_BUILDPACK)
-                                          .healthCheckType(HealthCheckType.PROCESS.getValue())
+                                          .healthCheckType(HealthCheckType.PROCESS.toString())
                                           .healthCheckHttpEndpoint(HEALTH_CHECK_ENDPOINT)
                                           .healthCheckTimeout(HEALTH_CHECK_TIMEMOUT)
                                           .build();
@@ -158,7 +158,7 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
         try {
             createAndVerifyDefaultApplication(applicationName);
             client.updateApplicationStaging(applicationName, ImmutableStaging.builder()
-                                                                             .healthCheckType(HealthCheckType.PROCESS.getValue())
+                                                                             .healthCheckType(HealthCheckType.PROCESS.toString())
                                                                              .build());
             UUID applicationGuid = client.getApplicationGuid(applicationName);
             CloudProcess cloudProcess = client.getApplicationProcess(applicationGuid);

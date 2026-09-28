@@ -8,8 +8,8 @@ import java.util.Set;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.apache.commons.lang3.StringUtils;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.HealthCheckType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.HealthCheckType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
@@ -85,16 +85,16 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
     private Staging modifyHealthCheckType(Staging staging) {
         String healthCheckType = staging.getHealthCheckType();
         if (StringUtils.isEmpty(healthCheckType)) {
-            getStepLogger().debug(Messages.NOT_SPECIFIED_HEALTH_CHECK_TYPE, HealthCheckType.PORT.getValue());
+            getStepLogger().debug(Messages.NOT_SPECIFIED_HEALTH_CHECK_TYPE, HealthCheckType.PORT.toString());
             return ImmutableStaging.copyOf(staging)
-                                   .withHealthCheckType(HealthCheckType.PORT.getValue());
+                                   .withHealthCheckType(HealthCheckType.PORT.toString());
         }
-        if (HealthCheckType.NONE.getValue()
+        if (HealthCheckType.NONE.toString()
                                 .equalsIgnoreCase(healthCheckType)) {
             getStepLogger().info(Messages.USING_DEPRECATED_HEALTH_CHECK_TYPE_0_SETTING_TO_1, healthCheckType,
-                                 HealthCheckType.PROCESS.getValue());
+                                 HealthCheckType.PROCESS.toString());
             return ImmutableStaging.copyOf(staging)
-                                   .withHealthCheckType(HealthCheckType.PROCESS.getValue());
+                                   .withHealthCheckType(HealthCheckType.PROCESS.toString());
         }
         return staging;
     }

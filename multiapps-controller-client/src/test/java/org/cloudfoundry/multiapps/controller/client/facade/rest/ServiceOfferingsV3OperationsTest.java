@@ -27,9 +27,9 @@ class ServiceOfferingsV3OperationsTest {
     private static final UUID SPACE_GUID = UUID.fromString("11111111-2222-3333-4444-555555555555");
 
     @Mock
-    private CloudControllerV3Client cc;
+    private CloudControllerV3Client client;
     @Mock
-    private CloudSpace target;
+    private CloudSpace targetSpace;
 
     private ServiceOfferingsV3Operations operations;
 
@@ -37,16 +37,16 @@ class ServiceOfferingsV3OperationsTest {
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        operations = new ServiceOfferingsV3Operations(cc, target);
+        operations = new ServiceOfferingsV3Operations(client, targetSpace);
     }
 
     @Test
     void testGetServiceOfferingsMapsOfferingWithItsPlans() {
-        when(cc.list(ArgumentMatchers.contains("/v3/service_offerings"),
-                     ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>>> any()))
+        when(client.list(ArgumentMatchers.contains("/v3/service_offerings"),
+                         ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>>> any()))
             .thenReturn(List.of(getOffering()));
-        when(cc.list(ArgumentMatchers.contains("/v3/service_plans"),
-                     ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServicePlan>>> any()))
+        when(client.list(ArgumentMatchers.contains("/v3/service_plans"),
+                         ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServicePlan>>> any()))
             .thenReturn(List.of(getPlan("plan-a"), getPlan("plan-b")));
 
         List<CloudServiceOffering> result = operations.getServiceOfferings();
@@ -61,17 +61,17 @@ class ServiceOfferingsV3OperationsTest {
 
     @Test
     void testGetServiceOfferingsScopesQueryToSpaceWhenTargetHasGuid() {
-        when(target.getGuid())
+        when(targetSpace.getGuid())
             .thenReturn(SPACE_GUID);
 
-        when(cc.list(ArgumentMatchers.contains("/v3/service_offerings"),
-                     ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>>> any()))
+        when(client.list(ArgumentMatchers.contains("/v3/service_offerings"),
+                         ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>>> any()))
             .thenReturn(List.of());
 
         operations.getServiceOfferings();
 
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        verify(cc)
+        verify(client)
             .list(uriCaptor.capture(), ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>>> any());
         Assertions.assertTrue(uriCaptor.getValue()
                                        .contains("space_guids=" + SPACE_GUID), uriCaptor.getValue());
@@ -79,17 +79,17 @@ class ServiceOfferingsV3OperationsTest {
 
     @Test
     void testGetServiceOfferingsExcludesSpaceGuidWhenTargetGuidNull() {
-        when(target.getGuid())
+        when(targetSpace.getGuid())
             .thenReturn(null);
 
-        when(cc.list(ArgumentMatchers.contains("/v3/service_offerings"),
-                     ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>>> any()))
+        when(client.list(ArgumentMatchers.contains("/v3/service_offerings"),
+                         ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>>> any()))
             .thenReturn(List.of());
 
         operations.getServiceOfferings();
 
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        verify(cc)
+        verify(client)
             .list(uriCaptor.capture(), ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>>> any());
         Assertions.assertFalse(uriCaptor.getValue()
                                         .contains("space_guids="), uriCaptor.getValue());

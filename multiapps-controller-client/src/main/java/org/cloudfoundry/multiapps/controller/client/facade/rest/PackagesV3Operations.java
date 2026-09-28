@@ -7,10 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.function.Function;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.Constants;
 import org.cloudfoundry.multiapps.controller.Messages;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
@@ -42,24 +46,27 @@ public class PackagesV3Operations {
     private static final ParameterizedTypeReference<V3ListResponse<V3Package>> PACKAGE_PAGE = new ParameterizedTypeReference<>() {
     };
 
-    private final CloudControllerV3Client cc;
-    private final CloudSpace target;
+    private final CloudControllerV3Client client;
+
+    private final CloudSpace targetSpace;
 
     private final Function<Duration, RestClient> uploadRestClientFactory;
 
-    public PackagesV3Operations(CloudControllerV3Client cc, CloudSpace target) {
-        this(cc, target, null);
+    private final ExecutorService uploadMonitorExecutor = createUploadMonitorExecutor();
+
+    public PackagesV3Operations(CloudControllerV3Client client, CloudSpace targetSpace) {
+        this(client, targetSpace, null);
     }
 
-    public PackagesV3Operations(CloudControllerV3Client cc, CloudSpace target,
-                                Function<java.time.Duration, RestClient> uploadRestClientFactory) {
-        this.cc = cc;
-        this.target = target;
+    public PackagesV3Operations(CloudControllerV3Client client, CloudSpace targetSpace,
+                                Function<Duration, RestClient> uploadRestClientFactory) {
+        this.client = client;
+        this.targetSpace = targetSpace;
         this.uploadRestClientFactory = uploadRestClientFactory;
     }
 
     public CloudPackage getPackage(UUID packageGuid) {
-        V3Package packageResource = cc.get(CloudControllerV3Endpoints.PACKAGES + "/" + packageGuid, V3Package.class);
+        V3Package packageResource = client.get(CloudControllerV3Endpoints.PACKAGES + "/" + packageGuid, V3Package.class);
 
         if (packageResource == null) {
             throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
@@ -70,11 +77,11 @@ public class PackagesV3Operations {
     }
 
     public List<CloudPackage> getPackagesForApplication(UUID applicationGuid) {
-        return cc.list(CloudControllerV3Endpoints.APPS + "/" + applicationGuid + "/packages" + CloudControllerV3Endpoints.QUERY_PER_PAGE
-                           + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, PACKAGE_PAGE)
-                 .stream()
-                 .map(V3PackageMapper::toCloudPackage)
-                 .toList();
+        return client.list(CloudControllerV3Endpoints.APPS + "/" + applicationGuid + "/packages" + CloudControllerV3Endpoints.QUERY_PER_PAGE
+                               + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, PACKAGE_PAGE)
+                     .stream()
+                     .map(V3PackageMapper::toCloudPackage)
+                     .toList();
     }
 
     public CloudPackage createDockerPackage(UUID applicationGuid, DockerInfo dockerInfo) {
@@ -82,23 +89,18 @@ public class PackagesV3Operations {
         data.put("image", dockerInfo.getImage());
 
         DockerCredentials credentials = dockerInfo.getCredentials();
-        if (credentials != null) {
-            if (credentials.getUsername() != null) {
-                data.put("username", credentials.getUsername());
-            }
-
-            if (credentials.getPassword() != null) {
-                data.put("password", credentials.getPassword());
-            }
+        if (credentials != null && credentials.getUsername() != null && credentials.getPassword() != null) {
+            data.put("username", credentials.getUsername());
+            data.put("password", credentials.getPassword());
         }
 
-        V3Package created = cc.getRestClient()
-                              .post()
-                              .uri(CloudControllerV3Endpoints.PACKAGES)
-                              .body(Map.of("type", "docker", "data", data, "relationships",
-                                           applicationRelationship(applicationGuid)))
-                              .retrieve()
-                              .body(V3Package.class);
+        V3Package created = client.getRestClient()
+                                  .post()
+                                  .uri(CloudControllerV3Endpoints.PACKAGES)
+                                  .body(Map.of("type", "docker", "data", data, "relationships",
+                                               applicationRelationship(applicationGuid)))
+                                  .retrieve()
+                                  .body(V3Package.class);
 
         return getPackage(UUID.fromString(created.guid()));
     }
@@ -151,36 +153,26 @@ public class PackagesV3Operations {
             return uploadRestClientFactory.apply(uploadTimeout);
         }
 
-        return cc.getRestClient();
+        return client.getRestClient();
     }
 
     private CloudPackage createBitsPackage(UUID applicationGuid) {
-        V3Package created = cc.getRestClient()
-                              .post()
-                              .uri(CloudControllerV3Endpoints.PACKAGES)
-                              .body(Map.of("type", "bits", "relationships", applicationRelationship(applicationGuid)))
-                              .retrieve()
-                              .body(V3Package.class);
+        V3Package created = client.getRestClient()
+                                  .post()
+                                  .uri(CloudControllerV3Endpoints.PACKAGES)
+                                  .body(Map.of("type", "bits", "relationships", applicationRelationship(applicationGuid)))
+                                  .retrieve()
+                                  .body(V3Package.class);
 
         return getPackage(UUID.fromString(created.guid()));
     }
 
     private static Map<String, Object> applicationRelationship(UUID applicationGuid) {
-        return Map.of("app", java.util.Map.of("data", java.util.Map.of("guid", applicationGuid.toString())));
+        return Map.of("app", Map.of("data", Map.of("guid", applicationGuid.toString())));
     }
 
     private UUID getRequiredApplicationGuid(String applicationName) {
-        StringBuilder query = new StringBuilder(CloudControllerV3Endpoints.APPS + CloudControllerV3Endpoints.QUERY_PER_PAGE
-                                                    + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
-
-        if (target != null && target.getGuid() != null) {
-            query.append(CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
-                 .append(target.getGuid());
-        }
-
-        query.append(CloudControllerV3Endpoints.AMPERSAND_NAMES)
-             .append(applicationName);
-        List<V3App> apps = cc.list(query.toString(), new ParameterizedTypeReference<V3ListResponse<V3App>>() {
+        List<V3App> apps = client.list(buildApplicationQuery(applicationName), new ParameterizedTypeReference<V3ListResponse<V3App>>() {
         });
 
         if (apps.isEmpty() || apps.getFirst()
@@ -193,9 +185,23 @@ public class PackagesV3Operations {
                                    .guid());
     }
 
+    private String buildApplicationQuery(String applicationName) {
+        StringBuilder query = new StringBuilder(CloudControllerV3Endpoints.APPS + CloudControllerV3Endpoints.QUERY_PER_PAGE
+                                                    + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
+
+        if (targetSpace != null && targetSpace.getGuid() != null) {
+            query.append(CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
+                 .append(targetSpace.getGuid());
+        }
+
+        query.append(CloudControllerV3Endpoints.AMPERSAND_NAMES)
+             .append(applicationName);
+
+        return query.toString();
+    }
+
     private void processAsyncUploadInBackground(CloudPackage cloudPackage, UploadStatusCallback callback) {
-        String threadName = String.format("App upload monitor: %s", cloudPackage.getGuid());
-        new Thread(() -> processAsyncUpload(cloudPackage, callback), threadName).start();
+        uploadMonitorExecutor.execute(() -> processAsyncUpload(cloudPackage, callback));
     }
 
     private void processAsyncUpload(CloudPackage cloudPackage, UploadStatusCallback callback) {
@@ -215,10 +221,8 @@ public class PackagesV3Operations {
             }
 
             try {
-                Thread.sleep(Constants.PACKAGE_UPLOAD_JOB_POLLING_PERIOD);
-            } catch (InterruptedException e) {
-                Thread.currentThread()
-                      .interrupt();
+                MiscUtil.sleep(Constants.PACKAGE_UPLOAD_JOB_POLLING_PERIOD);
+            } catch (IllegalStateException e) {
                 return;
             }
         }
@@ -230,6 +234,14 @@ public class PackagesV3Operations {
 
     private boolean hasUploadFailed(Status status) {
         return status == Status.EXPIRED || status == Status.FAILED;
+    }
+
+    private ExecutorService createUploadMonitorExecutor() {
+        ThreadFactory threadFactory = Thread.ofVirtual()
+                                            .name(Constants.UPLOAD_MONITOR_THREAD_NAME_PREFIX, 0)
+                                            .factory();
+
+        return Executors.newThreadPerTaskExecutor(threadFactory);
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

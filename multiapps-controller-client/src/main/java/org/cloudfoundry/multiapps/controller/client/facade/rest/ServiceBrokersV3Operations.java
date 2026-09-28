@@ -31,12 +31,12 @@ public class ServiceBrokersV3Operations {
     private static final ParameterizedTypeReference<V3ListResponse<ServicePlanRef>> PLAN_PAGE = new ParameterizedTypeReference<>() {
     };
 
-    private final CloudControllerV3Client cc;
-    private final CloudSpace target;
+    private final CloudControllerV3Client client;
+    private final CloudSpace targetSpace;
 
-    public ServiceBrokersV3Operations(CloudControllerV3Client cc, CloudSpace target) {
-        this.cc = cc;
-        this.target = target;
+    public ServiceBrokersV3Operations(CloudControllerV3Client client, CloudSpace targetSpace) {
+        this.client = client;
+        this.targetSpace = targetSpace;
     }
 
     public String createServiceBroker(CloudServiceBroker serviceBroker) {
@@ -51,12 +51,12 @@ public class ServiceBrokersV3Operations {
             body.put("relationships", Map.of("space", Map.of("data", Map.of("guid", serviceBroker.getSpaceGuid()))));
         }
 
-        ResponseEntity<Void> response = cc.getRestClient()
-                                          .post()
-                                          .uri(CloudControllerV3Endpoints.SERVICE_BROKERS)
-                                          .body(body)
-                                          .retrieve()
-                                          .toBodilessEntity();
+        ResponseEntity<Void> response = client.getRestClient()
+                                              .post()
+                                              .uri(CloudControllerV3Endpoints.SERVICE_BROKERS)
+                                              .body(body)
+                                              .retrieve()
+                                              .toBodilessEntity();
         return extractJobGuid(response);
     }
 
@@ -65,11 +65,11 @@ public class ServiceBrokersV3Operations {
         UUID guid = broker.getMetadata()
                           .getGuid();
 
-        ResponseEntity<Void> response = cc.getRestClient()
-                                          .delete()
-                                          .uri(CloudControllerV3Endpoints.SERVICE_BROKER_BY_GUID, guid.toString())
-                                          .retrieve()
-                                          .toBodilessEntity();
+        ResponseEntity<Void> response = client.getRestClient()
+                                              .delete()
+                                              .uri(CloudControllerV3Endpoints.SERVICE_BROKER_BY_GUID, guid.toString())
+                                              .retrieve()
+                                              .toBodilessEntity();
 
         return extractJobGuid(response);
     }
@@ -90,11 +90,11 @@ public class ServiceBrokersV3Operations {
     }
 
     public List<CloudServiceBroker> getServiceBrokers() {
-        return cc.list(CloudControllerV3Endpoints.SERVICE_BROKERS + CloudControllerV3Endpoints.QUERY_PER_PAGE
-                           + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, BROKER_PAGE)
-                 .stream()
-                 .map(V3ServiceBrokerMapper::toCloudServiceBroker)
-                 .toList();
+        return client.list(CloudControllerV3Endpoints.SERVICE_BROKERS + CloudControllerV3Endpoints.QUERY_PER_PAGE
+                               + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, BROKER_PAGE)
+                     .stream()
+                     .map(V3ServiceBrokerMapper::toCloudServiceBroker)
+                     .toList();
     }
 
     public String updateServiceBroker(CloudServiceBroker serviceBroker) {
@@ -107,12 +107,12 @@ public class ServiceBrokersV3Operations {
         Map<String, Object> body = Map.of("name", serviceBroker.getName(), "url", serviceBroker.getUrl(), "authentication",
                                           basicAuthentication(serviceBroker));
 
-        ResponseEntity<Void> response = cc.getRestClient()
-                                          .patch()
-                                          .uri(CloudControllerV3Endpoints.SERVICE_BROKER_BY_GUID, brokerGuid.toString())
-                                          .body(body)
-                                          .retrieve()
-                                          .toBodilessEntity();
+        ResponseEntity<Void> response = client.getRestClient()
+                                              .patch()
+                                              .uri(CloudControllerV3Endpoints.SERVICE_BROKER_BY_GUID, brokerGuid.toString())
+                                              .body(body)
+                                              .retrieve()
+                                              .toBodilessEntity();
 
         return extractJobGuid(response);
     }
@@ -128,14 +128,14 @@ public class ServiceBrokersV3Operations {
     }
 
     private CloudServiceBroker findServiceBrokerByName(String name) {
-        return cc.list(
-                     CloudControllerV3Endpoints.SERVICE_BROKERS + CloudControllerV3Endpoints.QUERY_NAMES + name
-                         + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE
-                         + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, BROKER_PAGE)
-                 .stream()
-                 .findFirst()
-                 .map(V3ServiceBrokerMapper::toCloudServiceBroker)
-                 .orElse(null);
+        return client.list(
+                         CloudControllerV3Endpoints.SERVICE_BROKERS + CloudControllerV3Endpoints.QUERY_NAMES + name
+                             + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE
+                             + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, BROKER_PAGE)
+                     .stream()
+                     .findFirst()
+                     .map(V3ServiceBrokerMapper::toCloudServiceBroker)
+                     .orElse(null);
     }
 
     private List<UUID> findServicePlanGuidsByBrokerGuid(UUID brokerGuid) {
@@ -150,11 +150,11 @@ public class ServiceBrokersV3Operations {
             + CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS + getTargetSpaceGuid() + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE
             + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
 
-        return cc.list(uri, OFFERING_PAGE)
-                 .stream()
-                 .map(ServiceOfferingRef::guid)
-                 .map(UUID::fromString)
-                 .toList();
+        return client.list(uri, OFFERING_PAGE)
+                     .stream()
+                     .map(ServiceOfferingRef::guid)
+                     .map(UUID::fromString)
+                     .toList();
     }
 
     private List<UUID> findServicePlanGuidsByOfferingGuid(UUID serviceOfferingGuid) {
@@ -162,20 +162,20 @@ public class ServiceBrokersV3Operations {
             CloudControllerV3Endpoints.SERVICE_PLANS + CloudControllerV3Endpoints.QUERY_SERVICE_OFFERING_GUIDS + serviceOfferingGuid
                 + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
 
-        return cc.list(uri, PLAN_PAGE)
-                 .stream()
-                 .map(ServicePlanRef::guid)
-                 .map(UUID::fromString)
-                 .toList();
+        return client.list(uri, PLAN_PAGE)
+                     .stream()
+                     .map(ServicePlanRef::guid)
+                     .map(UUID::fromString)
+                     .toList();
     }
 
     private void updateServicePlanVisibility(UUID servicePlanGuid, ServicePlanVisibility visibility) {
-        cc.getRestClient()
-          .patch()
-          .uri(CloudControllerV3Endpoints.SERVICE_PLAN_VISIBILITY, servicePlanGuid.toString())
-          .body(Map.of("type", visibility.toString()))
-          .retrieve()
-          .toBodilessEntity();
+        client.getRestClient()
+              .patch()
+              .uri(CloudControllerV3Endpoints.SERVICE_PLAN_VISIBILITY, servicePlanGuid.toString())
+              .body(Map.of("type", visibility.toString()))
+              .retrieve()
+              .toBodilessEntity();
     }
 
     private static Map<String, Object> basicAuthentication(CloudServiceBroker serviceBroker) {
@@ -188,9 +188,9 @@ public class ServiceBrokersV3Operations {
     }
 
     private String getTargetSpaceGuid() {
-        return target.getMetadata()
-                     .getGuid()
-                     .toString();
+        return targetSpace.getMetadata()
+                          .getGuid()
+                          .toString();
     }
 
     private static String extractJobGuid(ResponseEntity<Void> response) {

@@ -15,11 +15,14 @@ public class Constants {
     public static final int DEFAULT_CONNECTION_POOL_SIZE = 192;
     public static final int UNDEFINED_PORT = -1;
     public static final int MAX_CONCURRENT_PAGES = 256;
+    public static final int SECOND_PAGE = 2;
     public static final int DEFAULT_CONCURRENT_TASKS = 256;
     public static final int MAX_CHAR_LENGTH_FOR_PARAMS_IN_REQUEST = 4000;
+    public static final int JOB_POLL_INTERVAL_MULTIPLIER = 2;
 
     public static final String CONNECTION_POOL_NAME = "cf-controller-client";
     public static final String LOOP_RESOURCES_SUFFIX = "-loop-resources";
+    public static final String UPLOAD_MONITOR_THREAD_NAME_PREFIX = "app-upload-monitor-";
     public static final String CF_API_V3 = "/v3";
     public static final String HREF = "href";
     public static final String CLOUD_CONTROLLER_CF_ROOT_DOCUMENT_NAME = "cloud_controller_v3";
@@ -27,10 +30,14 @@ public class Constants {
     public static final String API_HOST_PREFIX = "api.";
     public static final String LOG_CACHE_PREFIX = "log-cache.";
     public static final String ROOT_DOCUMENT_LINKS_LIST = "links";
+    public static final String TYPE = "type";
+    public static final String DATA = "data";
+    public static final String CLOUD_NATIVE_BUILDPACK = "cnb";
 
     public static final String EMPTY_STRING = "";
     public static final String COLON = ":";
     public static final String PROTOCOL_SEPARATOR = "://";
+    public static final String NEW_LINE = "\n";
 
     public static final String PACKAGE_LINK = "package";
     public static final String WEB_PROCESS_TYPE = "web";

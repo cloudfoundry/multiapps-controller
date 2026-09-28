@@ -30,9 +30,9 @@ class EventsV3OperationsTest {
     private static final UUID TARGET_GUID = UUID.fromString("99999999-8888-7777-6666-555555555555");
 
     @Mock
-    private CloudControllerV3Client cc;
+    private CloudControllerV3Client client;
     @Mock
-    private CloudSpace target;
+    private CloudSpace targetSpace;
 
     private EventsV3Operations operations;
 
@@ -40,13 +40,13 @@ class EventsV3OperationsTest {
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        operations = new EventsV3Operations(cc, target);
+        operations = new EventsV3Operations(client, targetSpace);
     }
 
     @Test
     void testGetEventsMapsResults() {
-        when(cc.list(ArgumentMatchers.anyString(),
-                     ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3AuditEvent>>> any())).thenReturn(
+        when(client.list(ArgumentMatchers.anyString(),
+                         ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3AuditEvent>>> any())).thenReturn(
             List.of(getAuditEvent("audit.app.update"), getAuditEvent("audit.app.create")));
 
         List<CloudEvent> result = operations.getEvents();
@@ -59,13 +59,13 @@ class EventsV3OperationsTest {
     @Test
     void testGetEventsByTargetIncludesTargetGuidInQuery() {
         when(
-            cc.list(ArgumentMatchers.anyString(), ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3AuditEvent>>> any()))
+            client.list(ArgumentMatchers.anyString(), ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3AuditEvent>>> any()))
             .thenReturn(List.of());
 
         operations.getEventsByTarget(TARGET_GUID);
 
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        verify(cc)
+        verify(client)
             .list(uriCaptor.capture(), ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3AuditEvent>>> any());
         Assertions.assertTrue(uriCaptor.getValue()
                                        .contains("/v3/audit_events"), uriCaptor.getValue());
@@ -75,11 +75,11 @@ class EventsV3OperationsTest {
 
     @Test
     void testGetApplicationEventsThrowsWhenApplicationNotFound() {
-        when(target.getGuid())
+        when(targetSpace.getGuid())
             .thenReturn(SPACE_GUID);
 
-        when(cc.list(ArgumentMatchers.contains("/v3/apps"),
-                     ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Application>>> any()))
+        when(client.list(ArgumentMatchers.contains("/v3/apps"),
+                         ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Application>>> any()))
             .thenReturn(List.of());
 
         CloudOperationException thrown = Assertions.assertThrows(CloudOperationException.class,
@@ -90,19 +90,19 @@ class EventsV3OperationsTest {
 
     @Test
     void testGetApplicationEventsQueryScopesAppsToSpaceWhenTargetPresent() {
-        when(target.getGuid())
+        when(targetSpace.getGuid())
             .thenReturn(SPACE_GUID);
-        when(cc.list(ArgumentMatchers.contains("/v3/apps"),
-                     ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Application>>> any()))
+        when(client.list(ArgumentMatchers.contains("/v3/apps"),
+                         ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Application>>> any()))
             .thenReturn(List.of(new V3Application(GUID_STRING, "my-app", "STARTED", null, null, null, null, null)));
-        when(cc.list(ArgumentMatchers.contains("/v3/audit_events"),
-                     ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3AuditEvent>>> any()))
+        when(client.list(ArgumentMatchers.contains("/v3/audit_events"),
+                         ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3AuditEvent>>> any()))
             .thenReturn(List.of());
 
         operations.getApplicationEvents("my-app");
 
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        verify(cc, times(2))
+        verify(client, times(2))
             .list(uriCaptor.capture(), ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Application>>> any());
         String appsQuery = uriCaptor.getAllValues()
                                     .stream()

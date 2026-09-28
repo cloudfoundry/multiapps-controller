@@ -18,29 +18,30 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * </pre>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record V3ServiceInstance(@JsonProperty("guid") String guid, @JsonProperty("name") String name, @JsonProperty("type") String type,
-                                @JsonProperty("created_at") String createdAt, @JsonProperty("updated_at") String updatedAt,
+public record V3ServiceInstance(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty(V3Fields.NAME) String name,
+                                @JsonProperty(V3Fields.TYPE) String type,
+                                @JsonProperty(V3Fields.CREATED_AT) String createdAt, @JsonProperty(V3Fields.UPDATED_AT) String updatedAt,
                                 @JsonProperty("tags") List<String> tags, @JsonProperty("syslog_drain_url") String syslogDrainUrl,
                                 @JsonProperty("last_operation") V3LastOperation lastOperation,
-                                @JsonProperty("metadata") V3Metadata metadata,
-                                @JsonProperty("relationships") V3Relationships relationships) {
+                                @JsonProperty(V3Fields.METADATA) V3Metadata metadata,
+                                @JsonProperty(V3Fields.RELATIONSHIPS) V3Relationships relationships) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3LastOperation(@JsonProperty("type") String type, @JsonProperty("state") String state,
-                                  @JsonProperty("description") String description) {
+    public record V3LastOperation(@JsonProperty(V3Fields.TYPE) String type, @JsonProperty(V3Fields.STATE) String state,
+                                  @JsonProperty(V3Fields.DESCRIPTION) String description) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3Relationships(@JsonProperty("space") V3ToOneRelationship space,
+    public record V3Relationships(@JsonProperty(V3Fields.SPACE) V3ToOneRelationship space,
                                   @JsonProperty("service_plan") V3ToOneRelationship servicePlan) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3ToOneRelationship(@JsonProperty("data") V3RelationshipData data) {
+    public record V3ToOneRelationship(@JsonProperty(V3Fields.DATA) V3RelationshipData data) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3RelationshipData(@JsonProperty("guid") String guid) {
+    public record V3RelationshipData(@JsonProperty(V3Fields.GUID) String guid) {
     }
 
 }

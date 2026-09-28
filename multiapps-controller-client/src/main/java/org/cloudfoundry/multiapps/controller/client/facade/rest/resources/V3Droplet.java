@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * </pre>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record V3Droplet(@JsonProperty("guid") String guid, @JsonProperty("links") Map<String, V3Link> links) {
+public record V3Droplet(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty("links") Map<String, V3Link> links) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record V3Link(@JsonProperty("href") String href) {

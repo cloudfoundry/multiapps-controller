@@ -12,8 +12,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * </pre>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record V3Space(@JsonProperty("guid") String guid, @JsonProperty("name") String name, @JsonProperty("created_at") String createdAt,
-                      @JsonProperty("updated_at") String updatedAt, @JsonProperty("relationships") V3SpaceRelationships relationships) {
+public record V3Space(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty(V3Fields.NAME) String name,
+                      @JsonProperty(V3Fields.CREATED_AT) String createdAt,
+                      @JsonProperty(V3Fields.UPDATED_AT) String updatedAt,
+                      @JsonProperty(V3Fields.RELATIONSHIPS) V3SpaceRelationships relationships) {
 
     public String organizationGuid() {
         if (relationships == null || relationships.organization() == null || relationships.organization()
@@ -27,15 +29,15 @@ public record V3Space(@JsonProperty("guid") String guid, @JsonProperty("name") S
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3SpaceRelationships(@JsonProperty("organization") V3ToOne organization) {
+    public record V3SpaceRelationships(@JsonProperty(V3Fields.ORGANIZATION) V3ToOne organization) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3ToOne(@JsonProperty("data") V3Data data) {
+    public record V3ToOne(@JsonProperty(V3Fields.DATA) V3Data data) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3Data(@JsonProperty("guid") String guid) {
+    public record V3Data(@JsonProperty(V3Fields.GUID) String guid) {
     }
 
 }

@@ -22,30 +22,30 @@ public class EventsV3Operations {
     private static final ParameterizedTypeReference<V3ListResponse<V3Application>> APPLICATION_PAGE = new ParameterizedTypeReference<>() {
     };
 
-    private final CloudControllerV3Client cc;
-    private final CloudSpace target;
+    private final CloudControllerV3Client client;
+    private final CloudSpace targetSpace;
 
-    public EventsV3Operations(CloudControllerV3Client cc, CloudSpace target) {
-        this.cc = cc;
-        this.target = target;
+    public EventsV3Operations(CloudControllerV3Client client, CloudSpace targetSpace) {
+        this.client = client;
+        this.targetSpace = targetSpace;
     }
 
     public List<CloudEvent> getEvents() {
-        return cc.list(CloudControllerV3Endpoints.AUDIT_EVENTS + CloudControllerV3Endpoints.QUERY_PER_PAGE
-                           + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, EVENT_PAGE)
-                 .stream()
-                 .map(V3AuditEventMapper::toCloudEvent)
-                 .toList();
+        return client.list(CloudControllerV3Endpoints.AUDIT_EVENTS + CloudControllerV3Endpoints.QUERY_PER_PAGE
+                               + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, EVENT_PAGE)
+                     .stream()
+                     .map(V3AuditEventMapper::toCloudEvent)
+                     .toList();
     }
 
     public List<CloudEvent> getEventsByTarget(UUID uuid) {
         String query = CloudControllerV3Endpoints.AUDIT_EVENTS + CloudControllerV3Endpoints.QUERY_PER_PAGE
             + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE + CloudControllerV3Endpoints.AMPERSAND_TARGET_GUIDS + uuid;
 
-        return cc.list(query, EVENT_PAGE)
-                 .stream()
-                 .map(V3AuditEventMapper::toCloudEvent)
-                 .toList();
+        return client.list(query, EVENT_PAGE)
+                     .stream()
+                     .map(V3AuditEventMapper::toCloudEvent)
+                     .toList();
     }
 
     public List<CloudEvent> getApplicationEvents(String applicationName) {
@@ -55,17 +55,7 @@ public class EventsV3Operations {
     }
 
     private UUID getRequiredApplicationGuid(String applicationName) {
-        StringBuilder query = new StringBuilder(CloudControllerV3Endpoints.APPS + CloudControllerV3Endpoints.QUERY_PER_PAGE
-                                                    + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
-
-        if (target != null && target.getGuid() != null) {
-            query.append(CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
-                 .append(target.getGuid());
-        }
-
-        query.append(CloudControllerV3Endpoints.AMPERSAND_NAMES)
-             .append(applicationName);
-        List<V3Application> apps = cc.list(query.toString(), APPLICATION_PAGE);
+        List<V3Application> apps = client.list(buildApplicationQuery(applicationName), APPLICATION_PAGE);
 
         if (apps.isEmpty()) {
             throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
@@ -74,6 +64,21 @@ public class EventsV3Operations {
 
         return UUID.fromString(apps.getFirst()
                                    .guid());
+    }
+
+    private String buildApplicationQuery(String applicationName) {
+        StringBuilder query = new StringBuilder(CloudControllerV3Endpoints.APPS + CloudControllerV3Endpoints.QUERY_PER_PAGE
+                                                    + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
+
+        if (targetSpace != null && targetSpace.getGuid() != null) {
+            query.append(CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
+                 .append(targetSpace.getGuid());
+        }
+
+        query.append(CloudControllerV3Endpoints.AMPERSAND_NAMES)
+             .append(applicationName);
+
+        return query.toString();
     }
 
 }

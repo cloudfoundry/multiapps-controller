@@ -18,37 +18,37 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * </pre>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record V3Route(@JsonProperty("guid") String guid, @JsonProperty("host") String host, @JsonProperty("path") String path,
-                      @JsonProperty("port") Integer port, @JsonProperty("url") String url,
-                      @JsonProperty("created_at") String createdAt, @JsonProperty("updated_at") String updatedAt,
-                      @JsonProperty("destinations") List<V3Destination> destinations, @JsonProperty("metadata") V3Metadata metadata,
-                      @JsonProperty("relationships") V3RouteRelationships relationships) {
+public record V3Route(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty("host") String host, @JsonProperty("path") String path,
+                      @JsonProperty(V3Fields.PORT) Integer port, @JsonProperty("url") String url,
+                      @JsonProperty(V3Fields.CREATED_AT) String createdAt, @JsonProperty(V3Fields.UPDATED_AT) String updatedAt,
+                      @JsonProperty("destinations") List<V3Destination> destinations, @JsonProperty(V3Fields.METADATA) V3Metadata metadata,
+                      @JsonProperty(V3Fields.RELATIONSHIPS) V3RouteRelationships relationships) {
 
     public List<V3Destination> destinations() {
         return destinations == null ? Collections.emptyList() : destinations;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3Destination(@JsonProperty("guid") String guid, @JsonProperty("app") V3DestinationApp app,
-                                @JsonProperty("port") Integer port, @JsonProperty("weight") Integer weight,
+    public record V3Destination(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty(V3Fields.APP) V3DestinationApp app,
+                                @JsonProperty(V3Fields.PORT) Integer port, @JsonProperty("weight") Integer weight,
                                 @JsonProperty("protocol") String protocol) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3DestinationApp(@JsonProperty("guid") String guid) {
+    public record V3DestinationApp(@JsonProperty(V3Fields.GUID) String guid) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3RouteRelationships(@JsonProperty("space") V3ToOneRelationship space,
+    public record V3RouteRelationships(@JsonProperty(V3Fields.SPACE) V3ToOneRelationship space,
                                        @JsonProperty("domain") V3ToOneRelationship domain) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3ToOneRelationship(@JsonProperty("data") V3RelationshipData data) {
+    public record V3ToOneRelationship(@JsonProperty(V3Fields.DATA) V3RelationshipData data) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3RelationshipData(@JsonProperty("guid") String guid) {
+    public record V3RelationshipData(@JsonProperty(V3Fields.GUID) String guid) {
     }
 
 }

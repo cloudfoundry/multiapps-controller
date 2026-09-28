@@ -87,10 +87,6 @@ public final class Metadata {
             return this;
         }
 
-        public Builder putAllLabels(Map<String, String> labels) {
-            return labels(labels);
-        }
-
         public Builder annotation(String key, String value) {
             this.annotations.put(key, value);
             return this;
@@ -102,10 +98,6 @@ public final class Metadata {
             }
 
             return this;
-        }
-
-        public Builder putAllAnnotations(Map<String, String> annotations) {
-            return annotations(annotations);
         }
 
         public Metadata build() {

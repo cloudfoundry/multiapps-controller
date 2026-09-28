@@ -16,13 +16,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * </pre>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record V3Process(@JsonProperty("guid") String guid, @JsonProperty("command") String command,
+public record V3Process(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty(V3Fields.COMMAND) String command,
                         @JsonProperty("instances") Integer instances, @JsonProperty("memory_in_mb") Integer memoryInMb,
                         @JsonProperty("disk_in_mb") Integer diskInMb, @JsonProperty("health_check") V3HealthCheck healthCheck,
                         @JsonProperty("readiness_health_check") V3HealthCheck readinessHealthCheck) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3HealthCheck(@JsonProperty("type") String type, @JsonProperty("data") V3HealthCheckData data) {
+    public record V3HealthCheck(@JsonProperty(V3Fields.TYPE) String type, @JsonProperty(V3Fields.DATA) V3HealthCheckData data) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -36,16 +36,16 @@ public record V3Process(@JsonProperty("guid") String guid, @JsonProperty("comman
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3ProcessStatsResource(@JsonProperty("index") Integer index, @JsonProperty("state") String state,
+    public record V3ProcessStatsResource(@JsonProperty("index") Integer index, @JsonProperty(V3Fields.STATE) String state,
                                          @JsonProperty("routable") String routable) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3AppFeature(@JsonProperty("name") String name, @JsonProperty("enabled") Boolean enabled) {
+    public record V3AppFeature(@JsonProperty(V3Fields.NAME) String name, @JsonProperty(V3Fields.ENABLED) Boolean enabled) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3SshEnabled(@JsonProperty("enabled") Boolean enabled, @JsonProperty("reason") String reason) {
+    public record V3SshEnabled(@JsonProperty(V3Fields.ENABLED) Boolean enabled, @JsonProperty("reason") String reason) {
     }
 
 }

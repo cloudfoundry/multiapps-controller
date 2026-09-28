@@ -43,7 +43,7 @@ import org.springframework.web.client.RestClient;
 
 public class CloudControllerRestClientV3Impl implements CloudControllerRestClient {
 
-    private final CloudSpace target;
+    private final CloudSpace targetSpace;
 
     private final ApplicationsV3Operations applicationsOperations;
     private final BuildsV3Operations buildsOperations;
@@ -62,31 +62,32 @@ public class CloudControllerRestClientV3Impl implements CloudControllerRestClien
     private final StacksV3Operations stacksOperations;
     private final TasksV3Operations tasksOperations;
 
-    public CloudControllerRestClientV3Impl(CloudSpace target, CloudControllerV3Client cloudControllerClient,
+    public CloudControllerRestClientV3Impl(CloudSpace targetSpace, CloudControllerV3Client cloudControllerClient,
                                            Function<Duration, RestClient> uploadRestClientFactory) {
-        this.target = target;
-        this.applicationsOperations = new ApplicationsV3Operations(cloudControllerClient, target);
+        this.targetSpace = targetSpace;
+        this.applicationsOperations = new ApplicationsV3Operations(cloudControllerClient, targetSpace);
         this.buildsOperations = new BuildsV3Operations(cloudControllerClient);
-        this.domainsOperations = new DomainsV3Operations(cloudControllerClient, target);
-        this.eventsOperations = new EventsV3Operations(cloudControllerClient, target);
+        this.domainsOperations = new DomainsV3Operations(cloudControllerClient, targetSpace);
+        this.eventsOperations = new EventsV3Operations(cloudControllerClient, targetSpace);
         this.jobsOperations = new JobsV3Operations(cloudControllerClient);
-        this.packagesOperations = new PackagesV3Operations(cloudControllerClient, target, uploadRestClientFactory);
-        this.processesOperations = new ProcessesV3Operations(cloudControllerClient, target);
+        this.packagesOperations = new PackagesV3Operations(cloudControllerClient, targetSpace, uploadRestClientFactory);
+        this.processesOperations = new ProcessesV3Operations(cloudControllerClient, targetSpace);
         this.rolesOperations = new RolesV3Operations(cloudControllerClient);
-        this.routesOperations = new RoutesV3Operations(cloudControllerClient, target);
-        this.serviceBindingsOperations = new ServiceBindingsV3Operations(cloudControllerClient, target);
-        this.serviceBrokersOperations = new ServiceBrokersV3Operations(cloudControllerClient, target);
-        this.serviceInstancesOperations = new ServiceInstancesV3Operations(cloudControllerClient, target);
+        this.routesOperations = new RoutesV3Operations(cloudControllerClient, targetSpace);
+        this.serviceBindingsOperations = new ServiceBindingsV3Operations(cloudControllerClient, targetSpace);
+        this.serviceBrokersOperations = new ServiceBrokersV3Operations(cloudControllerClient, targetSpace);
+        this.serviceInstancesOperations = new ServiceInstancesV3Operations(cloudControllerClient, targetSpace);
         this.serviceKeysOperations = new ServiceKeysV3Operations(cloudControllerClient);
-        this.serviceOfferingsOperations = new ServiceOfferingsV3Operations(cloudControllerClient, target);
+        this.serviceOfferingsOperations = new ServiceOfferingsV3Operations(cloudControllerClient, targetSpace);
         this.stacksOperations = new StacksV3Operations(cloudControllerClient);
-        this.tasksOperations = new TasksV3Operations(cloudControllerClient, target);
+        this.tasksOperations = new TasksV3Operations(cloudControllerClient, targetSpace);
     }
 
     @Override
     public CloudSpace getTarget() {
-        return target;
+        return targetSpace;
     }
+
 
     @Override
     public void addDomain(String domainName) {

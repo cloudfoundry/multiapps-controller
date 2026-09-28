@@ -19,9 +19,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * </pre>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record V3Package(@JsonProperty("guid") String guid, @JsonProperty("type") String type, @JsonProperty("state") String state,
-                        @JsonProperty("created_at") String createdAt, @JsonProperty("updated_at") String updatedAt,
-                        @JsonProperty("data") V3PackageData data) {
+public record V3Package(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty(V3Fields.TYPE) String type, @JsonProperty(V3Fields.STATE) String state,
+                        @JsonProperty(V3Fields.CREATED_AT) String createdAt, @JsonProperty(V3Fields.UPDATED_AT) String updatedAt,
+                        @JsonProperty(V3Fields.DATA) V3PackageData data) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record V3PackageData(@JsonProperty("checksum") V3Checksum checksum, @JsonProperty("error") String error,
@@ -30,7 +30,7 @@ public record V3Package(@JsonProperty("guid") String guid, @JsonProperty("type")
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3Checksum(@JsonProperty("type") String type, @JsonProperty("value") String value) {
+    public record V3Checksum(@JsonProperty(V3Fields.TYPE) String type, @JsonProperty("value") String value) {
     }
 
 }

@@ -39,9 +39,9 @@ class DomainsV3OperationsTest {
     private static final String DOMAIN_NAME = "example.com";
 
     @Mock
-    private CloudControllerV3Client cc;
+    private CloudControllerV3Client client;
     @Mock
-    private CloudSpace target;
+    private CloudSpace targetSpace;
 
     private DomainsV3Operations operations;
 
@@ -52,9 +52,9 @@ class DomainsV3OperationsTest {
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        operations = new DomainsV3Operations(cc, target);
+        operations = new DomainsV3Operations(client, targetSpace);
         factory = MockControllerClientFactory.create();
-        serverOperations = new DomainsV3Operations(factory.client(), target);
+        serverOperations = new DomainsV3Operations(factory.client(), targetSpace);
     }
 
     @Test
@@ -98,7 +98,7 @@ class DomainsV3OperationsTest {
 
     @Test
     void testAddDomainCreatesWhenAbsent() {
-        when(target.getOrganization())
+        when(targetSpace.getOrganization())
             .thenReturn(getOrganizationWithGuid(ORG_GUID));
 
         stubEmptyDomainLookup(DOMAIN_NAME);
@@ -173,7 +173,7 @@ class DomainsV3OperationsTest {
 
     @Test
     void testGetDefaultDomainReturnsMappedDomain() {
-        when(target.getOrganization())
+        when(targetSpace.getOrganization())
             .thenReturn(getOrganizationWithGuid(ORG_GUID));
 
         factory.server()
@@ -191,7 +191,7 @@ class DomainsV3OperationsTest {
 
     @Test
     void testGetDomainsForOrganizationReturnsMappedDomains() {
-        when(target.getOrganization())
+        when(targetSpace.getOrganization())
             .thenReturn(getOrganizationWithGuid(ORG_GUID));
 
         factory.server()
@@ -211,7 +211,7 @@ class DomainsV3OperationsTest {
 
     @Test
     void testGetDomainsForOrganizationReturnsEmptyWhenNoDomains() {
-        when(target.getOrganization())
+        when(targetSpace.getOrganization())
             .thenReturn(getOrganizationWithGuid(ORG_GUID));
 
         factory.server()
@@ -261,8 +261,8 @@ class DomainsV3OperationsTest {
     }
 
     private void mockDomainList(V3Domain... domains) {
-        when(cc.list(ArgumentMatchers.anyString(),
-                     ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Domain>>> any()))
+        when(client.list(ArgumentMatchers.anyString(),
+                         ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Domain>>> any()))
             .thenReturn(List.of(domains));
     }
 

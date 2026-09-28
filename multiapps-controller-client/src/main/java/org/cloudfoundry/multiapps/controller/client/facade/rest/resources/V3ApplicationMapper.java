@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest.resources;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
@@ -47,10 +47,10 @@ public final class V3ApplicationMapper {
 
     private static Map<String, Object> extractLifecycleData(V3Application.V3LifecycleData data) {
         if (data == null) {
-            return Collections.emptyMap();
+            return Map.of();
         }
 
-        return Map.of(BUILDPACKS, data.buildpacks() == null ? Collections.emptyList() : data.buildpacks(),
+        return Map.of(BUILDPACKS, data.buildpacks() == null ? List.of() : data.buildpacks(),
                       STACK, data.stack() == null ? "" : data.stack());
     }
 
