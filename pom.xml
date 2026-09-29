@@ -65,8 +65,7 @@
         <azure-core-http-jdk-httpclient.version>1.0.4</azure-core-http-jdk-httpclient.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <wire-runtime.version>6.4.7</wire-runtime.version>
-        <wire-runtime.version>6.3.0</wire-runtime.version>
-        <bucket4j.version>8.14.0</bucket4j.version>
+        <bucket4j.version>8.20.0</bucket4j.version>
     </properties>
     <modules>
         <module>multiapps-controller-client</module>

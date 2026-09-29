@@ -9,8 +9,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 /**
  * Derives stable {@code long} bucket keys for operation rate limiting.
  * <p>
- * Keys are computed from the SHA-256 digest of a namespaced input string and are therefore deterministic across restarts and JVMs. The
- * space and user namespaces are disjoint by construction, so a space key can never collide with a user key. Truncating the 256-bit digest
+ * Keys are computed from the SHA-384 digest of a namespaced input string and are therefore deterministic across restarts and JVMs. The
+ * space and user namespaces are disjoint by construction, so a space key can never collide with a user key. Truncating the 384-bit digest
  * to its first 64 bits keeps the collision probability negligible for the number of distinct spaces and users a single landscape handles.
  */
 public final class OperationRateLimitKeys {

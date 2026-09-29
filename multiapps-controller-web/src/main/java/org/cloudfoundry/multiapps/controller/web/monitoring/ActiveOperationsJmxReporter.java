@@ -12,8 +12,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
+import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
+import javax.management.OperationsException;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -23,6 +28,8 @@ import org.cloudfoundry.multiapps.controller.persistence.services.OperationServi
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
+
+import static org.cloudfoundry.multiapps.controller.web.Messages.FAILED_TO_REFRESH_ACTIVE_OPERATIONS_JMX_METRICS;
 
 @Named
 public class ActiveOperationsJmxReporter {
@@ -62,8 +69,8 @@ public class ActiveOperationsJmxReporter {
                                                                .list();
             syncMBeans(groupBy(activeOperations, op -> hashUser(op.getUser())), USER_OBJECT_NAME_PATTERN, userBeans);
             syncMBeans(groupBy(activeOperations, Operation::getSpaceId), SPACE_OBJECT_NAME_PATTERN, spaceBeans);
-        } catch (Exception e) {
-            LOGGER.warn("Failed to refresh active operations JMX metrics", e);
+        } catch (MBeanRegistrationException | OperationsException e) {
+            LOGGER.warn(FAILED_TO_REFRESH_ACTIVE_OPERATIONS_JMX_METRICS, e);
         }
     }
 
@@ -72,8 +79,8 @@ public class ActiveOperationsJmxReporter {
                          .collect(Collectors.groupingBy(keyExtractor, Collectors.counting()));
     }
 
-    private void syncMBeans(Map<String, Long> counts, String pattern,
-                            Map<ObjectName, ActiveOperationsCount> registry) throws Exception {
+    private void syncMBeans(Map<String, Long> counts, String pattern, Map<ObjectName, ActiveOperationsCount> registry)
+        throws MBeanRegistrationException, OperationsException {
         Set<ObjectName> stale = new HashSet<>(registry.keySet());
         for (Map.Entry<String, Long> entry : counts.entrySet()) {
             ObjectName name = new ObjectName(pattern.formatted(ObjectName.quote(entry.getKey())));
@@ -83,8 +90,8 @@ public class ActiveOperationsJmxReporter {
         removeStaleMBeans(stale, registry);
     }
 
-    private void upsertMBean(ObjectName name, long count,
-                             Map<ObjectName, ActiveOperationsCount> registry) throws Exception {
+    private void upsertMBean(ObjectName name, long count, Map<ObjectName, ActiveOperationsCount> registry)
+        throws NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException {
         ActiveOperationsCount bean = registry.get(name);
         if (bean == null) {
             bean = new ActiveOperationsCount(count);
@@ -95,8 +102,8 @@ public class ActiveOperationsJmxReporter {
         }
     }
 
-    private void removeStaleMBeans(Set<ObjectName> stale,
-                                   Map<ObjectName, ActiveOperationsCount> registry) throws Exception {
+    private void removeStaleMBeans(Set<ObjectName> stale, Map<ObjectName, ActiveOperationsCount> registry)
+        throws InstanceNotFoundException, MBeanRegistrationException {
         for (ObjectName name : stale) {
             mBeanServer.unregisterMBean(name);
             registry.remove(name);

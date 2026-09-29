@@ -52,5 +52,5 @@
             file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-2.55.0-persistence.xml"/>
 
     <include
-            file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-2.52.0-persistence.xml"/>
+            file="/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-2.57.0-persistence.xml"/>
 </databaseChangeLog>

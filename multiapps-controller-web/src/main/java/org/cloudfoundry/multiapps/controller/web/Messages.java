@@ -27,7 +27,7 @@ public final class Messages {
     public static final String TOO_MANY_ACTIVE_OPERATIONS_IN_SPACE = "Too many active operations in space";
     public static final String TOO_MANY_ACTIVE_OPERATIONS_FOR_USER = "Too many active operations for user";
     public static final String OPERATION_RATE_LIMIT_EXCEEDED = "Operation rate limit exceeded";
-
+    public static final String FAILED_TO_REFRESH_ACTIVE_OPERATIONS_JMX_METRICS = "Failed to refresh active operations JMX metrics";
     public static final String FAILED_TO_CREATE_BLOB_STORE_CONTEXT = "Failed to create BlobStoreContext";
 
     // Audit log messages
