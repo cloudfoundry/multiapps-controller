@@ -1,10 +1,6 @@
 package org.cloudfoundry.multiapps.controller.web.monitoring;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
-import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,6 +21,7 @@ import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
+import org.cloudfoundry.multiapps.controller.web.util.RateLimitHashing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -111,14 +108,7 @@ public class ActiveOperationsJmxReporter {
     }
 
     static String hashUser(String user) {
-        try {
-            byte[] digest = MessageDigest.getInstance("SHA-384")
-                                         .digest(user.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of()
-                            .formatHex(digest);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException(e);
-        }
+        return RateLimitHashing.hashToHex(user);
     }
 
 }
