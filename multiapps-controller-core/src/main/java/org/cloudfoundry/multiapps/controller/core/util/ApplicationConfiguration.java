@@ -100,6 +100,8 @@ public class ApplicationConfiguration {
     static final String CFG_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER = "THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER";
     static final String CFG_THREADS_FOR_FILE_STORAGE_UPLOAD = "THREADS_FOR_FILE_STORAGE_UPLOAD";
     static final String CFG_IS_HEALTH_CHECK_ENABLED = "IS_HEALTH_CHECK_ENABLED";
+    static final String CFG_DEPLOY_FROM_URL_ADDRESS_DENY_LIST = "DEPLOY_FROM_URL_ADDRESS_DENY_LIST";
+    static final String CFG_DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED = "DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = List.of("full_application_uris", "application_uris", "uris");
 
@@ -158,6 +160,8 @@ public class ApplicationConfiguration {
     public static final int DEFAULT_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER = 6;
     public static final int DEFAULT_THREADS_FOR_FILE_STORAGE_UPLOAD = 7;
     public static final boolean DEFAULT_IS_HEALTH_CHECK_ENABLED = false;
+    public static final boolean DEFAULT_DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED = false;
+    public static final String DEFAULT_DEPLOY_FROM_URL_ADDRESS_DENY_LIST = "127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,100.100.100.200/32,::1/128,fe80::/10,fc00::/7";
 
     protected final Environment environment;
 
@@ -216,6 +220,8 @@ public class ApplicationConfiguration {
     private Integer threadsForFileUploadToController;
     private Integer threadsForFileStorageUpload;
     private Boolean isHealthCheckEnabled;
+    private String deployFromUrlAddressDenyList;
+    private Boolean isDeployFromUrlAddressValidationEnabled;
     private Set<String> objectStoreRegions;
 
     public ApplicationConfiguration() {
@@ -666,6 +672,20 @@ public class ApplicationConfiguration {
             isHealthCheckEnabled = isHealthCheckEnabledFromEnvironment();
         }
         return isHealthCheckEnabled;
+    }
+
+    public String getDeployFromUrlAddressDenyList() {
+        if (deployFromUrlAddressDenyList == null) {
+            deployFromUrlAddressDenyList = getDeployFromUrlAddressDenyListFromEnvironment();
+        }
+        return deployFromUrlAddressDenyList;
+    }
+
+    public Boolean isDeployFromUrlAddressValidationEnabled() {
+        if (isDeployFromUrlAddressValidationEnabled == null) {
+            isDeployFromUrlAddressValidationEnabled = isDeployFromUrlAddressValidationEnabledFromEnvironment();
+        }
+        return isDeployFromUrlAddressValidationEnabled;
     }
 
     private URL getControllerUrlFromEnvironment() {
@@ -1119,6 +1139,19 @@ public class ApplicationConfiguration {
     private String getCertificateCNFromEnvironment() {
         String value = environment.getString(CFG_CERTIFICATE_CN);
         logEnvironmentVariable(CFG_CERTIFICATE_CN, Messages.CERTIFICATE_CN, value);
+        return value;
+    }
+
+    private String getDeployFromUrlAddressDenyListFromEnvironment() {
+        String value = environment.getString(CFG_DEPLOY_FROM_URL_ADDRESS_DENY_LIST, DEFAULT_DEPLOY_FROM_URL_ADDRESS_DENY_LIST);
+        logEnvironmentVariable(CFG_DEPLOY_FROM_URL_ADDRESS_DENY_LIST, Messages.DEPLOY_FROM_URL_ADDRESS_DENY_LIST, value);
+        return value;
+    }
+
+    private Boolean isDeployFromUrlAddressValidationEnabledFromEnvironment() {
+        Boolean value = environment.getBoolean(CFG_DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED,
+                                               DEFAULT_DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED);
+        logEnvironmentVariable(CFG_DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED, Messages.DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED, value);
         return value;
     }
 }
