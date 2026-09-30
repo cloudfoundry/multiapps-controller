@@ -1,6 +1,9 @@
 package org.cloudfoundry.multiapps.controller.web.configuration;
 
+import java.lang.management.ManagementFactory;
 import java.util.Map;
+
+import javax.management.MBeanServer;
 
 import org.cloudfoundry.multiapps.controller.web.monitoring.Metrics;
 import org.cloudfoundry.multiapps.controller.web.monitoring.UploadDurationMetrics;
@@ -16,9 +19,16 @@ public class JmxConfiguration {
     private static final String UPLOAD_METRICS_BEAN = "org.cloudfoundry.multiapps.controller.web.monitoring:type=Metrics,name=UploadMetricsMBean";
 
     @Bean
+    public MBeanServer mBeanServer() {
+        return ManagementFactory.getPlatformMBeanServer();
+    }
+
+    @Bean
     public MBeanExporter jmxExporter(Metrics metrics, UploadDurationMetrics uploadDurationMetrics) {
         MBeanExporter mBeanExporter = new MBeanExporter();
-        mBeanExporter.setBeans(Map.of(METRICS_BEAN, metrics, UPLOAD_METRICS_BEAN, uploadDurationMetrics));
+        mBeanExporter.setServer(mBeanServer());
+        mBeanExporter.setBeans(Map.of(METRICS_BEAN, metrics,
+                                      UPLOAD_METRICS_BEAN, uploadDurationMetrics));
         return mBeanExporter;
     }
 }

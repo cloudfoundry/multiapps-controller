@@ -110,5 +110,9 @@
             <groupId>org.cloudfoundry.multiapps</groupId>
             <artifactId>multiapps-controller-shutdown-client</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.bucket4j</groupId>
+            <artifactId>bucket4j_jdk17-postgresql</artifactId>
+        </dependency>
     </dependencies>
 </project>

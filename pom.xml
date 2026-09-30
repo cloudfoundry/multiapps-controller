@@ -65,6 +65,7 @@
         <azure-core-http-jdk-httpclient.version>1.0.4</azure-core-http-jdk-httpclient.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <wire-runtime.version>6.4.7</wire-runtime.version>
+        <bucket4j.version>8.20.0</bucket4j.version>
     </properties>
     <modules>
         <module>multiapps-controller-client</module>
@@ -824,6 +825,12 @@
                 <groupId>io.github.resilience4j</groupId>
                 <artifactId>resilience4j-ratelimiter</artifactId>
                 <version>${resilience4j.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/com.bucket4j/bucket4j_jdk17-postgresql -->
+            <dependency>
+                <groupId>com.bucket4j</groupId>
+                <artifactId>bucket4j_jdk17-postgresql</artifactId>
+                <version>${bucket4j.version}</version>
             </dependency>
             <!-- Transitive dependency from org.cloudfoundry:cloudfoundry-client-reactor. Version 3.7.1 has security vulnerabilities and in order to avoid them, an explicit version is required. -->
             <!-- https://mvnrepository.com/artifact/com.squareup.wire/wire-runtime -->
