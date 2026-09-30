@@ -107,6 +107,8 @@ public class ApplicationConfiguration {
     static final String CFG_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR = "OP_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR";
     static final String CFG_OPERATION_RATE_LIMIT_PER_USER_CAPACITY = "OP_RATE_LIMIT_PER_USER_CAPACITY";
     static final String CFG_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR = "OP_RATE_LIMIT_PER_USER_REFILL_PER_HOUR";
+    static final String CFG_DEPLOY_FROM_URL_ADDRESS_DENY_LIST = "DEPLOY_FROM_URL_ADDRESS_DENY_LIST";
+    static final String CFG_DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED = "DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = List.of("full_application_uris", "application_uris", "uris");
 
@@ -172,6 +174,8 @@ public class ApplicationConfiguration {
     public static final int DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR = 800;
     public static final int DEFAULT_OPERATION_RATE_LIMIT_PER_USER_CAPACITY = 150;
     public static final int DEFAULT_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR = 300;
+    public static final boolean DEFAULT_DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED = false;
+    public static final String DEFAULT_DEPLOY_FROM_URL_ADDRESS_DENY_LIST = "127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,100.100.100.200/32,::1/128,fe80::/10,fc00::/7";
 
     protected final Environment environment;
 
@@ -230,6 +234,8 @@ public class ApplicationConfiguration {
     private Integer threadsForFileUploadToController;
     private Integer threadsForFileStorageUpload;
     private Boolean isHealthCheckEnabled;
+    private String deployFromUrlAddressDenyList;
+    private Boolean isDeployFromUrlAddressValidationEnabled;
     private Set<String> objectStoreRegions;
     private Boolean operationRateLimitingEnabled;
     private Integer maxActiveOperationsPerSpace;
@@ -741,6 +747,20 @@ public class ApplicationConfiguration {
         return operationRateLimitPerUserRefillPerHour;
     }
 
+    public String getDeployFromUrlAddressDenyList() {
+        if (deployFromUrlAddressDenyList == null) {
+            deployFromUrlAddressDenyList = getDeployFromUrlAddressDenyListFromEnvironment();
+        }
+        return deployFromUrlAddressDenyList;
+    }
+
+    public Boolean isDeployFromUrlAddressValidationEnabled() {
+        if (isDeployFromUrlAddressValidationEnabled == null) {
+            isDeployFromUrlAddressValidationEnabled = isDeployFromUrlAddressValidationEnabledFromEnvironment();
+        }
+        return isDeployFromUrlAddressValidationEnabled;
+    }
+
     private URL getControllerUrlFromEnvironment() {
         String controllerUrlString = environment.getString("CF_API");
         if (StringUtils.isEmpty(controllerUrlString)) {
@@ -1240,6 +1260,19 @@ public class ApplicationConfiguration {
     private String getCertificateCNFromEnvironment() {
         String value = environment.getString(CFG_CERTIFICATE_CN);
         logEnvironmentVariable(CFG_CERTIFICATE_CN, Messages.CERTIFICATE_CN, value);
+        return value;
+    }
+
+    private String getDeployFromUrlAddressDenyListFromEnvironment() {
+        String value = environment.getString(CFG_DEPLOY_FROM_URL_ADDRESS_DENY_LIST, DEFAULT_DEPLOY_FROM_URL_ADDRESS_DENY_LIST);
+        logEnvironmentVariable(CFG_DEPLOY_FROM_URL_ADDRESS_DENY_LIST, Messages.DEPLOY_FROM_URL_ADDRESS_DENY_LIST, value);
+        return value;
+    }
+
+    private Boolean isDeployFromUrlAddressValidationEnabledFromEnvironment() {
+        Boolean value = environment.getBoolean(CFG_DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED,
+                                               DEFAULT_DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED);
+        logEnvironmentVariable(CFG_DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED, Messages.DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED, value);
         return value;
     }
 }

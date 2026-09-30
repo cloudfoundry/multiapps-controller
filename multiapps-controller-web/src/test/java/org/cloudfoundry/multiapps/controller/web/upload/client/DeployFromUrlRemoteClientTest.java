@@ -8,11 +8,15 @@ import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.text.MessageFormat;
+import java.util.List;
+import java.util.Map;
 import java.util.OptionalLong;
+
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.UserCredentials;
 import org.cloudfoundry.multiapps.controller.client.util.CheckedSupplier;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientOperationExecutor;
+import org.cloudfoundry.multiapps.controller.core.util.AddressValidator;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEntry;
 import org.cloudfoundry.multiapps.controller.web.Constants;
@@ -21,13 +25,18 @@ import org.cloudfoundry.multiapps.controller.web.upload.UploadFromUrlContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -42,6 +51,9 @@ class DeployFromUrlRemoteClientTest {
 
     @Mock
     private ApplicationConfiguration applicationConfiguration;
+
+    @Mock
+    private AddressValidator addressValidator;
 
     @Mock
     private HttpClient httpClient;
@@ -65,8 +77,9 @@ class DeployFromUrlRemoteClientTest {
 
     private class TestableDeployFromUrlRemoteClient extends DeployFromUrlRemoteClient {
 
-        public TestableDeployFromUrlRemoteClient(ApplicationConfiguration applicationConfiguration) {
-            super(applicationConfiguration);
+        public TestableDeployFromUrlRemoteClient(ApplicationConfiguration applicationConfiguration,
+                                                 AddressValidator addressValidator) {
+            super(applicationConfiguration, addressValidator);
         }
 
         @Override
@@ -89,7 +102,7 @@ class DeployFromUrlRemoteClientTest {
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        client = new TestableDeployFromUrlRemoteClient(applicationConfiguration);
+        client = new TestableDeployFromUrlRemoteClient(applicationConfiguration, addressValidator);
         when(applicationConfiguration.getMaxUploadSize()).thenReturn(MAX_UPLOAD_SIZE);
         when(uploadContext.getFileUrl()).thenReturn(SECURE_URL);
         when(uploadContext.getUserCredentials()).thenReturn(userCredentials);
@@ -114,6 +127,7 @@ class DeployFromUrlRemoteClientTest {
         assertEquals(inputStream, result.fileInputStream());
         assertEquals(URI.create(SECURE_URL), result.uri());
         assertEquals(FILE_SIZE, result.fileSize());
+        verify(addressValidator).validateTarget(SECURE_URL, "test-job-id");
     }
 
     @Test
@@ -125,6 +139,18 @@ class DeployFromUrlRemoteClientTest {
     }
 
     @Test
+    void downloadFileFromUrlDeniedAddress() {
+        doThrow(new SLException(MessageFormat.format(Messages.DEPLOY_FROM_URL_TARGET_ADDRESS_DENIED_FOR_JOB_WITH_ID,
+                                                     "example.com", "test-job-id"))).when(addressValidator)
+                                                                                    .validateTarget(anyString(), anyString());
+
+        SLException exception = assertThrows(SLException.class,
+                                             () -> client.downloadFileFromUrl(uploadContext));
+        assertTrue(exception.getMessage()
+                            .contains("denied"));
+    }
+
+    @Test
     void downloadFileFromUrlNoContentLength() throws Exception {
         when(httpResponse.headers()).thenReturn(httpHeaders);
         when(httpResponse.statusCode()).thenReturn(200);
@@ -133,8 +159,8 @@ class DeployFromUrlRemoteClientTest {
 
         SLException exception = assertThrows(SLException.class,
                                              () -> client.downloadFileFromUrl(uploadContext));
-        assertEquals(MessageFormat.format(Messages.FILE_URL_RESPONSE_DID_NOT_RETURN_CONTENT_LENGTH_FOR_JOB_WITH_ID, "test-job-id"), exception.getMessage());
-
+        assertEquals(MessageFormat.format(Messages.FILE_URL_RESPONSE_DID_NOT_RETURN_CONTENT_LENGTH_FOR_JOB_WITH_ID, "test-job-id"),
+                     exception.getMessage());
     }
 
     @Test
@@ -149,7 +175,6 @@ class DeployFromUrlRemoteClientTest {
                                              () -> client.downloadFileFromUrl(uploadContext));
         assertEquals(MessageFormat.format(Messages.MAX_UPLOAD_SIZE_EXCEEDED_FOR_JOB_WITH_ID, MAX_UPLOAD_SIZE, "test-job-id"),
                      exception.getMessage());
-
     }
 
     @Test
@@ -176,7 +201,9 @@ class DeployFromUrlRemoteClientTest {
 
         SLException exception = assertThrows(SLException.class,
                                              () -> client.downloadFileFromUrl(uploadContext));
-        assertEquals(MessageFormat.format(Messages.DEPLOY_FROM_URL_WRONG_CREDENTIALS_FOR_JOB_WITH_ID, "https://example.com/file.zip", "test-job-id"), exception.getMessage());
+        assertEquals(MessageFormat.format(Messages.DEPLOY_FROM_URL_WRONG_CREDENTIALS_FOR_JOB_WITH_ID, "https://example.com/file.zip",
+                                          "test-job-id"),
+                     exception.getMessage());
     }
 
     @Test
@@ -190,7 +217,61 @@ class DeployFromUrlRemoteClientTest {
                                              () -> client.downloadFileFromUrl(uploadContext));
         assertTrue(exception.getMessage()
                             .contains("500"));
+    }
 
+    @Test
+    void redirectToPublicAddressIsFollowed() throws Exception {
+        String redirectUrl = "https://cdn.example.com/file.zip";
+        HttpResponse<InputStream> redirectResponse = mockRedirectResponse(301, redirectUrl);
+        InputStream inputStream = new ByteArrayInputStream("test content".getBytes());
+        when(httpResponse.statusCode()).thenReturn(200);
+        when(httpResponse.body()).thenReturn(inputStream);
+        when(httpResponse.headers()).thenReturn(httpHeaders);
+        when(httpResponse.uri()).thenReturn(URI.create(redirectUrl));
+        when(httpHeaders.firstValueAsLong(Constants.CONTENT_LENGTH)).thenReturn(OptionalLong.of(FILE_SIZE));
+        when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()))).thenReturn(redirectResponse)
+                                                                                                    .thenReturn(httpResponse);
+
+        FileFromUrlData result = client.downloadFileFromUrl(uploadContext);
+
+        assertEquals(FILE_SIZE, result.fileSize());
+        verify(addressValidator).validateTarget(SECURE_URL, "test-job-id");
+        verify(addressValidator).validateTarget(redirectUrl, "test-job-id");
+        verify(httpClient, times(2)).send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()));
+    }
+
+    @Test
+    void redirectToInsecureUrlIsRejected() throws Exception {
+        HttpResponse<InputStream> redirectResponse = mockRedirectResponse(301, "http://evil.com/file.zip");
+        when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()))).thenReturn(redirectResponse);
+
+        SLException exception = assertThrows(SLException.class,
+                                             () -> client.downloadFileFromUrl(uploadContext));
+        assertEquals(MessageFormat.format(Messages.MTAR_ENDPOINT_NOT_SECURE_FOR_JOB_WITH_ID, "test-job-id"), exception.getMessage());
+    }
+
+    @Test
+    void redirectToDeniedAddressIsRejected() throws Exception {
+        String deniedRedirectUrl = "https://internal.example.com/file.zip";
+        HttpResponse<InputStream> redirectResponse = mockRedirectResponse(301, deniedRedirectUrl);
+        when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()))).thenReturn(redirectResponse);
+        doThrow(new SLException(MessageFormat.format(Messages.DEPLOY_FROM_URL_TARGET_ADDRESS_DENIED_FOR_JOB_WITH_ID,
+                                                     "internal.example.com",
+                                                     "test-job-id"))).when(addressValidator)
+                                                                     .validateTarget(eq(deniedRedirectUrl), anyString());
+
+        SLException exception = assertThrows(SLException.class,
+                                             () -> client.downloadFileFromUrl(uploadContext));
+        assertTrue(exception.getMessage()
+                            .contains("denied"));
+    }
+
+    @Test
+    void tooManyRedirectsThrowsException() throws Exception {
+        HttpResponse<InputStream> redirectResponse = mockRedirectResponse(301, SECURE_URL);
+        when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()))).thenReturn(redirectResponse);
+
+        assertThrows(SLException.class, () -> client.downloadFileFromUrl(uploadContext));
     }
 
     @Test
@@ -209,7 +290,6 @@ class DeployFromUrlRemoteClientTest {
         assertEquals(inputStream, result.fileInputStream());
         assertEquals(URI.create(SECURE_URL), result.uri());
         assertEquals(FILE_SIZE, result.fileSize());
-
     }
 
     @Test
@@ -220,7 +300,6 @@ class DeployFromUrlRemoteClientTest {
         RuntimeException exception = assertThrows(RuntimeException.class,
                                                   () -> client.downloadFileFromUrl(uploadContext));
         assertEquals("Test exception", exception.getMessage());
-
     }
 
     @Test
@@ -241,19 +320,17 @@ class DeployFromUrlRemoteClientTest {
         assertEquals(URI.create("https://example.com/file.zip"), result.uri());
         assertEquals(FILE_SIZE, result.fileSize());
 
-        verify(httpClient).send(argThat(request ->
-                                            !request.uri()
-                                                    .toString()
-                                                    .contains("user:pass@") &&
-                                                request.headers()
-                                                       .firstValue("Authorization")
-                                                       .isPresent() &&
-                                                request.headers()
-                                                       .firstValue("Authorization")
-                                                       .get()
-                                                       .startsWith("Basic ")
-        ), eq(HttpResponse.BodyHandlers.ofInputStream()));
-
+        verify(httpClient).send(argThat(request -> !request.uri()
+                                                           .toString()
+                                                           .contains("user:pass@") &&
+                                    request.headers()
+                                           .firstValue("Authorization")
+                                           .isPresent() &&
+                                    request.headers()
+                                           .firstValue("Authorization")
+                                           .get()
+                                           .startsWith("Basic ")),
+                                eq(HttpResponse.BodyHandlers.ofInputStream()));
     }
 
     @Test
@@ -272,7 +349,14 @@ class DeployFromUrlRemoteClientTest {
         assertEquals(inputStream, result.fileInputStream());
         assertEquals(URI.create("https://example.com/file%20with%20spaces.zip"), result.uri());
         assertEquals(FILE_SIZE, result.fileSize());
-
     }
 
+    private HttpResponse<InputStream> mockRedirectResponse(int status, String location) {
+        HttpResponse<InputStream> response = Mockito.mock(HttpResponse.class);
+        HttpHeaders headers = HttpHeaders.of(Map.of(org.springframework.http.HttpHeaders.LOCATION, List.of(location)), (a, b) -> true);
+        when(response.statusCode()).thenReturn(status);
+        when(response.headers()).thenReturn(headers);
+        when(response.body()).thenReturn(new ByteArrayInputStream(new byte[0]));
+        return response;
+    }
 }
