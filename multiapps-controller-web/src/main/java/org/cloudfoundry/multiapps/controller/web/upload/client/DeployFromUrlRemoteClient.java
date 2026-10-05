@@ -12,6 +12,7 @@ import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Base64;
+
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.apache.commons.io.IOUtils;
@@ -38,6 +39,7 @@ public class DeployFromUrlRemoteClient {
     private static final String USERNAME_PASSWORD_URL_FORMAT = "{0}:{1}";
     private static final int ERROR_RESPONSE_BODY_MAX_LENGTH = 4 * 1024;
     private static final int MAX_REDIRECTS = 10;
+    private static final String REDIRECT_WITH_NO_LOCATION_HEADER = "redirect with no Location header";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeployFromUrlRemoteClient.class);
 
@@ -60,7 +62,7 @@ public class DeployFromUrlRemoteClient {
         }
         UriUtil.validateUrl(uploadFromUrlContext.getFileUrl());
         addressValidator.validateTarget(uploadFromUrlContext.getFileUrl(), uploadFromUrlContext.getJobEntry()
-                                                                                              .getId());
+                                                                                               .getId());
 
         HttpResponse<InputStream> response = callRemoteEndpointWithRetry(uploadFromUrlContext.getFileUrl(),
                                                                          uploadFromUrlContext.getJobEntry()
@@ -91,18 +93,18 @@ public class DeployFromUrlRemoteClient {
     }
 
     private HttpResponse<InputStream> followRedirectsWithValidation(String url, String jobId, UserCredentials userCredentials,
-                                                                     int redirectCount) throws Exception {
+                                                                    int redirectCount) throws Exception {
         if (redirectCount > MAX_REDIRECTS) {
             throw new SLException(MessageFormat.format(Messages.ERROR_FROM_REMOTE_MTAR_ENDPOINT_FOR_JOB_WITH_ID,
-                                                       getMaskedUri(urlDecodeUrl(url)), "too many redirects", "", jobId));
+                                                       getMaskedUri(urlDecodeUrl(url)), Messages.TOO_MANY_REDIRECTS, "", jobId));
         }
-        var request = buildFetchFileRequest(url, userCredentials);
-        var response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
+        HttpRequest request = buildFetchFileRequest(url, userCredentials);
+        HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
         int status = response.statusCode();
         if (isRedirect(status)) {
             return followRedirect(response, url, jobId, userCredentials, redirectCount);
         }
-        if (status / 100 != 2) {
+        if (status >= 200 & status < 300) {
             throwErrorResponseException(response, url, status, jobId);
         }
         return response;
@@ -115,7 +117,7 @@ public class DeployFromUrlRemoteClient {
                                   .firstValue(HttpHeaders.LOCATION)
                                   .orElseThrow(() -> new SLException(
                                       MessageFormat.format(Messages.ERROR_FROM_REMOTE_MTAR_ENDPOINT_FOR_JOB_WITH_ID,
-                                                           getMaskedUri(urlDecodeUrl(url)), status, "redirect with no Location header",
+                                                           getMaskedUri(urlDecodeUrl(url)), status, REDIRECT_WITH_NO_LOCATION_HEADER,
                                                            jobId)));
         IOUtils.consume(response.body());
         String resolvedLocation = resolveLocation(url, location);

@@ -32,7 +32,8 @@ public class AddressValidator {
         InetAddress[] addresses = resolveAddresses(host);
         for (InetAddress address : addresses) {
             if (isAddressDenied(address)) {
-                throw new SLException(MessageFormat.format(Messages.DEPLOY_FROM_URL_TARGET_ADDRESS_DENIED_FOR_JOB_WITH_ID, host, jobId));
+                throw new SLException(
+                    MessageFormat.format(Messages.DEPLOY_FROM_URL_TARGET_ADDRESS_0_DENIED_FOR_JOB_WITH_ID_1, host, jobId));
             }
         }
     }
@@ -67,7 +68,7 @@ public class AddressValidator {
         try {
             return InetAddress.getAllByName(host);
         } catch (UnknownHostException e) {
-            throw new SLException(e, MessageFormat.format(Messages.INVALID_URL, host));
+            throw new SLException(e, MessageFormat.format(Messages.DEPLOY_FROM_URL_CANNOT_RESOLVE_HOST, host));
         }
     }
 
