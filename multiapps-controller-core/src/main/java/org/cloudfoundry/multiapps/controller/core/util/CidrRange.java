@@ -18,11 +18,16 @@ public class CidrRange {
     }
 
     public static CidrRange fromCidrNotation(String cidr) {
-        String[] networkAndPrefixParts = cidr.split("/", 2);
-        byte[] networkAddressBytes = resolveNetworkAddressBytes(networkAndPrefixParts[0], cidr);
-        int prefixLengthBits = networkAndPrefixParts.length == 2 ? Integer.parseInt(networkAndPrefixParts[1].trim())
-            : networkAddressBytes.length * 8;
-        return new CidrRange(networkAddressBytes, prefixLengthBits);
+        String[] addressAndMaskParts = cidr.split("/", 2);
+        byte[] networkAddressBytes = resolveNetworkAddressBytes(addressAndMaskParts[0], cidr);
+        boolean hasMask = addressAndMaskParts.length == 2;
+        int maskBits;
+        if (hasMask) {
+            maskBits = Integer.parseInt(addressAndMaskParts[1].trim());
+        } else {
+            maskBits = networkAddressBytes.length * 8;
+        }
+        return new CidrRange(networkAddressBytes, maskBits);
     }
 
     private static byte[] resolveNetworkAddressBytes(String networkAddress, String cidr) {
@@ -30,7 +35,7 @@ public class CidrRange {
             return InetAddress.getByName(networkAddress)
                               .getAddress();
         } catch (UnknownHostException e) {
-            throw new SLException(e, MessageFormat.format(Messages.INVALID_URL, cidr));
+            throw new SLException(e, MessageFormat.format(Messages.DEPLOY_FROM_URL_INVALID_DENY_LIST_ENTRY, cidr));
         }
     }
 
@@ -42,8 +47,8 @@ public class CidrRange {
     }
 
     private boolean matchesFullOctets(byte[] candidateAddressBytes) {
-        int fullOctetsInPrefix = prefixLengthBits / 8;
-        for (int i = 0; i < fullOctetsInPrefix; i++) {
+        int fullPrefixBytes = prefixLengthBits / 8;
+        for (int i = 0; i < fullPrefixBytes; i++) {
             if (candidateAddressBytes[i] != networkAddressBytes[i]) {
                 return false;
             }
@@ -57,7 +62,7 @@ public class CidrRange {
             return true;
         }
         int partialOctetBitMask = 0xFF << (8 - remainingBitsInPartialOctet) & 0xFF;
-        int fullOctetsInPrefix = prefixLengthBits / 8;
-        return (candidateAddressBytes[fullOctetsInPrefix] & partialOctetBitMask) == (networkAddressBytes[fullOctetsInPrefix] & partialOctetBitMask);
+        int fullPrefixBytes = prefixLengthBits / 8;
+        return (candidateAddressBytes[fullPrefixBytes] & partialOctetBitMask) == (networkAddressBytes[fullPrefixBytes] & partialOctetBitMask);
     }
 }

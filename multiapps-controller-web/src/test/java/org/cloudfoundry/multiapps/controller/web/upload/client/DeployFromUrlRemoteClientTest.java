@@ -28,6 +28,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import static org.apache.http.HttpHeaders.LOCATION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -140,7 +141,7 @@ class DeployFromUrlRemoteClientTest {
 
     @Test
     void downloadFileFromUrlDeniedAddress() {
-        doThrow(new SLException(MessageFormat.format(Messages.DEPLOY_FROM_URL_TARGET_ADDRESS_DENIED_FOR_JOB_WITH_ID,
+        doThrow(new SLException(MessageFormat.format(Messages.DEPLOY_FROM_URL_TARGET_ADDRESS_0_DENIED_FOR_JOB_WITH_ID_1,
                                                      "example.com", "test-job-id"))).when(addressValidator)
                                                                                     .validateTarget(anyString(), anyString());
 
@@ -255,7 +256,7 @@ class DeployFromUrlRemoteClientTest {
         String deniedRedirectUrl = "https://internal.example.com/file.zip";
         HttpResponse<InputStream> redirectResponse = mockRedirectResponse(301, deniedRedirectUrl);
         when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()))).thenReturn(redirectResponse);
-        doThrow(new SLException(MessageFormat.format(Messages.DEPLOY_FROM_URL_TARGET_ADDRESS_DENIED_FOR_JOB_WITH_ID,
+        doThrow(new SLException(MessageFormat.format(Messages.DEPLOY_FROM_URL_TARGET_ADDRESS_0_DENIED_FOR_JOB_WITH_ID_1,
                                                      "internal.example.com",
                                                      "test-job-id"))).when(addressValidator)
                                                                      .validateTarget(eq(deniedRedirectUrl), anyString());
@@ -353,7 +354,7 @@ class DeployFromUrlRemoteClientTest {
 
     private HttpResponse<InputStream> mockRedirectResponse(int status, String location) {
         HttpResponse<InputStream> response = Mockito.mock(HttpResponse.class);
-        HttpHeaders headers = HttpHeaders.of(Map.of(org.springframework.http.HttpHeaders.LOCATION, List.of(location)), (a, b) -> true);
+        HttpHeaders headers = HttpHeaders.of(Map.of(LOCATION, List.of(location)), (_, _) -> true);
         when(response.statusCode()).thenReturn(status);
         when(response.headers()).thenReturn(headers);
         when(response.body()).thenReturn(new ByteArrayInputStream(new byte[0]));

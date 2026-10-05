@@ -1144,14 +1144,15 @@ public class ApplicationConfiguration {
 
     private String getDeployFromUrlAddressDenyListFromEnvironment() {
         String value = environment.getString(CFG_DEPLOY_FROM_URL_ADDRESS_DENY_LIST, DEFAULT_DEPLOY_FROM_URL_ADDRESS_DENY_LIST);
-        logEnvironmentVariable(CFG_DEPLOY_FROM_URL_ADDRESS_DENY_LIST, Messages.DEPLOY_FROM_URL_ADDRESS_DENY_LIST, value);
+        logEnvironmentVariable(CFG_DEPLOY_FROM_URL_ADDRESS_DENY_LIST, Messages.DEPLOY_FROM_URL_ADDRESS_DENY_LIST_0, value);
         return value;
     }
 
     private Boolean isDeployFromUrlAddressValidationEnabledFromEnvironment() {
         Boolean value = environment.getBoolean(CFG_DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED,
                                                DEFAULT_DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED);
-        logEnvironmentVariable(CFG_DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED, Messages.DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED, value);
+        logEnvironmentVariable(CFG_DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED, Messages.DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED_0,
+                               value);
         return value;
     }
 }
