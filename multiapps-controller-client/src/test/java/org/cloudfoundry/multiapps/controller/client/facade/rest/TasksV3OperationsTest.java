@@ -39,10 +39,7 @@ class TasksV3OperationsTest {
 
     @Test
     void testGetTaskReturnsMappedTask() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/tasks/" + TASK_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getTaskJson("SUCCEEDED"), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/tasks/" + TASK_GUID, getTaskJson("SUCCEEDED"));
 
         CloudTask result = operations.getTask(UUID.fromString(TASK_GUID));
 

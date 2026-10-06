@@ -99,10 +99,7 @@ class ServiceInstancesV3OperationsTest {
 
     @Test
     void testGetServiceInstanceNameReturnsNameFromGet() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_instances/" + SPACE_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getManagedInstanceJson("my-service"), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_instances/" + SPACE_GUID, getManagedInstanceJson("my-service"));
 
         Assertions.assertEquals("my-service", operations.getServiceInstanceName(SPACE_GUID));
         factory.verify();
@@ -110,10 +107,7 @@ class ServiceInstancesV3OperationsTest {
 
     @Test
     void testGetServiceInstanceNameReturnsNullWhenGetReturnsNull() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_instances/" + SPACE_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess());
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_instances/" + SPACE_GUID, null);
 
         Assertions.assertNull(operations.getServiceInstanceName(SPACE_GUID));
         factory.verify();
@@ -124,10 +118,7 @@ class ServiceInstancesV3OperationsTest {
         stubOfferingLookup("my-offering", null);
         stubPlanLookup("my-plan");
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_instances"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
-               .andRespond(MockRestResponseCreators.withSuccess());
+        factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/service_instances", HttpMethod.POST);
 
         CloudServiceInstance serviceInstance = ImmutableCloudServiceInstance.builder()
                                                                             .name("my-service")
@@ -171,10 +162,7 @@ class ServiceInstancesV3OperationsTest {
 
     @Test
     void testCreateUserProvidedServiceInstancePosts() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_instances"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
-               .andRespond(MockRestResponseCreators.withSuccess());
+        factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/service_instances", HttpMethod.POST);
 
         CloudServiceInstance serviceInstance = ImmutableCloudServiceInstance.builder()
                                                                             .name("my-ups")
@@ -202,10 +190,7 @@ class ServiceInstancesV3OperationsTest {
     void testDeleteServiceInstanceByNameDeletesFoundInstance() {
         stubServiceInstanceLookup("my-service", getManagedInstanceJson("my-service"));
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_instances/" + GUID_STRING))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.DELETE))
-               .andRespond(MockRestResponseCreators.withSuccess());
+        factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/service_instances/" + GUID_STRING, HttpMethod.DELETE);
 
         operations.deleteServiceInstance("my-service");
 
@@ -221,10 +206,7 @@ class ServiceInstancesV3OperationsTest {
 
     @Test
     void testDeleteServiceInstanceByInstanceDeletes() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_instances/" + GUID_STRING))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.DELETE))
-               .andRespond(MockRestResponseCreators.withSuccess());
+        factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/service_instances/" + GUID_STRING, HttpMethod.DELETE);
 
         CloudServiceInstance serviceInstance = ImmutableCloudServiceInstance.builder()
                                                                             .metadata(
@@ -325,10 +307,7 @@ class ServiceInstancesV3OperationsTest {
 
     @Test
     void testUpdateServiceInstanceMetadataUpdates() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_instances/" + GUID_STRING))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.PATCH))
-               .andRespond(MockRestResponseCreators.withSuccess());
+        factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/service_instances/" + GUID_STRING, HttpMethod.PATCH);
 
         Metadata metadata = Metadata.builder()
                                     .label("key", "value")
@@ -341,10 +320,7 @@ class ServiceInstancesV3OperationsTest {
 
     @Test
     void testUpdateServiceInstanceMetadataUpdatesWithNullMetadata() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_instances/" + GUID_STRING))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.PATCH))
-               .andRespond(MockRestResponseCreators.withSuccess());
+        factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/service_instances/" + GUID_STRING, HttpMethod.PATCH);
 
         operations.updateServiceInstanceMetadata(UUID.fromString(GUID_STRING), null);
 
@@ -353,12 +329,9 @@ class ServiceInstancesV3OperationsTest {
 
     @Test
     void testGetServiceInstancesByMetadataLabelSelectorMapsUserProvided() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=5000"
-                                                             + "&space_guids=" + SPACE_GUID + "&label_selector=env"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[" + getUserProvidedInstanceJson("ups-1") + "]}",
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=5000"
+                            + "&space_guids=" + SPACE_GUID + "&label_selector=env",
+                        "{\"resources\":[" + getUserProvidedInstanceJson("ups-1") + "]}");
 
         List<CloudServiceInstance> result = operations.getServiceInstancesByMetadataLabelSelector("env");
 
@@ -370,11 +343,8 @@ class ServiceInstancesV3OperationsTest {
 
     @Test
     void testGetServiceInstancesByMetadataLabelSelectorReturnsEmpty() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=5000"
-                                                             + "&space_guids=" + SPACE_GUID + "&label_selector=env"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=5000"
+                            + "&space_guids=" + SPACE_GUID + "&label_selector=env", "{\"resources\":[]}");
 
         List<CloudServiceInstance> result = operations.getServiceInstancesByMetadataLabelSelector("env");
 
@@ -384,12 +354,9 @@ class ServiceInstancesV3OperationsTest {
 
     @Test
     void testGetServiceInstancesWithoutAuxiliaryContentByMetadataLabelSelectorMaps() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=5000"
-                                                             + "&space_guids=" + SPACE_GUID + "&label_selector=env"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[" + getManagedInstanceJson("mi-1") + "]}",
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=5000"
+                            + "&space_guids=" + SPACE_GUID + "&label_selector=env",
+                        "{\"resources\":[" + getManagedInstanceJson("mi-1") + "]}");
 
         List<CloudServiceInstance> result = operations.getServiceInstancesWithoutAuxiliaryContentByMetadataLabelSelector("env");
 
@@ -403,12 +370,9 @@ class ServiceInstancesV3OperationsTest {
 
     @Test
     void testGetServiceInstancesWithoutAuxiliaryContentByNames() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=5000"
-                                                             + "&space_guids=" + SPACE_GUID + "&names=my-service"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[" + getManagedInstanceJson("my-service") + "]}",
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=5000"
+                            + "&space_guids=" + SPACE_GUID + "&names=my-service",
+                        "{\"resources\":[" + getManagedInstanceJson("my-service") + "]}");
 
         List<CloudServiceInstance> result = operations.getServiceInstancesWithoutAuxiliaryContentByNames(List.of("my-service"));
 
@@ -429,55 +393,36 @@ class ServiceInstancesV3OperationsTest {
     private void stubServiceInstanceLookup(String name, String instanceJson) {
         String body = instanceJson == null ? "{\"resources\":[]}" : "{\"resources\":[" + instanceJson + "]}";
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=5000"
-                                                             + "&space_guids=" + SPACE_GUID + "&names=" + name))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(body, MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=5000"
+                            + "&space_guids=" + SPACE_GUID + "&names=" + name, body);
     }
 
     private void stubOfferingLookup(String label, String broker) {
         String uri = MockControllerClientFactory.BASE_URL + "/v3/service_offerings?per_page=5000&space_guids=" + SPACE_GUID + "&names="
             + label + (broker == null ? "" : "&service_broker_names=" + broker);
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(uri))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[{\"guid\":\"" + OFFERING_GUID + "\",\"name\":\"" + label
-                                                                    + "\"}]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(uri, "{\"resources\":[{\"guid\":\"" + OFFERING_GUID + "\",\"name\":\"" + label + "\"}]}");
     }
 
     private void stubPlanLookup(String planName) {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_plans?per_page=5000"
-                                                             + "&service_offering_guids=" + OFFERING_GUID + "&names=" + planName))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[{\"guid\":\"" + PLAN_GUID + "\",\"name\":\"" + planName
-                                                                    + "\"}]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_plans?per_page=5000"
+                            + "&service_offering_guids=" + OFFERING_GUID + "&names=" + planName,
+                        "{\"resources\":[{\"guid\":\"" + PLAN_GUID + "\",\"name\":\"" + planName + "\"}]}");
     }
 
     private void stubPlanForNameResolution() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_plans/" + PLAN_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"guid\":\"" + PLAN_GUID + "\",\"name\":\"my-plan\",\"relationships\":"
-                                                                    + "{\"service_offering\":{\"data\":{\"guid\":\"" + OFFERING_GUID
-                                                                    + "\"}}}}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_plans/" + PLAN_GUID,
+                        "{\"guid\":\"" + PLAN_GUID + "\",\"name\":\"my-plan\",\"relationships\":"
+                            + "{\"service_offering\":{\"data\":{\"guid\":\"" + OFFERING_GUID + "\"}}}}");
     }
 
     private void stubOfferingForNameResolution() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_offerings/" + OFFERING_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"guid\":\"" + OFFERING_GUID + "\",\"name\":\"my-offering\"}",
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_offerings/" + OFFERING_GUID,
+                        "{\"guid\":\"" + OFFERING_GUID + "\",\"name\":\"my-offering\"}");
     }
 
     private void stubPatch() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_instances/" + GUID_STRING))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.PATCH))
-               .andRespond(MockRestResponseCreators.withSuccess());
+        factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/service_instances/" + GUID_STRING, HttpMethod.PATCH);
     }
 
     private static String getManagedInstanceJson(String name) {

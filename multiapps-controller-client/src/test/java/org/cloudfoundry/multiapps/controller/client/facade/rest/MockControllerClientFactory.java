@@ -1,10 +1,14 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.test.web.client.match.MockRestRequestMatchers;
+import org.springframework.test.web.client.response.MockRestResponseCreators;
 import org.springframework.web.client.RestClient;
 
 final class MockControllerClientFactory {
@@ -42,6 +46,21 @@ final class MockControllerClientFactory {
 
     MockRestServiceServer server() {
         return server;
+    }
+
+    void stubGet(String uri, String responseJson) {
+        var response = responseJson == null ? MockRestResponseCreators.withSuccess()
+            : MockRestResponseCreators.withSuccess(responseJson, MediaType.APPLICATION_JSON);
+
+        server.expect(MockRestRequestMatchers.requestTo(uri))
+              .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+              .andRespond(response);
+    }
+    
+    void stubMethod(String uri, HttpMethod method) {
+        server.expect(MockRestRequestMatchers.requestTo(uri))
+              .andExpect(MockRestRequestMatchers.method(method))
+              .andRespond(MockRestResponseCreators.withSuccess());
     }
 
     void verify() {

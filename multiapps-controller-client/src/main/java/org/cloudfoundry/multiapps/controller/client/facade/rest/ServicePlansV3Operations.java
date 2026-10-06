@@ -4,28 +4,25 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.cloudfoundry.multiapps.controller.Messages;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServicePlanVisibility;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Fields;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3GuidReference;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
-import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ServicePlan;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 
 public class ServicePlansV3Operations {
 
-    private static final ParameterizedTypeReference<V3ListResponse<V3ServiceBrokerRef>> BROKER_LIST_TYPE = new ParameterizedTypeReference<>() {
-    };
-    private static final ParameterizedTypeReference<V3ListResponse<V3ServiceOfferingRef>> OFFERING_LIST_TYPE = new ParameterizedTypeReference<>() {
-    };
-    private static final ParameterizedTypeReference<V3ListResponse<V3ServicePlan>> PLAN_LIST_TYPE = new ParameterizedTypeReference<>() {
+    private static final ParameterizedTypeReference<V3ListResponse<V3GuidReference>> GUID_REFERENCE_PAGE = new ParameterizedTypeReference<>() {
     };
 
     private final CloudControllerV3Client client;
+
     private final CloudSpace targetSpace;
 
     public ServicePlansV3Operations(CloudControllerV3Client client, CloudSpace targetSpace) {
@@ -46,7 +43,7 @@ public class ServicePlansV3Operations {
         String uri = CloudControllerV3Endpoints.SERVICE_BROKERS + CloudControllerV3Endpoints.QUERY_NAMES + name
             + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
 
-        return client.list(uri, BROKER_LIST_TYPE)
+        return client.list(uri, GUID_REFERENCE_PAGE)
                      .stream()
                      .findFirst()
                      .map(broker -> UUID.fromString(broker.guid()))
@@ -62,13 +59,12 @@ public class ServicePlansV3Operations {
 
         String offeringGuidsFilter = offeredServicesGuids.stream()
                                                          .map(UUID::toString)
-                                                         .reduce((a, b) -> a + "," + b)
-                                                         .orElse("");
+                                                         .collect(Collectors.joining(","));
 
         String uri = CloudControllerV3Endpoints.SERVICE_PLANS + CloudControllerV3Endpoints.QUERY_SERVICE_OFFERING_GUIDS
             + offeringGuidsFilter + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
 
-        return client.list(uri, PLAN_LIST_TYPE)
+        return client.list(uri, GUID_REFERENCE_PAGE)
                      .stream()
                      .map(plan -> UUID.fromString(plan.guid()))
                      .toList();
@@ -85,27 +81,14 @@ public class ServicePlansV3Operations {
                  .append(targetSpace.getGuid());
         }
 
-        return client.list(query.toString(), OFFERING_LIST_TYPE)
+        return client.list(query.toString(), GUID_REFERENCE_PAGE)
                      .stream()
                      .map(offering -> UUID.fromString(offering.guid()))
                      .toList();
     }
 
     private void updateServicePlanVisibility(UUID servicePlanGuid, ServicePlanVisibility visibility) {
-        client.getRestClient()
-              .patch()
-              .uri(CloudControllerV3Endpoints.SERVICE_PLAN_VISIBILITY, servicePlanGuid)
-              .body(Map.of("type", visibility.toString()))
-              .retrieve()
-              .toBodilessEntity();
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record V3ServiceBrokerRef(@JsonProperty("guid") String guid) {
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record V3ServiceOfferingRef(@JsonProperty("guid") String guid) {
+        client.patch(CloudControllerV3Endpoints.SERVICE_PLAN_VISIBILITY, Map.of(V3Fields.TYPE, visibility.toString()), servicePlanGuid);
     }
 
 }

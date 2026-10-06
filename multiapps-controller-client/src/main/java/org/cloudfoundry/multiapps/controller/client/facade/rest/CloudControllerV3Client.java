@@ -45,6 +45,41 @@ public class CloudControllerV3Client {
                          .body(responseType);
     }
 
+    public <T> T postForObject(String uri, Object body, Class<T> responseType, Object... uriVars) {
+        RestClient.RequestBodySpec spec = restClient.post()
+                                                    .uri(uri, uriVars);
+        if (body != null) {
+            spec.body(body);
+        }
+        return spec.retrieve()
+                   .body(responseType);
+    }
+
+    public ResponseEntity<Void> post(String uri, Object body, Object... uriVars) {
+        RestClient.RequestBodySpec spec = restClient.post()
+                                                    .uri(uri, uriVars);
+        if (body != null) {
+            spec.body(body);
+        }
+        return spec.retrieve()
+                   .toBodilessEntity();
+    }
+
+    public ResponseEntity<Void> patch(String uri, Object body, Object... uriVars) {
+        return restClient.patch()
+                         .uri(uri, uriVars)
+                         .body(body)
+                         .retrieve()
+                         .toBodilessEntity();
+    }
+
+    public ResponseEntity<Void> delete(String uri, Object... uriVars) {
+        return restClient.delete()
+                         .uri(uri, uriVars)
+                         .retrieve()
+                         .toBodilessEntity();
+    }
+
     private <T> T get(String uri, ParameterizedTypeReference<T> responseType) {
         return restClient.get()
                          .uri(uri)

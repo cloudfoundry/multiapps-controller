@@ -146,11 +146,8 @@ class DomainsV3OperationsTest {
                .andRespond(MockRestResponseCreators.withStatus(HttpStatus.ACCEPTED)
                                                    .location(URI.create(MockControllerClientFactory.BASE_URL + "/v3/jobs/" + JOB_GUID)));
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/jobs/" + JOB_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"guid\":\"" + JOB_GUID + "\",\"state\":\"COMPLETE\"}",
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/jobs/" + JOB_GUID,
+                        "{\"guid\":\"" + JOB_GUID + "\",\"state\":\"COMPLETE\"}");
 
         serverOperations.deleteDomain(DOMAIN_NAME);
 
@@ -176,12 +173,8 @@ class DomainsV3OperationsTest {
         when(targetSpace.getOrganization())
             .thenReturn(getOrganizationWithGuid(ORG_GUID));
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(
-                   MockControllerClientFactory.BASE_URL + "/v3/organizations/" + ORG_GUID + "/domains/default"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getDomainResourceJson(DOMAIN_GUID, DOMAIN_NAME),
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/organizations/" + ORG_GUID + "/domains/default",
+                        getDomainResourceJson(DOMAIN_GUID, DOMAIN_NAME));
 
         CloudDomain result = serverOperations.getDefaultDomain();
 
@@ -194,12 +187,8 @@ class DomainsV3OperationsTest {
         when(targetSpace.getOrganization())
             .thenReturn(getOrganizationWithGuid(ORG_GUID));
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(
-                   MockControllerClientFactory.BASE_URL + "/v3/organizations/" + ORG_GUID + "/domains?per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(
-                   "{\"resources\":[" + getDomainResourceJson(DOMAIN_GUID, DOMAIN_NAME) + "]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/organizations/" + ORG_GUID + "/domains?per_page=5000",
+                        "{\"resources\":[" + getDomainResourceJson(DOMAIN_GUID, DOMAIN_NAME) + "]}");
 
         List<CloudDomain> result = serverOperations.getDomainsForOrganization();
 
@@ -214,11 +203,8 @@ class DomainsV3OperationsTest {
         when(targetSpace.getOrganization())
             .thenReturn(getOrganizationWithGuid(ORG_GUID));
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(
-                   MockControllerClientFactory.BASE_URL + "/v3/organizations/" + ORG_GUID + "/domains?per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/organizations/" + ORG_GUID + "/domains?per_page=5000",
+                        "{\"resources\":[]}");
 
         Assertions.assertTrue(serverOperations.getDomainsForOrganization()
                                               .isEmpty());
@@ -233,20 +219,13 @@ class DomainsV3OperationsTest {
     }
 
     private void stubEmptyDomainLookup(String name) {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(
-                   MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + name + "&per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + name + "&per_page=5000",
+                        "{\"resources\":[]}");
     }
 
     private void stubDomainLookupWithResult(String name, String domainGuid) {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(
-                   MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + name + "&per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(
-                   "{\"resources\":[" + getDomainResourceJson(domainGuid, name) + "]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + name + "&per_page=5000",
+                        "{\"resources\":[" + getDomainResourceJson(domainGuid, name) + "]}");
     }
 
     private static CloudOrganization getOrganizationWithGuid(String guid) {

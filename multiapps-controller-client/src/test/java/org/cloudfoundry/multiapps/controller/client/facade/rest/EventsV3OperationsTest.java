@@ -6,8 +6,8 @@ import java.util.UUID;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudEvent;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
-import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Application;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3AuditEvent;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3GuidReference;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -79,7 +79,7 @@ class EventsV3OperationsTest {
             .thenReturn(SPACE_GUID);
 
         when(client.list(ArgumentMatchers.contains("/v3/apps"),
-                         ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Application>>> any()))
+                         ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3GuidReference>>> any()))
             .thenReturn(List.of());
 
         CloudOperationException thrown = Assertions.assertThrows(CloudOperationException.class,
@@ -93,8 +93,8 @@ class EventsV3OperationsTest {
         when(targetSpace.getGuid())
             .thenReturn(SPACE_GUID);
         when(client.list(ArgumentMatchers.contains("/v3/apps"),
-                         ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Application>>> any()))
-            .thenReturn(List.of(new V3Application(GUID_STRING, "my-app", "STARTED", null, null, null, null, null)));
+                         ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3GuidReference>>> any()))
+            .thenReturn(List.of(new V3GuidReference(GUID_STRING)));
         when(client.list(ArgumentMatchers.contains("/v3/audit_events"),
                          ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3AuditEvent>>> any()))
             .thenReturn(List.of());
@@ -103,7 +103,7 @@ class EventsV3OperationsTest {
 
         ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
         verify(client, times(2))
-            .list(uriCaptor.capture(), ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3Application>>> any());
+            .list(uriCaptor.capture(), ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3GuidReference>>> any());
         String appsQuery = uriCaptor.getAllValues()
                                     .stream()
                                     .filter(uri -> uri.contains("/v3/apps"))

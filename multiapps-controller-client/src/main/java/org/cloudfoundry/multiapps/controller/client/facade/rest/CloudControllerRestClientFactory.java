@@ -64,12 +64,8 @@ public abstract class CloudControllerRestClientFactory {
         CloudControllerV3Client client = buildCloudControllerV3Client(httpClient, baseUrl, oAuthClient, requestTags);
 
         Function<Duration, RestClient> uploadRestClientFactory = uploadTimeout -> {
-            ClientConfigurationOptions uploadOptions = new ClientConfigurationOptions(getConnectTimeout(), Optional.of(uploadTimeout),
-                                                                                      getSslHandshakeTimeout(), getConnectionPoolSize(),
-                                                                                      Optional.empty(),
-                                                                                      shouldTrustSelfSignedCertificates());
-
-            return CloudControllerRestClientBuilder.build(baseUrl, oAuthClient, requestTags, uploadOptions);
+            HttpClient uploadHttpClient = httpClient.responseTimeout(uploadTimeout);
+            return CloudControllerRestClientBuilder.buildRestClient(uploadHttpClient, baseUrl, oAuthClient, requestTags);
         };
 
         return new CloudControllerRestClientV3Impl(target, client, uploadRestClientFactory);

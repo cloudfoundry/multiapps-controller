@@ -2,8 +2,6 @@ package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -11,10 +9,11 @@ import java.util.UUID;
 import org.cloudfoundry.multiapps.controller.Constants;
 import org.cloudfoundry.multiapps.controller.Messages;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudEntity;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Fields;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3GuidReference;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ServiceInstance;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ServiceInstanceMapper;
@@ -23,13 +22,18 @@ import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Serv
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 public class ServiceInstancesV3Operations {
 
     private static final ParameterizedTypeReference<V3ListResponse<V3ServiceInstance>> SERVICE_INSTANCE_LIST_TYPE = new ParameterizedTypeReference<>() {
     };
 
+    private static final ParameterizedTypeReference<V3ListResponse<V3GuidReference>> GUID_REFERENCE_PAGE = new ParameterizedTypeReference<>() {
+    };
+
     private final CloudControllerV3Client client;
+
     private final CloudSpace targetSpace;
 
     public ServiceInstancesV3Operations(CloudControllerV3Client client, CloudSpace targetSpace) {
@@ -42,52 +46,28 @@ public class ServiceInstancesV3Operations {
         Assert.notNull(serviceInstance, "Service instance must not be null.");
         UUID servicePlanGuid = findPlanGuidForService(serviceInstance, serviceInstance.getPlan());
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("type", "managed");
-        body.put("name", serviceInstance.getName());
-        putIfNotNull(body, "metadata", toMetadataMap(serviceInstance.getV3Metadata()));
-        putIfNotNull(body, "tags", serviceInstance.getTags());
-        putIfNotNull(body, "parameters", serviceInstance.getCredentials());
-        body.put("relationships", Map.of("service_plan", toOneRelationship(servicePlanGuid.toString()), "space",
-                                         toOneRelationship(getTargetSpaceGuid().toString())));
+        Map<String, Object> body = OperationsUtil.buildCreateServiceInstanceBody(serviceInstance, servicePlanGuid, targetSpace);
 
-        client.getRestClient()
-              .post()
-              .uri(CloudControllerV3Endpoints.SERVICE_INSTANCES)
-              .body(body)
-              .retrieve()
-              .toBodilessEntity();
+        client.post(CloudControllerV3Endpoints.SERVICE_INSTANCES, body);
     }
 
     public void createUserProvidedServiceInstance(CloudServiceInstance serviceInstance) {
         assertSpaceProvided("create service instance");
         Assert.notNull(serviceInstance, "Service instance must not be null.");
-        String syslogDrainUrl = hasText(serviceInstance.getSyslogDrainUrl()) ? serviceInstance.getSyslogDrainUrl() : "";
+        String syslogDrainUrl = StringUtils.hasText(serviceInstance.getSyslogDrainUrl()) ? serviceInstance.getSyslogDrainUrl() : "";
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("type", "user-provided");
-        body.put("name", serviceInstance.getName());
-        putIfNotNull(body, "metadata", toMetadataMap(serviceInstance.getV3Metadata()));
-        putIfNotNull(body, "credentials", serviceInstance.getCredentials());
-        body.put("syslog_drain_url", syslogDrainUrl);
-        putIfNotNull(body, "tags", serviceInstance.getTags());
-        body.put("relationships", Map.of("space", toOneRelationship(getTargetSpaceGuid().toString())));
+        Map<String, Object> body = OperationsUtil.buildCreateUserProvidedServiceInstance(serviceInstance, syslogDrainUrl, targetSpace);
 
-        client.getRestClient()
-              .post()
-              .uri(CloudControllerV3Endpoints.SERVICE_INSTANCES)
-              .body(body)
-              .retrieve()
-              .toBodilessEntity();
+        client.post(CloudControllerV3Endpoints.SERVICE_INSTANCES, body);
     }
 
     public void deleteServiceInstance(String serviceInstanceName) {
         CloudServiceInstance serviceInstance = getServiceInstanceWithoutAuxiliaryContent(serviceInstanceName);
-        doDeleteServiceInstance(serviceInstance.getGuid());
+        deleteServiceInstance(serviceInstance.getGuid());
     }
 
     public void deleteServiceInstance(CloudServiceInstance serviceInstance) {
-        doDeleteServiceInstance(serviceInstance.getGuid());
+        deleteServiceInstance(serviceInstance.getGuid());
     }
 
     public UUID getRequiredServiceInstanceGuid(String name) {
@@ -158,9 +138,10 @@ public class ServiceInstancesV3Operations {
     public List<CloudServiceInstance> getServiceInstancesWithoutAuxiliaryContentByNames(List<String> names) {
         List<CloudServiceInstance> allServiceInstances = new ArrayList<>();
 
-        for (List<String> batch : toBatches(names, Constants.MAX_CHAR_LENGTH_FOR_PARAMS_IN_REQUEST)) {
+        for (List<String> batch : OperationsUtil.toBatches(names, Constants.MAX_CHAR_LENGTH_FOR_PARAMS_IN_REQUEST)) {
             String uri = CloudControllerV3Endpoints.SERVICE_INSTANCES + CloudControllerV3Endpoints.QUERY_PER_PAGE
-                + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE + CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS + getTargetSpaceGuid()
+                + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE + CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS
+                + OperationsUtil.getGuid(targetSpace)
                 + CloudControllerV3Endpoints.AMPERSAND_NAMES + String.join(",", batch);
 
             client.list(uri, SERVICE_INSTANCE_LIST_TYPE)
@@ -174,7 +155,8 @@ public class ServiceInstancesV3Operations {
 
     public List<CloudServiceInstance> getServiceInstancesByMetadataLabelSelector(String labelSelector) {
         String uri = CloudControllerV3Endpoints.SERVICE_INSTANCES + CloudControllerV3Endpoints.QUERY_PER_PAGE
-            + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE + CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS + getTargetSpaceGuid()
+            + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE + CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS
+            + OperationsUtil.getGuid(targetSpace)
             + CloudControllerV3Endpoints.AMPERSAND_LABEL_SELECTOR + labelSelector;
 
         return ReactiveFanOut.mapConcurrently(client.list(uri, SERVICE_INSTANCE_LIST_TYPE), this::mapWithSupportingContent);
@@ -182,7 +164,8 @@ public class ServiceInstancesV3Operations {
 
     public List<CloudServiceInstance> getServiceInstancesWithoutAuxiliaryContentByMetadataLabelSelector(String labelSelector) {
         String uri = CloudControllerV3Endpoints.SERVICE_INSTANCES + CloudControllerV3Endpoints.QUERY_PER_PAGE
-            + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE + CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS + getTargetSpaceGuid()
+            + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE + CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS
+            + OperationsUtil.getGuid(targetSpace)
             + CloudControllerV3Endpoints.AMPERSAND_LABEL_SELECTOR + labelSelector;
 
         return client.list(uri, SERVICE_INSTANCE_LIST_TYPE)
@@ -199,18 +182,20 @@ public class ServiceInstancesV3Operations {
         }
 
         UUID planGuid = findPlanGuidForService(service, planName);
-        patchServiceInstance(service.getGuid(), Map.of("relationships", Map.of("service_plan", toOneRelationship(planGuid.toString()))));
+        patchServiceInstance(service.getGuid(),
+                             Map.of(V3Fields.RELATIONSHIPS,
+                                    Map.of(V3Fields.SERVICE_PLAN, OperationsUtil.toOneRelationship(planGuid.toString()))));
     }
 
     public void updateServiceParameters(String serviceName, Map<String, Object> parameters) {
         CloudServiceInstance service = getServiceInstanceWithoutAuxiliaryContent(serviceName);
-        String key = service.isUserProvided() ? "credentials" : "parameters";
+        String key = service.isUserProvided() ? V3Fields.CREDENTIALS : V3Fields.PARAMETERS;
         patchServiceInstance(service.getGuid(), Map.of(key, parameters));
     }
 
     public void updateServiceTags(String serviceName, List<String> tags) {
         UUID serviceInstanceGuid = getRequiredServiceInstanceGuid(serviceName);
-        patchServiceInstance(serviceInstanceGuid, Map.of("tags", tags));
+        patchServiceInstance(serviceInstanceGuid, Map.of(V3Fields.TAGS, tags));
     }
 
     public void updateServiceSyslogDrainUrl(String serviceName, String syslogDrainUrl) {
@@ -220,13 +205,13 @@ public class ServiceInstancesV3Operations {
             return;
         }
 
-        String updatedSyslogDrain = hasText(syslogDrainUrl) ? syslogDrainUrl : "";
-        patchServiceInstance(service.getGuid(), Map.of("syslog_drain_url", updatedSyslogDrain));
+        String updatedSyslogDrain = StringUtils.hasText(syslogDrainUrl) ? syslogDrainUrl : "";
+        patchServiceInstance(service.getGuid(), Map.of(V3Fields.SYSLOG_DRAIN_URL, updatedSyslogDrain));
     }
 
     public void updateServiceInstanceMetadata(UUID guid, Metadata metadata) {
-        Map<String, Object> metadataMap = toMetadataMap(metadata);
-        patchServiceInstance(guid, Map.of("metadata", metadataMap == null ? Map.of() : metadataMap));
+        Map<String, Object> metadataMap = OperationsUtil.toMetadataMap(metadata);
+        patchServiceInstance(guid, Map.of(V3Fields.METADATA, metadataMap == null ? Map.of() : metadataMap));
     }
 
     private CloudServiceInstance getServiceInstanceIfRequired(String serviceInstanceName, CloudServiceInstance serviceInstance,
@@ -250,11 +235,11 @@ public class ServiceInstancesV3Operations {
     }
 
     private CloudServiceInstance mapWithSupportingContent(V3ServiceInstance resource) {
-        if (isUserProvided(resource)) {
+        if (OperationsUtil.isUserProvided(resource)) {
             return V3ServiceInstanceMapper.toCloudServiceInstance(resource, null, null);
         }
 
-        String servicePlanGuid = servicePlanGuidOf(resource);
+        String servicePlanGuid = OperationsUtil.servicePlanGuidOf(resource);
         if (servicePlanGuid == null) {
             return V3ServiceInstanceMapper.toCloudServiceInstance(resource, null, null);
         }
@@ -265,7 +250,8 @@ public class ServiceInstancesV3Operations {
 
     private V3ServiceInstance findServiceInstanceResourceByName(String name) {
         String uri = CloudControllerV3Endpoints.SERVICE_INSTANCES + CloudControllerV3Endpoints.QUERY_PER_PAGE
-            + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE + CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS + getTargetSpaceGuid()
+            + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE + CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS
+            + OperationsUtil.getGuid(targetSpace)
             + CloudControllerV3Endpoints.AMPERSAND_NAMES + name;
 
         return client.list(uri, SERVICE_INSTANCE_LIST_TYPE)
@@ -274,34 +260,15 @@ public class ServiceInstancesV3Operations {
                      .orElse(null);
     }
 
-    private boolean isUserProvided(V3ServiceInstance resource) {
-        return "user-provided".equals(resource.type());
-    }
-
-    private String servicePlanGuidOf(V3ServiceInstance resource) {
-        if (resource.relationships() == null || resource.relationships()
-                                                        .servicePlan() == null
-            || resource.relationships()
-                       .servicePlan()
-                       .data() == null) {
-            return null;
-        }
-
-        return resource.relationships()
-                       .servicePlan()
-                       .data()
-                       .guid();
-    }
-
     private ServicePlanNames resolvePlanAndOfferingNames(String servicePlanGuid, String serviceInstanceName) {
-        V3ServicePlan plan = getServicePlanForNameResolution(servicePlanGuid, serviceInstanceName);
+        V3ServicePlan plan = getServicePlanForServiceInstance(servicePlanGuid, serviceInstanceName);
 
         if (plan == null) {
             return new ServicePlanNames(null, null);
         }
 
         String offeringName = null;
-        String offeringGuid = offeringGuidOf(plan);
+        String offeringGuid = OperationsUtil.getServiceOfferingGuidFromServicePlan(plan);
 
         if (offeringGuid != null) {
             V3ServiceOffering offering = getServiceOfferingForNameResolution(offeringGuid);
@@ -311,14 +278,16 @@ public class ServiceInstancesV3Operations {
         return new ServicePlanNames(plan.name(), offeringName);
     }
 
-    private V3ServicePlan getServicePlanForNameResolution(String servicePlanGuid, String serviceInstanceName) {
+    private V3ServicePlan getServicePlanForServiceInstance(String servicePlanGuid, String serviceInstanceName) {
         try {
             return client.get(CloudControllerV3Endpoints.SERVICE_PLANS + "/" + servicePlanGuid, V3ServicePlan.class);
         } catch (CloudOperationException e) {
-            throw determineNameResolutionError(e,
-                                               MessageFormat.format(Messages.SERVICE_PLAN_WITH_GUID_0_NOT_AVAILABLE_FOR_SERVICE_INSTANCE_1,
-                                                                    servicePlanGuid, serviceInstanceName),
-                                               MessageFormat.format(Messages.NO_SERVICE_PLAN_FOUND, servicePlanGuid, serviceInstanceName));
+            throw OperationsUtil.determineNameResolutionError(e,
+                                                              MessageFormat.format(
+                                                                  Messages.SERVICE_PLAN_WITH_GUID_0_NOT_AVAILABLE_FOR_SERVICE_INSTANCE_1,
+                                                                  servicePlanGuid, serviceInstanceName),
+                                                              MessageFormat.format(Messages.NO_SERVICE_PLAN_FOUND, servicePlanGuid,
+                                                                                   serviceInstanceName));
         }
     }
 
@@ -326,38 +295,12 @@ public class ServiceInstancesV3Operations {
         try {
             return client.get(CloudControllerV3Endpoints.SERVICE_OFFERINGS + "/" + offeringGuid, V3ServiceOffering.class);
         } catch (CloudOperationException e) {
-            throw determineNameResolutionError(e,
-                                               MessageFormat.format(Messages.SERVICE_OFFERING_WITH_GUID_0_IS_NOT_AVAILABLE, offeringGuid),
-                                               MessageFormat.format(Messages.SERVICE_OFFERING_WITH_GUID_0_NOT_FOUND, offeringGuid));
+            throw OperationsUtil.determineNameResolutionError(e,
+                                                              MessageFormat.format(Messages.SERVICE_OFFERING_WITH_GUID_0_IS_NOT_AVAILABLE,
+                                                                                   offeringGuid),
+                                                              MessageFormat.format(Messages.SERVICE_OFFERING_WITH_GUID_0_NOT_FOUND,
+                                                                                   offeringGuid));
         }
-    }
-
-    private CloudOperationException determineNameResolutionError(CloudOperationException e, String forbiddenMessage,
-                                                                 String notFoundMessage) {
-        if (e.getStatusCode() == HttpStatus.FORBIDDEN) {
-            return new CloudOperationException(HttpStatus.FORBIDDEN, Messages.FORBIDDEN, forbiddenMessage, e);
-        }
-
-        if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-            return new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND, notFoundMessage, e);
-        }
-
-        return e;
-    }
-
-    private String offeringGuidOf(V3ServicePlan plan) {
-        if (plan.relationships() == null || plan.relationships()
-                                                .serviceOffering() == null
-            || plan.relationships()
-                   .serviceOffering()
-                   .data() == null) {
-            return null;
-        }
-
-        return plan.relationships()
-                   .serviceOffering()
-                   .data()
-                   .guid();
     }
 
     private UUID findPlanGuidForService(CloudServiceInstance service, String planName) {
@@ -368,11 +311,10 @@ public class ServiceInstancesV3Operations {
                 + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE + CloudControllerV3Endpoints.AMPERSAND_SERVICE_OFFERING_GUIDS + offeringGuid
                 + CloudControllerV3Endpoints.AMPERSAND_NAMES + planName;
 
-            V3ServicePlan plan = client.list(uri, new ParameterizedTypeReference<V3ListResponse<V3ServicePlan>>() {
-                                       })
-                                       .stream()
-                                       .findFirst()
-                                       .orElse(null);
+            V3GuidReference plan = client.list(uri, GUID_REFERENCE_PAGE)
+                                         .stream()
+                                         .findFirst()
+                                         .orElse(null);
 
             if (plan != null) {
                 return UUID.fromString(plan.guid());
@@ -390,106 +332,30 @@ public class ServiceInstancesV3Operations {
                                                                                                      .append(
                                                                                                          CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
                                                                                                      .append(
-                                                                                                         getTargetSpaceGuid())
+                                                                                                         OperationsUtil.getGuid(
+                                                                                                             targetSpace))
                                                                                                      .append(
                                                                                                          CloudControllerV3Endpoints.AMPERSAND_NAMES)
                                                                                                      .append(
                                                                                                          label);
 
-        if (hasText(broker)) {
+        if (StringUtils.hasText(broker)) {
             uri.append(CloudControllerV3Endpoints.AMPERSAND_SERVICE_BROKER_NAMES)
                .append(broker);
         }
 
-        return client.list(uri.toString(), new ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>>() {
-                     })
+        return client.list(uri.toString(), GUID_REFERENCE_PAGE)
                      .stream()
-                     .map(V3ServiceOffering::guid)
+                     .map(V3GuidReference::guid)
                      .toList();
     }
 
-    private void doDeleteServiceInstance(UUID serviceInstanceGuid) {
-        client.getRestClient()
-              .delete()
-              .uri(CloudControllerV3Endpoints.SERVICE_INSTANCE_BY_GUID, serviceInstanceGuid.toString())
-              .retrieve()
-              .toBodilessEntity();
+    private void deleteServiceInstance(UUID serviceInstanceGuid) {
+        client.delete(CloudControllerV3Endpoints.SERVICE_INSTANCE_BY_GUID, serviceInstanceGuid.toString());
     }
 
     private void patchServiceInstance(UUID guid, Map<String, Object> body) {
-        client.getRestClient()
-              .patch()
-              .uri(CloudControllerV3Endpoints.SERVICE_INSTANCE_BY_GUID, guid.toString())
-              .body(body)
-              .retrieve()
-              .toBodilessEntity();
-    }
-
-    private Map<String, Object> toOneRelationship(String guid) {
-        return Map.of("data", Map.of("guid", guid));
-    }
-
-    private Map<String, Object> toMetadataMap(Metadata metadata) {
-        if (metadata == null) {
-            return null;
-        }
-
-        Map<String, Object> metadataMapResult = new HashMap<>();
-        metadataMapResult.put("labels", metadata.getLabels() == null ? Map.of() : metadata.getLabels());
-        metadataMapResult.put("annotations", metadata.getAnnotations() == null ? Map.of() : metadata.getAnnotations());
-
-        return metadataMapResult;
-    }
-
-    private static void putIfNotNull(Map<String, Object> body, String key, Object value) {
-        if (value != null) {
-            body.put(key, value);
-        }
-    }
-
-    private static boolean hasText(String value) {
-        return value != null && !value.isBlank();
-    }
-
-    private <T> List<List<T>> toBatches(Collection<T> largeList, int maxCharLength) {
-        if (largeList.isEmpty()) {
-            return List.of();
-        }
-
-        List<List<T>> batches = new ArrayList<>();
-        int currentBatchLength = 0;
-        int currentBatchIndex = 0;
-        batches.add(new ArrayList<>());
-
-        for (T element : largeList) {
-            int elementLength = element.toString()
-                                       .length();
-
-            if (elementLength + currentBatchLength >= maxCharLength) {
-                batches.add(new ArrayList<>());
-                currentBatchIndex++;
-                currentBatchLength = 0;
-            }
-
-            batches.get(currentBatchIndex)
-                   .add(element);
-            currentBatchLength += elementLength;
-        }
-
-        return batches;
-    }
-
-    private UUID getTargetSpaceGuid() {
-        return getGuid(targetSpace);
-    }
-
-    private UUID getGuid(CloudEntity entity) {
-        if (entity == null || entity.getMetadata() == null) {
-            return null;
-        }
-
-        return entity.getMetadata()
-                     .getGuid();
+        client.patch(CloudControllerV3Endpoints.SERVICE_INSTANCE_BY_GUID, body, guid.toString());
     }
 
     private void assertSpaceProvided(String operation) {

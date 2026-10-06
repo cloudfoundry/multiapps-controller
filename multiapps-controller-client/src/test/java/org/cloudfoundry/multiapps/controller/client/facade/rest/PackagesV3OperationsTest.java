@@ -43,10 +43,7 @@ class PackagesV3OperationsTest {
 
     @Test
     void testGetPackageReturnsMappedPackage() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/packages/" + PACKAGE_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(bitsPackageJson("READY", null), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/packages/" + PACKAGE_GUID, bitsPackageJson("READY", null));
 
         CloudPackage result = operations.getPackage(UUID.fromString(PACKAGE_GUID));
 
@@ -59,10 +56,7 @@ class PackagesV3OperationsTest {
 
     @Test
     void testGetPackageThrowsWhenResponseIsNull() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/packages/" + PACKAGE_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/packages/" + PACKAGE_GUID, "");
 
         UUID packageGuid = UUID.fromString(PACKAGE_GUID);
         Assertions.assertThrows(CloudOperationException.class, () -> operations.getPackage(packageGuid));
@@ -81,12 +75,8 @@ class PackagesV3OperationsTest {
 
     @Test
     void testGetPackagesForApplicationReturnsMappedList() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(
-                   MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/packages?per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[" + bitsPackageJson("READY", null) + "]}",
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/packages?per_page=5000",
+                        "{\"resources\":[" + bitsPackageJson("READY", null) + "]}");
 
         List<CloudPackage> result = operations.getPackagesForApplication(UUID.fromString(APP_GUID));
 
@@ -98,11 +88,8 @@ class PackagesV3OperationsTest {
 
     @Test
     void testGetPackagesForApplicationReturnsEmptyList() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(
-                   MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/packages?per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/packages?per_page=5000",
+                        "{\"resources\":[]}");
 
         List<CloudPackage> result = operations.getPackagesForApplication(UUID.fromString(APP_GUID));
 
@@ -117,10 +104,7 @@ class PackagesV3OperationsTest {
                .andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
                .andRespond(MockRestResponseCreators.withSuccess(dockerPackageJson(), MediaType.APPLICATION_JSON));
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/packages/" + PACKAGE_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(dockerPackageJson(), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/packages/" + PACKAGE_GUID, dockerPackageJson());
 
         DockerInfo dockerInfo = ImmutableDockerInfo.builder()
                                                    .image("my/image:latest")
@@ -141,10 +125,7 @@ class PackagesV3OperationsTest {
                .andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
                .andRespond(MockRestResponseCreators.withSuccess(dockerPackageJson(), MediaType.APPLICATION_JSON));
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/packages/" + PACKAGE_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(dockerPackageJson(), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/packages/" + PACKAGE_GUID, dockerPackageJson());
 
         DockerInfo dockerInfo = ImmutableDockerInfo.builder()
                                                    .image("my/image:latest")
@@ -162,10 +143,7 @@ class PackagesV3OperationsTest {
 
     @Test
     void testGetUploadStatusForBitsPackageIncludesErrorDetails() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/packages/" + PACKAGE_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(bitsPackageJson("FAILED", "boom"), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/packages/" + PACKAGE_GUID, bitsPackageJson("FAILED", "boom"));
 
         Upload result = operations.getUploadStatus(UUID.fromString(PACKAGE_GUID));
 
@@ -177,10 +155,7 @@ class PackagesV3OperationsTest {
 
     @Test
     void testGetUploadStatusForDockerPackageHasNoErrorDetails() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/packages/" + PACKAGE_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(dockerPackageJson(), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/packages/" + PACKAGE_GUID, dockerPackageJson());
 
         Upload result = operations.getUploadStatus(UUID.fromString(PACKAGE_GUID));
 

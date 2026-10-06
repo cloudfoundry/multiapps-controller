@@ -12,7 +12,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.client.response.MockRestResponseCreators;
 
@@ -106,11 +105,8 @@ class ServicePlansV3OperationsTest {
     }
 
     private void stubBrokerLookup(String responseJson) {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_brokers?names="
-                                                             + BROKER_NAME + "&per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(responseJson, MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_brokers?names=" + BROKER_NAME + "&per_page=5000",
+                        responseJson);
     }
 
     private void stubOfferingLookup(UUID spaceGuid, String responseJson) {
@@ -121,18 +117,12 @@ class ServicePlansV3OperationsTest {
             uri = uri + "&space_guids=" + spaceGuid;
         }
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(uri))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(responseJson, MediaType.APPLICATION_JSON));
+        factory.stubGet(uri, responseJson);
     }
 
     private void stubPlanLookup(String responseJson) {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_plans?service_offering_guids="
-                                                             + OFFERING_GUID + "&per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(responseJson, MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_plans?service_offering_guids=" + OFFERING_GUID
+            + "&per_page=5000", responseJson);
     }
 
     private void stubVisibilityPatch(String planGuid) {

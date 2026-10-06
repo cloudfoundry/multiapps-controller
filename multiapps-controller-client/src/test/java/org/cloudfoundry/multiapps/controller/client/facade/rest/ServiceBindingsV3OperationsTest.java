@@ -227,11 +227,8 @@ class ServiceBindingsV3OperationsTest {
 
     @Test
     void testGetServiceBindingReturnsMappedBinding() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_credential_bindings?guids="
-                                                             + BINDING_GUID + "&per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getBindingListJson(), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_credential_bindings?guids="
+            + BINDING_GUID + "&per_page=5000", getBindingListJson());
 
         CloudServiceBinding result = operations.getServiceBinding(UUID.fromString(BINDING_GUID));
 
@@ -242,11 +239,8 @@ class ServiceBindingsV3OperationsTest {
 
     @Test
     void testGetServiceBindingReturnsNullWhenNoBindingFound() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_credential_bindings?guids="
-                                                             + BINDING_GUID + "&per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_credential_bindings?guids="
+            + BINDING_GUID + "&per_page=5000", "{\"resources\":[]}");
 
         CloudServiceBinding result = operations.getServiceBinding(UUID.fromString(BINDING_GUID));
 
@@ -256,12 +250,9 @@ class ServiceBindingsV3OperationsTest {
 
     @Test
     void testGetServiceAppBindingsReturnsMappedList() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL
-                                                             + "/v3/service_credential_bindings?service_instance_guids="
-                                                             + SERVICE_INSTANCE_GUID + "&type=app&per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getBindingListJson(), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL
+            + "/v3/service_credential_bindings?service_instance_guids="
+            + SERVICE_INSTANCE_GUID + "&type=app&per_page=5000", getBindingListJson());
 
         List<CloudServiceBinding> result = operations.getServiceAppBindings(UUID.fromString(SERVICE_INSTANCE_GUID));
 
@@ -273,11 +264,8 @@ class ServiceBindingsV3OperationsTest {
 
     @Test
     void testGetAppBindingsReturnsEmptyList() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL
-                                                             + "/v3/service_credential_bindings?app_guids=" + APP_GUID + "&per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL
+            + "/v3/service_credential_bindings?app_guids=" + APP_GUID + "&per_page=5000", "{\"resources\":[]}");
 
         List<CloudServiceBinding> result = operations.getAppBindings(UUID.fromString(APP_GUID));
 
@@ -287,13 +275,10 @@ class ServiceBindingsV3OperationsTest {
 
     @Test
     void testGetServiceBindingsForApplicationReturnsMappedList() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL
-                                                             + "/v3/service_credential_bindings?app_guids=" + APP_GUID
-                                                             + "&service_instance_guids=" + SERVICE_INSTANCE_GUID
-                                                             + "&per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getBindingListJson(), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL
+            + "/v3/service_credential_bindings?app_guids=" + APP_GUID
+            + "&service_instance_guids=" + SERVICE_INSTANCE_GUID
+            + "&per_page=5000", getBindingListJson());
 
         List<CloudServiceBinding> result = operations.getServiceBindingsForApplication(UUID.fromString(APP_GUID),
                                                                                        UUID.fromString(SERVICE_INSTANCE_GUID));
@@ -304,11 +289,8 @@ class ServiceBindingsV3OperationsTest {
 
     @Test
     void testGetServiceBindingParametersReturnsMap() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_credential_bindings/"
-                                                             + BINDING_GUID + "/parameters"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"foo\":\"bar\"}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_credential_bindings/"
+            + BINDING_GUID + "/parameters", "{\"foo\":\"bar\"}");
 
         Map<String, Object> result = operations.getServiceBindingParameters(UUID.fromString(BINDING_GUID));
 

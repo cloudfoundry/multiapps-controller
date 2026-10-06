@@ -23,7 +23,7 @@ public final class V3JobMapper {
     }
 
     private static JobState parseState(String state) {
-        return state == null ? null : JobState.valueOf(state.toUpperCase());
+        return JobState.valueOf(state.toUpperCase());
     }
 
     private static String getWarnings(V3Job job) {

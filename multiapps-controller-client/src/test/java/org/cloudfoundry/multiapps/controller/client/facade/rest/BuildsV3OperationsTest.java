@@ -49,10 +49,7 @@ class BuildsV3OperationsTest {
 
     @Test
     void testGetBuildReturnsMappedBuild() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/builds/" + BUILD_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getBuildJson("STAGED"), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/builds/" + BUILD_GUID, getBuildJson("STAGED"));
 
         CloudBuild result = operations.getBuild(UUID.fromString(BUILD_GUID));
 
@@ -75,12 +72,8 @@ class BuildsV3OperationsTest {
 
     @Test
     void testGetBuildsForApplicationReturnsMappedList() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/builds?per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[" + getBuildJson("STAGED") + "]}",
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
+                            + "/builds?per_page=5000", "{\"resources\":[" + getBuildJson("STAGED") + "]}");
 
         List<CloudBuild> result = operations.getBuildsForApplication(UUID.fromString(APP_GUID));
 
@@ -92,11 +85,8 @@ class BuildsV3OperationsTest {
 
     @Test
     void testGetBuildsForApplicationReturnsEmptyList() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/builds?per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
+                            + "/builds?per_page=5000", "{\"resources\":[]}");
 
         List<CloudBuild> result = operations.getBuildsForApplication(UUID.fromString(APP_GUID));
 
@@ -106,12 +96,8 @@ class BuildsV3OperationsTest {
 
     @Test
     void testGetBuildsForPackageReturnsMappedList() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/builds?package_guids="
-                                                             + PACKAGE_GUID + "&per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[" + getBuildJson("FAILED") + "]}",
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/builds?package_guids="
+                            + PACKAGE_GUID + "&per_page=5000", "{\"resources\":[" + getBuildJson("FAILED") + "]}");
 
         List<CloudBuild> result = operations.getBuildsForPackage(UUID.fromString(PACKAGE_GUID));
 
@@ -125,11 +111,8 @@ class BuildsV3OperationsTest {
 
     @Test
     void testGetBuildsForPackageReturnsEmptyList() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/builds?package_guids="
-                                                             + PACKAGE_GUID + "&per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/builds?package_guids="
+                            + PACKAGE_GUID + "&per_page=5000", "{\"resources\":[]}");
 
         List<CloudBuild> result = operations.getBuildsForPackage(UUID.fromString(PACKAGE_GUID));
 

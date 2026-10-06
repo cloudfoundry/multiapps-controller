@@ -16,29 +16,30 @@ open module org.cloudfoundry.multiapps.controller.client {
     requires transitive spring.web;
 
     requires com.fasterxml.jackson.databind;
+    requires java.desktop;
+    requires java.net.http;
+    requires io.netty.handler;
+    requires io.netty.transport;
     requires org.apache.commons.collections4;
     requires org.apache.commons.io;
     requires org.apache.commons.logging;
     requires org.cloudfoundry.multiapps.common;
+    requires org.reactivestreams;
     requires org.slf4j;
-    requires java.net.http;
-    requires spring.core;
-    requires spring.webflux;
     requires reactor.core;
+    requires reactor.netty;
     requires reactor.netty.core;
     requires reactor.netty.http;
-    requires org.reactivestreams;
-    requires io.netty.handler;
-    requires io.netty.transport;
-    requires reactor.netty;
+    requires spring.core;
     requires spring.security.core;
     requires spring.security.oauth2.client;
+    requires spring.webflux;
 
     requires static com.fasterxml.jackson.annotation;
     requires static java.compiler;
     requires static jakarta.inject;
     requires static org.immutables.value;
     requires io.netty.codec;
-    requires java.desktop;
+    requires org.apache.logging.log4j;
 
 }

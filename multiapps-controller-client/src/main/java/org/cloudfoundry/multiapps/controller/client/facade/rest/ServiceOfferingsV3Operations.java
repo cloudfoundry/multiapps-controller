@@ -14,9 +14,9 @@ import org.springframework.core.ParameterizedTypeReference;
 
 public class ServiceOfferingsV3Operations {
 
-    private static final ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>> OFFERING_LIST_TYPE = new ParameterizedTypeReference<>() {
+    private static final ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>> OFFERING_PAGE = new ParameterizedTypeReference<>() {
     };
-    private static final ParameterizedTypeReference<V3ListResponse<V3ServicePlan>> PLAN_LIST_TYPE = new ParameterizedTypeReference<>() {
+    private static final ParameterizedTypeReference<V3ListResponse<V3ServicePlan>> PLAN_PAGE = new ParameterizedTypeReference<>() {
     };
 
     private final CloudControllerV3Client client;
@@ -42,7 +42,7 @@ public class ServiceOfferingsV3Operations {
                  .append(targetSpace.getGuid());
         }
 
-        return client.list(query.toString(), OFFERING_LIST_TYPE);
+        return client.list(query.toString(), OFFERING_PAGE);
     }
 
     private CloudServiceOffering toCloudServiceOfferingWithPlans(V3ServiceOffering serviceOffering) {
@@ -56,7 +56,7 @@ public class ServiceOfferingsV3Operations {
             CloudControllerV3Endpoints.SERVICE_PLANS + CloudControllerV3Endpoints.QUERY_SERVICE_OFFERING_GUIDS + serviceOfferingGuid
                 + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
 
-        return client.list(uri, PLAN_LIST_TYPE)
+        return client.list(uri, PLAN_PAGE)
                      .stream()
                      .map(V3ServicePlanMapper::toCloudServicePlan)
                      .toList();

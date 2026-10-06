@@ -51,11 +51,7 @@ class ServiceBrokersV3OperationsTest {
 
     @Test
     void testGetServiceBrokersReturnsMappedList() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(BROKERS_URI + "?per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[" + getBrokerJson("broker-a") + "]}",
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(BROKERS_URI + "?per_page=5000", "{\"resources\":[" + getBrokerJson("broker-a") + "]}");
 
         List<CloudServiceBroker> result = operations.getServiceBrokers();
 
@@ -69,10 +65,7 @@ class ServiceBrokersV3OperationsTest {
 
     @Test
     void testGetServiceBrokersReturnsEmptyList() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(BROKERS_URI + "?per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(BROKERS_URI + "?per_page=5000", "{\"resources\":[]}");
 
         List<CloudServiceBroker> result = operations.getServiceBrokers();
 
@@ -226,20 +219,13 @@ class ServiceBrokersV3OperationsTest {
 
         stubBrokerLookup("broker-a", "{\"resources\":[" + getBrokerJson("broker-a") + "]}");
 
-        factory.server()
-               .expect(
-                   MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_offerings?service_broker_guids="
-                                                         + BROKER_GUID + "&space_guids=" + SPACE_GUID + "&per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[{\"guid\":\"" + OFFERING_GUID + "\"}]}",
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_offerings?service_broker_guids="
+                            + BROKER_GUID + "&space_guids=" + SPACE_GUID + "&per_page=5000",
+                        "{\"resources\":[{\"guid\":\"" + OFFERING_GUID + "\"}]}");
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_plans?service_offering_guids="
-                                                             + OFFERING_GUID + "&per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[{\"guid\":\"" + PLAN_GUID + "\"}]}",
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_plans?service_offering_guids="
+                            + OFFERING_GUID + "&per_page=5000",
+                        "{\"resources\":[{\"guid\":\"" + PLAN_GUID + "\"}]}");
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_plans/" + PLAN_GUID
@@ -262,12 +248,8 @@ class ServiceBrokersV3OperationsTest {
 
         stubBrokerLookup("broker-a", "{\"resources\":[" + getBrokerJson("broker-a") + "]}");
 
-        factory.server()
-               .expect(
-                   MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_offerings?service_broker_guids="
-                                                         + BROKER_GUID + "&space_guids=" + SPACE_GUID + "&per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_offerings?service_broker_guids="
+                            + BROKER_GUID + "&space_guids=" + SPACE_GUID + "&per_page=5000", "{\"resources\":[]}");
 
         operations.updateServicePlanVisibilityForBroker("broker-a", ServicePlanVisibility.ADMIN);
 
@@ -284,10 +266,7 @@ class ServiceBrokersV3OperationsTest {
     }
 
     private void stubBrokerLookup(String name, String responseJson) {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(BROKERS_URI + "?names=" + name + "&per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(responseJson, MediaType.APPLICATION_JSON));
+        factory.stubGet(BROKERS_URI + "?names=" + name + "&per_page=5000", responseJson);
     }
 
     private static String getBrokerJson(String name) {

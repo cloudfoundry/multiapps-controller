@@ -7,8 +7,6 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloud
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceInstanceType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
 
-import static org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceInstanceType.mapValue;
-
 public final class V3ServiceInstanceMapper {
 
     private V3ServiceInstanceMapper() {
@@ -48,7 +46,7 @@ public final class V3ServiceInstanceMapper {
             return null;
         }
 
-        return mapValue(type);
+        return ServiceInstanceType.mapTypeToServiceInstanceType(type);
     }
 
     private static ServiceOperation parseLastOperation(V3ServiceInstance.V3LastOperation lastOperation) {

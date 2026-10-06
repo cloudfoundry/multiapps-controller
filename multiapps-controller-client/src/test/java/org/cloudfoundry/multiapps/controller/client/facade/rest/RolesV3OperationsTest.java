@@ -13,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.client.response.MockRestResponseCreators;
 
@@ -42,10 +41,7 @@ class RolesV3OperationsTest {
         String json = "{\"resources\":[{\"guid\":\"r1\",\"type\":\"space_developer\"},"
             + "{\"guid\":\"r2\",\"type\":\"space_manager\"}]}";
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + ROLES_URI))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + ROLES_URI, json);
 
         Set<UserRole> result = operations.getUserRolesBySpaceAndUser(SPACE_GUID, USER_GUID);
 
@@ -60,10 +56,7 @@ class RolesV3OperationsTest {
         String json = "{\"resources\":[{\"guid\":\"r1\",\"type\":\"space_developer\"},"
             + "{\"guid\":\"r2\",\"type\":\"space_developer\"}]}";
         
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + ROLES_URI))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + ROLES_URI, json);
 
         Set<UserRole> result = operations.getUserRolesBySpaceAndUser(SPACE_GUID, USER_GUID);
 
@@ -74,10 +67,7 @@ class RolesV3OperationsTest {
 
     @Test
     void testGetUserRolesReturnsEmptySetWhenNoRoles() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + ROLES_URI))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + ROLES_URI, "{\"resources\":[]}");
 
         Set<UserRole> result = operations.getUserRolesBySpaceAndUser(SPACE_GUID, USER_GUID);
 
@@ -88,10 +78,7 @@ class RolesV3OperationsTest {
     @Test
     void testGetUserRolesThrowsOnUnknownRoleType() {
         String json = "{\"resources\":[{\"guid\":\"r1\",\"type\":\"galactic_overlord\"}]}";
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + ROLES_URI))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + ROLES_URI, json);
 
         Assertions.assertThrows(IllegalArgumentException.class,
                                 () -> operations.getUserRolesBySpaceAndUser(SPACE_GUID, USER_GUID));

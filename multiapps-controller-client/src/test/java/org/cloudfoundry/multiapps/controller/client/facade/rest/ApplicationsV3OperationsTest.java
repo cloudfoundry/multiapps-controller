@@ -75,11 +75,8 @@ class ApplicationsV3OperationsTest {
                .andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
                .andRespond(MockRestResponseCreators.withSuccess(appJson(APP_GUID, "my-app", "STOPPED"), MediaType.APPLICATION_JSON));
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/processes/web/actions/scale"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
-               .andRespond(MockRestResponseCreators.withSuccess());
+        factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
+                                                             + "/processes/web/actions/scale", HttpMethod.POST);
 
         ApplicationToCreateDto dto = ImmutableApplicationToCreateDto.builder()
                                                                     .name("my-app")
@@ -120,10 +117,7 @@ class ApplicationsV3OperationsTest {
 
         stubAppLookupByName("my-app", APP_GUID);
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.DELETE))
-               .andRespond(MockRestResponseCreators.withSuccess());
+        factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID, HttpMethod.DELETE);
 
         operations.deleteApplication("my-app");
 
@@ -145,11 +139,7 @@ class ApplicationsV3OperationsTest {
         when(target.getGuid())
             .thenReturn(null);
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(APPS_BASE + "&names=my-app"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(listJson(appJson(APP_GUID, "my-app", "STARTED")),
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(APPS_BASE + "&names=my-app", listJson(appJson(APP_GUID, "my-app", "STARTED")));
 
         CloudApplication result = operations.getApplication("my-app");
 
@@ -199,11 +189,7 @@ class ApplicationsV3OperationsTest {
     void testGetApplicationQueryIncludesSpaceGuidWhenPresent() {
         when(target.getGuid())
             .thenReturn(UUID.fromString(SPACE_GUID));
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(APPS_BASE + "&space_guids=" + SPACE_GUID + "&names=my-app"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(listJson(appJson(APP_GUID, "my-app", "STARTED")),
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(APPS_BASE + "&space_guids=" + SPACE_GUID + "&names=my-app", listJson(appJson(APP_GUID, "my-app", "STARTED")));
 
         CloudApplication result = operations.getApplication("my-app");
 
@@ -213,10 +199,7 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testGetApplicationNameReturnsName() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(appJson(APP_GUID, "my-app", "STARTED"), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID, appJson(APP_GUID, "my-app", "STARTED"));
 
         String result = operations.getApplicationName(UUID.fromString(APP_GUID));
 
@@ -226,11 +209,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testGetApplicationEnvironmentByGuidReturnsVariables() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/environment_variables"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"var\":{\"FOO\":\"bar\"}}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
+                                                             + "/environment_variables", "{\"var\":{\"FOO\":\"bar\"}}");
 
         Map<String, String> result = operations.getApplicationEnvironment(UUID.fromString(APP_GUID));
 
@@ -240,11 +220,8 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testGetApplicationEnvironmentByGuidReturnsEmptyWhenNoVars() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/environment_variables"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
+                                                             + "/environment_variables", "{}");
 
         Map<String, String> result = operations.getApplicationEnvironment(UUID.fromString(APP_GUID));
 
@@ -259,11 +236,8 @@ class ApplicationsV3OperationsTest {
 
         stubAppLookupByName("my-app", APP_GUID);
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/environment_variables"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"var\":{\"A\":\"B\"}}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
+                                                             + "/environment_variables", "{\"var\":{\"A\":\"B\"}}");
 
         Map<String, String> result = operations.getApplicationEnvironment("my-app");
 
@@ -276,11 +250,7 @@ class ApplicationsV3OperationsTest {
         when(target.getGuid())
             .thenReturn(null);
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(APPS_BASE))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(listJson(appJson(APP_GUID, "my-app", "STARTED")),
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(APPS_BASE, listJson(appJson(APP_GUID, "my-app", "STARTED")));
 
         List<CloudApplication> result = operations.getApplications();
 
@@ -295,10 +265,7 @@ class ApplicationsV3OperationsTest {
         when(target.getGuid())
             .thenReturn(null);
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(APPS_BASE))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(APPS_BASE, "{\"resources\":[]}");
 
         List<CloudApplication> result = operations.getApplications();
 
@@ -311,11 +278,7 @@ class ApplicationsV3OperationsTest {
         when(target.getGuid())
             .thenReturn(null);
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(APPS_BASE + "&label_selector=env"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(listJson(appJson(APP_GUID, "my-app", "STARTED")),
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(APPS_BASE + "&label_selector=env", listJson(appJson(APP_GUID, "my-app", "STARTED")));
 
         List<CloudApplication> result = operations.getApplicationsByMetadataLabelSelector("env");
 
@@ -328,10 +291,7 @@ class ApplicationsV3OperationsTest {
         when(target.getGuid())
             .thenReturn(null);
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(APPS_BASE))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(APPS_BASE, "{\"resources\":[]}");
 
         List<CloudApplication> result = operations.getApplicationsByMetadataLabelSelector(null);
 
@@ -346,11 +306,8 @@ class ApplicationsV3OperationsTest {
 
         stubAppLookupByName("my-app", APP_GUID);
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/actions/start"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
-               .andRespond(MockRestResponseCreators.withSuccess());
+        factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
+                                                             + "/actions/start", HttpMethod.POST);
 
         operations.startApplication("my-app");
 
@@ -364,11 +321,8 @@ class ApplicationsV3OperationsTest {
 
         stubAppLookupByName("my-app", APP_GUID);
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/actions/stop"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
-               .andRespond(MockRestResponseCreators.withSuccess());
+        factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
+                                                             + "/actions/stop", HttpMethod.POST);
 
         operations.stopApplication("my-app");
 
@@ -382,10 +336,7 @@ class ApplicationsV3OperationsTest {
 
         stubAppLookupByName("my-app", APP_GUID);
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.PATCH))
-               .andRespond(MockRestResponseCreators.withSuccess());
+        factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID, HttpMethod.PATCH);
 
         operations.rename("my-app", "new-name");
 
@@ -404,10 +355,7 @@ class ApplicationsV3OperationsTest {
                .andExpect(MockRestRequestMatchers.method(HttpMethod.PATCH))
                .andRespond(MockRestResponseCreators.withStatus(HttpStatus.SERVICE_UNAVAILABLE));
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(appJson(APP_GUID, "new-name", "STOPPED"), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID, appJson(APP_GUID, "new-name", "STOPPED"));
 
         operations.rename("my-app", "new-name");
 
@@ -426,10 +374,7 @@ class ApplicationsV3OperationsTest {
                .andExpect(MockRestRequestMatchers.method(HttpMethod.PATCH))
                .andRespond(MockRestResponseCreators.withStatus(HttpStatus.SERVICE_UNAVAILABLE));
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(appJson(APP_GUID, "still-old", "STOPPED"), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID, appJson(APP_GUID, "still-old", "STOPPED"));
 
         Assertions.assertThrows(CloudOperationException.class, () -> operations.rename("my-app", "new-name"));
     }
@@ -468,11 +413,8 @@ class ApplicationsV3OperationsTest {
 
         stubAppLookupByName("my-app", APP_GUID);
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/environment_variables"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.PATCH))
-               .andRespond(MockRestResponseCreators.withSuccess());
+        factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
+                                                             + "/environment_variables", HttpMethod.PATCH);
 
         operations.updateApplicationEnv("my-app", Map.of("FOO", "bar"));
 
@@ -483,11 +425,8 @@ class ApplicationsV3OperationsTest {
     void testBindDropletToAppUpdatesCurrentDroplet() {
         UUID dropletGuid = UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/relationships/current_droplet"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.PATCH))
-               .andRespond(MockRestResponseCreators.withSuccess());
+        factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
+                                                             + "/relationships/current_droplet", HttpMethod.PATCH);
 
         operations.bindDropletToApp(dropletGuid, UUID.fromString(APP_GUID));
 
@@ -496,10 +435,7 @@ class ApplicationsV3OperationsTest {
 
     @Test
     void testUpdateApplicationMetadataUpdatesApp() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.PATCH))
-               .andRespond(MockRestResponseCreators.withSuccess());
+        factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID, HttpMethod.PATCH);
 
         Metadata metadata = Metadata.builder()
                                     .label("k", "v")
@@ -517,25 +453,16 @@ class ApplicationsV3OperationsTest {
 
         stubAppLookupByName("my-app", APP_GUID);
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/processes/web/actions/scale"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
-               .andRespond(MockRestResponseCreators.withSuccess());
+        factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
+                                                             + "/processes/web/actions/scale", HttpMethod.POST);
     }
 
     private void stubAppLookupByName(String name, String guid) {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(APPS_BASE + "&names=" + name))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(listJson(appJson(guid, name, "STARTED")), MediaType.APPLICATION_JSON));
+        factory.stubGet(APPS_BASE + "&names=" + name, listJson(appJson(guid, name, "STARTED")));
     }
 
     private void stubEmptyAppLookupByName(String name) {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(APPS_BASE + "&names=" + name))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(APPS_BASE + "&names=" + name, "{\"resources\":[]}");
     }
 
     private static String appJson(String guid, String name, String state) {

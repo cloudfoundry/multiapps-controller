@@ -131,11 +131,8 @@ class RoutesV3OperationsTest {
             .thenReturn(UUID.fromString(SPACE_GUID));
 
         stubDomainLookup(DOMAIN_NAME, DOMAIN_GUID);
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/routes?per_page=5000&domain_guids="
-                                                             + DOMAIN_GUID + "&space_guids=" + SPACE_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[" + getRouteJson() + "]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/routes?per_page=5000&domain_guids="
+            + DOMAIN_GUID + "&space_guids=" + SPACE_GUID, "{\"resources\":[" + getRouteJson() + "]}");
 
         List<CloudRoute> routes = operations.getRoutes(DOMAIN_NAME);
 
@@ -164,11 +161,8 @@ class RoutesV3OperationsTest {
 
     @Test
     void testGetApplicationRoutesReturnsMappedRoutes() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(
-                   MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/routes?per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[" + getRouteJson() + "]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/routes?per_page=5000",
+            "{\"resources\":[" + getRouteJson() + "]}");
 
         List<CloudRoute> routes = operations.getApplicationRoutes(UUID.fromString(APP_GUID));
 
@@ -180,11 +174,8 @@ class RoutesV3OperationsTest {
 
     @Test
     void testGetApplicationRoutesReturnsEmptyList() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(
-                   MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/routes?per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/routes?per_page=5000",
+            "{\"resources\":[]}");
 
         List<CloudRoute> routes = operations.getApplicationRoutes(UUID.fromString(APP_GUID));
 
@@ -199,34 +190,21 @@ class RoutesV3OperationsTest {
 
         stubAppLookup("my-app");
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(
-                   MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/routes?per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/routes?per_page=5000",
+            "{\"resources\":[]}");
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(
-                   MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + DOMAIN_NAME + "&per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getDomainJson(DOMAIN_GUID), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + DOMAIN_NAME + "&per_page=5000",
+            getDomainJson(DOMAIN_GUID));
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/routes?per_page=5000&domain_guids="
-                                                             + DOMAIN_GUID + "&space_guids=" + SPACE_GUID + "&hosts=myhost&paths=/mypath"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/routes?per_page=5000&domain_guids="
+            + DOMAIN_GUID + "&space_guids=" + SPACE_GUID + "&hosts=myhost&paths=/mypath", "{\"resources\":[]}");
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/routes"))
                .andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
                .andRespond(MockRestResponseCreators.withSuccess(getRouteJson(), MediaType.APPLICATION_JSON));
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(
-                   MockControllerClientFactory.BASE_URL + "/v3/routes/" + ROUTE_GUID + "/destinations"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
-               .andRespond(MockRestResponseCreators.withSuccess());
+        factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/routes/" + ROUTE_GUID + "/destinations", HttpMethod.POST);
 
         CloudRoute newRoute = ImmutableCloudRoute.builder()
                                                  .domain(ImmutableCloudDomain.builder()
@@ -249,18 +227,11 @@ class RoutesV3OperationsTest {
 
         stubAppLookup("my-app");
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(
-                   MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/routes?per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[" + getRouteWithDestinationJson() + "]}",
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/routes?per_page=5000",
+            "{\"resources\":[" + getRouteWithDestinationJson() + "]}");
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(
-                   MockControllerClientFactory.BASE_URL + "/v3/routes/" + ROUTE_GUID + "/destinations/" + DESTINATION_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.DELETE))
-               .andRespond(MockRestResponseCreators.withSuccess());
+        factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/routes/" + ROUTE_GUID + "/destinations/" + DESTINATION_GUID,
+            HttpMethod.DELETE);
 
         operations.updateApplicationRoutes("my-app", Set.of());
 
@@ -272,46 +243,30 @@ class RoutesV3OperationsTest {
         when(target.getGuid())
             .thenReturn(UUID.fromString(SPACE_GUID));
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&names=missing-app"
-                                                             + "&space_guids=" + SPACE_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000"
+            + "&space_guids=" + SPACE_GUID + "&names=missing-app", "{\"resources\":[]}");
 
         Assertions.assertThrows(CloudOperationException.class, () -> operations.updateApplicationRoutes("missing-app", Set.of()));
     }
 
     private void stubDomainLookup(String name, String domainGuid) {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(
-                   MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + name + "&per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getDomainJson(domainGuid), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + name + "&per_page=5000",
+            getDomainJson(domainGuid));
     }
 
     private void stubEmptyDomainLookup(String name) {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(
-                   MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + name + "&per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + name + "&per_page=5000",
+            "{\"resources\":[]}");
     }
 
     private void stubRouteLookupWithResult() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/routes?per_page=5000&domain_guids="
-                                                             + DOMAIN_GUID + "&space_guids=" + SPACE_GUID + "&hosts=myhost&paths=/mypath"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[" + getRouteJson() + "]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/routes?per_page=5000&domain_guids="
+            + DOMAIN_GUID + "&space_guids=" + SPACE_GUID + "&hosts=myhost&paths=/mypath", "{\"resources\":[" + getRouteJson() + "]}");
     }
 
     private void stubAppLookup(String appName) {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&names=" + appName
-                                                             + "&space_guids=" + SPACE_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[{\"guid\":\"" + APP_GUID + "\"}]}",
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000"
+            + "&space_guids=" + SPACE_GUID + "&names=" + appName, "{\"resources\":[{\"guid\":\"" + APP_GUID + "\"}]}");
     }
 
     private void stubAsyncDelete(String uri) {
@@ -320,11 +275,8 @@ class RoutesV3OperationsTest {
                .andExpect(MockRestRequestMatchers.method(HttpMethod.DELETE))
                .andRespond(MockRestResponseCreators.withStatus(HttpStatus.ACCEPTED)
                                                    .location(URI.create(MockControllerClientFactory.BASE_URL + "/v3/jobs/" + JOB_GUID)));
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/jobs/" + JOB_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"guid\":\"" + JOB_GUID + "\",\"state\":\"COMPLETE\"}",
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/jobs/" + JOB_GUID,
+            "{\"guid\":\"" + JOB_GUID + "\",\"state\":\"COMPLETE\"}");
     }
 
     private static String getRouteJson() {
