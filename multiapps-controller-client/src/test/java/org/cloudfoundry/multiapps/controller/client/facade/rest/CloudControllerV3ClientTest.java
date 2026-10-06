@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.client.response.MockRestResponseCreators;
@@ -33,10 +32,7 @@ class CloudControllerV3ClientTest {
 
     @Test
     void testGetReturnsMappedBody() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/jobs/" + JOB_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getJobJson("COMPLETE"), MediaType.APPLICATION_JSON));
+        stubJobGet(getJobJson("COMPLETE"));
 
         V3Job job = client.get("/v3/jobs/" + JOB_GUID, V3Job.class);
 
@@ -47,20 +43,14 @@ class CloudControllerV3ClientTest {
 
     @Test
     void testGetThrowsOnNotFound() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/jobs/" + JOB_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withStatus(HttpStatus.NOT_FOUND));
+        stubJobGetStatus(HttpStatus.NOT_FOUND);
 
         Assertions.assertThrows(CloudOperationException.class, () -> client.get("/v3/jobs/" + JOB_GUID, V3Job.class));
     }
 
     @Test
     void testGetOptionalReturnsPresentOn200() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/jobs/" + JOB_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getJobJson("COMPLETE"), MediaType.APPLICATION_JSON));
+        stubJobGet(getJobJson("COMPLETE"));
 
         Optional<V3Job> job = client.getOptional("/v3/jobs/" + JOB_GUID, V3Job.class);
 
@@ -72,10 +62,7 @@ class CloudControllerV3ClientTest {
 
     @Test
     void testGetOptionalReturnsEmptyOn404() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/jobs/" + JOB_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withStatus(HttpStatus.NOT_FOUND));
+        stubJobGetStatus(HttpStatus.NOT_FOUND);
 
         Optional<V3Job> job = client.getOptional("/v3/jobs/" + JOB_GUID, V3Job.class);
 
@@ -85,20 +72,14 @@ class CloudControllerV3ClientTest {
 
     @Test
     void testGetOptionalRethrowsNonNotFound() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/jobs/" + JOB_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withStatus(HttpStatus.INTERNAL_SERVER_ERROR));
+        stubJobGetStatus(HttpStatus.INTERNAL_SERVER_ERROR);
 
         Assertions.assertThrows(CloudOperationException.class, () -> client.getOptional("/v3/jobs/" + JOB_GUID, V3Job.class));
     }
 
     @Test
     void testWaitForAsyncJobReturnsWhenComplete() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/jobs/" + JOB_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getJobJson("COMPLETE"), MediaType.APPLICATION_JSON));
+        stubJobGet(getJobJson("COMPLETE"));
 
         V3Job job = client.waitForAsyncJob("/" + JOB_GUID, TIMEOUT);
 
@@ -109,10 +90,7 @@ class CloudControllerV3ClientTest {
 
     @Test
     void testWaitForAsyncJobThrowsWhenFailed() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/jobs/" + JOB_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getFailedJobJson(), MediaType.APPLICATION_JSON));
+        stubJobGet(getFailedJobJson());
 
         CloudOperationException exception = Assertions.assertThrows(CloudOperationException.class,
                                                                     () -> client.waitForAsyncJob("/" + JOB_GUID, TIMEOUT));
@@ -127,10 +105,7 @@ class CloudControllerV3ClientTest {
         headers.setLocation(URI.create(MockControllerClientFactory.BASE_URL + "/v3/jobs/" + JOB_GUID));
         ResponseEntity<Void> accepted = new ResponseEntity<>(headers, HttpStatus.ACCEPTED);
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/jobs/" + JOB_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getJobJson("COMPLETE"), MediaType.APPLICATION_JSON));
+        stubJobGet(getJobJson("COMPLETE"));
 
         client.followAsyncJob(accepted, TIMEOUT);
 
@@ -144,6 +119,17 @@ class CloudControllerV3ClientTest {
         client.followAsyncJob(created, TIMEOUT);
 
         factory.verify();
+    }
+
+    private void stubJobGet(String jobJson) {
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/jobs/" + JOB_GUID, jobJson);
+    }
+
+    private void stubJobGetStatus(HttpStatus status) {
+        factory.server()
+               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/jobs/" + JOB_GUID))
+               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+               .andRespond(MockRestResponseCreators.withStatus(status));
     }
 
     private static String getJobJson(String state) {

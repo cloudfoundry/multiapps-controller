@@ -12,8 +12,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.function.Function;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.Constants;
 import org.cloudfoundry.multiapps.controller.Messages;
@@ -29,6 +27,8 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableError
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableUpload;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Status;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Upload;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Fields;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3GuidReference;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Package;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3PackageMapper;
@@ -44,6 +44,9 @@ import org.springframework.web.client.RestClient;
 public class PackagesV3Operations {
 
     private static final ParameterizedTypeReference<V3ListResponse<V3Package>> PACKAGE_PAGE = new ParameterizedTypeReference<>() {
+    };
+
+    private static final ParameterizedTypeReference<V3ListResponse<V3GuidReference>> APP_PAGE = new ParameterizedTypeReference<>() {
     };
 
     private final CloudControllerV3Client client;
@@ -86,21 +89,18 @@ public class PackagesV3Operations {
 
     public CloudPackage createDockerPackage(UUID applicationGuid, DockerInfo dockerInfo) {
         Map<String, Object> data = new HashMap<>();
-        data.put("image", dockerInfo.getImage());
+        data.put(V3Fields.IMAGE, dockerInfo.getImage());
 
         DockerCredentials credentials = dockerInfo.getCredentials();
         if (credentials != null && credentials.getUsername() != null && credentials.getPassword() != null) {
-            data.put("username", credentials.getUsername());
-            data.put("password", credentials.getPassword());
+            data.put(V3Fields.USERNAME, credentials.getUsername());
+            data.put(V3Fields.PASSWORD, credentials.getPassword());
         }
 
-        V3Package created = client.getRestClient()
-                                  .post()
-                                  .uri(CloudControllerV3Endpoints.PACKAGES)
-                                  .body(Map.of("type", "docker", "data", data, "relationships",
-                                               applicationRelationship(applicationGuid)))
-                                  .retrieve()
-                                  .body(V3Package.class);
+        V3Package created = client.postForObject(CloudControllerV3Endpoints.PACKAGES,
+                                                 Map.of(V3Fields.TYPE, "docker", V3Fields.DATA, data, V3Fields.RELATIONSHIPS,
+                                                        applicationRelationship(applicationGuid)),
+                                                 V3Package.class);
 
         return getPackage(UUID.fromString(created.guid()));
     }
@@ -157,23 +157,21 @@ public class PackagesV3Operations {
     }
 
     private CloudPackage createBitsPackage(UUID applicationGuid) {
-        V3Package created = client.getRestClient()
-                                  .post()
-                                  .uri(CloudControllerV3Endpoints.PACKAGES)
-                                  .body(Map.of("type", "bits", "relationships", applicationRelationship(applicationGuid)))
-                                  .retrieve()
-                                  .body(V3Package.class);
+        V3Package created = client.postForObject(CloudControllerV3Endpoints.PACKAGES,
+                                                 Map.of(V3Fields.TYPE, "bits", V3Fields.RELATIONSHIPS,
+                                                        applicationRelationship(applicationGuid)),
+                                                 V3Package.class);
 
         return getPackage(UUID.fromString(created.guid()));
     }
 
     private static Map<String, Object> applicationRelationship(UUID applicationGuid) {
-        return Map.of("app", Map.of("data", Map.of("guid", applicationGuid.toString())));
+        return Map.of(V3Fields.APP, Map.of(V3Fields.DATA, Map.of(V3Fields.GUID, applicationGuid.toString())));
     }
 
     private UUID getRequiredApplicationGuid(String applicationName) {
-        List<V3App> apps = client.list(buildApplicationQuery(applicationName), new ParameterizedTypeReference<V3ListResponse<V3App>>() {
-        });
+        String applicationsQuery = OperationsQueryUtil.buildApplicationsQuery(applicationName, targetSpace);
+        List<V3GuidReference> apps = client.list(applicationsQuery, APP_PAGE);
 
         if (apps.isEmpty() || apps.getFirst()
                                   .guid() == null) {
@@ -183,21 +181,6 @@ public class PackagesV3Operations {
 
         return UUID.fromString(apps.getFirst()
                                    .guid());
-    }
-
-    private String buildApplicationQuery(String applicationName) {
-        StringBuilder query = new StringBuilder(CloudControllerV3Endpoints.APPS + CloudControllerV3Endpoints.QUERY_PER_PAGE
-                                                    + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
-
-        if (targetSpace != null && targetSpace.getGuid() != null) {
-            query.append(CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
-                 .append(targetSpace.getGuid());
-        }
-
-        query.append(CloudControllerV3Endpoints.AMPERSAND_NAMES)
-             .append(applicationName);
-
-        return query.toString();
     }
 
     private void processAsyncUploadInBackground(CloudPackage cloudPackage, UploadStatusCallback callback) {
@@ -210,11 +193,11 @@ public class PackagesV3Operations {
             Status uploadStatus = upload.getStatus();
             boolean unsubscribe = callback.onProgress(uploadStatus.toString());
 
-            if (unsubscribe || isUploadReady(uploadStatus)) {
+            if (unsubscribe || OperationsUtil.isUploadReady(uploadStatus)) {
                 return;
             }
 
-            if (hasUploadFailed(uploadStatus)) {
+            if (OperationsUtil.hasUploadFailed(uploadStatus)) {
                 callback.onError(upload.getErrorDetails()
                                        .getDescription());
                 return;
@@ -228,24 +211,12 @@ public class PackagesV3Operations {
         }
     }
 
-    private boolean isUploadReady(Status status) {
-        return status == Status.READY;
-    }
-
-    private boolean hasUploadFailed(Status status) {
-        return status == Status.EXPIRED || status == Status.FAILED;
-    }
-
     private ExecutorService createUploadMonitorExecutor() {
         ThreadFactory threadFactory = Thread.ofVirtual()
                                             .name(Constants.UPLOAD_MONITOR_THREAD_NAME_PREFIX, 0)
                                             .factory();
 
         return Executors.newThreadPerTaskExecutor(threadFactory);
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record V3App(@JsonProperty("guid") String guid) {
     }
 
 }

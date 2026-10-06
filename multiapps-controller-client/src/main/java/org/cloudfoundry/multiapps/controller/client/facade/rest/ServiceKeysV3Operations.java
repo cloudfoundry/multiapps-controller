@@ -1,8 +1,6 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
-import java.net.URI;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,6 +21,9 @@ import org.springframework.http.ResponseEntity;
 
 public class ServiceKeysV3Operations {
 
+    private static final ParameterizedTypeReference<V3ListResponse<V3ServiceBinding>> SERVICE_KEY_PAGE = new ParameterizedTypeReference<>() {
+    };
+
     private final CloudControllerV3Client client;
 
     public ServiceKeysV3Operations(CloudControllerV3Client client) {
@@ -34,28 +35,20 @@ public class ServiceKeysV3Operations {
                                                                serviceInstance);
 
         client.followAsyncJob(acceptedResponse, Constants.BINDING_OPERATIONS_TIMEOUT);
-
-        V3ServiceBinding createdServiceKey = getServiceKeyResourceByNameAndServiceInstanceGuid(keyModel.getName(),
-                                                                                               serviceInstance.getGuid());
-        if (createdServiceKey == null) {
-            return null;
-        }
-
-        Map<String, Object> credentials = getServiceKeyCredentials(createdServiceKey.guid());
-        return V3ServiceKeyMapper.toCloudServiceKey(createdServiceKey, serviceInstance, credentials);
+        return getServiceKey(serviceInstance, keyModel.getName());
     }
 
     public Optional<String> createServiceKey(CloudServiceKey keyModel, CloudServiceInstance serviceInstance) {
         ResponseEntity<Void> acceptedResponse = postServiceKey(keyModel.getName(), keyModel.getCredentials(), keyModel.getV3Metadata(),
                                                                serviceInstance);
 
-        return extractJobGuid(acceptedResponse);
+        return OperationsUtil.extractJobGuid(acceptedResponse);
     }
 
     public Optional<String> createServiceKey(CloudServiceInstance serviceInstance, String serviceKeyName, Map<String, Object> parameters) {
         ResponseEntity<Void> acceptedResponse = postServiceKey(serviceKeyName, parameters, null, serviceInstance);
 
-        return extractJobGuid(acceptedResponse);
+        return OperationsUtil.extractJobGuid(acceptedResponse);
     }
 
     public CloudServiceKey getServiceKey(CloudServiceInstance serviceInstance, String serviceKeyName) {
@@ -87,48 +80,8 @@ public class ServiceKeysV3Operations {
                 String.format(Messages.CANT_CREATE_SERVICE_KEY_FOR_USER_PROVIDED_SERVICE, serviceInstance.getName()));
         }
 
-        return client.getRestClient()
-                     .post()
-                     .uri(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS)
-                     .body(buildCreateServiceKeyBody(name, parameters, metadata, serviceInstance.getGuid()))
-                     .retrieve()
-                     .toBodilessEntity();
-    }
-
-    private Map<String, Object> buildCreateServiceKeyBody(String name, Map<String, Object> parameters, Metadata metadata,
-                                                          UUID serviceInstanceGuid) {
-        Map<String, Object> resultBody = new HashMap<>();
-        resultBody.put("type", "key");
-        resultBody.put("name", name);
-        resultBody.put("relationships", Map.of("service_instance", Map.of("data", Map.of("guid", serviceInstanceGuid.toString()))));
-
-        if (parameters != null && !parameters.isEmpty()) {
-            resultBody.put("parameters", parameters);
-        }
-
-        Map<String, Object> metadataBody = buildMetadataBody(metadata);
-        if (metadataBody != null) {
-            resultBody.put("metadata", metadataBody);
-        }
-
-        return resultBody;
-    }
-
-    private Map<String, Object> buildMetadataBody(Metadata metadata) {
-        if (metadata == null) {
-            return null;
-        }
-
-        Map<String, Object> metadataBody = new HashMap<>();
-        if (metadata.getLabels() != null) {
-            metadataBody.put("labels", metadata.getLabels());
-        }
-
-        if (metadata.getAnnotations() != null) {
-            metadataBody.put("annotations", metadata.getAnnotations());
-        }
-
-        return metadataBody.isEmpty() ? null : metadataBody;
+        return client.post(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS,
+                           OperationsUtil.buildCreateServiceKeyBody(name, parameters, metadata, serviceInstance.getGuid()));
     }
 
     private V3ServiceBinding getServiceKeyResourceByNameAndServiceInstanceGuid(String name, UUID serviceInstanceGuid) {
@@ -137,8 +90,7 @@ public class ServiceKeysV3Operations {
             + CloudControllerV3Endpoints.AMPERSAND_SERVICE_INSTANCE_GUIDS + serviceInstanceGuid + CloudControllerV3Endpoints.AMPERSAND_NAMES
             + name;
 
-        List<V3ServiceBinding> keys = client.list(query, new ParameterizedTypeReference<V3ListResponse<V3ServiceBinding>>() {
-        });
+        List<V3ServiceBinding> keys = client.list(query, SERVICE_KEY_PAGE);
 
         return keys.isEmpty() ? null : keys.getFirst();
     }
@@ -148,8 +100,7 @@ public class ServiceKeysV3Operations {
             + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE + CloudControllerV3Endpoints.AMPERSAND_TYPE + "key"
             + CloudControllerV3Endpoints.AMPERSAND_SERVICE_INSTANCE_GUIDS + serviceInstanceGuid;
 
-        return client.list(query, new ParameterizedTypeReference<V3ListResponse<V3ServiceBinding>>() {
-        });
+        return client.list(query, SERVICE_KEY_PAGE);
     }
 
     private Map<String, Object> getServiceKeyCredentials(String keyGuid) {
@@ -159,20 +110,6 @@ public class ServiceKeysV3Operations {
 
         return details.map(V3ServiceKeyDetails::credentials)
                       .orElse(Collections.emptyMap());
-    }
-
-    private Optional<String> extractJobGuid(ResponseEntity<Void> accepted) {
-        URI location = accepted.getHeaders()
-                               .getLocation();
-
-        if (location == null) {
-            return Optional.empty();
-        }
-
-        String href = location.toString();
-        String jobGuid = href.substring(href.lastIndexOf('/') + 1);
-
-        return Optional.of(jobGuid);
     }
 
 }

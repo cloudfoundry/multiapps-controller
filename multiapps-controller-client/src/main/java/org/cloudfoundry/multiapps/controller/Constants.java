@@ -42,6 +42,8 @@ public class Constants {
     public static final String PACKAGE_LINK = "package";
     public static final String WEB_PROCESS_TYPE = "web";
 
+    public static final String USER_PROVIDED = "user-provided";
+
     private Constants() {
 
     }

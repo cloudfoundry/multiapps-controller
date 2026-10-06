@@ -17,6 +17,7 @@ import org.cloudfoundry.multiapps.controller.Constants;
 import org.cloudfoundry.multiapps.controller.Messages;
 import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuthClient;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ReactorClientHttpRequestFactory;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
@@ -39,11 +40,6 @@ public final class CloudControllerRestClientBuilder {
     private CloudControllerRestClientBuilder() {
     }
 
-    public static RestClient build(URL v3ApiUrl, OAuthClient oAuthClient, Map<String, String> requestTags,
-                                   ClientConfigurationOptions configOptions) {
-        return buildRestClient(buildHttpClient(configOptions), v3ApiUrl, oAuthClient, requestTags);
-    }
-
     public static RestClient buildRestClient(HttpClient httpClient, URL baseUrl, OAuthClient oAuthClient,
                                              Map<String, String> requestTags) {
         return RestClient.builder()
@@ -53,21 +49,25 @@ public final class CloudControllerRestClientBuilder {
                                                     new StringHttpMessageConverter(),
                                                     new FormHttpMessageConverter(),
                                                     new MappingJackson2HttpMessageConverter(OBJECT_MAPPER)))
-                         .requestInterceptor((request, body, execution) -> {
-                             String authorization = oAuthClient.getAuthorizationHeaderValue();
-
-                             if (authorization != null) {
-                                 request.getHeaders()
-                                        .set(HttpHeaders.AUTHORIZATION, authorization);
-                             }
-
-                             requestTags.forEach((String key, String value) -> request.getHeaders()
-                                                                                      .set(key, value));
-
-                             return execution.execute(request, body);
-                         })
+                         .requestInterceptor(restClientAuthAndTagsInterceptor(oAuthClient, requestTags))
                          .defaultStatusHandler(new CloudControllerResponseErrorHandler())
                          .build();
+    }
+
+    private static ClientHttpRequestInterceptor restClientAuthAndTagsInterceptor(OAuthClient oAuthClient, Map<String, String> requestTags) {
+        return (request, body, execution) -> {
+            String authorization = oAuthClient.getAuthorizationHeaderValue();
+
+            if (authorization != null) {
+                request.getHeaders()
+                       .set(HttpHeaders.AUTHORIZATION, authorization);
+            }
+
+            requestTags.forEach((String key, String value) -> request.getHeaders()
+                                                                     .set(key, value));
+
+            return execution.execute(request, body);
+        };
     }
 
     public static WebClient buildWebClient(HttpClient httpClient, URL baseUrl, OAuthClient oAuthClient,
@@ -75,11 +75,11 @@ public final class CloudControllerRestClientBuilder {
         return WebClient.builder()
                         .baseUrl(baseUrl.toString())
                         .clientConnector(new ReactorClientHttpConnector(httpClient))
-                        .filter(authAndTagsFilter(oAuthClient, requestTags))
+                        .filter(webClientAuthAndTagsFilter(oAuthClient, requestTags))
                         .build();
     }
 
-    private static ExchangeFilterFunction authAndTagsFilter(OAuthClient oAuthClient, Map<String, String> requestTags) {
+    private static ExchangeFilterFunction webClientAuthAndTagsFilter(OAuthClient oAuthClient, Map<String, String> requestTags) {
         return (request, next) -> {
             ClientRequest.Builder requestBuilder = ClientRequest.from(request);
             String authorizationValue = oAuthClient.getAuthorizationHeaderValue();

@@ -4,15 +4,16 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 import org.cloudfoundry.multiapps.controller.Constants;
 import org.cloudfoundry.multiapps.controller.Messages;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudDomain;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudEntity;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Domain;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3DomainMapper;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Fields;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,7 @@ import org.springframework.util.Assert;
 
 public class DomainsV3Operations {
 
-    private static final ParameterizedTypeReference<V3ListResponse<V3Domain>> DOMAIN_LIST_TYPE = new ParameterizedTypeReference<>() {
+    private static final ParameterizedTypeReference<V3ListResponse<V3Domain>> DOMAIN_PAGE = new ParameterizedTypeReference<>() {
     };
 
     private final CloudControllerV3Client client;
@@ -37,19 +38,25 @@ public class DomainsV3Operations {
         CloudDomain domain = findDomainByName(domainName);
 
         if (domain == null) {
-            doCreateDomain(domainName);
+            createDomain(domainName);
         }
 
     }
 
     public void deleteDomain(String domainName) {
         assertSpaceProvided("delete domain");
-        CloudDomain domain = findDomainByName(domainName, true);
-        doDeleteDomain(domain.getGuid());
+        CloudDomain domain = findDomainByName(domainName);
+
+        if (domain == null) {
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+                                              MessageFormat.format(Messages.DOMAIN_0_NOT_FOUND, domainName));
+        }
+
+        deleteDomain(domain.getGuid());
     }
 
     public CloudDomain getDefaultDomain() {
-        UUID organizationGuid = getTargetOrganizationGuid();
+        UUID organizationGuid = OperationsUtil.getGuid(targetSpace.getOrganization());
         V3Domain domain = client.get(CloudControllerV3Endpoints.ORGANIZATIONS + "/" + organizationGuid + "/domains/default",
                                      V3Domain.class);
 
@@ -62,31 +69,32 @@ public class DomainsV3Operations {
     }
 
     public List<CloudDomain> getDomains() {
-        return getAllDomains().stream()
-                              .map(V3DomainMapper::toCloudDomain)
-                              .toList();
+        return filterAndMapDomains(domain -> true);
     }
 
     public List<CloudDomain> getSharedDomains() {
-        return getAllDomains().stream()
-                              .filter(domain -> !domain.isPrivate())
-                              .map(V3DomainMapper::toCloudDomain)
-                              .toList();
+        return filterAndMapDomains(domain -> !domain.isPrivate());
     }
 
     public List<CloudDomain> getPrivateDomains() {
+        return filterAndMapDomains(domain -> domain.isPrivate());
+    }
+
+    private List<CloudDomain> filterAndMapDomains(Predicate<V3Domain> filterPredicate) {
         return getAllDomains().stream()
-                              .filter(V3Domain::isPrivate)
+                              .filter(filterPredicate)
                               .map(V3DomainMapper::toCloudDomain)
                               .toList();
     }
 
     public List<CloudDomain> getDomainsForOrganization() {
         assertSpaceProvided("access organization domains");
-        String uri = CloudControllerV3Endpoints.ORGANIZATIONS + "/" + getTargetOrganizationGuid() + "/domains"
+        UUID targetOrganizationGuid = OperationsUtil.getGuid(targetSpace.getOrganization());
+
+        String uri = CloudControllerV3Endpoints.ORGANIZATIONS + "/" + targetOrganizationGuid + "/domains"
             + CloudControllerV3Endpoints.QUERY_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
 
-        return client.list(uri, DOMAIN_LIST_TYPE)
+        return client.list(uri, DOMAIN_PAGE)
                      .stream()
                      .map(V3DomainMapper::toCloudDomain)
                      .toList();
@@ -94,70 +102,34 @@ public class DomainsV3Operations {
 
     private List<V3Domain> getAllDomains() {
         return client.list(CloudControllerV3Endpoints.DOMAINS + CloudControllerV3Endpoints.QUERY_PER_PAGE
-                               + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, DOMAIN_LIST_TYPE);
-    }
-
-    private CloudDomain findDomainByName(String name, boolean required) {
-        CloudDomain domain = findDomainByName(name);
-
-        if (domain == null && required) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
-                                              MessageFormat.format(Messages.DOMAIN_0_NOT_FOUND, name));
-        }
-
-        return domain;
+                               + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, DOMAIN_PAGE);
     }
 
     private CloudDomain findDomainByName(String name) {
         String uri = CloudControllerV3Endpoints.DOMAINS + CloudControllerV3Endpoints.QUERY_NAMES + name
             + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
 
-        return client.list(uri, DOMAIN_LIST_TYPE)
+        return client.list(uri, DOMAIN_PAGE)
                      .stream()
                      .findFirst()
                      .map(V3DomainMapper::toCloudDomain)
                      .orElse(null);
     }
 
-    private void doCreateDomain(String name) {
-        UUID organizationGuid = getTargetOrganizationGuid();
+    private void createDomain(String name) {
+        UUID organizationGuid = OperationsUtil.getGuid(targetSpace.getOrganization());
         if (organizationGuid == null) {
             throw new CloudOperationException(HttpStatus.BAD_REQUEST, Messages.BAD_REQUEST,
                                               MessageFormat.format(Messages.CANNOT_CREATE_DOMAIN_0_WITHOUT_ORGANIZATION, name));
         }
 
-        client.getRestClient()
-              .post()
-              .uri(CloudControllerV3Endpoints.DOMAINS)
-              .body(Map.of("name", name, "relationships", organizationRelationship(organizationGuid)))
-              .retrieve()
-              .toBodilessEntity();
+        Map<String, Object> organizationRelationship = OperationsUtil.organizationRelationship(organizationGuid);
+        client.post(CloudControllerV3Endpoints.DOMAINS, Map.of(V3Fields.NAME, name, V3Fields.RELATIONSHIPS, organizationRelationship));
     }
 
-    private Map<String, Object> organizationRelationship(UUID organizationGuid) {
-        return Map.of("organization", Map.of("data", Map.of("guid", organizationGuid.toString())));
-    }
-
-    private void doDeleteDomain(UUID guid) {
-        ResponseEntity<Void> response = client.getRestClient()
-                                              .delete()
-                                              .uri(CloudControllerV3Endpoints.DOMAIN_BY_GUID, guid.toString())
-                                              .retrieve()
-                                              .toEntity(Void.class);
+    private void deleteDomain(UUID guid) {
+        ResponseEntity<Void> response = client.delete(CloudControllerV3Endpoints.DOMAIN_BY_GUID, guid.toString());
         client.followAsyncJob(response, Constants.DELETE_JOB_TIMEOUT);
-    }
-
-    private UUID getTargetOrganizationGuid() {
-        return getGuid(targetSpace.getOrganization());
-    }
-
-    private UUID getGuid(CloudEntity entity) {
-        if (entity == null || entity.getMetadata() == null) {
-            return null;
-        }
-
-        return entity.getMetadata()
-                     .getGuid();
     }
 
     private void assertSpaceProvided(String operation) {

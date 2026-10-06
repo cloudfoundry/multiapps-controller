@@ -8,9 +8,9 @@ import org.cloudfoundry.multiapps.controller.Messages;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudEvent;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
-import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Application;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3AuditEvent;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3AuditEventMapper;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3GuidReference;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,7 @@ public class EventsV3Operations {
 
     private static final ParameterizedTypeReference<V3ListResponse<V3AuditEvent>> EVENT_PAGE = new ParameterizedTypeReference<>() {
     };
-    private static final ParameterizedTypeReference<V3ListResponse<V3Application>> APPLICATION_PAGE = new ParameterizedTypeReference<>() {
+    private static final ParameterizedTypeReference<V3ListResponse<V3GuidReference>> APP_PAGE = new ParameterizedTypeReference<>() {
     };
 
     private final CloudControllerV3Client client;
@@ -55,7 +55,8 @@ public class EventsV3Operations {
     }
 
     private UUID getRequiredApplicationGuid(String applicationName) {
-        List<V3Application> apps = client.list(buildApplicationQuery(applicationName), APPLICATION_PAGE);
+        String applicationsQuery = OperationsQueryUtil.buildApplicationsQuery(applicationName, targetSpace);
+        List<V3GuidReference> apps = client.list(applicationsQuery, APP_PAGE);
 
         if (apps.isEmpty()) {
             throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
@@ -64,21 +65,6 @@ public class EventsV3Operations {
 
         return UUID.fromString(apps.getFirst()
                                    .guid());
-    }
-
-    private String buildApplicationQuery(String applicationName) {
-        StringBuilder query = new StringBuilder(CloudControllerV3Endpoints.APPS + CloudControllerV3Endpoints.QUERY_PER_PAGE
-                                                    + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
-
-        if (targetSpace != null && targetSpace.getGuid() != null) {
-            query.append(CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
-                 .append(targetSpace.getGuid());
-        }
-
-        query.append(CloudControllerV3Endpoints.AMPERSAND_NAMES)
-             .append(applicationName);
-
-        return query.toString();
     }
 
 }

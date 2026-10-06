@@ -23,7 +23,7 @@ public enum ServiceInstanceType {
 
     @JsonCreator
     public static ServiceInstanceType from(String value) {
-        ServiceInstanceType serviceInstanceType = mapValue(value);
+        ServiceInstanceType serviceInstanceType = mapTypeToServiceInstanceType(value);
         if (serviceInstanceType != null) {
             return serviceInstanceType;
         }
@@ -31,7 +31,7 @@ public enum ServiceInstanceType {
         throw new IllegalArgumentException(MessageFormat.format(Messages.UNKNOWN_SERVICE_INSTANCE_TYPE_0, value));
     }
 
-    public static ServiceInstanceType mapValue(String value) {
+    public static ServiceInstanceType mapTypeToServiceInstanceType(String value) {
         for (ServiceInstanceType type : values()) {
             if (type.value.equals(value)) {
                 return type;

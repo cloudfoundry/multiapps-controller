@@ -11,7 +11,6 @@ import org.cloudfoundry.multiapps.controller.client.facade.Nullable;
 @JsonDeserialize(as = ImmutableCloudAsyncJob.class)
 public abstract class CloudAsyncJob extends CloudEntity implements Derivable<CloudAsyncJob> {
 
-    @Nullable
     public abstract JobState getState();
 
     @Nullable

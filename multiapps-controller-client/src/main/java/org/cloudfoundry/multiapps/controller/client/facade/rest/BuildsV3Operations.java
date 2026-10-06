@@ -10,11 +10,15 @@ import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationExcepti
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudBuild;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Build;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3BuildMapper;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Fields;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 
 public class BuildsV3Operations {
+
+    private static final ParameterizedTypeReference<V3ListResponse<V3Build>> BUILD_PAGE = new ParameterizedTypeReference<>() {
+    };
 
     private final CloudControllerV3Client client;
 
@@ -23,12 +27,8 @@ public class BuildsV3Operations {
     }
 
     public CloudBuild createBuild(UUID packageGuid) {
-        V3Build build = client.getRestClient()
-                              .post()
-                              .uri(CloudControllerV3Endpoints.BUILDS)
-                              .body(Map.of("package", Map.of("guid", packageGuid.toString())))
-                              .retrieve()
-                              .body(V3Build.class);
+        V3Build build = client.postForObject(CloudControllerV3Endpoints.BUILDS,
+            Map.of(V3Fields.PACKAGE, Map.of(V3Fields.GUID, packageGuid.toString())), V3Build.class);
 
         return V3BuildMapper.toCloudBuild(build);
     }
@@ -48,8 +48,7 @@ public class BuildsV3Operations {
         String uri = CloudControllerV3Endpoints.APPS + "/" + applicationGuid + "/builds" + CloudControllerV3Endpoints.QUERY_PER_PAGE
             + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
 
-        return client.list(uri, new ParameterizedTypeReference<V3ListResponse<V3Build>>() {
-                     })
+        return client.list(uri, BUILD_PAGE)
                      .stream()
                      .map(V3BuildMapper::toCloudBuild)
                      .toList();
@@ -59,8 +58,7 @@ public class BuildsV3Operations {
         String uri = CloudControllerV3Endpoints.BUILDS + CloudControllerV3Endpoints.QUERY_PACKAGE_GUIDS + packageGuid
             + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
 
-        return client.list(uri, new ParameterizedTypeReference<V3ListResponse<V3Build>>() {
-                     })
+        return client.list(uri, BUILD_PAGE)
                      .stream()
                      .map(V3BuildMapper::toCloudBuild)
                      .toList();

@@ -36,11 +36,10 @@ class V3JobMapperTest {
     }
 
     @Test
-    void testToCloudAsyncJobParseStateWithNullReturnsNullState() {
+    void testToCloudAsyncJobParseStateWithNullThrows() {
         V3Job job = buildJobWithState(null);
 
-        Assertions.assertNull(V3JobMapper.toCloudAsyncJob(job)
-                                         .getState());
+        Assertions.assertThrows(NullPointerException.class, () -> V3JobMapper.toCloudAsyncJob(job));
     }
 
     @Test

@@ -9,7 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.client.response.MockRestResponseCreators;
 
@@ -31,15 +30,9 @@ class CloudSpaceClientTest {
 
     @Test
     void testGetSpaceByGuidReturnsMappedSpace() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/spaces/" + SPACE_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getSpaceJson(), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/spaces/" + SPACE_GUID, getSpaceJson());
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/organizations/" + ORG_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getOrgJson(), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/organizations/" + ORG_GUID, getOrgJson());
 
         CloudSpace result = client.getSpace(UUID.fromString(SPACE_GUID));
 
@@ -65,10 +58,7 @@ class CloudSpaceClientTest {
 
     @Test
     void testGetSpaceByGuidThrowsWhenOrganizationNotFound() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/spaces/" + SPACE_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getSpaceJson(), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/spaces/" + SPACE_GUID, getSpaceJson());
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/organizations/" + ORG_GUID))
                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
@@ -82,11 +72,8 @@ class CloudSpaceClientTest {
     void testGetSpaceByNameReturnsMappedSpace() {
         stubOrgLookupWithResult();
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/spaces?organization_guids=" + ORG_GUID
-                                                             + "&names=" + SPACE_NAME))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[" + getSpaceJson() + "]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/spaces?organization_guids=" + ORG_GUID
+            + "&names=" + SPACE_NAME, "{\"resources\":[" + getSpaceJson() + "]}");
 
         CloudSpace result = client.getSpace(ORG_NAME, SPACE_NAME);
 
@@ -98,10 +85,7 @@ class CloudSpaceClientTest {
 
     @Test
     void testGetSpaceByNameThrowsWhenOrganizationNotFound() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/organizations?names=" + ORG_NAME))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/organizations?names=" + ORG_NAME, "{\"resources\":[]}");
 
         Assertions.assertThrows(CloudOperationException.class, () -> client.getSpace(ORG_NAME, SPACE_NAME));
     }
@@ -110,20 +94,15 @@ class CloudSpaceClientTest {
     void testGetSpaceByNameThrowsWhenSpaceNotFound() {
         stubOrgLookupWithResult();
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/spaces?organization_guids=" + ORG_GUID
-                                                             + "&names=" + SPACE_NAME))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/spaces?organization_guids=" + ORG_GUID
+            + "&names=" + SPACE_NAME, "{\"resources\":[]}");
 
         Assertions.assertThrows(CloudOperationException.class, () -> client.getSpace(ORG_NAME, SPACE_NAME));
     }
 
     private void stubOrgLookupWithResult() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/organizations?names=" + ORG_NAME))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[" + getOrgJson() + "]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/organizations?names=" + ORG_NAME,
+                        "{\"resources\":[" + getOrgJson() + "]}");
     }
 
     private static String getSpaceJson() {

@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.client.response.MockRestResponseCreators;
 
@@ -174,26 +173,16 @@ class ServiceKeysV3OperationsTest {
     }
 
     private void stubKeyLookup(String responseJson) {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + LOOKUP_KEY_QUERY))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(responseJson, MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + LOOKUP_KEY_QUERY, responseJson);
     }
 
     private void stubKeyList(String responseJson) {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + LIST_KEYS_QUERY))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(responseJson, MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + LIST_KEYS_QUERY, responseJson);
     }
 
     private void stubCredentials() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(
-                   MockControllerClientFactory.BASE_URL + "/v3/service_credential_bindings/" + KEY_GUID + "/details"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"credentials\":{\"password\":\"secret\"}}",
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_credential_bindings/" + KEY_GUID + "/details",
+                        "{\"credentials\":{\"password\":\"secret\"}}");
     }
 
     private void stubAcceptedPost() {
@@ -207,11 +196,8 @@ class ServiceKeysV3OperationsTest {
     }
 
     private void stubJobComplete() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/jobs/" + JOB_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"guid\":\"" + JOB_GUID + "\",\"state\":\"COMPLETE\"}",
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/jobs/" + JOB_GUID,
+                        "{\"guid\":\"" + JOB_GUID + "\",\"state\":\"COMPLETE\"}");
     }
 
     private static String getServiceKeyResourcesJson() {

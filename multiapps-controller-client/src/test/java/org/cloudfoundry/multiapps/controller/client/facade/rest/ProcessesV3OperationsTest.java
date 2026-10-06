@@ -52,11 +52,7 @@ class ProcessesV3OperationsTest {
 
     @Test
     void testGetApplicationProcessReturnsMappedProcess() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/processes/web"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getProcessJson(), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/processes/web", getProcessJson());
 
         CloudProcess result = operations.getApplicationProcess(UUID.fromString(APP_GUID));
 
@@ -85,11 +81,7 @@ class ProcessesV3OperationsTest {
 
     @Test
     void testGetApplicationInstancesByGuidReturnsMappedInstances() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/processes/web/stats"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getStatsJson(), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/processes/web/stats", getStatsJson());
 
         InstancesInfo result = operations.getApplicationInstances(UUID.fromString(APP_GUID));
 
@@ -106,11 +98,7 @@ class ProcessesV3OperationsTest {
 
     @Test
     void testGetApplicationInstancesForStartedApplicationQueriesStats() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/processes/web/stats"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getStatsJson(), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/processes/web/stats", getStatsJson());
 
         CloudApplication application = ImmutableCloudApplication.builder()
                                                                 .metadata(ImmutableCloudMetadata.builder()
@@ -146,10 +134,7 @@ class ProcessesV3OperationsTest {
 
     @Test
     void testGetApplicationSshEnabledReturnsTrue() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/ssh_enabled"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"enabled\":true,\"reason\":\"\"}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/ssh_enabled", "{\"enabled\":true,\"reason\":\"\"}");
 
         Assertions.assertTrue(operations.getApplicationSshEnabled(UUID.fromString(APP_GUID)));
         factory.verify();
@@ -157,10 +142,7 @@ class ProcessesV3OperationsTest {
 
     @Test
     void testGetApplicationSshEnabledReturnsFalseWhenEnabledIsNull() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/ssh_enabled"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"reason\":\"disabled globally\"}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/ssh_enabled", "{\"reason\":\"disabled globally\"}");
 
         Assertions.assertFalse(operations.getApplicationSshEnabled(UUID.fromString(APP_GUID)));
         factory.verify();
@@ -168,13 +150,8 @@ class ProcessesV3OperationsTest {
 
     @Test
     void testGetApplicationFeaturesReturnsMap() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/features?per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(
-                   "{\"resources\":[{\"name\":\"ssh\",\"enabled\":true},{\"name\":\"revisions\",\"enabled\":false}]}",
-                   MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/features?per_page=5000",
+                   "{\"resources\":[{\"name\":\"ssh\",\"enabled\":true},{\"name\":\"revisions\",\"enabled\":false}]}");
 
         Map<String, Boolean> result = operations.getApplicationFeatures(UUID.fromString(APP_GUID));
 
@@ -186,11 +163,7 @@ class ProcessesV3OperationsTest {
 
     @Test
     void testGetApplicationFeaturesReturnsEmptyMap() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/features?per_page=5000"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/features?per_page=5000", "{\"resources\":[]}");
 
         Map<String, Boolean> result = operations.getApplicationFeatures(UUID.fromString(APP_GUID));
 
@@ -200,12 +173,8 @@ class ProcessesV3OperationsTest {
 
     @Test
     void testGetCurrentDropletForApplicationReturnsDropletInfo() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/droplets/current"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getDropletJson(MockControllerClientFactory.BASE_URL + "/v3/packages/"
-                                                                                   + PACKAGE_GUID), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/droplets/current",
+                   getDropletJson(MockControllerClientFactory.BASE_URL + "/v3/packages/" + PACKAGE_GUID));
 
         DropletInfo result = operations.getCurrentDropletForApplication(UUID.fromString(APP_GUID));
 
@@ -216,12 +185,8 @@ class ProcessesV3OperationsTest {
 
     @Test
     void testGetCurrentDropletForApplicationHandlesTrailingSlashInPackageLink() {
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/droplets/current"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getDropletJson(MockControllerClientFactory.BASE_URL + "/v3/packages/"
-                                                                                   + PACKAGE_GUID + "/"), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/droplets/current",
+                   getDropletJson(MockControllerClientFactory.BASE_URL + "/v3/packages/" + PACKAGE_GUID + "/"));
 
         DropletInfo result = operations.getCurrentDropletForApplication(UUID.fromString(APP_GUID));
 
@@ -247,22 +212,14 @@ class ProcessesV3OperationsTest {
         when(target.getGuid())
             .thenReturn(null);
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&names=my-app"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[{\"guid\":\"" + APP_GUID + "\"}]}",
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&names=my-app", "{\"resources\":[{\"guid\":\"" + APP_GUID + "\"}]}");
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID))
                .andExpect(MockRestRequestMatchers.method(HttpMethod.PATCH))
                .andRespond(MockRestResponseCreators.withSuccess("{}", MediaType.APPLICATION_JSON));
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/processes/web"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getProcessJson(), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/processes/web", getProcessJson());
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/processes/" + PROCESS_GUID))
@@ -290,11 +247,7 @@ class ProcessesV3OperationsTest {
         when(target.getGuid())
             .thenReturn(null);
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&names=my-app"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[{\"guid\":\"" + APP_GUID + "\"}]}",
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&names=my-app", "{\"resources\":[{\"guid\":\"" + APP_GUID + "\"}]}");
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID))
                .andExpect(MockRestRequestMatchers.method(HttpMethod.PATCH))
@@ -306,11 +259,7 @@ class ProcessesV3OperationsTest {
                .andExpect(MockRestRequestMatchers.method(HttpMethod.PATCH))
                .andRespond(MockRestResponseCreators.withSuccess("{}", MediaType.APPLICATION_JSON));
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/processes/web"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getProcessJson(), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/processes/web", getProcessJson());
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/processes/" + PROCESS_GUID))
@@ -333,23 +282,15 @@ class ProcessesV3OperationsTest {
         when(target.getGuid())
             .thenReturn(spaceGuid);
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&space_guids="
-                                                             + spaceGuid + "&names=my-app"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[{\"guid\":\"" + APP_GUID + "\"}]}",
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&space_guids="
+                                                             + spaceGuid + "&names=my-app", "{\"resources\":[{\"guid\":\"" + APP_GUID + "\"}]}");
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID))
                .andExpect(MockRestRequestMatchers.method(HttpMethod.PATCH))
                .andRespond(MockRestResponseCreators.withSuccess("{}", MediaType.APPLICATION_JSON));
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/processes/web"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess(getProcessJson(), MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/processes/web", getProcessJson());
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/processes/" + PROCESS_GUID))
@@ -370,11 +311,8 @@ class ProcessesV3OperationsTest {
         when(target.getGuid())
             .thenReturn(null);
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL
-                                                             + "/v3/apps?per_page=5000&names=missing-app"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL
+                                                             + "/v3/apps?per_page=5000&names=missing-app", "{\"resources\":[]}");
 
         Staging staging = ImmutableStaging.builder()
                                           .command("cmd")
@@ -388,11 +326,7 @@ class ProcessesV3OperationsTest {
         when(target.getGuid())
             .thenReturn(null);
 
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&names=my-app"))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-               .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[{\"guid\":\"" + APP_GUID + "\"}]}",
-                                                                MediaType.APPLICATION_JSON));
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&names=my-app", "{\"resources\":[{\"guid\":\"" + APP_GUID + "\"}]}");
 
         Staging staging = ImmutableStaging.builder()
                                           .command("cmd")

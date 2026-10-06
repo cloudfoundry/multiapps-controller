@@ -3,14 +3,10 @@ package org.cloudfoundry.multiapps.controller.client.facade.rest;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.cloudfoundry.multiapps.controller.Constants;
 import org.cloudfoundry.multiapps.controller.Messages;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
@@ -18,6 +14,8 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.RouteDestination;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Domain;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Fields;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3GuidReference;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Route;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3RouteMapper;
@@ -31,10 +29,15 @@ public class RoutesV3Operations {
 
     private static final ParameterizedTypeReference<V3ListResponse<V3Route>> ROUTE_PAGE = new ParameterizedTypeReference<>() {
     };
+
     private static final ParameterizedTypeReference<V3ListResponse<V3Domain>> DOMAIN_PAGE = new ParameterizedTypeReference<>() {
     };
 
+    private static final ParameterizedTypeReference<V3ListResponse<V3GuidReference>> APP_PAGE = new ParameterizedTypeReference<>() {
+    };
+
     private final CloudControllerV3Client client;
+
     private final CloudSpace targetSpace;
 
     public RoutesV3Operations(CloudControllerV3Client client, CloudSpace targetSpace) {
@@ -45,7 +48,7 @@ public class RoutesV3Operations {
     public void addRoute(String host, String domainName, String path) {
         assertSpaceProvided("add route for domain");
         UUID domainGuid = getRequiredDomainGuid(domainName);
-        doAddRoute(domainGuid, host, path);
+        addRoute(domainGuid, host, path);
     }
 
     public void deleteRoute(String host, String domainName, String path) {
@@ -57,15 +60,11 @@ public class RoutesV3Operations {
                                               MessageFormat.format(Messages.HOST_0_NOT_FOUND_FOR_DOMAIN_1, host, domainName));
         }
 
-        doDeleteRoute(routeGuid);
+        deleteRoute(routeGuid);
     }
 
     public void deleteOrphanedRoutes() {
-        ResponseEntity<Void> response = client.getRestClient()
-                                              .delete()
-                                              .uri(CloudControllerV3Endpoints.SPACE_UNMAPPED_ROUTES, getTargetSpaceGuid())
-                                              .retrieve()
-                                              .toEntity(Void.class);
+        ResponseEntity<Void> response = client.delete(CloudControllerV3Endpoints.SPACE_UNMAPPED_ROUTES, getTargetSpaceGuid());
 
         client.followAsyncJob(response, Constants.DELETE_JOB_TIMEOUT);
     }
@@ -94,50 +93,33 @@ public class RoutesV3Operations {
                                                                .map(V3RouteMapper::toCloudRoute)
                                                                .toList();
 
-        Set<CloudRoute> outdatedRoutes = getOutdatedRoutes(applicationGuid, appRoutes, updatedRoutes);
-        Set<CloudRoute> newRoutes = getNewRoutes(applicationGuid, appRoutes, updatedRoutes);
+        Set<CloudRoute> outdatedRoutes = OperationsUtil.getOutdatedRoutes(applicationGuid, appRoutes, updatedRoutes);
+        Set<CloudRoute> newRoutes = OperationsUtil.getNewRoutes(applicationGuid, appRoutes, updatedRoutes);
 
         removeRoutes(outdatedRoutes, applicationGuid);
         addRoutes(newRoutes, applicationGuid);
     }
 
     private List<CloudRoute> findRoutesByDomainGuid(UUID domainGuid) {
-        return listRoutes(buildRouteQuery(domainGuid, null, null)).stream()
-                                                                  .map(V3RouteMapper::toCloudRoute)
-                                                                  .toList();
+        UUID targetSpaceGuid = getTargetSpaceGuid();
+        String routeQuery = OperationsQueryUtil.buildRoutesQuery(domainGuid, null, null, targetSpaceGuid);
+
+        return listRoutes(routeQuery).stream()
+                                     .map(V3RouteMapper::toCloudRoute)
+                                     .toList();
     }
 
     private UUID getRouteGuid(UUID domainGuid, String host, String path) {
-        List<V3Route> routes = listRoutes(buildRouteQuery(domainGuid, host, path));
+        UUID targetSpaceGuid = getTargetSpaceGuid();
+        String routeQuery = OperationsQueryUtil.buildRoutesQuery(domainGuid, host, path, targetSpaceGuid);
+
+        List<V3Route> routes = listRoutes(routeQuery);
         if (CollectionUtils.isEmpty(routes)) {
             return null;
         }
 
         return UUID.fromString(routes.getFirst()
                                      .guid());
-    }
-
-    private String buildRouteQuery(UUID domainGuid, String host, String path) {
-        StringBuilder query = new StringBuilder(
-            CloudControllerV3Endpoints.ROUTES + CloudControllerV3Endpoints.QUERY_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
-
-        query.append(CloudControllerV3Endpoints.AMPERSAND_DOMAIN_GUIDS)
-             .append(domainGuid);
-
-        query.append(CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
-             .append(getTargetSpaceGuid());
-
-        if (host != null) {
-            query.append(CloudControllerV3Endpoints.AMPERSAND_HOSTS)
-                 .append(host);
-        }
-
-        if (path != null) {
-            query.append(CloudControllerV3Endpoints.AMPERSAND_PATHS)
-                 .append(path);
-        }
-
-        return query.toString();
     }
 
     private List<V3Route> listRoutes(String query) {
@@ -148,7 +130,7 @@ public class RoutesV3Operations {
         Map<String, UUID> domains = getDomainsFromRoutes(routes);
 
         for (CloudRoute route : routes) {
-            validateDomainForRoute(route, domains);
+            OperationsUtil.validateDomainForRoute(route, domains);
 
             UUID domainGuid = domains.get(route.getDomain()
                                                .getName());
@@ -160,11 +142,17 @@ public class RoutesV3Operations {
 
     private void removeRoutes(Set<CloudRoute> routes, UUID applicationGuid) {
         for (CloudRoute route : routes) {
-            for (RouteDestination destination : route.getDestinations()) {
-                if (destination.getApplicationGuid()
-                               .equals(applicationGuid)) {
-                    unbindRoute(route.getGuid(), destination.getGuid());
-                }
+            unbindRouteFromDestinationApplications(route, applicationGuid);
+        }
+    }
+
+    private void unbindRouteFromDestinationApplications(CloudRoute route, UUID applicationGuid) {
+        List<RouteDestination> destinationsForCurrentRoute = route.getDestinations();
+
+        for (RouteDestination destination : destinationsForCurrentRoute) {
+            if (destination.getApplicationGuid()
+                           .equals(applicationGuid)) {
+                unbindRoute(route.getGuid(), destination.getGuid());
             }
         }
     }
@@ -173,127 +161,35 @@ public class RoutesV3Operations {
         UUID routeGuid = getRouteGuid(domainGuid, host, path);
 
         if (routeGuid == null) {
-            routeGuid = doAddRoute(domainGuid, host, path);
+            routeGuid = addRoute(domainGuid, host, path);
         }
 
         return routeGuid;
     }
 
-    private UUID doAddRoute(UUID domainGuid, String host, String path) {
+    private UUID addRoute(UUID domainGuid, String host, String path) {
         assertSpaceProvided("add route");
-        V3Route created = client.getRestClient()
-                                .post()
-                                .uri(CloudControllerV3Endpoints.ROUTES)
-                                .body(buildCreateRouteBody(domainGuid, host, path))
-                                .retrieve()
-                                .body(V3Route.class);
+        UUID targetSpaceGuid = getTargetSpaceGuid();
+        Map<String, Object> createRouteBody = OperationsUtil.buildCreateRouteBody(domainGuid, host, path, targetSpaceGuid);
+
+        V3Route created = client.postForObject(CloudControllerV3Endpoints.ROUTES, createRouteBody, V3Route.class);
 
         return UUID.fromString(created.guid());
     }
 
-    private Map<String, Object> buildCreateRouteBody(UUID domainGuid, String host, String path) {
-        Map<String, Object> relationships = Map.of("domain", buildSingleResourceRelationship(domainGuid),
-                                                   "space", buildSingleResourceRelationship(getTargetSpaceGuid()));
-
-        return Map.of("host", host == null ? "" : host,
-                      "path", path == null ? "" : path,
-                      "relationships", relationships);
-    }
-
-    private void doDeleteRoute(UUID guid) {
-        ResponseEntity<Void> response = client.getRestClient()
-                                              .delete()
-                                              .uri(CloudControllerV3Endpoints.ROUTE_BY_GUID, guid)
-                                              .retrieve()
-                                              .toEntity(Void.class);
+    private void deleteRoute(UUID guid) {
+        ResponseEntity<Void> response = client.delete(CloudControllerV3Endpoints.ROUTE_BY_GUID, guid);
 
         client.followAsyncJob(response, Constants.DELETE_JOB_TIMEOUT);
     }
 
     private void bindRoute(UUID routeGuid, UUID applicationGuid, String protocol) {
-        client.getRestClient()
-              .post()
-              .uri(CloudControllerV3Endpoints.ROUTE_DESTINATIONS, routeGuid)
-              .body(Map.of("destinations", List.of(createDestination(applicationGuid, protocol))))
-              .retrieve()
-              .toBodilessEntity();
+        client.post(CloudControllerV3Endpoints.ROUTE_DESTINATIONS,
+                    Map.of(V3Fields.DESTINATIONS, List.of(OperationsUtil.createDestination(applicationGuid, protocol))), routeGuid);
     }
 
     private void unbindRoute(UUID routeGuid, UUID destinationGuid) {
-        client.getRestClient()
-              .delete()
-              .uri(CloudControllerV3Endpoints.ROUTE_DESTINATION_BY_GUID, routeGuid, destinationGuid)
-              .retrieve()
-              .toBodilessEntity();
-    }
-
-    private Map<String, Object> createDestination(UUID applicationGuid, String protocol) {
-        if (protocol == null) {
-            return Map.of("app", Map.of("guid", applicationGuid.toString()));
-        }
-
-        return Map.of("app", Map.of("guid", applicationGuid.toString()), "protocol", protocol);
-    }
-
-    private Map<String, Object> buildSingleResourceRelationship(UUID guid) {
-        return Map.of("data", Map.of("guid", guid.toString()));
-    }
-
-    private Set<CloudRoute> getOutdatedRoutes(UUID applicationGuid, List<CloudRoute> currentRoutes, Set<CloudRoute> updatedRoutes) {
-        return currentRoutes.stream()
-                            .filter(currentRoute -> isRouteOutdated(applicationGuid, currentRoute, updatedRoutes))
-                            .collect(Collectors.toSet());
-    }
-
-    private boolean isRouteOutdated(UUID applicationGuid, CloudRoute currentRoute, Set<CloudRoute> updatedRoutes) {
-        Optional<CloudRoute> updatedRoute = findRoute(currentRoute.getUrl(), updatedRoutes);
-
-        return updatedRoute.map(cloudRoute -> isProtocolChanged(applicationGuid, currentRoute, cloudRoute))
-                           .orElse(true);
-
-    }
-
-    private Set<CloudRoute> getNewRoutes(UUID applicationGuid, List<CloudRoute> currentRoutes, Set<CloudRoute> updatedRoutes) {
-        return updatedRoutes.stream()
-                            .filter(updatedRoute -> isRouteUpdated(applicationGuid, updatedRoute, currentRoutes))
-                            .collect(Collectors.toSet());
-    }
-
-    private boolean isRouteUpdated(UUID applicationGuid, CloudRoute updatedRoute, List<CloudRoute> currentRoutes) {
-        Optional<CloudRoute> currentRoute = findRoute(updatedRoute.getUrl(), currentRoutes);
-
-        return currentRoute.map(cloudRoute -> isProtocolChanged(applicationGuid, cloudRoute, updatedRoute))
-                           .orElse(true);
-
-    }
-
-    private Optional<CloudRoute> findRoute(String url, java.util.Collection<CloudRoute> routes) {
-        return routes.stream()
-                     .filter(route -> Objects.equals(url, route.getUrl()))
-                     .findFirst();
-    }
-
-    private boolean isProtocolChanged(UUID applicationGuid, CloudRoute currentRoute, CloudRoute updatedRoute) {
-        if (updatedRoute.getRequestedProtocol() == null) {
-            return false;
-        }
-
-        return currentRoute.getDestinations()
-                           .stream()
-                           .filter(routeDestination -> Objects.equals(routeDestination.getApplicationGuid(), applicationGuid))
-                           .noneMatch(routeDestination -> Objects.equals(routeDestination.getProtocol(),
-                                                                         updatedRoute.getRequestedProtocol()));
-    }
-
-    private void validateDomainForRoute(CloudRoute route, Map<String, UUID> existingDomains) {
-        String domain = route.getDomain()
-                             .getName();
-
-        if (!StringUtils.hasLength(domain) || !existingDomains.containsKey(domain)) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
-                                              MessageFormat.format(Messages.DOMAIN_0_NOT_FOUND_FOR_URI_1, domain, route.getUrl()));
-        }
-
+        client.delete(CloudControllerV3Endpoints.ROUTE_DESTINATION_BY_GUID, routeGuid, destinationGuid);
     }
 
     private UUID getRequiredDomainGuid(String name) {
@@ -340,9 +236,9 @@ public class RoutesV3Operations {
     }
 
     private UUID getRequiredApplicationGuid(String applicationName) {
-        List<V3AppRef> apps = client.list(buildApplicationQuery(applicationName),
-                                          new ParameterizedTypeReference<V3ListResponse<V3AppRef>>() {
-                                          });
+        String applicationsQuery = OperationsQueryUtil.buildApplicationsQuery(applicationName, targetSpace);
+        List<V3GuidReference> apps = client.list(applicationsQuery,
+                                                 APP_PAGE);
 
         if (CollectionUtils.isEmpty(apps)) {
             throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
@@ -351,21 +247,6 @@ public class RoutesV3Operations {
 
         return UUID.fromString(apps.getFirst()
                                    .guid());
-    }
-
-    private String buildApplicationQuery(String applicationName) {
-        StringBuilder query = new StringBuilder(
-            CloudControllerV3Endpoints.APPS + CloudControllerV3Endpoints.QUERY_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
-
-        query.append(CloudControllerV3Endpoints.AMPERSAND_NAMES)
-             .append(applicationName);
-
-        if (targetSpace != null && targetSpace.getGuid() != null) {
-            query.append(CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
-                 .append(targetSpace.getGuid());
-        }
-
-        return query.toString();
     }
 
     private UUID getTargetSpaceGuid() {
@@ -377,10 +258,6 @@ public class RoutesV3Operations {
             throw new IllegalArgumentException(
                 MessageFormat.format(Messages.UNABLE_TO_0_WITHOUT_SPECIFYING_ORGANIZATION_AND_SPACE_TO_USE, operation));
         }
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record V3AppRef(@JsonProperty("guid") String guid) {
     }
 
 }

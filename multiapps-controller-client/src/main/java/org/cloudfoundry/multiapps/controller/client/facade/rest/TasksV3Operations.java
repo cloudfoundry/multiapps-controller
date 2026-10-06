@@ -1,7 +1,6 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
 import java.text.MessageFormat;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -10,7 +9,7 @@ import org.cloudfoundry.multiapps.controller.Messages;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudTask;
-import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Application;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3GuidReference;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Task;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3TaskMapper;
@@ -19,7 +18,14 @@ import org.springframework.http.HttpStatus;
 
 public class TasksV3Operations {
 
+    private static final ParameterizedTypeReference<V3ListResponse<V3Task>> TASK_PAGE = new ParameterizedTypeReference<>() {
+    };
+
+    private static final ParameterizedTypeReference<V3ListResponse<V3GuidReference>> APP_PAGE = new ParameterizedTypeReference<>() {
+    };
+
     private final CloudControllerV3Client client;
+
     private final CloudSpace targetSpace;
 
     public TasksV3Operations(CloudControllerV3Client client, CloudSpace targetSpace) {
@@ -39,8 +45,7 @@ public class TasksV3Operations {
         String query = CloudControllerV3Endpoints.TASKS + CloudControllerV3Endpoints.QUERY_PER_PAGE
             + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE + CloudControllerV3Endpoints.AMPERSAND_APP_GUIDS + applicationGuid;
 
-        List<V3Task> tasks = client.list(query, new ParameterizedTypeReference<V3ListResponse<V3Task>>() {
-        });
+        List<V3Task> tasks = client.list(query, TASK_PAGE);
 
         return tasks.stream()
                     .map(V3TaskMapper::toCloudTask)
@@ -49,59 +54,22 @@ public class TasksV3Operations {
 
     public CloudTask runTask(String applicationName, CloudTask task) {
         UUID applicationGuid = getRequiredApplicationGuid(applicationName);
+        Map<String, Object> createTaskBody = OperationsUtil.buildCreateTaskBody(task);
 
-        V3Task created = client.getRestClient()
-                               .post()
-                               .uri(CloudControllerV3Endpoints.APP_TASKS, applicationGuid)
-                               .body(buildCreateTaskBody(task))
-                               .retrieve()
-                               .body(V3Task.class);
+        V3Task created = client.postForObject(CloudControllerV3Endpoints.APP_TASKS, createTaskBody, V3Task.class, applicationGuid);
 
         return created == null ? null : V3TaskMapper.toCloudTask(created);
     }
 
     public CloudTask cancelTask(UUID taskGuid) {
-        V3Task cancelled = client.getRestClient()
-                                 .post()
-                                 .uri(CloudControllerV3Endpoints.TASK_CANCEL, taskGuid)
-                                 .retrieve()
-                                 .body(V3Task.class);
+        V3Task cancelled = client.postForObject(CloudControllerV3Endpoints.TASK_CANCEL, null, V3Task.class, taskGuid);
 
         return cancelled == null ? null : V3TaskMapper.toCloudTask(cancelled);
     }
 
-    private Map<String, Object> buildCreateTaskBody(CloudTask task) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("command", task.getCommand());
-        body.put("name", task.getName());
-
-        CloudTask.Limits limits = task.getLimits();
-        if (limits != null) {
-            if (limits.getMemory() != null) {
-                body.put("memory_in_mb", limits.getMemory());
-            }
-
-            if (limits.getDisk() != null) {
-                body.put("disk_in_mb", limits.getDisk());
-            }
-        }
-
-        return body;
-    }
-
     private UUID getRequiredApplicationGuid(String applicationName) {
-        StringBuilder query = new StringBuilder(CloudControllerV3Endpoints.APPS + CloudControllerV3Endpoints.QUERY_PER_PAGE
-                                                    + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
-
-        if (targetSpace != null && targetSpace.getGuid() != null) {
-            query.append(CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
-                 .append(targetSpace.getGuid());
-        }
-
-        query.append(CloudControllerV3Endpoints.AMPERSAND_NAMES)
-             .append(applicationName);
-        List<V3Application> apps = client.list(query.toString(), new ParameterizedTypeReference<V3ListResponse<V3Application>>() {
-        });
+        String applicationsQuery = OperationsQueryUtil.buildApplicationsQuery(applicationName, targetSpace);
+        List<V3GuidReference> apps = client.list(applicationsQuery, APP_PAGE);
 
         if (apps.isEmpty()) {
             throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,

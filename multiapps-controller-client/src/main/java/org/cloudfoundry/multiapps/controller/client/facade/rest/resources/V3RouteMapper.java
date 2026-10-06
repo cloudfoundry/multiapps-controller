@@ -11,6 +11,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloud
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableRouteDestination;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.RouteDestination;
+import org.springframework.util.StringUtils;
 
 public final class V3RouteMapper {
 
@@ -47,14 +48,13 @@ public final class V3RouteMapper {
 
     private static String computeDomain(V3Route route) {
         String domain = route.url();
-        String host = route.host() == null ? "" : route.host();
-        String path = route.path() == null ? "" : route.path();
 
-        if (!host.isEmpty()) {
-            domain = domain.substring(host.length() + 1);
+        if (StringUtils.hasText(route.host())) {
+            domain = domain.substring(route.host()
+                                           .length() + 1);
         }
 
-        if (!path.isEmpty()) {
+        if (StringUtils.hasText(route.path())) {
             domain = domain.substring(0, domain.indexOf('/'));
         }
 

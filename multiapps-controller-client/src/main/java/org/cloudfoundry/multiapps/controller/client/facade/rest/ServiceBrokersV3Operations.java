@@ -1,19 +1,17 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
-import java.net.URI;
 import java.text.MessageFormat;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.cloudfoundry.multiapps.controller.Messages;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBroker;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServicePlanVisibility;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Fields;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3GuidReference;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ServiceBroker;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ServiceBrokerMapper;
@@ -26,9 +24,8 @@ public class ServiceBrokersV3Operations {
 
     private static final ParameterizedTypeReference<V3ListResponse<V3ServiceBroker>> BROKER_PAGE = new ParameterizedTypeReference<>() {
     };
-    private static final ParameterizedTypeReference<V3ListResponse<ServiceOfferingRef>> OFFERING_PAGE = new ParameterizedTypeReference<>() {
-    };
-    private static final ParameterizedTypeReference<V3ListResponse<ServicePlanRef>> PLAN_PAGE = new ParameterizedTypeReference<>() {
+
+    private static final ParameterizedTypeReference<V3ListResponse<V3GuidReference>> GUID_REFERENCE_PAGE = new ParameterizedTypeReference<>() {
     };
 
     private final CloudControllerV3Client client;
@@ -42,22 +39,11 @@ public class ServiceBrokersV3Operations {
     public String createServiceBroker(CloudServiceBroker serviceBroker) {
         Assert.notNull(serviceBroker, "Service broker must not be null.");
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("name", serviceBroker.getName());
-        body.put("url", serviceBroker.getUrl());
-        body.put("authentication", basicAuthentication(serviceBroker));
+        Map<String, Object> body = OperationsUtil.buildCreateServiceBrokerBody(serviceBroker);
+        ResponseEntity<Void> response = client.post(CloudControllerV3Endpoints.SERVICE_BROKERS, body);
 
-        if (serviceBroker.getSpaceGuid() != null) {
-            body.put("relationships", Map.of("space", Map.of("data", Map.of("guid", serviceBroker.getSpaceGuid()))));
-        }
-
-        ResponseEntity<Void> response = client.getRestClient()
-                                              .post()
-                                              .uri(CloudControllerV3Endpoints.SERVICE_BROKERS)
-                                              .body(body)
-                                              .retrieve()
-                                              .toBodilessEntity();
-        return extractJobGuid(response);
+        return OperationsUtil.extractJobGuid(response)
+                             .orElse(null);
     }
 
     public String deleteServiceBroker(String name) {
@@ -65,13 +51,10 @@ public class ServiceBrokersV3Operations {
         UUID guid = broker.getMetadata()
                           .getGuid();
 
-        ResponseEntity<Void> response = client.getRestClient()
-                                              .delete()
-                                              .uri(CloudControllerV3Endpoints.SERVICE_BROKER_BY_GUID, guid.toString())
-                                              .retrieve()
-                                              .toBodilessEntity();
+        ResponseEntity<Void> response = client.delete(CloudControllerV3Endpoints.SERVICE_BROKER_BY_GUID, guid.toString());
 
-        return extractJobGuid(response);
+        return OperationsUtil.extractJobGuid(response)
+                             .orElse(null);
     }
 
     public CloudServiceBroker getServiceBroker(String name) {
@@ -104,17 +87,14 @@ public class ServiceBrokersV3Operations {
         UUID brokerGuid = existingBroker.getMetadata()
                                         .getGuid();
 
-        Map<String, Object> body = Map.of("name", serviceBroker.getName(), "url", serviceBroker.getUrl(), "authentication",
-                                          basicAuthentication(serviceBroker));
+        Map<String, Object> basicAuthentication = OperationsUtil.basicAuthentication(serviceBroker);
+        Map<String, Object> body = Map.of(V3Fields.NAME, serviceBroker.getName(), V3Fields.URL, serviceBroker.getUrl(),
+                                          V3Fields.AUTHENTICATION, basicAuthentication);
 
-        ResponseEntity<Void> response = client.getRestClient()
-                                              .patch()
-                                              .uri(CloudControllerV3Endpoints.SERVICE_BROKER_BY_GUID, brokerGuid.toString())
-                                              .body(body)
-                                              .retrieve()
-                                              .toBodilessEntity();
+        ResponseEntity<Void> response = client.patch(CloudControllerV3Endpoints.SERVICE_BROKER_BY_GUID, body, brokerGuid.toString());
 
-        return extractJobGuid(response);
+        return OperationsUtil.extractJobGuid(response)
+                             .orElse(null);
     }
 
     public void updateServicePlanVisibilityForBroker(String name, ServicePlanVisibility visibility) {
@@ -147,12 +127,13 @@ public class ServiceBrokersV3Operations {
 
     private List<UUID> findServiceOfferingGuidsByBrokerGuid(UUID brokerGuid) {
         String uri = CloudControllerV3Endpoints.SERVICE_OFFERINGS + CloudControllerV3Endpoints.QUERY_SERVICE_BROKER_GUIDS + brokerGuid
-            + CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS + getTargetSpaceGuid() + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE
+            + CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS + OperationsUtil.getGuid(targetSpace)
+            + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE
             + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
 
-        return client.list(uri, OFFERING_PAGE)
+        return client.list(uri, GUID_REFERENCE_PAGE)
                      .stream()
-                     .map(ServiceOfferingRef::guid)
+                     .map(V3GuidReference::guid)
                      .map(UUID::fromString)
                      .toList();
     }
@@ -162,61 +143,16 @@ public class ServiceBrokersV3Operations {
             CloudControllerV3Endpoints.SERVICE_PLANS + CloudControllerV3Endpoints.QUERY_SERVICE_OFFERING_GUIDS + serviceOfferingGuid
                 + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
 
-        return client.list(uri, PLAN_PAGE)
+        return client.list(uri, GUID_REFERENCE_PAGE)
                      .stream()
-                     .map(ServicePlanRef::guid)
+                     .map(V3GuidReference::guid)
                      .map(UUID::fromString)
                      .toList();
     }
 
     private void updateServicePlanVisibility(UUID servicePlanGuid, ServicePlanVisibility visibility) {
-        client.getRestClient()
-              .patch()
-              .uri(CloudControllerV3Endpoints.SERVICE_PLAN_VISIBILITY, servicePlanGuid.toString())
-              .body(Map.of("type", visibility.toString()))
-              .retrieve()
-              .toBodilessEntity();
-    }
-
-    private static Map<String, Object> basicAuthentication(CloudServiceBroker serviceBroker) {
-        return Map.of("type", "basic", "credentials",
-                      Map.of("username", nullToEmpty(serviceBroker.getUsername()), "password", nullToEmpty(serviceBroker.getPassword())));
-    }
-
-    private static String nullToEmpty(String value) {
-        return value == null ? "" : value;
-    }
-
-    private String getTargetSpaceGuid() {
-        return targetSpace.getMetadata()
-                          .getGuid()
-                          .toString();
-    }
-
-    private static String extractJobGuid(ResponseEntity<Void> response) {
-        URI location = response.getHeaders()
-                               .getLocation();
-
-        if (location == null) {
-            return null;
-        }
-
-        String value = location.toString();
-        int index = value.lastIndexOf("/v3/jobs/");
-
-        if (index < 0) {
-            return value.substring(value.lastIndexOf('/') + 1);
-        }
-
-        return value.substring(index + "/v3/jobs/".length());
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record ServiceOfferingRef(@JsonProperty("guid") String guid) {
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record ServicePlanRef(@JsonProperty("guid") String guid) {
+        client.patch(CloudControllerV3Endpoints.SERVICE_PLAN_VISIBILITY, Map.of(V3Fields.TYPE, visibility.toString()),
+                     servicePlanGuid.toString());
     }
 
 }

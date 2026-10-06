@@ -17,7 +17,7 @@ class V3ApplicationMapperTest {
     @Test
     void testToCloudApplicationMapsAllFields() {
         V3Lifecycle lifecycle = new V3Lifecycle("buildpack", new V3LifecycleData(List.of("java_buildpack"), "cflinuxfs4"));
-        V3Application app = new V3Application(GUID_STRING, "my-app", "STARTED", null, null, lifecycle, null, null);
+        V3Application app = application("STARTED", lifecycle);
 
         CloudApplication result = V3ApplicationMapper.toCloudApplication(app, null);
 
@@ -31,7 +31,7 @@ class V3ApplicationMapperTest {
 
     @Test
     void testToCloudApplicationNullStateReturnsNullState() {
-        V3Application app = new V3Application(GUID_STRING, "my-app", null, null, null, null, null, null);
+        V3Application app = application(null, null);
 
         Assertions.assertNull(V3ApplicationMapper.toCloudApplication(app, null)
                                                  .getState());
@@ -39,7 +39,7 @@ class V3ApplicationMapperTest {
 
     @Test
     void testToCloudApplicationNullLifecycleReturnsNullLifecycle() {
-        V3Application app = new V3Application(GUID_STRING, "my-app", "STOPPED", null, null, null, null, null);
+        V3Application app = application("STOPPED", null);
 
         Assertions.assertNull(V3ApplicationMapper.toCloudApplication(app, null)
                                                  .getLifecycle());
@@ -48,7 +48,7 @@ class V3ApplicationMapperTest {
     @Test
     void testToCloudApplicationLifecycleWithNullTypeReturnsNullLifecycle() {
         V3Lifecycle lifecycle = new V3Lifecycle(null, new V3LifecycleData(List.of(), "cflinuxfs4"));
-        V3Application app = new V3Application(GUID_STRING, "my-app", "STARTED", null, null, lifecycle, null, null);
+        V3Application app = application("STARTED", lifecycle);
 
         Assertions.assertNull(V3ApplicationMapper.toCloudApplication(app, null)
                                                  .getLifecycle());
@@ -57,7 +57,7 @@ class V3ApplicationMapperTest {
     @Test
     void testToCloudApplicationLifecycleTypeIsUpperCased() {
         V3Lifecycle lifecycle = new V3Lifecycle("docker", null);
-        V3Application app = new V3Application(GUID_STRING, "my-app", "STARTED", null, null, lifecycle, null, null);
+        V3Application app = application("STARTED", lifecycle);
 
         Assertions.assertEquals(LifecycleType.DOCKER, V3ApplicationMapper.toCloudApplication(app, null)
                                                                          .getLifecycle()
@@ -67,7 +67,7 @@ class V3ApplicationMapperTest {
     @Test
     void testToCloudApplicationNullLifecycleDataReturnsEmptyDataMap() {
         V3Lifecycle lifecycle = new V3Lifecycle("buildpack", null);
-        V3Application app = new V3Application(GUID_STRING, "my-app", "STARTED", null, null, lifecycle, null, null);
+        V3Application app = application("STARTED", lifecycle);
 
         Assertions.assertEquals(Map.of(), V3ApplicationMapper.toCloudApplication(app, null)
                                                              .getLifecycle()
@@ -77,11 +77,15 @@ class V3ApplicationMapperTest {
     @Test
     void testToCloudApplicationLifecycleDataWithNullFieldsReturnsDefaultedMap() {
         V3Lifecycle lifecycle = new V3Lifecycle("buildpack", new V3LifecycleData(null, null));
-        V3Application app = new V3Application(GUID_STRING, "my-app", "STARTED", null, null, lifecycle, null, null);
+        V3Application app = application("STARTED", lifecycle);
 
         Assertions.assertEquals(Map.of("buildpacks", List.of(), "stack", ""), V3ApplicationMapper.toCloudApplication(app, null)
                                                                                                  .getLifecycle()
                                                                                                  .getData());
+    }
+
+    private V3Application application(String state, V3Lifecycle lifecycle) {
+        return new V3Application(GUID_STRING, "my-app", state, null, null, lifecycle, null, null);
     }
 
 }
