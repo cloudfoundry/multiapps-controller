@@ -1,6 +1,4 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+# multiapps-controller — MTA Deployment Engine
 
 ## Project Role
 
@@ -8,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Security Boundary
 
-This is an **OPEN SOURCE** repository. Never introduce proprietary logic, credentials, or internal company context into this codebase.
+**OPEN SOURCE** — see the root `CLAUDE.md` security-boundary table. Never introduce proprietary logic, credentials, or internal company context.
 
 ## Tech Stack
 
@@ -64,3 +62,22 @@ mvn verify sonar:sonar -P sonar
 The deployable WAR is at `multiapps-controller-web/target/multiapps-controller-web-<version>.war`.
 
 Integration tests (`**/*IntegrationTest`) are excluded from the default surefire run.
+
+## BPMN, Process Variables & Liquibase
+
+The root `CLAUDE.md` defers here for the persistence/BPMN conventions:
+
+- **BPMN process definitions** live in
+  `multiapps-controller-process/src/main/resources/org/cloudfoundry/multiapps/controller/process/*.bpmn`
+  (deploy-app, rollback-mta, execute-tasks, blue-green, etc.).
+- **Process variables** are declared in
+  `multiapps-controller-process/.../process/variables/Variables.java` as
+  `Variable<T>` constants built via `ImmutableSimpleVariable.builder()`.
+  These are **serialized into the Flowable DB (ACT_* tables)**: adding a new
+  variable is safe, but **renaming or removing one requires a Liquibase migration**
+  — a live engine may still hold the old key.
+- **Liquibase changelogs** live in
+  `multiapps-controller-persistence/.../persistence/db/changelog/`, named
+  `db-changelog-<version>-persistence.xml`, and are wired into the master
+  `db-changelog.xml` via `<include>`. Add a new versioned file and include it there;
+  never edit an already-released changelog.
