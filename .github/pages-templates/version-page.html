@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MTA REST API __VERSION__ - API Reference</title>
+  <link rel="stylesheet" href="__VENDOR__/swagger-ui.css">
+  <style>
+    html, body { margin: 0; padding: 0; }
+    .topbar { background:#765DBC; padding:10px 20px; display:flex; align-items:center; gap:20px; }
+    .topbar a { color:#fff; text-decoration:none; font-family:sans-serif; font-size:14px; }
+    .topbar a:hover { text-decoration:underline; }
+    .topbar .brand { font-weight:bold; font-size:16px; margin-right:auto; }
+    .topbar .badge { background:rgba(255,255,255,.2); padding:3px 10px; border-radius:12px; font-size:12px; color:#fff; font-family:monospace; }
+  </style>
+</head>
+<body>
+  <nav class="topbar">
+    <span class="brand">MultiApps Controller</span>
+    <span class="badge">API __VERSION__</span>
+    <a href="__ROOT__">Home</a>
+    <a href="__ROOT__api/">All API Versions</a>
+    <a href="https://github.com/cloudfoundry/multiapps-controller" target="_blank" rel="noopener">GitHub</a>
+  </nav>
+  <div id="swagger-ui"></div>
+  <script src="__VENDOR__/swagger-ui-bundle.js" charset="UTF-8"></script>
+  <script src="__VENDOR__/swagger-ui-standalone-preset.js" charset="UTF-8"></script>
+  <script>
+    window.onload = function () {
+      window.ui = SwaggerUIBundle({
+        url: "__YAML__",
+        dom_id: "#swagger-ui",
+        deepLinking: true,
+        presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+        plugins: [SwaggerUIBundle.plugins.DownloadUrl],
+        layout: "StandaloneLayout"
+      });
+    };
+  </script>
+</body>
+</html>
