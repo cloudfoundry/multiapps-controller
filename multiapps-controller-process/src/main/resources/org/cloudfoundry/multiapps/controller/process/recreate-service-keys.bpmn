@@ -31,7 +31,21 @@
     <sequenceFlow id="sid-89ED7A30-8EB3-4766-96EF-30FCAE58640E" sourceRef="deleteServiceKeySubProcess" targetRef="createServiceKeySubProcess"></sequenceFlow>
     <endEvent id="sid-2CAA8006-0FEF-43C1-8AE7-884D358B9C32" name="end"></endEvent>
     <sequenceFlow id="sid-B4F2B2B5-E91B-405F-8D76-8957886F7599" sourceRef="createServiceKeySubProcess" targetRef="sid-2CAA8006-0FEF-43C1-8AE7-884D358B9C32"></sequenceFlow>
-    <callActivity id="sid-252DB943-BE0C-40CC-AA12-802C8B79EF7F" name="Wait For Service Key In Progress" flowable:async="true" flowable:exclusive="false" calledElement="waitForServiceKeyInProgressSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+    <callActivity id="sid-252DB943-BE0C-40CC-AA12-802C8B79EF7F" name="Wait For Service Key In Progress" flowable:async="true" flowable:exclusive="false" calledElement="waitForServiceKeyInProgressSubProcess" flowable:calledElementType="key" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false" flowable:inheritVariables="false">
+        <extensionElements>
+            <flowable:in source="serviceKeyToProcess" target="serviceKeyToProcess"/>
+            <flowable:in source="correlationId" target="correlationId"/>
+            <flowable:in source="__SPACE_ID" target="__SPACE_ID"/>
+            <flowable:in source="userGuid" target="userGuid"/>
+            <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"/>
+            <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"/>
+            <flowable:in source="externalLoggingServiceConfigurations" target="externalLoggingServiceConfigurations"/>
+            <flowable:in source="serviceToProcess" target="serviceToProcess"/>
+            <flowable:in source="mtaId" target="mtaId"/>
+            <flowable:in source="namespace" target="namespace"/>
+            <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"/>
+            <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"/>
+        </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="cloudServiceKeysForWaiting" flowable:elementVariable="serviceKeyToProcess"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="sid-B18ECA59-FD3B-4046-8AA7-0EEEBB80DBA7" sourceRef="sid-252DB943-BE0C-40CC-AA12-802C8B79EF7F" targetRef="determineServiceKeysToRecreateStep"></sequenceFlow>
