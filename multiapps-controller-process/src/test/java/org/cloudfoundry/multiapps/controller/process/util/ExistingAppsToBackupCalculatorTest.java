@@ -7,9 +7,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.ImmutableMtaMetadata;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
@@ -66,8 +66,8 @@ class ExistingAppsToBackupCalculatorTest {
                          Collections.emptyList(), "2", true, List.of("app-1-live", "app-1-idle"),
                          List.of(ImmutableCloudApplication.builder()
                                                           .name("app-1-live")
-                                                          .v3Metadata(Metadata.builder()
-                                                                              .annotation(MtaMetadataAnnotations.MTA_VERSION,
+                                                          .v3Metadata(ImmutableMetadata.builder()
+                                                                              .putAnnotation(MtaMetadataAnnotations.MTA_VERSION,
                                                                                           "1")
                                                                               .build())
                                                           .build())),
@@ -83,8 +83,8 @@ class ExistingAppsToBackupCalculatorTest {
                          "3", true, List.of("app-1-live", "mta-backup-app-1"), List.of(ImmutableCloudApplication.builder()
                                                                                                                 .name("app-1-live")
                                                                                                                 .v3Metadata(
-                                                                                                                    Metadata.builder()
-                                                                                                                            .annotation(
+                                                                                                                    ImmutableMetadata.builder()
+                                                                                                                            .putAnnotation(
                                                                                                                                 MtaMetadataAnnotations.MTA_VERSION,
                                                                                                                                 "2")
                                                                                                                             .build())
@@ -106,8 +106,8 @@ class ExistingAppsToBackupCalculatorTest {
                          List.of(new TestApplication("app-1", "mta-backup-app-1", "1")), "3", true, List.of("app-1-live"),
                          List.of(ImmutableCloudApplication.builder()
                                                           .name("app-1-live")
-                                                          .v3Metadata(Metadata.builder()
-                                                                              .annotation(MtaMetadataAnnotations.MTA_VERSION,
+                                                          .v3Metadata(ImmutableMetadata.builder()
+                                                                              .putAnnotation(MtaMetadataAnnotations.MTA_VERSION,
                                                                                           "2")
                                                                               .build())
                                                           .build())),
@@ -146,8 +146,8 @@ class ExistingAppsToBackupCalculatorTest {
             Arguments.of(List.of(new TestApplication("app-1", "mta-backup-app-1", "1")), List.of("app-1-idle"), true,
                          List.of(ImmutableCloudApplication.builder()
                                                           .name("mta-backup-app-1")
-                                                          .v3Metadata(Metadata.builder()
-                                                                              .annotation(MtaMetadataAnnotations.MTA_VERSION,
+                                                          .v3Metadata(ImmutableMetadata.builder()
+                                                                              .putAnnotation(MtaMetadataAnnotations.MTA_VERSION,
                                                                                           "1")
                                                                               .build())
                                                           .build())),
@@ -166,16 +166,16 @@ class ExistingAppsToBackupCalculatorTest {
                                  new TestApplication("app-2", "mta-backup-app-2", "2")),
                          Collections.emptyList(), false, List.of(ImmutableCloudApplication.builder()
                                                                                           .name("mta-backup-app-1")
-                                                                                          .v3Metadata(Metadata.builder()
-                                                                                                              .annotation(
+                                                                                          .v3Metadata(ImmutableMetadata.builder()
+                                                                                                              .putAnnotation(
                                                                                                                   MtaMetadataAnnotations.MTA_VERSION,
                                                                                                                   "2")
                                                                                                               .build())
                                                                                           .build(),
                                                                  ImmutableCloudApplication.builder()
                                                                                           .name("mta-backup-app-2")
-                                                                                          .v3Metadata(Metadata.builder()
-                                                                                                              .annotation(
+                                                                                          .v3Metadata(ImmutableMetadata.builder()
+                                                                                                              .putAnnotation(
                                                                                                                   MtaMetadataAnnotations.MTA_VERSION,
                                                                                                                   "2")
                                                                                                               .build())
@@ -213,12 +213,12 @@ class ExistingAppsToBackupCalculatorTest {
             deployedMtaApplications.add(ImmutableDeployedMtaApplication.builder()
                                                                        .moduleName(application.moduleName)
                                                                        .name(application.appName)
-                                                                       .v3Metadata(application.mtaVersion != null ? Metadata.builder()
-                                                                                                                            .annotation(
+                                                                       .v3Metadata(application.mtaVersion != null ? ImmutableMetadata.builder()
+                                                                                                                            .putAnnotation(
                                                                                                                                 MtaMetadataAnnotations.MTA_VERSION,
                                                                                                                                 application.mtaVersion)
                                                                                                                             .build()
-                                                                                       : Metadata.builder()
+                                                                                       : ImmutableMetadata.builder()
                                                                                                  .annotations(Collections.emptyMap())
                                                                                                  .build())
                                                                        .productizationState(application.productizationState)

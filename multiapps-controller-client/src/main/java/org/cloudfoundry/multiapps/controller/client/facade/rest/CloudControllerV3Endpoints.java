@@ -2,7 +2,8 @@ package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
 public class CloudControllerV3Endpoints {
 
-    public static final int DEFAULT_PAGE_SIZE = 5000;
+    //leaving it like that for testing, then if all is alright with the performance, we can remove it and just not pass it since the default is 50 from cf controller side
+    public static final int DEFAULT_PAGE_SIZE = 50;
 
     public static final String APPS = "/v3/apps";
     public static final String ROUTES = "/v3/routes";
@@ -15,7 +16,6 @@ public class CloudControllerV3Endpoints {
     public static final String PACKAGES = "/v3/packages";
     public static final String BUILDS = "/v3/builds";
     public static final String TASKS = "/v3/tasks";
-    public static final String PROCESSES = "/processes/";
     public static final String STACKS = "/v3/stacks";
     public static final String AUDIT_EVENTS = "/v3/audit_events";
     public static final String JOBS = "/v3/jobs";
@@ -43,31 +43,28 @@ public class CloudControllerV3Endpoints {
     public static final String TASK_CANCEL = "/v3/tasks/{guid}/actions/cancel";
     public static final String PACKAGE_UPLOAD = "/v3/packages/{guid}/upload";
     public static final String SPACE_UNMAPPED_ROUTES = "/v3/spaces/{guid}/routes?unmapped=true";
-
-    public static final String QUERY_PER_PAGE = "?per_page=";
-    public static final String QUERY_NAMES = "?names=";
-    public static final String QUERY_PACKAGE_GUIDS = "?package_guids=";
-    public static final String QUERY_APP_GUIDS = "?app_guids=";
-    public static final String QUERY_GUIDS = "?guids=";
-    public static final String QUERY_SERVICE_INSTANCE_GUIDS = "?service_instance_guids=";
-    public static final String QUERY_SERVICE_OFFERING_GUIDS = "?service_offering_guids=";
-    public static final String QUERY_SERVICE_BROKER_GUIDS = "?service_broker_guids=";
-    public static final String QUERY_ORGANIZATION_GUIDS = "?organization_guids=";
-
-    public static final String AMPERSAND_PER_PAGE = "&per_page=";
-    public static final String AMPERSAND_SPACE_GUIDS = "&space_guids=";
-    public static final String AMPERSAND_NAMES = "&names=";
-    public static final String AMPERSAND_TYPE = "&type=";
-    public static final String AMPERSAND_LABEL_SELECTOR = "&label_selector=";
-    public static final String AMPERSAND_DOMAIN_GUIDS = "&domain_guids=";
-    public static final String AMPERSAND_SERVICE_INSTANCE_GUIDS = "&service_instance_guids=";
-    public static final String AMPERSAND_SERVICE_OFFERING_GUIDS = "&service_offering_guids=";
-    public static final String AMPERSAND_SERVICE_BROKER_NAMES = "&service_broker_names=";
-    public static final String AMPERSAND_APP_GUIDS = "&app_guids=";
-    public static final String AMPERSAND_USER_GUIDS = "&user_guids=";
-    public static final String AMPERSAND_TARGET_GUIDS = "&target_guids=";
-    public static final String AMPERSAND_HOSTS = "&hosts=";
-    public static final String AMPERSAND_PATHS = "&paths=";
+    public static final String ORGANIZATION_DEFAULT_DOMAIN = "/v3/organizations/{guid}/domains/default";
+    public static final String ORGANIZATION_DOMAINS = "/v3/organizations/{guid}/domains";
+    public static final String ORGANIZATION_BY_GUID = "/v3/organizations/{guid}";
+    public static final String SPACE_BY_GUID = "/v3/spaces/{guid}";
+    public static final String JOB_BY_GUID = "/v3/jobs/{guid}";
+    public static final String BUILD_BY_GUID = "/v3/builds/{guid}";
+    public static final String PACKAGE_BY_GUID = "/v3/packages/{guid}";
+    public static final String TASK_BY_GUID = "/v3/tasks/{guid}";
+    public static final String SERVICE_PLAN_BY_GUID = "/v3/service_plans/{guid}";
+    public static final String SERVICE_OFFERING_BY_GUID = "/v3/service_offerings/{guid}";
+    public static final String SERVICE_INSTANCE_PARAMETERS = "/v3/service_instances/{guid}/parameters";
+    public static final String SERVICE_INSTANCE_CREDENTIALS = "/v3/service_instances/{guid}/credentials";
+    public static final String SERVICE_CREDENTIAL_BINDING_PARAMETERS = "/v3/service_credential_bindings/{guid}/parameters";
+    public static final String SERVICE_CREDENTIAL_BINDING_DETAILS = "/v3/service_credential_bindings/{guid}/details";
+    public static final String APP_WEB_PROCESS = "/v3/apps/{guid}/processes/web";
+    public static final String APP_WEB_PROCESS_STATS = "/v3/apps/{guid}/processes/web/stats";
+    public static final String APP_SSH_ENABLED = "/v3/apps/{guid}/ssh_enabled";
+    public static final String APP_FEATURES = "/v3/apps/{guid}/features";
+    public static final String APP_DROPLET_CURRENT = "/v3/apps/{guid}/droplets/current";
+    public static final String APP_BUILDS = "/v3/apps/{guid}/builds";
+    public static final String APP_PACKAGES = "/v3/apps/{guid}/packages";
+    public static final String APP_ROUTES = "/v3/apps/{guid}/routes";
 
     private CloudControllerV3Endpoints() {
 

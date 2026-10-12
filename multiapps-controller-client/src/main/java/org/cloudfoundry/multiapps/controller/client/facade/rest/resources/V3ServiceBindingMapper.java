@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest.resources;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
@@ -38,10 +36,16 @@ public final class V3ServiceBindingMapper {
     }
 
     private static UUID parseServiceInstanceGuid(V3ServiceBinding binding) {
-        return UUID.fromString(binding.relationships()
-                                      .serviceInstance()
-                                      .data()
-                                      .guid());
+        V3ServiceBinding.V3ToOneRelationship serviceInstance = binding.relationships() == null ? null
+            : binding.relationships()
+                     .serviceInstance();
+
+        if (serviceInstance == null || serviceInstance.data() == null) {
+            return null;
+        }
+
+        return V3ResourceMappers.parseNullableGuid(serviceInstance.data()
+                                                                  .guid());
     }
 
     private static ServiceCredentialBindingOperation parseServiceBindingOperation(V3ServiceBinding.V3LastOperation lastOperation) {
@@ -53,13 +57,9 @@ public final class V3ServiceBindingMapper {
                                                          .type(ServiceCredentialBindingOperation.Type.fromString(lastOperation.type()))
                                                          .state(ServiceCredentialBindingOperation.State.fromString(lastOperation.state()))
                                                          .description(lastOperation.description())
-                                                         .createdAt(parseDate(lastOperation.createdAt()))
-                                                         .updatedAt(parseDate(lastOperation.updatedAt()))
+                                                         .createdAt(V3ResourceMappers.parseNullableDate(lastOperation.createdAt()))
+                                                         .updatedAt(V3ResourceMappers.parseNullableDate(lastOperation.updatedAt()))
                                                          .build();
-    }
-
-    private static LocalDateTime parseDate(String date) {
-        return date == null ? null : LocalDateTime.parse(date, DateTimeFormatter.ISO_DATE_TIME);
     }
 
 }

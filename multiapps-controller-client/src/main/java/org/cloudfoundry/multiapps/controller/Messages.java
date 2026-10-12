@@ -54,19 +54,15 @@ public class Messages {
     public static final String INTERRUPTED_WHILE_POLLING_ASYNC_JOB_0 = "Interrupted while polling an async job: \"{0}\"";
     public static final String UNKNOWN_JOB_STATE_0 = "Unknown job state: \"{0}\"";
     public static final String UNKNOWN_SERVICE_INSTANCE_TYPE_0 = "Unknown service instance type: \"{0}\"";
-    public static final String UNKNOWN_USER_ROLE_0 = "Unknown user role: \"{0}\"";
     public static final String CANNOT_CREATE_DOMAIN_0_WITHOUT_ORGANIZATION = "Cannot create domain \"{0}\" without specifying an organization.";
     public static final String PACKAGE_0_NOT_FOUND = "Package \"{0}\" not found.";
     public static final String BUILDPACKS_ARE_REQUIRED_FOR_THE_BUILDPACK_LIFECYCLE_TYPE = "Buildpacks are required for the buildpack (Cloud Native Buildpack) lifecycle type.";
 
     //Status texts
-    public static final String NOT_FOUND = "Not Found";
     public static final String JOB_TIMEOUT = "Job Timeout";
     public static final String JOB_FAILED = "Job Failed";
     public static final String JOB_FAILED_WITHOUT_DETAILS = "Job failed without any error details";
     public static final String JOB_0_WITH_OPERATION_1_FAILED_WITH_2 = "Job \"{0}\" (operation \"{1}\") failed with: {2}";
     public static final String JOB_0_RELATED_TO_OPERATION_1_FAILED_WITH_2 = "Job \"{0}\" related to operation \"{1}\" failed with: \"{2}\"";
-    public static final String BAD_REQUEST = "Bad Request";
-    public static final String FORBIDDEN = "Forbidden";
-
+    
 }

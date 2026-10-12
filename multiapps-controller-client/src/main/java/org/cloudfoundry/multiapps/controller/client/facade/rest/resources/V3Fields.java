@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.client.facade.rest.resources;
 
 public class V3Fields {
 
+    public static final String ID = "id";
     public static final String GUID = "guid";
     public static final String NAME = "name";
     public static final String TYPE = "type";
@@ -26,6 +27,7 @@ public class V3Fields {
     public static final String DISK_IN_MB = "disk_in_mb";
     public static final String LIFECYCLE = "lifecycle";
     public static final String BUILDPACKS = "buildpacks";
+    public static final String BUILDPACK = "buildpack";
     public static final String STACK = "stack";
     public static final String ENVIRONMENT_VARIABLES = "environment_variables";
     public static final String VAR = "var";
@@ -54,6 +56,60 @@ public class V3Fields {
     public static final String AUTHENTICATION = "authentication";
     public static final String DETAIL = "detail";
     public static final String ENABLED = "enabled";
+    public static final String ACTOR = "actor";
+    public static final String TARGET = "target";
+    public static final String PUBLIC_VISIBILITY = "public";
+    public static final String ERROR = "error";
+    public static final String CREATED_BY = "created_by";
+    public static final String DROPLET = "droplet";
+    public static final String HREF = "href";
+    public static final String LINKS = "links";
+    public static final String OPERATION = "operation";
+    public static final String WARNINGS = "warnings";
+    public static final String ERRORS = "errors";
+    public static final String CODE = "code";
+    public static final String TITLE = "title";
+    public static final String PAGINATION = "pagination";
+    public static final String RESOURCES = "resources";
+    public static final String TOTAL_PAGES = "total_pages";
+    public static final String TOTAL_RESULTS = "total_results";
+    public static final String NEXT = "next";
+    public static final String PREVIOUS = "previous";
+    public static final String CHECKSUM = "checksum";
+    public static final String VALUE = "value";
+    public static final String INDEX = "index";
+    public static final String ROUTABLE = "routable";
+    public static final String REASON = "reason";
+    public static final String INTERNAL = "internal";
+    public static final String EXECUTION_METADATA = "execution_metadata";
+    public static final String PROCESS_TYPES = "process_types";
+    public static final String USER = "user";
+    public static final String VERSION = "version";
+    public static final String LOG_RATE_LIMIT_IN_BYTES_PER_SECOND = "log_rate_limit_in_bytes_per_second";
+    public static final String REVISION = "revision";
+    public static final String WEIGHT = "weight";
+    public static final String LAST_OPERATION = "last_operation";
+    public static final String ROUTE_SERVICE_URL = "route_service_url";
+    public static final String SERVICE_OFFERING = "service_offering";
+    public static final String FREE = "free";
+    public static final String VISIBILITY_TYPE = "visibility_type";
+    public static final String BROKER_CATALOG = "broker_catalog";
+    public static final String AVAILABLE = "available";
+    public static final String AMOUNT = "amount";
+    public static final String CURRENCY = "currency";
+    public static final String UNIT = "unit";
+    public static final String COSTS = "costs";
+    public static final String MAINTENANCE_INFO = "maintenance_info";
+    public static final String CREATE = "create";
+    public static final String UPDATE = "update";
+    public static final String SERVICE_BINDING = "service_binding";
+    public static final String SCHEMAS = "schemas";
+    public static final String QUOTA = "quota";
+    public static final String SUSPENDED = "suspended";
+    public static final String BASIC = "basic";
+    public static final String MANAGED = "managed";
+    public static final String USER_PROVIDED = "user-provided";
+    public static final String KEY = "key";
 
     private V3Fields() {
     }

@@ -51,7 +51,7 @@ class ServiceBrokersV3OperationsTest {
 
     @Test
     void testGetServiceBrokersReturnsMappedList() {
-        factory.stubGet(BROKERS_URI + "?per_page=5000", "{\"resources\":[" + getBrokerJson("broker-a") + "]}");
+        factory.stubGet(BROKERS_URI + "?per_page=50", "{\"resources\":[" + getBrokerJson("broker-a") + "]}");
 
         List<CloudServiceBroker> result = operations.getServiceBrokers();
 
@@ -65,7 +65,7 @@ class ServiceBrokersV3OperationsTest {
 
     @Test
     void testGetServiceBrokersReturnsEmptyList() {
-        factory.stubGet(BROKERS_URI + "?per_page=5000", "{\"resources\":[]}");
+        factory.stubGet(BROKERS_URI + "?per_page=50", "{\"resources\":[]}");
 
         List<CloudServiceBroker> result = operations.getServiceBrokers();
 
@@ -220,11 +220,11 @@ class ServiceBrokersV3OperationsTest {
         stubBrokerLookup("broker-a", "{\"resources\":[" + getBrokerJson("broker-a") + "]}");
 
         factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_offerings?service_broker_guids="
-                            + BROKER_GUID + "&space_guids=" + SPACE_GUID + "&per_page=5000",
+                            + BROKER_GUID + "&space_guids=" + SPACE_GUID + "&per_page=50",
                         "{\"resources\":[{\"guid\":\"" + OFFERING_GUID + "\"}]}");
 
         factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_plans?service_offering_guids="
-                            + OFFERING_GUID + "&per_page=5000",
+                            + OFFERING_GUID + "&per_page=50",
                         "{\"resources\":[{\"guid\":\"" + PLAN_GUID + "\"}]}");
 
         factory.server()
@@ -249,7 +249,7 @@ class ServiceBrokersV3OperationsTest {
         stubBrokerLookup("broker-a", "{\"resources\":[" + getBrokerJson("broker-a") + "]}");
 
         factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_offerings?service_broker_guids="
-                            + BROKER_GUID + "&space_guids=" + SPACE_GUID + "&per_page=5000", "{\"resources\":[]}");
+                            + BROKER_GUID + "&space_guids=" + SPACE_GUID + "&per_page=50", "{\"resources\":[]}");
 
         operations.updateServicePlanVisibilityForBroker("broker-a", ServicePlanVisibility.ADMIN);
 
@@ -266,7 +266,7 @@ class ServiceBrokersV3OperationsTest {
     }
 
     private void stubBrokerLookup(String name, String responseJson) {
-        factory.stubGet(BROKERS_URI + "?names=" + name + "&per_page=5000", responseJson);
+        factory.stubGet(BROKERS_URI + "?names=" + name + "&per_page=50", responseJson);
     }
 
     private static String getBrokerJson(String name) {

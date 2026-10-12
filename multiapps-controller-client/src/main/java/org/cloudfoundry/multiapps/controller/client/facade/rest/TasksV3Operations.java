@@ -11,6 +11,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudTask;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3GuidReference;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3QueryParameters;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Task;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3TaskMapper;
 import org.springframework.core.ParameterizedTypeReference;
@@ -34,7 +35,8 @@ public class TasksV3Operations {
     }
 
     public CloudTask getTask(UUID taskGuid) {
-        V3Task task = client.get(CloudControllerV3Endpoints.TASKS + "/" + taskGuid, V3Task.class);
+        V3Task task = client.get(V3Uri.path(CloudControllerV3Endpoints.TASK_BY_GUID, taskGuid)
+                                      .build(), V3Task.class);
 
         return task == null ? null : V3TaskMapper.toCloudTask(task);
     }
@@ -42,8 +44,10 @@ public class TasksV3Operations {
     public List<CloudTask> getTasks(String applicationName) {
         UUID applicationGuid = getRequiredApplicationGuid(applicationName);
 
-        String query = CloudControllerV3Endpoints.TASKS + CloudControllerV3Endpoints.QUERY_PER_PAGE
-            + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE + CloudControllerV3Endpoints.AMPERSAND_APP_GUIDS + applicationGuid;
+        String query = V3Uri.path(CloudControllerV3Endpoints.TASKS)
+                            .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                            .query(V3QueryParameters.APP_GUIDS, applicationGuid)
+                            .build();
 
         List<V3Task> tasks = client.list(query, TASK_PAGE);
 
@@ -72,7 +76,7 @@ public class TasksV3Operations {
         List<V3GuidReference> apps = client.list(applicationsQuery, APP_PAGE);
 
         if (apps.isEmpty()) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
                                               MessageFormat.format(Messages.APPLICATION_0_NOT_FOUND, applicationName));
         }
 

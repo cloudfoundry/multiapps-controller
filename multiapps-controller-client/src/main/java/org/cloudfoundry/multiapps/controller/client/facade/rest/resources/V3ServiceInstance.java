@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * <pre>
  * { "guid": "...", "name": "...", "type": "managed|user-provided",
  *   "created_at": "...", "updated_at": "...",
- *   "tags": [...], "syslog_drain_url": "...",
+ *   "tags": [...], "syslog_drain_url": "...", "route_service_url": "...",
  *   "last_operation": { "type": "create|update|delete", "state": "succeeded|failed|in progress|initial", "description": "..." },
  *   "metadata": { "labels": {...}, "annotations": {...} },
  *   "relationships": { "space": { "data": { "guid": "..." } }, "service_plan": { "data": { "guid": "..." } } } }
@@ -21,8 +21,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record V3ServiceInstance(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty(V3Fields.NAME) String name,
                                 @JsonProperty(V3Fields.TYPE) String type,
                                 @JsonProperty(V3Fields.CREATED_AT) String createdAt, @JsonProperty(V3Fields.UPDATED_AT) String updatedAt,
-                                @JsonProperty("tags") List<String> tags, @JsonProperty("syslog_drain_url") String syslogDrainUrl,
-                                @JsonProperty("last_operation") V3LastOperation lastOperation,
+                                @JsonProperty(V3Fields.TAGS) List<String> tags,
+                                @JsonProperty(V3Fields.SYSLOG_DRAIN_URL) String syslogDrainUrl,
+                                @JsonProperty(V3Fields.ROUTE_SERVICE_URL) String routeServiceUrl,
+                                @JsonProperty(V3Fields.LAST_OPERATION) V3LastOperation lastOperation,
                                 @JsonProperty(V3Fields.METADATA) V3Metadata metadata,
                                 @JsonProperty(V3Fields.RELATIONSHIPS) V3Relationships relationships) {
 
@@ -33,7 +35,7 @@ public record V3ServiceInstance(@JsonProperty(V3Fields.GUID) String guid, @JsonP
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record V3Relationships(@JsonProperty(V3Fields.SPACE) V3ToOneRelationship space,
-                                  @JsonProperty("service_plan") V3ToOneRelationship servicePlan) {
+                                  @JsonProperty(V3Fields.SERVICE_PLAN) V3ToOneRelationship servicePlan) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

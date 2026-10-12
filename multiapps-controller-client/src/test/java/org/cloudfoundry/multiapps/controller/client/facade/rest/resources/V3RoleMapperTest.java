@@ -13,14 +13,14 @@ class V3RoleMapperTest {
                  "organization_manager,ORGANIZATION_MANAGER", "organization_user,ORGANIZATION_USER", "space_auditor,SPACE_AUDITOR",
                  "space_developer,SPACE_DEVELOPER", "space_manager,SPACE_MANAGER" })
     void testToUserRoleMapsEachType(String wireType, UserRole expected) {
-        V3Role role = new V3Role("guid", null, null, wireType);
+        V3Role role = new V3Role("guid", null, null, wireType, null);
 
         Assertions.assertEquals(expected, V3RoleMapper.toUserRole(role));
     }
 
     @Test
     void testToUserRoleWithUnknownTypeThrows() {
-        V3Role role = new V3Role("guid", null, null, "galactic_overlord");
+        V3Role role = new V3Role("guid", null, null, "galactic_overlord", null);
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> V3RoleMapper.toUserRole(role));
     }

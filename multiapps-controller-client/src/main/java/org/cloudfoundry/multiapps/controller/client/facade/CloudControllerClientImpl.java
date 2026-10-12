@@ -258,11 +258,6 @@ public class CloudControllerClientImpl implements CloudControllerClient {
     }
 
     @Override
-    public boolean getApplicationSshEnabled(UUID applicationGuid) {
-        return handleExceptions(() -> delegate.getApplicationSshEnabled(applicationGuid));
-    }
-
-    @Override
     public Map<String, Boolean> getApplicationFeatures(UUID applicationGuid) {
         return handleExceptions(() -> delegate.getApplicationFeatures(applicationGuid));
     }

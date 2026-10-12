@@ -23,6 +23,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ApplicationLog
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBroker;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudTask;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;
@@ -294,8 +295,8 @@ public class StepsUtil {
 
     public static void disableAutoscaling(ProcessContext context, CloudControllerClient client, UUID uuid) {
         String correlationId = context.getVariable(Variables.CORRELATION_ID);
-        Metadata metadata = Metadata.builder()
-                                    .label(MtaMetadataLabels.AUTOSCALER_LABEL,
+        Metadata metadata = ImmutableMetadata.builder()
+                                    .putLabel(MtaMetadataLabels.AUTOSCALER_LABEL,
                                            MessageFormat.format(Messages.DISABLE_AUTOSCALER_LABEL_CONTENT, correlationId))
                                     .build();
         client.updateApplicationMetadata(uuid, metadata);
@@ -303,8 +304,8 @@ public class StepsUtil {
 
     public static void enableAutoscaling(CloudControllerClient client, CloudApplication application) {
         UUID applicationId = client.getApplicationGuid(application.getName());
-        Metadata metadata = Metadata.builder()
-                                    .label(MtaMetadataLabels.AUTOSCALER_LABEL, null)
+        Metadata metadata = ImmutableMetadata.builder()
+                                    .putLabel(MtaMetadataLabels.AUTOSCALER_LABEL, null)
                                     .build();
         client.updateApplicationMetadata(applicationId, metadata);
     }

@@ -3,9 +3,9 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.text.MessageFormat;
 
 import jakarta.inject.Named;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.util.MtaMetadataUtil;
@@ -35,12 +35,12 @@ public class PrepareApplicationForBackupStep extends SyncFlowableStep {
         getStepLogger().info(Messages.RENAMING_APPLICATION_0_TO_1_TO_BE_USED_FOR_ROLLBACK, cloudApplication.getName(), newApplicationName);
         client.rename(cloudApplication.getName(), newApplicationName);
         String hashedMtaNamespace = MtaMetadataUtil.getHashedLabel(mtaUserNamespaceWithSystemNamespace);
-        client.updateApplicationMetadata(cloudApplication.getGuid(), Metadata.builder()
-                                                                             .from(cloudApplication.getV3Metadata())
-                                                                             .label(MtaMetadataLabels.MTA_NAMESPACE, hashedMtaNamespace)
-                                                                             .annotation(MtaMetadataAnnotations.MTA_NAMESPACE,
-                                                                                         mtaUserNamespaceWithSystemNamespace)
-                                                                             .build());
+        client.updateApplicationMetadata(cloudApplication.getGuid(), ImmutableMetadata.builder()
+                                                                                      .from(cloudApplication.getV3Metadata())
+                                                                                      .putLabel(MtaMetadataLabels.MTA_NAMESPACE, hashedMtaNamespace)
+                                                                                      .putAnnotation(MtaMetadataAnnotations.MTA_NAMESPACE,
+                                                                                                     mtaUserNamespaceWithSystemNamespace)
+                                                                                      .build());
 
         return StepPhase.DONE;
     }

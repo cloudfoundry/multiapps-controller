@@ -12,6 +12,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Audi
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3AuditEventMapper;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3GuidReference;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3QueryParameters;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 
@@ -19,10 +20,12 @@ public class EventsV3Operations {
 
     private static final ParameterizedTypeReference<V3ListResponse<V3AuditEvent>> EVENT_PAGE = new ParameterizedTypeReference<>() {
     };
+
     private static final ParameterizedTypeReference<V3ListResponse<V3GuidReference>> APP_PAGE = new ParameterizedTypeReference<>() {
     };
 
     private final CloudControllerV3Client client;
+
     private final CloudSpace targetSpace;
 
     public EventsV3Operations(CloudControllerV3Client client, CloudSpace targetSpace) {
@@ -31,16 +34,19 @@ public class EventsV3Operations {
     }
 
     public List<CloudEvent> getEvents() {
-        return client.list(CloudControllerV3Endpoints.AUDIT_EVENTS + CloudControllerV3Endpoints.QUERY_PER_PAGE
-                               + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, EVENT_PAGE)
+        return client.list(V3Uri.path(CloudControllerV3Endpoints.AUDIT_EVENTS)
+                                .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                                .build(), EVENT_PAGE)
                      .stream()
                      .map(V3AuditEventMapper::toCloudEvent)
                      .toList();
     }
 
     public List<CloudEvent> getEventsByTarget(UUID uuid) {
-        String query = CloudControllerV3Endpoints.AUDIT_EVENTS + CloudControllerV3Endpoints.QUERY_PER_PAGE
-            + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE + CloudControllerV3Endpoints.AMPERSAND_TARGET_GUIDS + uuid;
+        String query = V3Uri.path(CloudControllerV3Endpoints.AUDIT_EVENTS)
+                            .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                            .query(V3QueryParameters.TARGET_GUIDS, uuid)
+                            .build();
 
         return client.list(query, EVENT_PAGE)
                      .stream()
@@ -59,7 +65,7 @@ public class EventsV3Operations {
         List<V3GuidReference> apps = client.list(applicationsQuery, APP_PAGE);
 
         if (apps.isEmpty()) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
                                               MessageFormat.format(Messages.APPLICATION_0_NOT_FOUND, applicationName));
         }
 

@@ -3,8 +3,8 @@ package org.cloudfoundry.multiapps.controller.core.cf.v2;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata.Builder;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata.Builder;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.Constants;
@@ -18,7 +18,7 @@ public class ServiceMetadataBuilder {
         String mtaResourceAnnotation = buildMtaResourceAnnotation(resource);
 
         Builder builder = MtaMetadataBuilder.init(deploymentDescriptor, namespace)
-                                            .annotation(MtaMetadataAnnotations.MTA_RESOURCE, mtaResourceAnnotation);
+                                            .putAnnotation(MtaMetadataAnnotations.MTA_RESOURCE, mtaResourceAnnotation);
 
         return builder.build();
     }

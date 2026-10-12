@@ -20,7 +20,7 @@ class RolesV3OperationsTest {
 
     private static final UUID SPACE_GUID = UUID.fromString("11111111-2222-3333-4444-555555555555");
     private static final UUID USER_GUID = UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
-    private static final String ROLES_URI = "/v3/roles?per_page=5000&space_guids=" + SPACE_GUID + "&user_guids=" + USER_GUID;
+    private static final String ROLES_URI = "/v3/roles?per_page=50&space_guids=" + SPACE_GUID + "&user_guids=" + USER_GUID;
 
     @Mock
     private CloudSpace target;

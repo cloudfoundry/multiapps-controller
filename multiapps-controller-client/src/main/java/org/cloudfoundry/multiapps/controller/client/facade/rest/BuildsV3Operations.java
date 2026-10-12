@@ -12,6 +12,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Buil
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3BuildMapper;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Fields;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3QueryParameters;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 
@@ -28,16 +29,18 @@ public class BuildsV3Operations {
 
     public CloudBuild createBuild(UUID packageGuid) {
         V3Build build = client.postForObject(CloudControllerV3Endpoints.BUILDS,
-            Map.of(V3Fields.PACKAGE, Map.of(V3Fields.GUID, packageGuid.toString())), V3Build.class);
+                                             Map.of(V3Fields.PACKAGE, Map.of(V3Fields.GUID, packageGuid.toString())), V3Build.class);
 
         return V3BuildMapper.toCloudBuild(build);
     }
 
     public CloudBuild getBuild(UUID buildGuid) {
-        V3Build build = client.get(CloudControllerV3Endpoints.BUILDS + "/" + buildGuid, V3Build.class);
+        V3Build build = client.get(V3Uri.path(CloudControllerV3Endpoints.BUILD_BY_GUID, buildGuid)
+                                        .build(),
+                                   V3Build.class);
 
         if (build == null) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
                                               MessageFormat.format(Messages.BUILD_WITH_GUID_0_NOT_FOUND, buildGuid));
         }
 
@@ -45,8 +48,9 @@ public class BuildsV3Operations {
     }
 
     public List<CloudBuild> getBuildsForApplication(UUID applicationGuid) {
-        String uri = CloudControllerV3Endpoints.APPS + "/" + applicationGuid + "/builds" + CloudControllerV3Endpoints.QUERY_PER_PAGE
-            + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+        String uri = V3Uri.path(CloudControllerV3Endpoints.APP_BUILDS, applicationGuid)
+                          .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                          .build();
 
         return client.list(uri, BUILD_PAGE)
                      .stream()
@@ -55,8 +59,10 @@ public class BuildsV3Operations {
     }
 
     public List<CloudBuild> getBuildsForPackage(UUID packageGuid) {
-        String uri = CloudControllerV3Endpoints.BUILDS + CloudControllerV3Endpoints.QUERY_PACKAGE_GUIDS + packageGuid
-            + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+        String uri = V3Uri.path(CloudControllerV3Endpoints.BUILDS)
+                          .query(V3QueryParameters.PACKAGE_GUIDS, packageGuid)
+                          .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                          .build();
 
         return client.list(uri, BUILD_PAGE)
                      .stream()

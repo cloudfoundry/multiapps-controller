@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceBinding;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
@@ -102,8 +102,8 @@ class DetermineServiceDeleteActionsToExecuteStepTest extends SyncFlowableStepTes
         return ImmutableCloudServiceInstanceExtended.builder()
                                                     .isOptional(true)
                                                     .name(SERVICE_TO_DELETE)
-                                                    .v3Metadata(Metadata.builder()
-                                                                        .label("label-key", "label-value")
+                                                    .v3Metadata(ImmutableMetadata.builder()
+                                                                        .putLabel("label-key", "label-value")
                                                                         .build())
                                                     .build();
     }

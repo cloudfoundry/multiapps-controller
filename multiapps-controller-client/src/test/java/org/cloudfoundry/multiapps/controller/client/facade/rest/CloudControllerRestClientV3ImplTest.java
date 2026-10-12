@@ -34,13 +34,14 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloud
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceBroker;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudTask;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.InstancesInfo;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServicePlanVisibility;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.UserRole;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ImmutableApplicationToCreateDto;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,8 +70,8 @@ class CloudControllerRestClientV3ImplTest {
     private static final String OFFERING_GUID = "a1a1a1a1-b2b2-c3c3-d4d4-e5e5e5e5e5e5";
     private static final String PLAN_GUID = "f6f6f6f6-a7a7-b8b8-c9c9-d0d0d0d0d0d0";
     private static final String DOMAIN_NAME = "example.com";
-    private static final String APPS_BASE = MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000";
-    private static final String SI_BASE = MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=5000";
+    private static final String APPS_BASE = MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=50";
+    private static final String SI_BASE = MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=50";
     private static final String BINDINGS = MockControllerClientFactory.BASE_URL + "/v3/service_credential_bindings";
 
     @Mock
@@ -98,7 +99,7 @@ class CloudControllerRestClientV3ImplTest {
 
     @Test
     void testGetStackReturnsMappedStack() {
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/stacks?names=cflinuxfs4&per_page=5000", getStackListJson());
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/stacks?names=cflinuxfs4&per_page=50", getStackListJson());
 
         CloudStack result = client.getStack("cflinuxfs4");
 
@@ -108,7 +109,7 @@ class CloudControllerRestClientV3ImplTest {
 
     @Test
     void testGetStacksReturnsMappedList() {
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/stacks?per_page=5000", getStackListJson());
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/stacks?per_page=50", getStackListJson());
 
         List<CloudStack> result = client.getStacks();
 
@@ -118,7 +119,7 @@ class CloudControllerRestClientV3ImplTest {
 
     @Test
     void testGetDomainsReturnsMappedList() {
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?per_page=5000", getDomainListJson());
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?per_page=50", getDomainListJson());
 
         List<CloudDomain> result = client.getDomains();
 
@@ -130,7 +131,7 @@ class CloudControllerRestClientV3ImplTest {
 
     @Test
     void testGetSharedDomainsReturnsMappedList() {
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?per_page=5000", getDomainListJson());
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?per_page=50", getDomainListJson());
 
         List<CloudDomain> result = client.getSharedDomains();
 
@@ -253,7 +254,7 @@ class CloudControllerRestClientV3ImplTest {
 
     @Test
     void testGetEventsReturnsMappedList() {
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/audit_events?per_page=5000", getAuditEventListJson());
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/audit_events?per_page=50", getAuditEventListJson());
 
         List<CloudEvent> result = client.getEvents();
 
@@ -265,7 +266,7 @@ class CloudControllerRestClientV3ImplTest {
 
     @Test
     void testGetEventsByTargetReturnsMappedList() {
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/audit_events?per_page=5000"
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/audit_events?per_page=50"
                     + "&target_guids=" + APP_GUID, getAuditEventListJson());
 
         List<CloudEvent> result = client.getEventsByTarget(UUID.fromString(APP_GUID));
@@ -331,7 +332,7 @@ class CloudControllerRestClientV3ImplTest {
     void testGetTasksReturnsMappedList() {
         stubApplicationLookup();
 
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/tasks?per_page=5000&app_guids="
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/tasks?per_page=50&app_guids="
                     + APP_GUID, "{\"resources\":[" + getTaskJson() + "]}");
 
         List<CloudTask> result = client.getTasks("my-app");
@@ -353,7 +354,7 @@ class CloudControllerRestClientV3ImplTest {
     @Test
     void testGetBuildsForApplicationReturnsMappedList() {
         stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                    + "/builds?per_page=5000", "{\"resources\":[" + getBuildJson() + "]}");
+                    + "/builds?per_page=50", "{\"resources\":[" + getBuildJson() + "]}");
 
         List<CloudBuild> result = client.getBuildsForApplication(UUID.fromString(APP_GUID));
 
@@ -364,7 +365,7 @@ class CloudControllerRestClientV3ImplTest {
     @Test
     void testGetBuildsForPackageReturnsMappedList() {
         stubGet(MockControllerClientFactory.BASE_URL + "/v3/builds?package_guids=" + PACKAGE_GUID
-                    + "&per_page=5000", "{\"resources\":[" + getBuildJson() + "]}");
+                    + "&per_page=50", "{\"resources\":[" + getBuildJson() + "]}");
 
         List<CloudBuild> result = client.getBuildsForPackage(UUID.fromString(PACKAGE_GUID));
 
@@ -375,7 +376,7 @@ class CloudControllerRestClientV3ImplTest {
     @Test
     void testGetApplicationRoutesReturnsMappedList() {
         stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                    + "/routes?per_page=5000", "{\"resources\":[" + getRouteJson() + "]}");
+                    + "/routes?per_page=50", "{\"resources\":[" + getRouteJson() + "]}");
 
         List<CloudRoute> result = client.getApplicationRoutes(UUID.fromString(APP_GUID));
 
@@ -522,9 +523,25 @@ class CloudControllerRestClientV3ImplTest {
     void testUpdateApplicationMetadata() {
         stubMethod(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID, HttpMethod.PATCH);
 
-        client.updateApplicationMetadata(UUID.fromString(APP_GUID), Metadata.builder()
-                                                                            .label("key", "value")
-                                                                            .build());
+        client.updateApplicationMetadata(UUID.fromString(APP_GUID), ImmutableMetadata.builder()
+                                                                                     .putLabel("key", "value")
+                                                                                     .build());
+
+        factory.verify();
+    }
+
+    @Test
+    void testUpdateApplicationMetadataUnsetsLabelWhenValueIsNull() {
+        factory.server()
+               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID))
+               .andExpect(MockRestRequestMatchers.method(HttpMethod.PATCH))
+               .andExpect(MockRestRequestMatchers.content()
+                                                 .string(Matchers.containsString("\"obsolete\":null")))
+               .andRespond(MockRestResponseCreators.withSuccess());
+
+        client.updateApplicationMetadata(UUID.fromString(APP_GUID), ImmutableMetadata.builder()
+                                                                                     .putLabel("obsolete", null)
+                                                                                     .build());
 
         factory.verify();
     }
@@ -561,16 +578,8 @@ class CloudControllerRestClientV3ImplTest {
     }
 
     @Test
-    void testGetApplicationSshEnabled() {
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/ssh_enabled", "{\"enabled\":true}");
-
-        Assertions.assertTrue(client.getApplicationSshEnabled(UUID.fromString(APP_GUID)));
-        factory.verify();
-    }
-
-    @Test
     void testGetApplicationFeatures() {
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/features?per_page=5000",
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/features?per_page=50",
                 "{\"resources\":[{\"name\":\"ssh\",\"enabled\":true}]}");
 
         Map<String, Boolean> result = client.getApplicationFeatures(UUID.fromString(APP_GUID));
@@ -608,7 +617,7 @@ class CloudControllerRestClientV3ImplTest {
     @Test
     void testGetApplicationEvents() {
         stubApplicationLookup();
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/audit_events?per_page=5000&target_guids=" + APP_GUID,
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/audit_events?per_page=50&target_guids=" + APP_GUID,
                 getAuditEventListJson());
 
         List<CloudEvent> result = client.getApplicationEvents("my-app");
@@ -631,7 +640,7 @@ class CloudControllerRestClientV3ImplTest {
 
     @Test
     void testGetPrivateDomains() {
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?per_page=5000",
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?per_page=50",
                 "{\"resources\":[{\"guid\":\"" + APP_GUID + "\",\"name\":\"" + DOMAIN_NAME
                     + "\",\"relationships\":{\"organization\":{\"data\":{\"guid\":\"" + SPACE_GUID + "\"}}}}]}");
 
@@ -644,7 +653,7 @@ class CloudControllerRestClientV3ImplTest {
     @Test
     void testGetDomainsForOrganization() {
         stubTargetOrganization();
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/organizations/" + SPACE_GUID + "/domains?per_page=5000",
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/organizations/" + SPACE_GUID + "/domains?per_page=50",
                 getDomainListJson());
 
         List<CloudDomain> result = client.getDomainsForOrganization();
@@ -656,7 +665,7 @@ class CloudControllerRestClientV3ImplTest {
     @Test
     void testAddDomainCreatesWhenMissing() {
         stubTargetOrganization();
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + DOMAIN_NAME + "&per_page=5000",
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + DOMAIN_NAME + "&per_page=50",
                 "{\"resources\":[]}");
         stubMethod(MockControllerClientFactory.BASE_URL + "/v3/domains", HttpMethod.POST);
 
@@ -668,7 +677,7 @@ class CloudControllerRestClientV3ImplTest {
     @Test
     void testDeleteDomain() {
         stubTargetOrganization();
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + DOMAIN_NAME + "&per_page=5000", getDomainListJson());
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + DOMAIN_NAME + "&per_page=50", getDomainListJson());
         stubMethod(MockControllerClientFactory.BASE_URL + "/v3/domains/" + APP_GUID, HttpMethod.DELETE);
 
         client.deleteDomain(DOMAIN_NAME);
@@ -679,7 +688,7 @@ class CloudControllerRestClientV3ImplTest {
     @Test
     void testAddRoute() {
         when(target.getGuid()).thenReturn(UUID.fromString(SPACE_GUID));
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + DOMAIN_NAME + "&per_page=5000", getDomainListJson());
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + DOMAIN_NAME + "&per_page=50", getDomainListJson());
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/routes"))
                .andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
@@ -693,8 +702,8 @@ class CloudControllerRestClientV3ImplTest {
     @Test
     void testGetRoutes() {
         when(target.getGuid()).thenReturn(UUID.fromString(SPACE_GUID));
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + DOMAIN_NAME + "&per_page=5000", getDomainListJson());
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/routes?per_page=5000&domain_guids=" + APP_GUID + "&space_guids=" + SPACE_GUID,
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + DOMAIN_NAME + "&per_page=50", getDomainListJson());
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/routes?per_page=50&domain_guids=" + APP_GUID + "&space_guids=" + SPACE_GUID,
                 "{\"resources\":[" + getRouteJson() + "]}");
 
         List<CloudRoute> result = client.getRoutes(DOMAIN_NAME);
@@ -716,8 +725,8 @@ class CloudControllerRestClientV3ImplTest {
     @Test
     void testDeleteRoute() {
         when(target.getGuid()).thenReturn(UUID.fromString(SPACE_GUID));
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + DOMAIN_NAME + "&per_page=5000", getDomainListJson());
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/routes?per_page=5000&domain_guids=" + APP_GUID + "&space_guids=" + SPACE_GUID
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + DOMAIN_NAME + "&per_page=50", getDomainListJson());
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/routes?per_page=50&domain_guids=" + APP_GUID + "&space_guids=" + SPACE_GUID
                     + "&hosts=myhost&paths=/mypath", "{\"resources\":[" + getRouteJson() + "]}");
         stubMethod(MockControllerClientFactory.BASE_URL + "/v3/routes/" + APP_GUID, HttpMethod.DELETE);
 
@@ -730,10 +739,10 @@ class CloudControllerRestClientV3ImplTest {
     void testUpdateApplicationRoutesAddsRoute() {
         when(target.getGuid()).thenReturn(UUID.fromString(SPACE_GUID));
         stubGet(APPS_BASE + "&space_guids=" + SPACE_GUID + "&names=my-app", "{\"resources\":[{\"guid\":\"" + APP_GUID + "\"}]}");
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/routes?per_page=5000", "{\"resources\":[]}");
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + DOMAIN_NAME + "&per_page=5000",
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/routes?per_page=50", "{\"resources\":[]}");
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + DOMAIN_NAME + "&per_page=50",
                 "{\"resources\":[{\"guid\":\"" + APP_GUID + "\",\"name\":\"" + DOMAIN_NAME + "\"}]}");
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/routes?per_page=5000&domain_guids=" + APP_GUID + "&space_guids=" + SPACE_GUID
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/routes?per_page=50&domain_guids=" + APP_GUID + "&space_guids=" + SPACE_GUID
                     + "&hosts=myhost&paths=/mypath", "{\"resources\":[]}");
 
         factory.server()
@@ -783,9 +792,9 @@ class CloudControllerRestClientV3ImplTest {
     @Test
     void testCreateServiceInstance() {
         stubTargetSpaceMetadata();
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_offerings?per_page=5000&space_guids=" + SPACE_GUID
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_offerings?per_page=50&space_guids=" + SPACE_GUID
                     + "&names=my-offering", "{\"resources\":[{\"guid\":\"" + OFFERING_GUID + "\",\"name\":\"my-offering\"}]}");
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_plans?per_page=5000&service_offering_guids=" + OFFERING_GUID
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_plans?per_page=50&service_offering_guids=" + OFFERING_GUID
                     + "&names=my-plan", "{\"resources\":[{\"guid\":\"" + PLAN_GUID + "\",\"name\":\"my-plan\"}]}");
         stubMethod(MockControllerClientFactory.BASE_URL + "/v3/service_instances", HttpMethod.POST);
 
@@ -937,9 +946,26 @@ class CloudControllerRestClientV3ImplTest {
     void testUpdateServiceInstanceMetadata() {
         stubMethod(MockControllerClientFactory.BASE_URL + "/v3/service_instances/" + SERVICE_INSTANCE_GUID, HttpMethod.PATCH);
 
-        client.updateServiceInstanceMetadata(UUID.fromString(SERVICE_INSTANCE_GUID), Metadata.builder()
-                                                                                             .label("k", "v")
-                                                                                             .build());
+        client.updateServiceInstanceMetadata(UUID.fromString(SERVICE_INSTANCE_GUID), ImmutableMetadata.builder()
+                                                                                                      .putLabel("k", "v")
+                                                                                                      .build());
+
+        factory.verify();
+    }
+
+    @Test
+    void testUpdateServiceInstanceMetadataUnsetsAnnotationWhenValueIsNull() {
+        factory.server()
+               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_instances/"
+                                                             + SERVICE_INSTANCE_GUID))
+               .andExpect(MockRestRequestMatchers.method(HttpMethod.PATCH))
+               .andExpect(MockRestRequestMatchers.content()
+                                                 .string(Matchers.containsString("\"obsolete\":null")))
+               .andRespond(MockRestResponseCreators.withSuccess());
+
+        client.updateServiceInstanceMetadata(UUID.fromString(SERVICE_INSTANCE_GUID), ImmutableMetadata.builder()
+                                                                                                      .putAnnotation("obsolete", null)
+                                                                                                      .build());
 
         factory.verify();
     }
@@ -973,7 +999,7 @@ class CloudControllerRestClientV3ImplTest {
 
     @Test
     void testGetServiceBinding() {
-        stubGet(BINDINGS + "?guids=" + BINDING_GUID + "&per_page=5000",
+        stubGet(BINDINGS + "?guids=" + BINDING_GUID + "&per_page=50",
                 "{\"resources\":[" + getBindingJson() + "]}");
 
         CloudServiceBinding result = client.getServiceBinding(UUID.fromString(BINDING_GUID));
@@ -984,7 +1010,7 @@ class CloudControllerRestClientV3ImplTest {
 
     @Test
     void testGetServiceAppBindings() {
-        stubGet(BINDINGS + "?service_instance_guids=" + SERVICE_INSTANCE_GUID + "&type=app&per_page=5000",
+        stubGet(BINDINGS + "?service_instance_guids=" + SERVICE_INSTANCE_GUID + "&type=app&per_page=50",
                 "{\"resources\":[" + getBindingJson() + "]}");
 
         List<CloudServiceBinding> result = client.getServiceAppBindings(UUID.fromString(SERVICE_INSTANCE_GUID));
@@ -995,7 +1021,7 @@ class CloudControllerRestClientV3ImplTest {
 
     @Test
     void testGetAppBindings() {
-        stubGet(BINDINGS + "?app_guids=" + APP_GUID + "&per_page=5000", "{\"resources\":[" + getBindingJson() + "]}");
+        stubGet(BINDINGS + "?app_guids=" + APP_GUID + "&per_page=50", "{\"resources\":[" + getBindingJson() + "]}");
 
         List<CloudServiceBinding> result = client.getAppBindings(UUID.fromString(APP_GUID));
 
@@ -1005,7 +1031,7 @@ class CloudControllerRestClientV3ImplTest {
 
     @Test
     void testGetServiceBindingsForApplication() {
-        stubGet(BINDINGS + "?app_guids=" + APP_GUID + "&service_instance_guids=" + SERVICE_INSTANCE_GUID + "&per_page=5000",
+        stubGet(BINDINGS + "?app_guids=" + APP_GUID + "&service_instance_guids=" + SERVICE_INSTANCE_GUID + "&per_page=50",
                 "{\"resources\":[" + getBindingJson() + "]}");
 
         List<CloudServiceBinding> result = client.getServiceBindingsForApplication(UUID.fromString(APP_GUID),
@@ -1029,9 +1055,25 @@ class CloudControllerRestClientV3ImplTest {
     void testUpdateServiceBindingMetadata() {
         stubMethod(BINDINGS + "/" + BINDING_GUID, HttpMethod.PATCH);
 
-        client.updateServiceBindingMetadata(UUID.fromString(BINDING_GUID), Metadata.builder()
-                                                                                   .label("k", "v")
-                                                                                   .build());
+        client.updateServiceBindingMetadata(UUID.fromString(BINDING_GUID), ImmutableMetadata.builder()
+                                                                                            .putLabel("k", "v")
+                                                                                            .build());
+
+        factory.verify();
+    }
+
+    @Test
+    void testUpdateServiceBindingMetadataUnsetsLabelWhenValueIsNull() {
+        factory.server()
+               .expect(MockRestRequestMatchers.requestTo(BINDINGS + "/" + BINDING_GUID))
+               .andExpect(MockRestRequestMatchers.method(HttpMethod.PATCH))
+               .andExpect(MockRestRequestMatchers.content()
+                                                 .string(Matchers.containsString("\"obsolete\":null")))
+               .andRespond(MockRestResponseCreators.withSuccess());
+
+        client.updateServiceBindingMetadata(UUID.fromString(BINDING_GUID), ImmutableMetadata.builder()
+                                                                                            .putLabel("obsolete", null)
+                                                                                            .build());
 
         factory.verify();
     }
@@ -1052,7 +1094,7 @@ class CloudControllerRestClientV3ImplTest {
         stubGet(APPS_BASE + "&space_guids=" + SPACE_GUID + "&names=my-app", getAppListJson());
         stubGet(SI_BASE + "&space_guids=" + SPACE_GUID + "&names=my-service",
                 "{\"resources\":[" + getServiceInstanceJson() + "]}");
-        stubGet(BINDINGS + "?app_guids=" + APP_GUID + "&service_instance_guids=" + SERVICE_INSTANCE_GUID + "&per_page=5000",
+        stubGet(BINDINGS + "?app_guids=" + APP_GUID + "&service_instance_guids=" + SERVICE_INSTANCE_GUID + "&per_page=50",
                 "{\"resources\":[" + getBindingJson() + "]}");
         stubMethod(BINDINGS + "/" + BINDING_GUID, HttpMethod.DELETE);
 
@@ -1064,7 +1106,7 @@ class CloudControllerRestClientV3ImplTest {
 
     @Test
     void testUnbindServiceInstanceByGuid() {
-        stubGet(BINDINGS + "?app_guids=" + APP_GUID + "&service_instance_guids=" + SERVICE_INSTANCE_GUID + "&per_page=5000",
+        stubGet(BINDINGS + "?app_guids=" + APP_GUID + "&service_instance_guids=" + SERVICE_INSTANCE_GUID + "&per_page=50",
                 "{\"resources\":[" + getBindingJson() + "]}");
         stubMethod(BINDINGS + "/" + BINDING_GUID, HttpMethod.DELETE);
 
@@ -1079,7 +1121,7 @@ class CloudControllerRestClientV3ImplTest {
         stubServiceInstanceLookupWithPlan();
         stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_plans/" + PLAN_GUID, "{\"guid\":\"" + PLAN_GUID
             + "\",\"name\":\"my-plan\"}");
-        stubGet(BINDINGS + "?per_page=5000&type=key&service_instance_guids=" + SERVICE_INSTANCE_GUID + "&names=my-key",
+        stubGet(BINDINGS + "?per_page=50&type=key&service_instance_guids=" + SERVICE_INSTANCE_GUID + "&names=my-key",
                 "{\"resources\":[" + getServiceKeyJson() + "]}");
         stubGet(BINDINGS + "/" + SERVICE_KEY_GUID + "/details", "{\"credentials\":{\"user\":\"admin\"}}");
 
@@ -1095,7 +1137,7 @@ class CloudControllerRestClientV3ImplTest {
         stubServiceInstanceLookupWithPlan();
         stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_plans/" + PLAN_GUID, "{\"guid\":\"" + PLAN_GUID
             + "\",\"name\":\"my-plan\"}");
-        stubGet(BINDINGS + "?per_page=5000&type=key&service_instance_guids=" + SERVICE_INSTANCE_GUID,
+        stubGet(BINDINGS + "?per_page=50&type=key&service_instance_guids=" + SERVICE_INSTANCE_GUID,
                 "{\"resources\":[" + getServiceKeyJson() + "]}");
 
         List<CloudServiceKey> result = client.getServiceKeys("my-service");
@@ -1135,7 +1177,7 @@ class CloudControllerRestClientV3ImplTest {
 
     @Test
     void testGetServiceBroker() {
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_brokers?names=my-broker&per_page=5000", getBrokerListJson());
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_brokers?names=my-broker&per_page=50", getBrokerListJson());
 
         CloudServiceBroker result = client.getServiceBroker("my-broker");
 
@@ -1145,7 +1187,7 @@ class CloudControllerRestClientV3ImplTest {
 
     @Test
     void testGetServiceBrokerWithRequiredFlag() {
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_brokers?names=my-broker&per_page=5000", getBrokerListJson());
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_brokers?names=my-broker&per_page=50", getBrokerListJson());
 
         Assertions.assertNotNull(client.getServiceBroker("my-broker", false));
         factory.verify();
@@ -1153,7 +1195,7 @@ class CloudControllerRestClientV3ImplTest {
 
     @Test
     void testGetServiceBrokers() {
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_brokers?per_page=5000", getBrokerListJson());
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_brokers?per_page=50", getBrokerListJson());
 
         List<CloudServiceBroker> result = client.getServiceBrokers();
 
@@ -1163,7 +1205,7 @@ class CloudControllerRestClientV3ImplTest {
 
     @Test
     void testUpdateServiceBroker() {
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_brokers?names=my-broker&per_page=5000", getBrokerListJson());
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_brokers?names=my-broker&per_page=50", getBrokerListJson());
         stubMethod(MockControllerClientFactory.BASE_URL + "/v3/service_brokers/" + BROKER_GUID, HttpMethod.PATCH);
 
         CloudServiceBroker broker = ImmutableCloudServiceBroker.builder()
@@ -1178,7 +1220,7 @@ class CloudControllerRestClientV3ImplTest {
 
     @Test
     void testDeleteServiceBroker() {
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_brokers?names=my-broker&per_page=5000", getBrokerListJson());
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_brokers?names=my-broker&per_page=50", getBrokerListJson());
         stubMethod(MockControllerClientFactory.BASE_URL + "/v3/service_brokers/" + BROKER_GUID, HttpMethod.DELETE);
 
         Assertions.assertNull(client.deleteServiceBroker("my-broker"));
@@ -1188,10 +1230,10 @@ class CloudControllerRestClientV3ImplTest {
     @Test
     void testUpdateServicePlanVisibilityForBroker() {
         stubTargetSpaceMetadata();
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_brokers?names=my-broker&per_page=5000", getBrokerListJson());
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_brokers?names=my-broker&per_page=50", getBrokerListJson());
         stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_offerings?service_broker_guids=" + BROKER_GUID + "&space_guids="
-                    + SPACE_GUID + "&per_page=5000", "{\"resources\":[{\"guid\":\"" + OFFERING_GUID + "\"}]}");
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_plans?service_offering_guids=" + OFFERING_GUID + "&per_page=5000",
+                    + SPACE_GUID + "&per_page=50", "{\"resources\":[{\"guid\":\"" + OFFERING_GUID + "\"}]}");
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_plans?service_offering_guids=" + OFFERING_GUID + "&per_page=50",
                 "{\"resources\":[{\"guid\":\"" + PLAN_GUID + "\"}]}");
         stubMethod(MockControllerClientFactory.BASE_URL + "/v3/service_plans/" + PLAN_GUID + "/visibility", HttpMethod.PATCH);
 
@@ -1202,10 +1244,10 @@ class CloudControllerRestClientV3ImplTest {
 
     @Test
     void testGetServiceOfferings() {
-        when(target.getGuid()).thenReturn(UUID.fromString(SPACE_GUID));
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_offerings?per_page=5000&space_guids=" + SPACE_GUID,
+        when(target.getMetadata()).thenReturn(ImmutableCloudMetadata.of(UUID.fromString(SPACE_GUID)));
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_offerings?per_page=50&space_guids=" + SPACE_GUID,
                 "{\"resources\":[{\"guid\":\"" + OFFERING_GUID + "\",\"name\":\"my-offering\"}]}");
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_plans?service_offering_guids=" + OFFERING_GUID + "&per_page=5000",
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_plans?service_offering_guids=" + OFFERING_GUID + "&per_page=50",
                 "{\"resources\":[{\"guid\":\"" + PLAN_GUID + "\",\"name\":\"my-plan\"}]}");
 
         List<CloudServiceOffering> result = client.getServiceOfferings();
@@ -1272,7 +1314,7 @@ class CloudControllerRestClientV3ImplTest {
 
     @Test
     void testGetPackagesForApplication() {
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/packages?per_page=5000",
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/packages?per_page=50",
                 "{\"resources\":[" + getPackageJson() + "]}");
 
         List<CloudPackage> result = client.getPackagesForApplication(UUID.fromString(APP_GUID));
@@ -1283,7 +1325,7 @@ class CloudControllerRestClientV3ImplTest {
 
     @Test
     void testGetUserRolesBySpaceAndUser() {
-        stubGet(MockControllerClientFactory.BASE_URL + "/v3/roles?per_page=5000&space_guids=" + SPACE_GUID + "&user_guids=" + APP_GUID,
+        stubGet(MockControllerClientFactory.BASE_URL + "/v3/roles?per_page=50&space_guids=" + SPACE_GUID + "&user_guids=" + APP_GUID,
                 "{\"resources\":[{\"guid\":\"" + BINDING_GUID + "\",\"type\":\"space_developer\"}]}");
 
         Set<UserRole> result = client.getUserRolesBySpaceAndUser(UUID.fromString(SPACE_GUID), UUID.fromString(APP_GUID));
@@ -1311,7 +1353,7 @@ class CloudControllerRestClientV3ImplTest {
     private void stubServiceInstanceLookup() {
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(
-                   MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=5000&space_guids=" + SPACE_GUID
+                   MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=50&space_guids=" + SPACE_GUID
                        + "&names=my-service"))
                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
                .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[" + getServiceInstanceJson() + "]}",
@@ -1321,7 +1363,7 @@ class CloudControllerRestClientV3ImplTest {
     private void stubServiceInstanceLookupWithPlan() {
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(
-                   MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=5000&space_guids=" + SPACE_GUID
+                   MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=50&space_guids=" + SPACE_GUID
                        + "&names=my-service"))
                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
                .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[" + getServiceInstanceWithPlanJson() + "]}",

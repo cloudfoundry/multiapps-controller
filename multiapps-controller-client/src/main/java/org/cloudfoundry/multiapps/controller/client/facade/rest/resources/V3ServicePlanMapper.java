@@ -1,11 +1,11 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest.resources;
 
+import java.util.Map;
+
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServicePlan;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServicePlan;
 
 public final class V3ServicePlanMapper {
-    
-    private static final String PUBLIC_VISIBILITY = "public";
 
     private V3ServicePlanMapper() {
     }
@@ -25,7 +25,7 @@ public final class V3ServicePlanMapper {
                                         .build();
     }
 
-    private static java.util.Map<String, Object> extractBrokerCatalogMetadata(V3ServicePlan.V3BrokerCatalog brokerCatalog) {
+    private static Map<String, Object> extractBrokerCatalogMetadata(V3ServicePlan.V3BrokerCatalog brokerCatalog) {
         return brokerCatalog == null ? null : brokerCatalog.metadata();
     }
 
@@ -45,7 +45,7 @@ public final class V3ServicePlanMapper {
     }
 
     private static Boolean isPublic(String visibilityType) {
-        return visibilityType == null ? null : PUBLIC_VISIBILITY.equals(visibilityType);
+        return visibilityType == null ? null : V3Fields.PUBLIC_VISIBILITY.equals(visibilityType);
     }
 
 }

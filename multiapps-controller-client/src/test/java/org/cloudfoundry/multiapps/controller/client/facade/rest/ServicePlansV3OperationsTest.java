@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServicePlanVisibility;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,8 +57,8 @@ class ServicePlansV3OperationsTest {
 
     @Test
     void testUpdateServicePlanVisibilityForBrokerAppendsSpaceGuidWhenTargetHasGuid() {
-        when(target.getGuid())
-            .thenReturn(SPACE_GUID);
+        when(target.getMetadata())
+            .thenReturn(ImmutableCloudMetadata.of(SPACE_GUID));
         stubBrokerLookup("{\"resources\":[{\"guid\":\"" + BROKER_GUID + "\"}]}");
         stubOfferingLookup(SPACE_GUID, "{\"resources\":[{\"guid\":\"" + OFFERING_GUID + "\"}]}");
         stubPlanLookup("{\"resources\":[{\"guid\":\"" + PLAN_GUID + "\"}]}");
@@ -105,13 +106,13 @@ class ServicePlansV3OperationsTest {
     }
 
     private void stubBrokerLookup(String responseJson) {
-        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_brokers?names=" + BROKER_NAME + "&per_page=5000",
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_brokers?names=" + BROKER_NAME + "&per_page=50",
                         responseJson);
     }
 
     private void stubOfferingLookup(UUID spaceGuid, String responseJson) {
         String uri = MockControllerClientFactory.BASE_URL + "/v3/service_offerings?service_broker_guids=" + BROKER_GUID
-            + "&per_page=5000";
+            + "&per_page=50";
 
         if (spaceGuid != null) {
             uri = uri + "&space_guids=" + spaceGuid;
@@ -122,7 +123,7 @@ class ServicePlansV3OperationsTest {
 
     private void stubPlanLookup(String responseJson) {
         factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_plans?service_offering_guids=" + OFFERING_GUID
-            + "&per_page=5000", responseJson);
+            + "&per_page=50", responseJson);
     }
 
     private void stubVisibilityPatch(String planGuid) {

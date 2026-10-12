@@ -2,8 +2,8 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.UUID;
 
-import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -33,8 +33,8 @@ class DeleteServiceMtaMetadataStepTest extends SyncFlowableStepTest<DeleteServic
         return ImmutableCloudServiceInstanceExtended.builder()
                                                     .name(SERVICE_INSTANCE_NAME)
                                                     .metadata(ImmutableCloudMetadata.of(SERVICE_INSTANCE_GUID))
-                                                    .v3Metadata(Metadata.builder()
-                                                                        .annotation("key", "value")
+                                                    .v3Metadata(ImmutableMetadata.builder()
+                                                                        .putAnnotation("key", "value")
                                                                         .build())
                                                     .build();
     }

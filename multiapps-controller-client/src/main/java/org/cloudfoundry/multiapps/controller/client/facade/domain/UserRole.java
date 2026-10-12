@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.multiapps.controller.Messages;
+import org.cloudfoundry.multiapps.controller.client.facade.Messages;
 
 public enum UserRole {
 

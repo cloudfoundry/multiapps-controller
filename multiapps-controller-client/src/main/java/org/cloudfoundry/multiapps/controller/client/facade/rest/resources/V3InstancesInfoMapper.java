@@ -32,9 +32,9 @@ public final class V3InstancesInfoMapper {
 
     private static InstanceInfo parseProcessStatistic(V3Process.V3ProcessStatsResource statsResource) {
         return ImmutableInstanceInfo.builder()
-                                    .index(statsResource.index())
+                                    .index(statsResource.index() == null ? 0 : statsResource.index())
                                     .state(InstanceState.valueOfWithDefault(statsResource.state()))
-                                    .isRoutable(Boolean.parseBoolean(statsResource.routable()))
+                                    .isRoutable(statsResource.routable() != null && Boolean.parseBoolean(statsResource.routable()))
                                     .build();
     }
 

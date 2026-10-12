@@ -63,7 +63,7 @@ public final class V3PackageMapper {
     }
 
     private static CloudPackage.PackageData parseDockerData(V3Package.V3PackageData data) {
-        if (data == null) {
+        if (data == null || data.image() == null) {
             return null;
         }
 

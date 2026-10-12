@@ -193,11 +193,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public boolean getApplicationSshEnabled(UUID applicationGuid) {
-        return executeWithRetry(() -> delegate.getApplicationSshEnabled(applicationGuid));
-    }
-
-    @Override
     public Map<String, Boolean> getApplicationFeatures(UUID applicationGuid) {
         return executeWithRetry(() -> delegate.getApplicationFeatures(applicationGuid));
     }

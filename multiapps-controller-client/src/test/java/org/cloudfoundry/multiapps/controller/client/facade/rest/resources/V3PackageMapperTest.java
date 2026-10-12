@@ -16,7 +16,7 @@ class V3PackageMapperTest {
     @Test
     void testToCloudPackageMapsBitsPackage() {
         V3PackageData data = new V3PackageData(new V3Checksum("sha256", "abc123"), "no error", null, null, null);
-        V3Package resource = new V3Package(GUID_STRING, "bits", "READY", null, null, data);
+        V3Package resource = new V3Package(GUID_STRING, "bits", "READY", null, null, data, null, null);
 
         CloudPackage result = V3PackageMapper.toCloudPackage(resource);
 
@@ -33,7 +33,7 @@ class V3PackageMapperTest {
     @Test
     void testToCloudPackageMapsDockerPackage() {
         V3PackageData data = new V3PackageData(null, null, "my/image:latest", "user", "pass");
-        V3Package resource = new V3Package(GUID_STRING, "docker", "READY", null, null, data);
+        V3Package resource = new V3Package(GUID_STRING, "docker", "READY", null, null, data, null, null);
 
         CloudPackage result = V3PackageMapper.toCloudPackage(resource);
 
@@ -45,7 +45,7 @@ class V3PackageMapperTest {
 
     @Test
     void testToCloudPackageNullStateReturnsNullStatus() {
-        V3Package resource = new V3Package(GUID_STRING, "bits", null, null, null, null);
+        V3Package resource = new V3Package(GUID_STRING, "bits", null, null, null, null, null, null);
 
         Assertions.assertNull(V3PackageMapper.toCloudPackage(resource)
                                              .getStatus());
@@ -53,7 +53,7 @@ class V3PackageMapperTest {
 
     @Test
     void testToCloudPackageNullTypeReturnsNullType() {
-        V3Package resource = new V3Package(GUID_STRING, null, "READY", null, null, null);
+        V3Package resource = new V3Package(GUID_STRING, null, "READY", null, null, null, null, null);
 
         Assertions.assertNull(V3PackageMapper.toCloudPackage(resource)
                                              .getType());
@@ -61,7 +61,7 @@ class V3PackageMapperTest {
 
     @Test
     void testToCloudPackageBitsPackageWithNullDataReturnsEmptyBitsData() {
-        V3Package resource = new V3Package(GUID_STRING, "bits", "READY", null, null, null);
+        V3Package resource = new V3Package(GUID_STRING, "bits", "READY", null, null, null, null, null);
 
         BitsData bitsData = (BitsData) V3PackageMapper.toCloudPackage(resource)
                                                       .getData();
@@ -73,13 +73,24 @@ class V3PackageMapperTest {
     @Test
     void testToCloudPackageBitsPackageWithNullChecksumReturnsNullChecksum() {
         V3PackageData data = new V3PackageData(null, "err", null, null, null);
-        V3Package resource = new V3Package(GUID_STRING, "bits", "READY", null, null, data);
+        V3Package resource = new V3Package(GUID_STRING, "bits", "READY", null, null, data, null, null);
 
         BitsData bitsData = (BitsData) V3PackageMapper.toCloudPackage(resource)
                                                       .getData();
 
         Assertions.assertNull(bitsData.getChecksum());
         Assertions.assertEquals("err", bitsData.getError());
+    }
+
+    @Test
+    void testToCloudPackageDockerPackageWithNullImageDoesNotThrow() {
+        V3PackageData data = new V3PackageData(null, null, null, "user", "pass");
+        V3Package resource = new V3Package(GUID_STRING, "docker", "READY", null, null, data, null, null);
+
+        CloudPackage result = Assertions.assertDoesNotThrow(() -> V3PackageMapper.toCloudPackage(resource));
+
+        Assertions.assertEquals(CloudPackage.Type.DOCKER, result.getType());
+        Assertions.assertNull(result.getData());
     }
 
 }

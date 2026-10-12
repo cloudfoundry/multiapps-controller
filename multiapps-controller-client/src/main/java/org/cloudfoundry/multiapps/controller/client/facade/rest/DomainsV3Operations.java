@@ -15,6 +15,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Doma
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3DomainMapper;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Fields;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3QueryParameters;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ public class DomainsV3Operations {
     };
 
     private final CloudControllerV3Client client;
+
     private final CloudSpace targetSpace;
 
     public DomainsV3Operations(CloudControllerV3Client client, CloudSpace targetSpace) {
@@ -48,7 +50,7 @@ public class DomainsV3Operations {
         CloudDomain domain = findDomainByName(domainName);
 
         if (domain == null) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
                                               MessageFormat.format(Messages.DOMAIN_0_NOT_FOUND, domainName));
         }
 
@@ -57,11 +59,12 @@ public class DomainsV3Operations {
 
     public CloudDomain getDefaultDomain() {
         UUID organizationGuid = OperationsUtil.getGuid(targetSpace.getOrganization());
-        V3Domain domain = client.get(CloudControllerV3Endpoints.ORGANIZATIONS + "/" + organizationGuid + "/domains/default",
+        V3Domain domain = client.get(V3Uri.path(CloudControllerV3Endpoints.ORGANIZATION_DEFAULT_DOMAIN, organizationGuid)
+                                          .build(),
                                      V3Domain.class);
 
         if (domain == null) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
                                               MessageFormat.format(Messages.DOMAIN_WITH_GUID_0_NOT_FOUND, organizationGuid));
         }
 
@@ -91,8 +94,9 @@ public class DomainsV3Operations {
         assertSpaceProvided("access organization domains");
         UUID targetOrganizationGuid = OperationsUtil.getGuid(targetSpace.getOrganization());
 
-        String uri = CloudControllerV3Endpoints.ORGANIZATIONS + "/" + targetOrganizationGuid + "/domains"
-            + CloudControllerV3Endpoints.QUERY_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+        String uri = V3Uri.path(CloudControllerV3Endpoints.ORGANIZATION_DOMAINS, targetOrganizationGuid)
+                          .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                          .build();
 
         return client.list(uri, DOMAIN_PAGE)
                      .stream()
@@ -101,13 +105,16 @@ public class DomainsV3Operations {
     }
 
     private List<V3Domain> getAllDomains() {
-        return client.list(CloudControllerV3Endpoints.DOMAINS + CloudControllerV3Endpoints.QUERY_PER_PAGE
-                               + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, DOMAIN_PAGE);
+        return client.list(V3Uri.path(CloudControllerV3Endpoints.DOMAINS)
+                                .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                                .build(), DOMAIN_PAGE);
     }
 
     private CloudDomain findDomainByName(String name) {
-        String uri = CloudControllerV3Endpoints.DOMAINS + CloudControllerV3Endpoints.QUERY_NAMES + name
-            + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+        String uri = V3Uri.path(CloudControllerV3Endpoints.DOMAINS)
+                          .query(V3QueryParameters.NAMES, name)
+                          .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                          .build();
 
         return client.list(uri, DOMAIN_PAGE)
                      .stream()
@@ -119,7 +126,7 @@ public class DomainsV3Operations {
     private void createDomain(String name) {
         UUID organizationGuid = OperationsUtil.getGuid(targetSpace.getOrganization());
         if (organizationGuid == null) {
-            throw new CloudOperationException(HttpStatus.BAD_REQUEST, Messages.BAD_REQUEST,
+            throw new CloudOperationException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.getReasonPhrase(),
                                               MessageFormat.format(Messages.CANNOT_CREATE_DOMAIN_0_WITHOUT_ORGANIZATION, name));
         }
 

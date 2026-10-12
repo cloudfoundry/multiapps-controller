@@ -9,6 +9,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceInstance;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceInstanceType;
 import org.junit.jupiter.api.Assertions;
@@ -309,8 +310,8 @@ class ServiceInstancesV3OperationsTest {
     void testUpdateServiceInstanceMetadataUpdates() {
         factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/service_instances/" + GUID_STRING, HttpMethod.PATCH);
 
-        Metadata metadata = Metadata.builder()
-                                    .label("key", "value")
+        Metadata metadata = ImmutableMetadata.builder()
+                                    .putLabel("key", "value")
                                     .build();
 
         operations.updateServiceInstanceMetadata(UUID.fromString(GUID_STRING), metadata);
@@ -329,7 +330,7 @@ class ServiceInstancesV3OperationsTest {
 
     @Test
     void testGetServiceInstancesByMetadataLabelSelectorMapsUserProvided() {
-        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=5000"
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=50"
                             + "&space_guids=" + SPACE_GUID + "&label_selector=env",
                         "{\"resources\":[" + getUserProvidedInstanceJson("ups-1") + "]}");
 
@@ -343,7 +344,7 @@ class ServiceInstancesV3OperationsTest {
 
     @Test
     void testGetServiceInstancesByMetadataLabelSelectorReturnsEmpty() {
-        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=5000"
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=50"
                             + "&space_guids=" + SPACE_GUID + "&label_selector=env", "{\"resources\":[]}");
 
         List<CloudServiceInstance> result = operations.getServiceInstancesByMetadataLabelSelector("env");
@@ -354,7 +355,7 @@ class ServiceInstancesV3OperationsTest {
 
     @Test
     void testGetServiceInstancesWithoutAuxiliaryContentByMetadataLabelSelectorMaps() {
-        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=5000"
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=50"
                             + "&space_guids=" + SPACE_GUID + "&label_selector=env",
                         "{\"resources\":[" + getManagedInstanceJson("mi-1") + "]}");
 
@@ -370,7 +371,7 @@ class ServiceInstancesV3OperationsTest {
 
     @Test
     void testGetServiceInstancesWithoutAuxiliaryContentByNames() {
-        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=5000"
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=50"
                             + "&space_guids=" + SPACE_GUID + "&names=my-service",
                         "{\"resources\":[" + getManagedInstanceJson("my-service") + "]}");
 
@@ -393,19 +394,19 @@ class ServiceInstancesV3OperationsTest {
     private void stubServiceInstanceLookup(String name, String instanceJson) {
         String body = instanceJson == null ? "{\"resources\":[]}" : "{\"resources\":[" + instanceJson + "]}";
 
-        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=5000"
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=50"
                             + "&space_guids=" + SPACE_GUID + "&names=" + name, body);
     }
 
     private void stubOfferingLookup(String label, String broker) {
-        String uri = MockControllerClientFactory.BASE_URL + "/v3/service_offerings?per_page=5000&space_guids=" + SPACE_GUID + "&names="
+        String uri = MockControllerClientFactory.BASE_URL + "/v3/service_offerings?per_page=50&space_guids=" + SPACE_GUID + "&names="
             + label + (broker == null ? "" : "&service_broker_names=" + broker);
 
         factory.stubGet(uri, "{\"resources\":[{\"guid\":\"" + OFFERING_GUID + "\",\"name\":\"" + label + "\"}]}");
     }
 
     private void stubPlanLookup(String planName) {
-        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_plans?per_page=5000"
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_plans?per_page=50"
                             + "&service_offering_guids=" + OFFERING_GUID + "&names=" + planName,
                         "{\"resources\":[{\"guid\":\"" + PLAN_GUID + "\",\"name\":\"" + planName + "\"}]}");
     }

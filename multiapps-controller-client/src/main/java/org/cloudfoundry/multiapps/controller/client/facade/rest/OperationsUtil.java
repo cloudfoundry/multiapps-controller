@@ -47,17 +47,13 @@ public class OperationsUtil {
         Map<String, Object> body = new HashMap<>();
         body.put(V3Fields.NAME, dto.getName());
         body.put(V3Fields.LIFECYCLE, buildLifecycle(dto.getStaging()));
-        body.put(V3Fields.RELATIONSHIPS,
-                 java.util.Map.of(V3Fields.SPACE, java.util.Map.of(V3Fields.DATA, java.util.Map.of(V3Fields.GUID, targetSpaceGuid))));
+        body.put(V3Fields.RELATIONSHIPS, Map.of(V3Fields.SPACE, Map.of(V3Fields.DATA, Map.of(V3Fields.GUID, targetSpaceGuid))));
         if (dto.getEnv() != null) {
             body.put(V3Fields.ENVIRONMENT_VARIABLES, dto.getEnv());
         }
 
         if (dto.getMetadata() != null) {
-            body.put(V3Fields.METADATA, java.util.Map.of(V3Fields.LABELS, dto.getMetadata()
-                                                                             .getLabels(),
-                                                         V3Fields.ANNOTATIONS, dto.getMetadata()
-                                                                                  .getAnnotations()));
+            body.put(V3Fields.METADATA, toMetadataMap(dto.getMetadata()));
         }
 
         return body;
@@ -65,17 +61,17 @@ public class OperationsUtil {
 
     private static Map<String, Object> buildLifecycle(Staging staging) {
         if (staging == null) {
-            return java.util.Map.of(V3Fields.TYPE, "buildpack", V3Fields.DATA, java.util.Map.of());
+            return Map.of(V3Fields.TYPE, V3Fields.BUILDPACK, V3Fields.DATA, Map.of());
         }
 
         if (staging.getDockerInfo() != null) {
-            return Map.of(V3Fields.TYPE, "docker", V3Fields.DATA, Map.of());
+            return Map.of(V3Fields.TYPE, V3Fields.DOCKER, V3Fields.DATA, Map.of());
         }
 
         String type = staging.getLifecycleType() != null ? staging.getLifecycleType()
                                                                   .name()
                                                                   .toLowerCase()
-            : "buildpack";
+            : V3Fields.BUILDPACK;
 
         Map<String, Object> data = new HashMap<>();
         if (staging.getBuildpacks() != null) {
@@ -94,11 +90,11 @@ public class OperationsUtil {
                                    .get(Constants.PACKAGE_LINK)
                                    .href();
 
-        if (packageUrl.endsWith("/")) {
-            packageUrl = packageUrl.substring(0, packageUrl.lastIndexOf("/"));
+        if (packageUrl.endsWith(Constants.SLASH)) {
+            packageUrl = packageUrl.substring(0, packageUrl.lastIndexOf(Constants.SLASH));
         }
 
-        String packageGuid = packageUrl.substring(packageUrl.lastIndexOf("/") + 1);
+        String packageGuid = packageUrl.substring(packageUrl.lastIndexOf(Constants.SLASH) + 1);
         return ImmutableDropletInfo.builder()
                                    .guid(UUID.fromString(droplet.guid()))
                                    .packageGuid(UUID.fromString(packageGuid))
@@ -107,13 +103,13 @@ public class OperationsUtil {
 
     public static Map<String, Object> buildApplicationLifecycle(Staging staging) {
         if (staging.getDockerInfo() != null) {
-            return Map.of(V3Fields.TYPE, "docker", V3Fields.DATA, Map.of());
+            return Map.of(V3Fields.TYPE, V3Fields.DOCKER, V3Fields.DATA, Map.of());
         }
 
         String lifecycleType = staging.getLifecycleType() != null ? staging.getLifecycleType()
                                                                            .name()
                                                                            .toLowerCase()
-            : "buildpack";
+            : V3Fields.BUILDPACK;
 
         if (Constants.CLOUD_NATIVE_BUILDPACK.equals(lifecycleType) && (staging.getBuildpacks() == null || staging.getBuildpacks()
                                                                                                                  .isEmpty())) {
@@ -173,11 +169,11 @@ public class OperationsUtil {
     }
 
     public static Map<String, Object> buildCreateRouteBody(UUID domainGuid, String host, String path, UUID targetSpaceGuid) {
-        Map<String, Object> relationships = java.util.Map.of(V3Fields.DOMAIN, buildSingleResourceRelationship(domainGuid),
-                                                             V3Fields.SPACE, buildSingleResourceRelationship(targetSpaceGuid));
+        Map<String, Object> relationships = Map.of(V3Fields.DOMAIN, buildSingleResourceRelationship(domainGuid),
+                                                   V3Fields.SPACE, buildSingleResourceRelationship(targetSpaceGuid));
 
-        return Map.of(V3Fields.HOST, host == null ? "" : host,
-                      V3Fields.PATH, path == null ? "" : path,
+        return Map.of(V3Fields.HOST, host == null ? Constants.EMPTY_STRING : host,
+                      V3Fields.PATH, path == null ? Constants.EMPTY_STRING : path,
                       V3Fields.RELATIONSHIPS, relationships);
     }
 
@@ -244,7 +240,7 @@ public class OperationsUtil {
                              .getName();
 
         if (!StringUtils.hasLength(domain) || !existingDomains.containsKey(domain)) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
                                               MessageFormat.format(Messages.DOMAIN_0_NOT_FOUND_FOR_URI_1, domain, route.getUrl()));
         }
 
@@ -254,7 +250,7 @@ public class OperationsUtil {
                                                                Map<String, Object> parameters) {
         Map<String, Object> body = new HashMap<>();
         body.put(V3Fields.NAME, bindingName);
-        body.put(V3Fields.TYPE, "app");
+        body.put(V3Fields.TYPE, V3Fields.APP);
         body.put(V3Fields.RELATIONSHIPS, Map.of(V3Fields.APP, toOneRelationship(applicationGuid), V3Fields.SERVICE_INSTANCE,
                                                 toOneRelationship(serviceInstanceGuid)));
 
@@ -315,13 +311,13 @@ public class OperationsUtil {
     }
 
     public static Map<String, Object> basicAuthentication(CloudServiceBroker serviceBroker) {
-        return Map.of(V3Fields.TYPE, "basic", V3Fields.CREDENTIALS,
+        return Map.of(V3Fields.TYPE, V3Fields.BASIC, V3Fields.CREDENTIALS,
                       Map.of(V3Fields.USERNAME, nullToEmpty(serviceBroker.getUsername()), V3Fields.PASSWORD,
                              nullToEmpty(serviceBroker.getPassword())));
     }
 
     private static String nullToEmpty(String value) {
-        return value == null ? "" : value;
+        return value == null ? Constants.EMPTY_STRING : value;
     }
 
     public static Map<String, Object> buildCreateServiceBrokerBody(CloudServiceBroker serviceBroker) {
@@ -343,7 +339,7 @@ public class OperationsUtil {
     public static Map<String, Object> buildCreateServiceInstanceBody(CloudServiceInstance serviceInstance, UUID servicePlanGuid,
                                                                      CloudSpace targetSpace) {
         Map<String, Object> body = new HashMap<>();
-        body.put(V3Fields.TYPE, "managed");
+        body.put(V3Fields.TYPE, V3Fields.MANAGED);
         body.put(V3Fields.NAME, serviceInstance.getName());
         MapUtil.addNonNull(body, V3Fields.METADATA, toMetadataMap(serviceInstance.getV3Metadata()));
         MapUtil.addNonNull(body, V3Fields.TAGS, serviceInstance.getTags());
@@ -373,7 +369,7 @@ public class OperationsUtil {
     public static Map<String, Object> buildCreateUserProvidedServiceInstance(CloudServiceInstance serviceInstance, String syslogDrainUrl,
                                                                              CloudSpace targetSpace) {
         Map<String, Object> body = new HashMap<>();
-        body.put(V3Fields.TYPE, "user-provided");
+        body.put(V3Fields.TYPE, V3Fields.USER_PROVIDED);
         body.put(V3Fields.NAME, serviceInstance.getName());
         MapUtil.addNonNull(body, V3Fields.METADATA, toMetadataMap(serviceInstance.getV3Metadata()));
         MapUtil.addNonNull(body, V3Fields.CREDENTIALS, serviceInstance.getCredentials());
@@ -405,11 +401,11 @@ public class OperationsUtil {
     public static CloudOperationException determineNameResolutionError(CloudOperationException e, String forbiddenMessage,
                                                                        String notFoundMessage) {
         if (e.getStatusCode() == HttpStatus.FORBIDDEN) {
-            return new CloudOperationException(HttpStatus.FORBIDDEN, Messages.FORBIDDEN, forbiddenMessage, e);
+            return new CloudOperationException(HttpStatus.FORBIDDEN, HttpStatus.FORBIDDEN.getReasonPhrase(), forbiddenMessage, e);
         }
 
         if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-            return new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND, notFoundMessage, e);
+            return new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(), notFoundMessage, e);
         }
 
         return e;
@@ -461,7 +457,7 @@ public class OperationsUtil {
     public static Map<String, Object> buildCreateServiceKeyBody(String name, Map<String, Object> parameters, Metadata metadata,
                                                                 UUID serviceInstanceGuid) {
         Map<String, Object> resultBody = new HashMap<>();
-        resultBody.put(V3Fields.TYPE, "key");
+        resultBody.put(V3Fields.TYPE, V3Fields.KEY);
         resultBody.put(V3Fields.NAME, name);
         resultBody.put(V3Fields.RELATIONSHIPS,
                        Map.of(V3Fields.SERVICE_INSTANCE, Map.of(V3Fields.DATA, Map.of(V3Fields.GUID, serviceInstanceGuid.toString()))));

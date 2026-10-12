@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record V3ServiceBinding(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty(V3Fields.NAME) String name,
                                @JsonProperty(V3Fields.TYPE) String type,
                                @JsonProperty(V3Fields.CREATED_AT) String createdAt, @JsonProperty(V3Fields.UPDATED_AT) String updatedAt,
-                               @JsonProperty("last_operation") V3LastOperation lastOperation,
+                               @JsonProperty(V3Fields.LAST_OPERATION) V3LastOperation lastOperation,
                                @JsonProperty(V3Fields.METADATA) V3Metadata metadata,
                                @JsonProperty(V3Fields.RELATIONSHIPS) V3Relationships relationships) {
 

@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest.resources;
 
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -10,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * <pre>
  * { "guid": "...", "name": "...", "description": "...", "available": true, "shareable": true,
- *   "documentation_url": "...", "created_at": "...", "updated_at": "...",
+ *   "tags": [...], "documentation_url": "...", "created_at": "...", "updated_at": "...",
  *   "broker_catalog": { "id": "...", "metadata": {...}, "features": { "bindable": true, ... } },
  *   "relationships": { "service_broker": { "data": { "guid": "..." } } },
  *   "metadata": { "labels": {...}, "annotations": {...} } }
@@ -24,7 +25,7 @@ public record V3ServiceOffering(@JsonProperty(V3Fields.GUID) String guid, @JsonP
                                 @JsonProperty(V3Fields.CREATED_AT) String createdAt, @JsonProperty(V3Fields.UPDATED_AT) String updatedAt,
                                 @JsonProperty("broker_catalog") V3BrokerCatalog brokerCatalog,
                                 @JsonProperty(V3Fields.RELATIONSHIPS) V3Relationships relationships,
-                                @JsonProperty(V3Fields.METADATA) V3Metadata metadata) {
+                                @JsonProperty(V3Fields.METADATA) V3Metadata metadata, @JsonProperty(V3Fields.TAGS) List<String> tags) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record V3BrokerCatalog(@JsonProperty("id") String id, @JsonProperty(V3Fields.METADATA) Map<String, Object> metadata,

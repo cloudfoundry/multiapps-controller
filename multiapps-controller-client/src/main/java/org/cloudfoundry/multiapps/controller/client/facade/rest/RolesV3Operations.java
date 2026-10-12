@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.controller.client.facade.domain.UserRole;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3QueryParameters;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Role;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3RoleMapper;
 import org.springframework.core.ParameterizedTypeReference;
@@ -23,9 +24,11 @@ public class RolesV3Operations {
     }
 
     public Set<UserRole> getUserRolesBySpaceAndUser(UUID spaceGuid, UUID userGuid) {
-        String uri = CloudControllerV3Endpoints.ROLES + CloudControllerV3Endpoints.QUERY_PER_PAGE
-            + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE + CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS + spaceGuid
-            + CloudControllerV3Endpoints.AMPERSAND_USER_GUIDS + userGuid;
+        String uri = V3Uri.path(CloudControllerV3Endpoints.ROLES)
+                          .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                          .query(V3QueryParameters.SPACE_GUIDS, spaceGuid)
+                          .query(V3QueryParameters.USER_GUIDS, userGuid)
+                          .build();
 
         return client.list(uri, ROLE_PAGE)
                      .stream()

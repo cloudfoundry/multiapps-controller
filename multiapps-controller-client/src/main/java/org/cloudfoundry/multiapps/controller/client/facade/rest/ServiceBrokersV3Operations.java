@@ -13,6 +13,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ServicePlanVis
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Fields;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3GuidReference;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3QueryParameters;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ServiceBroker;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ServiceBrokerMapper;
 import org.springframework.core.ParameterizedTypeReference;
@@ -29,6 +30,7 @@ public class ServiceBrokersV3Operations {
     };
 
     private final CloudControllerV3Client client;
+
     private final CloudSpace targetSpace;
 
     public ServiceBrokersV3Operations(CloudControllerV3Client client, CloudSpace targetSpace) {
@@ -65,7 +67,7 @@ public class ServiceBrokersV3Operations {
         CloudServiceBroker serviceBroker = findServiceBrokerByName(name);
 
         if (serviceBroker == null && required) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
                                               MessageFormat.format(Messages.SERVICE_BROKER_0_NOT_FOUND, name));
         }
 
@@ -73,8 +75,9 @@ public class ServiceBrokersV3Operations {
     }
 
     public List<CloudServiceBroker> getServiceBrokers() {
-        return client.list(CloudControllerV3Endpoints.SERVICE_BROKERS + CloudControllerV3Endpoints.QUERY_PER_PAGE
-                               + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, BROKER_PAGE)
+        return client.list(V3Uri.path(CloudControllerV3Endpoints.SERVICE_BROKERS)
+                                .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                                .build(), BROKER_PAGE)
                      .stream()
                      .map(V3ServiceBrokerMapper::toCloudServiceBroker)
                      .toList();
@@ -109,9 +112,10 @@ public class ServiceBrokersV3Operations {
 
     private CloudServiceBroker findServiceBrokerByName(String name) {
         return client.list(
-                         CloudControllerV3Endpoints.SERVICE_BROKERS + CloudControllerV3Endpoints.QUERY_NAMES + name
-                             + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE
-                             + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, BROKER_PAGE)
+                         V3Uri.path(CloudControllerV3Endpoints.SERVICE_BROKERS)
+                              .query(V3QueryParameters.NAMES, name)
+                              .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                              .build(), BROKER_PAGE)
                      .stream()
                      .findFirst()
                      .map(V3ServiceBrokerMapper::toCloudServiceBroker)
@@ -126,10 +130,11 @@ public class ServiceBrokersV3Operations {
     }
 
     private List<UUID> findServiceOfferingGuidsByBrokerGuid(UUID brokerGuid) {
-        String uri = CloudControllerV3Endpoints.SERVICE_OFFERINGS + CloudControllerV3Endpoints.QUERY_SERVICE_BROKER_GUIDS + brokerGuid
-            + CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS + OperationsUtil.getGuid(targetSpace)
-            + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE
-            + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+        String uri = V3Uri.path(CloudControllerV3Endpoints.SERVICE_OFFERINGS)
+                          .query(V3QueryParameters.SERVICE_BROKER_GUIDS, brokerGuid)
+                          .query(V3QueryParameters.SPACE_GUIDS, OperationsUtil.getGuid(targetSpace))
+                          .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                          .build();
 
         return client.list(uri, GUID_REFERENCE_PAGE)
                      .stream()
@@ -140,8 +145,10 @@ public class ServiceBrokersV3Operations {
 
     private List<UUID> findServicePlanGuidsByOfferingGuid(UUID serviceOfferingGuid) {
         String uri =
-            CloudControllerV3Endpoints.SERVICE_PLANS + CloudControllerV3Endpoints.QUERY_SERVICE_OFFERING_GUIDS + serviceOfferingGuid
-                + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+            V3Uri.path(CloudControllerV3Endpoints.SERVICE_PLANS)
+                 .query(V3QueryParameters.SERVICE_OFFERING_GUIDS, serviceOfferingGuid)
+                 .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                 .build();
 
         return client.list(uri, GUID_REFERENCE_PAGE)
                      .stream()

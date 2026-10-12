@@ -12,7 +12,9 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceIn
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceInstanceType;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Fields;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3QueryParameters;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ServiceBinding;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ServiceKeyDetails;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ServiceKeyMapper;
@@ -85,10 +87,12 @@ public class ServiceKeysV3Operations {
     }
 
     private V3ServiceBinding getServiceKeyResourceByNameAndServiceInstanceGuid(String name, UUID serviceInstanceGuid) {
-        String query = CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS + CloudControllerV3Endpoints.QUERY_PER_PAGE
-            + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE + CloudControllerV3Endpoints.AMPERSAND_TYPE + "key"
-            + CloudControllerV3Endpoints.AMPERSAND_SERVICE_INSTANCE_GUIDS + serviceInstanceGuid + CloudControllerV3Endpoints.AMPERSAND_NAMES
-            + name;
+        String query = V3Uri.path(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS)
+                            .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                            .query(V3QueryParameters.TYPE, V3Fields.KEY)
+                            .query(V3QueryParameters.SERVICE_INSTANCE_GUIDS, serviceInstanceGuid)
+                            .query(V3QueryParameters.NAMES, name)
+                            .build();
 
         List<V3ServiceBinding> keys = client.list(query, SERVICE_KEY_PAGE);
 
@@ -96,16 +100,19 @@ public class ServiceKeysV3Operations {
     }
 
     private List<V3ServiceBinding> listServiceKeyResources(UUID serviceInstanceGuid) {
-        String query = CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS + CloudControllerV3Endpoints.QUERY_PER_PAGE
-            + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE + CloudControllerV3Endpoints.AMPERSAND_TYPE + "key"
-            + CloudControllerV3Endpoints.AMPERSAND_SERVICE_INSTANCE_GUIDS + serviceInstanceGuid;
+        String query = V3Uri.path(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS)
+                            .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                            .query(V3QueryParameters.TYPE, V3Fields.KEY)
+                            .query(V3QueryParameters.SERVICE_INSTANCE_GUIDS, serviceInstanceGuid)
+                            .build();
 
         return client.list(query, SERVICE_KEY_PAGE);
     }
 
     private Map<String, Object> getServiceKeyCredentials(String keyGuid) {
-        Optional<V3ServiceKeyDetails> details = client.getOptional(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS + "/" + keyGuid
-                                                                       + "/details",
+        Optional<V3ServiceKeyDetails> details = client.getOptional(V3Uri.path(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDING_DETAILS,
+                                                                              keyGuid)
+                                                                        .build(),
                                                                    V3ServiceKeyDetails.class);
 
         return details.map(V3ServiceKeyDetails::credentials)

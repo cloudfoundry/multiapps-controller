@@ -14,7 +14,7 @@ class V3DomainMapperTest {
 
     @Test
     void testToCloudDomainMapsNameAndGuid() {
-        V3Domain domain = new V3Domain(GUID_STRING, "example.com", null, null, null, null);
+        V3Domain domain = new V3Domain(GUID_STRING, "example.com", null, null, null, null, null);
 
         CloudDomain result = V3DomainMapper.toCloudDomain(domain);
 
@@ -25,7 +25,7 @@ class V3DomainMapperTest {
 
     @Test
     void testToCloudDomainWithNullGuidReturnsNullGuid() {
-        V3Domain domain = new V3Domain(null, "example.com", null, null, null, null);
+        V3Domain domain = new V3Domain(null, "example.com", null, null, null, null, null);
 
         Assertions.assertNull(V3DomainMapper.toCloudDomain(domain)
                                             .getMetadata()
@@ -35,14 +35,14 @@ class V3DomainMapperTest {
     @Test
     void testToCloudDomainIsPrivateWhenOrganizationDataPresent() {
         V3DomainRelationships relationships = new V3DomainRelationships(new V3ToOneRelationship(new V3RelationshipData(ORG_GUID)));
-        V3Domain domain = new V3Domain(GUID_STRING, "private.example.com", null, null, null, relationships);
+        V3Domain domain = new V3Domain(GUID_STRING, "private.example.com", null, null, null, null, relationships);
 
         Assertions.assertTrue(domain.isPrivate());
     }
 
     @Test
     void testToCloudDomainIsNotPrivateWhenRelationshipsNull() {
-        V3Domain domain = new V3Domain(GUID_STRING, "shared.example.com", null, null, null, null);
+        V3Domain domain = new V3Domain(GUID_STRING, "shared.example.com", null, null, null, null, null);
 
         Assertions.assertFalse(domain.isPrivate());
     }
@@ -50,7 +50,7 @@ class V3DomainMapperTest {
     @Test
     void testToCloudDomainIsNotPrivateWhenOrganizationDataNull() {
         V3DomainRelationships relationships = new V3DomainRelationships(new V3ToOneRelationship(null));
-        V3Domain domain = new V3Domain(GUID_STRING, "shared.example.com", null, null, null, relationships);
+        V3Domain domain = new V3Domain(GUID_STRING, "shared.example.com", null, null, null, null, relationships);
 
         Assertions.assertFalse(domain.isPrivate());
     }

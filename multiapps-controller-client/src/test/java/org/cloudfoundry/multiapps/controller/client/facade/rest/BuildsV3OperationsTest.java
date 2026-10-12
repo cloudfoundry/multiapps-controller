@@ -73,7 +73,7 @@ class BuildsV3OperationsTest {
     @Test
     void testGetBuildsForApplicationReturnsMappedList() {
         factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                            + "/builds?per_page=5000", "{\"resources\":[" + getBuildJson("STAGED") + "]}");
+                            + "/builds?per_page=50", "{\"resources\":[" + getBuildJson("STAGED") + "]}");
 
         List<CloudBuild> result = operations.getBuildsForApplication(UUID.fromString(APP_GUID));
 
@@ -86,7 +86,7 @@ class BuildsV3OperationsTest {
     @Test
     void testGetBuildsForApplicationReturnsEmptyList() {
         factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                            + "/builds?per_page=5000", "{\"resources\":[]}");
+                            + "/builds?per_page=50", "{\"resources\":[]}");
 
         List<CloudBuild> result = operations.getBuildsForApplication(UUID.fromString(APP_GUID));
 
@@ -97,7 +97,7 @@ class BuildsV3OperationsTest {
     @Test
     void testGetBuildsForPackageReturnsMappedList() {
         factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/builds?package_guids="
-                            + PACKAGE_GUID + "&per_page=5000", "{\"resources\":[" + getBuildJson("FAILED") + "]}");
+                            + PACKAGE_GUID + "&per_page=50", "{\"resources\":[" + getBuildJson("FAILED") + "]}");
 
         List<CloudBuild> result = operations.getBuildsForPackage(UUID.fromString(PACKAGE_GUID));
 
@@ -112,7 +112,7 @@ class BuildsV3OperationsTest {
     @Test
     void testGetBuildsForPackageReturnsEmptyList() {
         factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/builds?package_guids="
-                            + PACKAGE_GUID + "&per_page=5000", "{\"resources\":[]}");
+                            + PACKAGE_GUID + "&per_page=50", "{\"resources\":[]}");
 
         List<CloudBuild> result = operations.getBuildsForPackage(UUID.fromString(PACKAGE_GUID));
 

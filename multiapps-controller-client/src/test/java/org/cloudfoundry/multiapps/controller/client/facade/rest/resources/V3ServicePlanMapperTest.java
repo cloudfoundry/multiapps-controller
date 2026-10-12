@@ -14,13 +14,16 @@ class V3ServicePlanMapperTest {
 
     private static final String GUID_STRING = "3725a721-6e3f-4b6e-8f2b-1c2d3e4f5a6b";
     private static final String OFFERING_GUID = "11111111-2222-3333-4444-555555555555";
+    public static final String SERVICE_BROKER_SPACE_GUID = "11111111-2222-3333-4444-555555555555";
 
     @Test
     void testToCloudServicePlanMapsAllFields() {
         V3BrokerCatalog brokerCatalog = new V3BrokerCatalog("catalog-id", Map.of("k", "v"));
-        V3Relationships relationships = new V3Relationships(new V3ToOneRelationship(new V3RelationshipData(OFFERING_GUID)));
-        V3ServicePlan plan = new V3ServicePlan(GUID_STRING, "my-plan", "A plan", true, "public", null, null, brokerCatalog,
-                                               relationships, null);
+        V3Relationships relationships = new V3Relationships(new V3ToOneRelationship(new V3RelationshipData(OFFERING_GUID)),
+                                                            new V3ToOneRelationship(new V3RelationshipData(SERVICE_BROKER_SPACE_GUID)));
+        V3ServicePlan plan = new V3ServicePlan(GUID_STRING, "my-plan", "A plan", true, "public", null, null, null, null, null, null,
+                                               brokerCatalog,
+                                               relationships, null, null);
 
         CloudServicePlan result = V3ServicePlanMapper.toCloudServicePlan(plan);
 
@@ -51,7 +54,8 @@ class V3ServicePlanMapperTest {
 
     @Test
     void testToCloudServicePlanNullBrokerCatalogAndRelationshipsReturnNulls() {
-        V3ServicePlan plan = new V3ServicePlan(GUID_STRING, "p", null, false, "public", null, null, null, null, null);
+        V3ServicePlan plan = new V3ServicePlan(GUID_STRING, "p", null, false, "public", null, null, null, null, null, null, null, null,
+                                               null, null);
 
         CloudServicePlan result = V3ServicePlanMapper.toCloudServicePlan(plan);
 
@@ -61,7 +65,7 @@ class V3ServicePlanMapperTest {
     }
 
     private static V3ServicePlan buildPlanWithVisibility(String visibilityType) {
-        return new V3ServicePlan(GUID_STRING, "p", null, false, visibilityType, null, null, null, null, null);
+        return new V3ServicePlan(GUID_STRING, "p", null, false, visibilityType, null, null, null, null, null, null, null, null, null, null);
     }
 
 }

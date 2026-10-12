@@ -15,22 +15,37 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *     // docker:
  *     "image": "...", "username": "...", "password": "..."
  *   },
- *   "relationships": { "app": { "data": { "guid": "..." } } } }
+ *   "relationships": { "app": { "data": { "guid": "..." } } }
+ *   "metadata": { "labels": {...}, "annotations": {...} }}
  * </pre>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record V3Package(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty(V3Fields.TYPE) String type, @JsonProperty(V3Fields.STATE) String state,
+public record V3Package(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty(V3Fields.TYPE) String type,
+                        @JsonProperty(V3Fields.STATE) String state,
                         @JsonProperty(V3Fields.CREATED_AT) String createdAt, @JsonProperty(V3Fields.UPDATED_AT) String updatedAt,
-                        @JsonProperty(V3Fields.DATA) V3PackageData data) {
+                        @JsonProperty(V3Fields.DATA) V3PackageData data, @JsonProperty(V3Fields.METADATA) V3Metadata metadata,
+                        @JsonProperty(V3Fields.RELATIONSHIPS) V3Relationships relationships) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3PackageData(@JsonProperty("checksum") V3Checksum checksum, @JsonProperty("error") String error,
-                                @JsonProperty("image") String image, @JsonProperty("username") String username,
-                                @JsonProperty("password") String password) {
+    public record V3PackageData(@JsonProperty(V3Fields.CHECKSUM) V3Checksum checksum, @JsonProperty(V3Fields.ERROR) String error,
+                                @JsonProperty(V3Fields.IMAGE) String image, @JsonProperty(V3Fields.USERNAME) String username,
+                                @JsonProperty(V3Fields.PASSWORD) String password) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3Checksum(@JsonProperty(V3Fields.TYPE) String type, @JsonProperty("value") String value) {
+    public record V3Checksum(@JsonProperty(V3Fields.TYPE) String type, @JsonProperty(V3Fields.VALUE) String value) {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record V3Relationships(@JsonProperty(V3Fields.APP) V3ToOneRelationship app) {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record V3ToOneRelationship(@JsonProperty(V3Fields.DATA) V3RelationshipData data) {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record V3RelationshipData(@JsonProperty(V3Fields.GUID) String guid) {
     }
 
 }

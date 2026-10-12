@@ -4,8 +4,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudEntity;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.springframework.util.DigestUtils;
@@ -42,15 +43,15 @@ public class MtaMetadataUtil {
     }
 
     public static Metadata getMetadataWithoutMtaFields(Metadata metadata) {
-        return Metadata.builder()
+        return ImmutableMetadata.builder()
                        .from(metadata)
-                       .label(MtaMetadataLabels.MTA_ID, null)
-                       .label(MtaMetadataLabels.MTA_NAMESPACE, null)
-                       .label(MtaMetadataLabels.SPACE_GUID, null)
-                       .annotation(MtaMetadataAnnotations.MTA_ID, null)
-                       .annotation(MtaMetadataAnnotations.MTA_VERSION, null)
-                       .annotation(MtaMetadataAnnotations.MTA_RESOURCE, null)
-                       .annotation(MtaMetadataAnnotations.MTA_NAMESPACE, null)
+                       .putLabel(MtaMetadataLabels.MTA_ID, null)
+                       .putLabel(MtaMetadataLabels.MTA_NAMESPACE, null)
+                       .putLabel(MtaMetadataLabels.SPACE_GUID, null)
+                       .putAnnotation(MtaMetadataAnnotations.MTA_ID, null)
+                       .putAnnotation(MtaMetadataAnnotations.MTA_VERSION, null)
+                       .putAnnotation(MtaMetadataAnnotations.MTA_RESOURCE, null)
+                       .putAnnotation(MtaMetadataAnnotations.MTA_NAMESPACE, null)
                        .build();
     }
 

@@ -3,8 +3,8 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
@@ -45,10 +45,10 @@ class PrepareApplicationForBackupStepTest extends SyncFlowableStepTest<PrepareAp
 
         assertStepFinishedSuccessfully();
         verify(client).rename(applicationName, expectedNewApplicationName);
-        verify(client).updateApplicationMetadata(applicationGuid, Metadata.builder()
-                                                                          .label(MtaMetadataLabels.MTA_NAMESPACE,
+        verify(client).updateApplicationMetadata(applicationGuid, ImmutableMetadata.builder()
+                                                                          .putLabel(MtaMetadataLabels.MTA_NAMESPACE,
                                                                                  MtaMetadataUtil.getHashedLabel(expectedNamespace))
-                                                                          .annotation(MtaMetadataAnnotations.MTA_NAMESPACE,
+                                                                          .putAnnotation(MtaMetadataAnnotations.MTA_NAMESPACE,
                                                                                       expectedNamespace)
                                                                           .build());
     }
@@ -59,7 +59,7 @@ class PrepareApplicationForBackupStepTest extends SyncFlowableStepTest<PrepareAp
                                                                                 .metadata(ImmutableCloudMetadata.builder()
                                                                                                                 .guid(applicationGuid)
                                                                                                                 .build())
-                                                                                .v3Metadata(Metadata.builder()
+                                                                                .v3Metadata(ImmutableMetadata.builder()
                                                                                                     .build())
                                                                                 .build();
         context.setVariable(Variables.APP_TO_PROCESS, application);

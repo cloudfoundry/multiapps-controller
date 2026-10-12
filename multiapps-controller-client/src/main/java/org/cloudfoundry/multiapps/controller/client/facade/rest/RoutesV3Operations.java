@@ -17,6 +17,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Doma
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Fields;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3GuidReference;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3QueryParameters;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Route;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3RouteMapper;
 import org.springframework.core.ParameterizedTypeReference;
@@ -56,7 +57,7 @@ public class RoutesV3Operations {
 
         UUID routeGuid = getRouteGuid(getRequiredDomainGuid(domainName), host, path);
         if (routeGuid == null) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
                                               MessageFormat.format(Messages.HOST_0_NOT_FOUND_FOR_DOMAIN_1, host, domainName));
         }
 
@@ -77,21 +78,23 @@ public class RoutesV3Operations {
     }
 
     public List<CloudRoute> getApplicationRoutes(UUID applicationGuid) {
-        return listRoutes(CloudControllerV3Endpoints.APPS + "/" + applicationGuid + "/routes" + CloudControllerV3Endpoints.QUERY_PER_PAGE
-                              + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE).stream()
-                                                                             .map(route -> V3RouteMapper.toCloudRoute(
-                                                                                 route, applicationGuid))
-                                                                             .toList();
+        return listRoutes(V3Uri.path(CloudControllerV3Endpoints.APP_ROUTES, applicationGuid)
+                               .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                               .build()).stream()
+                                        .map(route -> V3RouteMapper.toCloudRoute(
+                                            route, applicationGuid))
+                                        .toList();
     }
 
     public void updateApplicationRoutes(String applicationName, Set<CloudRoute> updatedRoutes) {
         UUID applicationGuid = getRequiredApplicationGuid(applicationName);
 
         List<CloudRoute> appRoutes = listRoutes(
-            CloudControllerV3Endpoints.APPS + "/" + applicationGuid + "/routes" + CloudControllerV3Endpoints.QUERY_PER_PAGE
-                + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE).stream()
-                                                               .map(V3RouteMapper::toCloudRoute)
-                                                               .toList();
+            V3Uri.path(CloudControllerV3Endpoints.APP_ROUTES, applicationGuid)
+                 .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                 .build()).stream()
+                          .map(V3RouteMapper::toCloudRoute)
+                          .toList();
 
         Set<CloudRoute> outdatedRoutes = OperationsUtil.getOutdatedRoutes(applicationGuid, appRoutes, updatedRoutes);
         Set<CloudRoute> newRoutes = OperationsUtil.getNewRoutes(applicationGuid, appRoutes, updatedRoutes);
@@ -196,7 +199,7 @@ public class RoutesV3Operations {
         UUID guid = findDomainGuidByName(name);
 
         if (guid == null) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
                                               MessageFormat.format(Messages.DOMAIN_0_NOT_FOUND, name));
         }
 
@@ -204,9 +207,10 @@ public class RoutesV3Operations {
     }
 
     private UUID findDomainGuidByName(String name) {
-        List<V3Domain> domains = client.list(CloudControllerV3Endpoints.DOMAINS + CloudControllerV3Endpoints.QUERY_NAMES + name
-                                                 + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE
-                                                 + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE,
+        List<V3Domain> domains = client.list(V3Uri.path(CloudControllerV3Endpoints.DOMAINS)
+                                                  .query(V3QueryParameters.NAMES, name)
+                                                  .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                                                  .build(),
                                              DOMAIN_PAGE);
 
         if (CollectionUtils.isEmpty(domains)) {
@@ -228,9 +232,10 @@ public class RoutesV3Operations {
             return Map.of();
         }
 
-        String names = String.join(",", domainNames);
-        return client.list(CloudControllerV3Endpoints.DOMAINS + CloudControllerV3Endpoints.QUERY_NAMES + names
-                               + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, DOMAIN_PAGE)
+        return client.list(V3Uri.path(CloudControllerV3Endpoints.DOMAINS)
+                                .query(V3QueryParameters.NAMES, domainNames)
+                                .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                                .build(), DOMAIN_PAGE)
                      .stream()
                      .collect(Collectors.toMap(V3Domain::name, domain -> UUID.fromString(domain.guid())));
     }
@@ -241,7 +246,7 @@ public class RoutesV3Operations {
                                                  APP_PAGE);
 
         if (CollectionUtils.isEmpty(apps)) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
                                               MessageFormat.format(Messages.APPLICATION_0_NOT_FOUND, applicationName));
         }
 

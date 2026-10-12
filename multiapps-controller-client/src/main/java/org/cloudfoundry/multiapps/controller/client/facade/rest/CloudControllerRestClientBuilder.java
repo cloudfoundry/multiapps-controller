@@ -1,14 +1,13 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
 import java.net.URL;
-import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.net.ssl.SSLException;
-import javax.net.ssl.X509TrustManager;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.ssl.SslContext;
@@ -16,6 +15,7 @@ import io.netty.handler.ssl.SslContextBuilder;
 import org.cloudfoundry.multiapps.controller.Constants;
 import org.cloudfoundry.multiapps.controller.Messages;
 import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuthClient;
+import org.cloudfoundry.multiapps.controller.client.facade.util.RestUtil;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ReactorClientHttpRequestFactory;
@@ -35,7 +35,7 @@ import reactor.netty.tcp.SslProvider;
 
 public final class CloudControllerRestClientBuilder {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = configureObjectMapper();
 
     private CloudControllerRestClientBuilder() {
     }
@@ -173,30 +173,16 @@ public final class CloudControllerRestClientBuilder {
     private static SslContext buildTrustAllSslContext() {
         try {
             return SslContextBuilder.forClient()
-                                    .trustManager(getTrustAllCertificatesManager())
+                                    .trustManager(RestUtil.createDummyTrustManager())
                                     .build();
         } catch (SSLException e) {
             throw new IllegalStateException(Messages.ERROR_OCCURRED_SETTING_UP_ALWAYS_APPROVING_SSL_CONTEXT, e);
         }
     }
 
-    private static X509TrustManager getTrustAllCertificatesManager() {
-        return new X509TrustManager() {
-
-            @Override
-            public void checkClientTrusted(X509Certificate[] chain, String authType) {
-            }
-
-            @Override
-            public void checkServerTrusted(X509Certificate[] chain, String authType) {
-            }
-
-            @Override
-            public X509Certificate[] getAcceptedIssuers() {
-                return new X509Certificate[] {};
-            }
-
-        };
+    private static ObjectMapper configureObjectMapper() {
+        return new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                                 .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
     }
 
 }

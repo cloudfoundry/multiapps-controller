@@ -24,10 +24,7 @@ public final class V3RouteMapper {
 
     public static CloudRoute toCloudRoute(V3Route route, UUID applicationGuid) {
         List<RouteDestination> destinations = mapDestinations(route);
-        String domainGuid = route.relationships()
-                                 .domain()
-                                 .data()
-                                 .guid();
+        String domainGuid = extractDomainGuid(route);
 
         return ImmutableCloudRoute.builder()
                                   .metadata(V3ResourceMappers.parseMetadata(route.guid(), route.createdAt(), route.updatedAt()))
@@ -37,13 +34,29 @@ public final class V3RouteMapper {
                                   .port(route.port())
                                   .domain(ImmutableCloudDomain.builder()
                                                               .name(computeDomain(route))
-                                                              .metadata(ImmutableCloudMetadata.of(UUID.fromString(domainGuid)))
+                                                              .metadata(ImmutableCloudMetadata.of(
+                                                                  V3ResourceMappers.parseNullableGuid(domainGuid)))
                                                               .build())
                                   .path(route.path())
                                   .url(route.url())
                                   .destinations(destinations)
                                   .requestedProtocol(computeRequestedProtocol(destinations, applicationGuid))
                                   .build();
+    }
+
+    private static String extractDomainGuid(V3Route route) {
+        if (route.relationships() == null || route.relationships()
+                                                  .domain() == null
+            || route.relationships()
+                    .domain()
+                    .data() == null) {
+            return null;
+        }
+
+        return route.relationships()
+                    .domain()
+                    .data()
+                    .guid();
     }
 
     private static String computeDomain(V3Route route) {
@@ -68,9 +81,12 @@ public final class V3RouteMapper {
     private static List<RouteDestination> mapDestinations(V3Route route) {
         return route.destinations()
                     .stream()
+                    .filter(destination -> destination.app() != null && destination.app()
+                                                                                   .guid() != null)
                     .map(destination -> ImmutableRouteDestination.builder()
                                                                  .metadata(ImmutableCloudMetadata.builder()
-                                                                                                 .guid(UUID.fromString(destination.guid()))
+                                                                                                 .guid(V3ResourceMappers.parseNullableGuid(
+                                                                                                     destination.guid()))
                                                                                                  .build())
                                                                  .applicationGuid(UUID.fromString(destination.app()
                                                                                                              .guid()))

@@ -1,8 +1,8 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import jakarta.inject.Named;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.util.MtaMetadataUtil;
@@ -28,10 +28,10 @@ public class RemoveMtaBackupMetadataStep extends SyncFlowableStep {
 
         for (DeployedMtaApplication application : backupMta.getApplications()) {
             getStepLogger().debug(Messages.REMOVE_MTA_BACKUP_METADATA_FOR_APPLICATION_0, application.getName());
-            client.updateApplicationMetadata(application.getGuid(), Metadata.builder()
+            client.updateApplicationMetadata(application.getGuid(), ImmutableMetadata.builder()
                                                                             .from(application.getV3Metadata())
-                                                                            .label(MtaMetadataLabels.MTA_NAMESPACE, hashedMtaNamespace)
-                                                                            .annotation(MtaMetadataAnnotations.MTA_NAMESPACE, mtaNamespace)
+                                                                            .putLabel(MtaMetadataLabels.MTA_NAMESPACE, hashedMtaNamespace)
+                                                                            .putAnnotation(MtaMetadataAnnotations.MTA_NAMESPACE, mtaNamespace)
                                                                             .build());
         }
 

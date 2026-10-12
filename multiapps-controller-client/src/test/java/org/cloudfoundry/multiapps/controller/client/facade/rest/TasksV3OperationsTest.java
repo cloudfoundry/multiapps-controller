@@ -87,7 +87,7 @@ class TasksV3OperationsTest {
             .thenReturn(null);
 
         factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&names=missing-app"))
+               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=50&names=missing-app"))
                .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
 
         CloudTask task = ImmutableCloudTask.builder()
@@ -103,7 +103,7 @@ class TasksV3OperationsTest {
             .thenReturn(null);
 
         factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&names=my-app"))
+               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=50&names=my-app"))
                .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[{\"guid\":\"" + APP_GUID + "\"}]}",
                                                                 MediaType.APPLICATION_JSON));
     }

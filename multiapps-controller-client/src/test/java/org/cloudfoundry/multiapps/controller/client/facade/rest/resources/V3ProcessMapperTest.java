@@ -16,7 +16,8 @@ class V3ProcessMapperTest {
         V3HealthCheckData healthCheckData = new V3HealthCheckData(60, 10, "/health", 5);
         V3HealthCheckData readinessData = new V3HealthCheckData(null, 8, "/ready", 3);
         V3Process process = new V3Process(GUID_STRING, "start.sh", 3, 512, 2048, new V3HealthCheck("http", healthCheckData),
-                                          new V3HealthCheck("http", readinessData));
+                                          new V3HealthCheck("http", readinessData), null, null, null, null, null, null, null, null,
+                                          null);
 
         CloudProcess result = V3ProcessMapper.toCloudProcess(process);
 
@@ -31,7 +32,8 @@ class V3ProcessMapperTest {
 
     @Test
     void testToCloudProcessNullHealthCheckDefaultsToPort() {
-        V3Process process = new V3Process(GUID_STRING, "start.sh", 1, 256, 1024, null, null);
+        V3Process process = new V3Process(GUID_STRING, "start.sh", 1, 256, 1024, null, null, null, null, null, null, null, null, null,
+                                          null, null);
 
         CloudProcess result = V3ProcessMapper.toCloudProcess(process);
 
@@ -41,7 +43,8 @@ class V3ProcessMapperTest {
 
     @Test
     void testToCloudProcessHealthCheckTypeIsUpperCased() {
-        V3Process process = new V3Process(GUID_STRING, "s", 1, 256, 1024, new V3HealthCheck("process", null), null);
+        V3Process process = new V3Process(GUID_STRING, "s", 1, 256, 1024, new V3HealthCheck("process", null), null, null, null, null,
+                                          null, null, null, null, null, null);
 
         Assertions.assertEquals(HealthCheckType.PROCESS, V3ProcessMapper.toCloudProcess(process)
                                                                         .getHealthCheckType());
@@ -49,13 +52,36 @@ class V3ProcessMapperTest {
 
     @Test
     void testToCloudProcessNullHealthCheckDataLeavesEndpointFieldsNull() {
-        V3Process process = new V3Process(GUID_STRING, "s", 1, 256, 1024, new V3HealthCheck("port", null), null);
+        V3Process process = new V3Process(GUID_STRING, "s", 1, 256, 1024, new V3HealthCheck("port", null), null, null, null, null, null,
+                                          null, null, null, null, null);
 
         CloudProcess result = V3ProcessMapper.toCloudProcess(process);
 
         Assertions.assertEquals(HealthCheckType.PORT, result.getHealthCheckType());
         Assertions.assertNull(result.getHealthCheckHttpEndpoint());
         Assertions.assertNull(result.getHealthCheckTimeout());
+    }
+
+    @Test
+    void testToCloudProcessWhenCommandNullAndHealthCheckTypeNullDoesNotThrow() {
+        V3Process process = new V3Process(GUID_STRING, null, 1, 256, 1024, new V3HealthCheck(null, null), null, null, null, null, null,
+                                          null, null, null, null, null);
+
+        CloudProcess result = Assertions.assertDoesNotThrow(() -> V3ProcessMapper.toCloudProcess(process));
+
+        Assertions.assertNull(result.getCommand());
+        Assertions.assertEquals(HealthCheckType.PORT, result.getHealthCheckType());
+    }
+
+    @Test
+    void testToCloudProcessWhenCommandNullAndHealthCheckNullDoesNotThrow() {
+        V3Process process = new V3Process(GUID_STRING, null, 1, 256, 1024, null, null, null, null, null, null, null, null, null, null,
+                                          null);
+
+        CloudProcess result = Assertions.assertDoesNotThrow(() -> V3ProcessMapper.toCloudProcess(process));
+
+        Assertions.assertNull(result.getCommand());
+        Assertions.assertEquals(HealthCheckType.PORT, result.getHealthCheckType());
     }
 
 }

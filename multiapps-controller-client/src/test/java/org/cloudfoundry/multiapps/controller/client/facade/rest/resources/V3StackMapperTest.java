@@ -10,7 +10,8 @@ class V3StackMapperTest {
 
     @Test
     void testToCloudStackMapsAllFields() {
-        V3Stack stack = new V3Stack(GUID_STRING, "cflinuxfs4", "Ubuntu-based stack", "2026-08-04T10:15:30Z", "2026-08-04T10:16:30Z", null);
+        V3Stack stack = new V3Stack(GUID_STRING, "cflinuxfs4", "Ubuntu-based stack", "2026-08-04T10:15:30Z", "2026-08-04T10:16:30Z", null,
+                                    null);
 
         CloudStack result = V3StackMapper.toCloudStack(stack);
 
@@ -22,7 +23,7 @@ class V3StackMapperTest {
 
     @Test
     void testToCloudStackWithNullGuidReturnsNullGuid() {
-        V3Stack stack = new V3Stack(null, "cflinuxfs4", null, null, null, null);
+        V3Stack stack = new V3Stack(null, "cflinuxfs4", null, null, null, null, null);
 
         Assertions.assertNull(V3StackMapper.toCloudStack(stack)
                                            .getMetadata()

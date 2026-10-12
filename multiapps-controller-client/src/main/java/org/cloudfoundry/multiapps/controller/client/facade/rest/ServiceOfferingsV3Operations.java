@@ -6,6 +6,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceOf
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServicePlan;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3QueryParameters;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ServiceOffering;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ServiceOfferingMapper;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ServicePlan;
@@ -16,10 +17,12 @@ public class ServiceOfferingsV3Operations {
 
     private static final ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>> OFFERING_PAGE = new ParameterizedTypeReference<>() {
     };
+
     private static final ParameterizedTypeReference<V3ListResponse<V3ServicePlan>> PLAN_PAGE = new ParameterizedTypeReference<>() {
     };
 
     private final CloudControllerV3Client client;
+
     private final CloudSpace targetSpace;
 
     public ServiceOfferingsV3Operations(CloudControllerV3Client client, CloudSpace targetSpace) {
@@ -34,15 +37,12 @@ public class ServiceOfferingsV3Operations {
     }
 
     private List<V3ServiceOffering> getServiceOfferingResources() {
-        StringBuilder query = new StringBuilder(CloudControllerV3Endpoints.SERVICE_OFFERINGS + CloudControllerV3Endpoints.QUERY_PER_PAGE
-                                                    + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
+        String uri = V3Uri.path(CloudControllerV3Endpoints.SERVICE_OFFERINGS)
+                          .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                          .query(V3QueryParameters.SPACE_GUIDS, OperationsUtil.getGuid(targetSpace))
+                          .build();
 
-        if (targetSpace != null && targetSpace.getGuid() != null) {
-            query.append(CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
-                 .append(targetSpace.getGuid());
-        }
-
-        return client.list(query.toString(), OFFERING_PAGE);
+        return client.list(uri, OFFERING_PAGE);
     }
 
     private CloudServiceOffering toCloudServiceOfferingWithPlans(V3ServiceOffering serviceOffering) {
@@ -52,9 +52,10 @@ public class ServiceOfferingsV3Operations {
     }
 
     private List<CloudServicePlan> getServicePlans(String serviceOfferingGuid) {
-        String uri =
-            CloudControllerV3Endpoints.SERVICE_PLANS + CloudControllerV3Endpoints.QUERY_SERVICE_OFFERING_GUIDS + serviceOfferingGuid
-                + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+        String uri = V3Uri.path(CloudControllerV3Endpoints.SERVICE_PLANS)
+                          .query(V3QueryParameters.SERVICE_OFFERING_GUIDS, serviceOfferingGuid)
+                          .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                          .build();
 
         return client.list(uri, PLAN_PAGE)
                      .stream()

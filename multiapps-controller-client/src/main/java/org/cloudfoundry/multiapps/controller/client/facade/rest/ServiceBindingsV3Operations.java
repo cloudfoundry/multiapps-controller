@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -17,6 +16,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Fields;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3GuidReference;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3QueryParameters;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ServiceBinding;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ServiceBindingMapper;
 import org.springframework.core.ParameterizedTypeReference;
@@ -64,8 +64,10 @@ public class ServiceBindingsV3Operations {
     }
 
     public CloudServiceBinding getServiceBinding(UUID serviceBindingGuid) {
-        String uri = CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS + CloudControllerV3Endpoints.QUERY_GUIDS + serviceBindingGuid
-            + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+        String uri = V3Uri.path(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS)
+                          .query(V3QueryParameters.GUIDS, serviceBindingGuid)
+                          .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                          .build();
 
         return client.list(uri, BINDING_PAGE)
                      .stream()
@@ -75,36 +77,42 @@ public class ServiceBindingsV3Operations {
     }
 
     public List<CloudServiceBinding> getServiceAppBindings(UUID serviceInstanceGuid) {
-        String uri = CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS + CloudControllerV3Endpoints.QUERY_SERVICE_INSTANCE_GUIDS
-            + serviceInstanceGuid + CloudControllerV3Endpoints.AMPERSAND_TYPE + "app" + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE
-            + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+        String uri = V3Uri.path(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS)
+                          .query(V3QueryParameters.SERVICE_INSTANCE_GUIDS, serviceInstanceGuid)
+                          .query(V3QueryParameters.TYPE, V3Fields.APP)
+                          .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                          .build();
 
         return listBindings(uri);
     }
 
     public List<CloudServiceBinding> getAppBindings(UUID applicationGuid) {
-        String uri = CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS + CloudControllerV3Endpoints.QUERY_APP_GUIDS + applicationGuid
-            + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+        String uri = V3Uri.path(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS)
+                          .query(V3QueryParameters.APP_GUIDS, applicationGuid)
+                          .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                          .build();
 
         return listBindings(uri);
     }
 
     public List<CloudServiceBinding> getServiceBindingsForApplication(UUID applicationId, UUID serviceInstanceGuid) {
-        String uri = CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS + CloudControllerV3Endpoints.QUERY_APP_GUIDS + applicationId
-            + CloudControllerV3Endpoints.AMPERSAND_SERVICE_INSTANCE_GUIDS + serviceInstanceGuid
-            + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE
-            + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+        String uri = V3Uri.path(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS)
+                          .query(V3QueryParameters.APP_GUIDS, applicationId)
+                          .query(V3QueryParameters.SERVICE_INSTANCE_GUIDS, serviceInstanceGuid)
+                          .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                          .build();
 
         return listBindings(uri);
     }
 
     public Map<String, Object> getServiceBindingParameters(UUID guid) {
         Map<String, Object> parameters = MiscUtil.cast(
-            client.get(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS + "/" + guid + "/parameters",
+            client.get(V3Uri.path(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDING_PARAMETERS, guid)
+                            .build(),
                        Map.class));
 
         if (parameters == null) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
                                               MessageFormat.format(Messages.PARAMETERS_OF_SERVICE_BINDING_WITH_GUID_0_NOT_FOUND,
                                                                    guid));
         }
@@ -128,7 +136,7 @@ public class ServiceBindingsV3Operations {
         List<UUID> serviceBindingGuids = getServiceBindingGuids(applicationGuid, serviceInstanceGuid);
 
         if (serviceBindingGuids.isEmpty()) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND, MessageFormat.format(
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(), MessageFormat.format(
                 Messages.SERVICE_BINDING_BETWEEN_SERVICE_WITH_GUID_0_AND_APPLICATION_WITH_GUID_1_NOT_FOUND, serviceInstanceGuid,
                 applicationGuid));
         }
@@ -137,10 +145,11 @@ public class ServiceBindingsV3Operations {
     }
 
     private List<UUID> getServiceBindingGuids(UUID applicationGuid, UUID serviceInstanceGuid) {
-        String uri = CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS + CloudControllerV3Endpoints.QUERY_APP_GUIDS + applicationGuid
-            + CloudControllerV3Endpoints.AMPERSAND_SERVICE_INSTANCE_GUIDS + serviceInstanceGuid
-            + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE
-            + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+        String uri = V3Uri.path(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDINGS)
+                          .query(V3QueryParameters.APP_GUIDS, applicationGuid)
+                          .query(V3QueryParameters.SERVICE_INSTANCE_GUIDS, serviceInstanceGuid)
+                          .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                          .build();
 
         return client.list(uri, BINDING_PAGE)
                      .stream()
@@ -176,7 +185,7 @@ public class ServiceBindingsV3Operations {
         List<V3GuidReference> apps = client.list(applicationsQuery, GUID_REFERENCE_PAGE);
 
         if (apps.isEmpty()) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
                                               MessageFormat.format(Messages.APPLICATION_0_NOT_FOUND, applicationName));
         }
 
@@ -189,7 +198,7 @@ public class ServiceBindingsV3Operations {
         List<V3GuidReference> instances = client.list(serviceInstancesQuery, GUID_REFERENCE_PAGE);
 
         if (instances.isEmpty()) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
                                               MessageFormat.format(Messages.SERVICE_INSTANCE_0_NOT_FOUND, name));
         }
 

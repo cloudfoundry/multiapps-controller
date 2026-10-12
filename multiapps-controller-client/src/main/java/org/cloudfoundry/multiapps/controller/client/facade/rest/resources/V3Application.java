@@ -28,7 +28,7 @@ public record V3Application(@JsonProperty(V3Fields.GUID) String guid, @JsonPrope
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3LifecycleData(@JsonProperty("buildpacks") List<String> buildpacks, @JsonProperty("stack") String stack) {
+    public record V3LifecycleData(@JsonProperty(V3Fields.BUILDPACKS) List<String> buildpacks, @JsonProperty(V3Fields.STACK) String stack) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

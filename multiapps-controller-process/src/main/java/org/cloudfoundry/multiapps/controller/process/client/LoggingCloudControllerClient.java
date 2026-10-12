@@ -276,12 +276,6 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public boolean getApplicationSshEnabled(UUID applicationGuid) {
-        logger.debug(Messages.GETTING_SSH_ENABLED_FOR_APPLICATION_0, applicationGuid);
-        return delegate.getApplicationSshEnabled(applicationGuid);
-    }
-
-    @Override
     public Map<String, Boolean> getApplicationFeatures(UUID applicationGuid) {
         logger.debug(Messages.GETTING_FEATURES_FOR_APPLICATION_0, applicationGuid);
         return delegate.getApplicationFeatures(applicationGuid);

@@ -75,7 +75,7 @@ class PackagesV3OperationsTest {
 
     @Test
     void testGetPackagesForApplicationReturnsMappedList() {
-        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/packages?per_page=5000",
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/packages?per_page=50",
                         "{\"resources\":[" + bitsPackageJson("READY", null) + "]}");
 
         List<CloudPackage> result = operations.getPackagesForApplication(UUID.fromString(APP_GUID));
@@ -88,7 +88,7 @@ class PackagesV3OperationsTest {
 
     @Test
     void testGetPackagesForApplicationReturnsEmptyList() {
-        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/packages?per_page=5000",
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/packages?per_page=50",
                         "{\"resources\":[]}");
 
         List<CloudPackage> result = operations.getPackagesForApplication(UUID.fromString(APP_GUID));

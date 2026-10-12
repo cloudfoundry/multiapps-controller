@@ -23,7 +23,7 @@ class V3ServiceOfferingMapperTest {
         V3BrokerCatalog brokerCatalog = new V3BrokerCatalog("catalog-id", Map.of("displayName", "My Service"), features);
         V3Relationships relationships = new V3Relationships(new V3ToOneRelationship(new V3RelationshipData(BROKER_GUID)));
         V3ServiceOffering offering = new V3ServiceOffering(GUID_STRING, "my-offering", "An offering", true, true, "https://docs",
-                                                           null, null, brokerCatalog, relationships, null);
+                                                           null, null, brokerCatalog, relationships, null, null);
 
         CloudServiceOffering result = V3ServiceOfferingMapper.toCloudServiceOffering(offering, List.of());
 
@@ -40,7 +40,7 @@ class V3ServiceOfferingMapperTest {
 
     @Test
     void testToCloudServiceOfferingNullBrokerCatalogReturnsNullDerivedFields() {
-        V3ServiceOffering offering = new V3ServiceOffering(GUID_STRING, "o", null, true, false, null, null, null, null, null, null);
+        V3ServiceOffering offering = new V3ServiceOffering(GUID_STRING, "o", null, true, false, null, null, null, null, null, null, null);
 
         CloudServiceOffering result = V3ServiceOfferingMapper.toCloudServiceOffering(offering, List.of());
 
@@ -54,7 +54,7 @@ class V3ServiceOfferingMapperTest {
     void testToCloudServiceOfferingNullFeaturesReturnsNullBindable() {
         V3BrokerCatalog brokerCatalog = new V3BrokerCatalog("catalog-id", null, null);
         V3ServiceOffering offering = new V3ServiceOffering(GUID_STRING, "o", null, true, false, null, null, null, brokerCatalog, null,
-                                                           null);
+                                                           null, null);
 
         Assertions.assertNull(V3ServiceOfferingMapper.toCloudServiceOffering(offering, List.of())
                                                      .isBindable());
@@ -64,7 +64,7 @@ class V3ServiceOfferingMapperTest {
     void testToCloudServiceOfferingNullServiceBrokerRelationshipReturnsNullBrokerId() {
         V3Relationships relationships = new V3Relationships(null);
         V3ServiceOffering offering = new V3ServiceOffering(GUID_STRING, "o", null, true, false, null, null, null, null, relationships,
-                                                           null);
+                                                           null, null);
 
         Assertions.assertNull(V3ServiceOfferingMapper.toCloudServiceOffering(offering, List.of())
                                                      .getBrokerId());

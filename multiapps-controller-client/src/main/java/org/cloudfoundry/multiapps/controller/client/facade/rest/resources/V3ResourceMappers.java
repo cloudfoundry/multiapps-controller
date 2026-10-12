@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.cloudfoundry.multiapps.controller.Messages;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ public final class V3ResourceMappers {
             return null;
         }
 
-        return Metadata.builder()
+        return ImmutableMetadata.builder()
                        .labels(metadata.labels())
                        .annotations(metadata.annotations())
                        .build();

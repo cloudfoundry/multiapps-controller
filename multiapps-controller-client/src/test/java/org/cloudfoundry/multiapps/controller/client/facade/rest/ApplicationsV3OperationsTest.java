@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
@@ -28,7 +29,7 @@ class ApplicationsV3OperationsTest {
 
     private static final String SPACE_GUID = "11111111-2222-3333-4444-555555555555";
     private static final String APP_GUID = "3725a721-6e3f-4b6e-8f2b-1c2d3e4f5a6b";
-    private static final String APPS_BASE = MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000";
+    private static final String APPS_BASE = MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=50";
 
     @Mock
     private CloudSpace target;
@@ -87,8 +88,8 @@ class ApplicationsV3OperationsTest {
                                                                                              .stackName("cflinuxfs4")
                                                                                              .build())
                                                                     .env(Map.of("FOO", "bar"))
-                                                                    .metadata(Metadata.builder()
-                                                                                      .label("k", "v")
+                                                                    .metadata(ImmutableMetadata.builder()
+                                                                                      .putLabel("k", "v")
                                                                                       .build())
                                                                     .build();
 
@@ -437,10 +438,28 @@ class ApplicationsV3OperationsTest {
     void testUpdateApplicationMetadataUpdatesApp() {
         factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID, HttpMethod.PATCH);
 
-        Metadata metadata = Metadata.builder()
-                                    .label("k", "v")
-                                    .annotation("a", "b")
+        Metadata metadata = ImmutableMetadata.builder()
+                                    .putLabel("k", "v")
+                                    .putAnnotation("a", "b")
                                     .build();
+
+        operations.updateApplicationMetadata(UUID.fromString(APP_GUID), metadata);
+
+        factory.verify();
+    }
+
+    @Test
+    void testUpdateApplicationMetadataSendsNullLabelValueToDeleteLabel() {
+        factory.server()
+               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID))
+               .andExpect(MockRestRequestMatchers.method(HttpMethod.PATCH))
+               .andExpect(MockRestRequestMatchers.content()
+                                                 .string(org.hamcrest.Matchers.containsString("\"obsolete\":null")))
+               .andRespond(MockRestResponseCreators.withSuccess());
+
+        Metadata metadata = ImmutableMetadata.builder()
+                                             .putLabel("obsolete", null)
+                                             .build();
 
         operations.updateApplicationMetadata(UUID.fromString(APP_GUID), metadata);
 

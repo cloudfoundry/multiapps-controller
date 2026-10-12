@@ -57,4 +57,18 @@ class V3InstancesInfoMapperTest {
                                      .isRoutable());
     }
 
+    @Test
+    void testToInstancesInfoWhenIndexStateAndRoutableNullDoesNotThrow() {
+        V3Process.V3ProcessStats stats = new V3Process.V3ProcessStats(List.of(new V3Process.V3ProcessStatsResource(null, null, null)));
+
+        InstancesInfo result = Assertions.assertDoesNotThrow(() -> V3InstancesInfoMapper.toInstancesInfo(stats));
+
+        Assertions.assertEquals(0, result.getInstances()
+                                          .getFirst()
+                                          .getIndex());
+        Assertions.assertFalse(result.getInstances()
+                                     .getFirst()
+                                     .isRoutable());
+    }
+
 }

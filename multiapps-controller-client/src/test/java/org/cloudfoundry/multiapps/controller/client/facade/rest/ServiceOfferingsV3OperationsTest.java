@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceOffering;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ServiceOffering;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ServicePlan;
@@ -61,8 +62,8 @@ class ServiceOfferingsV3OperationsTest {
 
     @Test
     void testGetServiceOfferingsScopesQueryToSpaceWhenTargetHasGuid() {
-        when(targetSpace.getGuid())
-            .thenReturn(SPACE_GUID);
+        when(targetSpace.getMetadata())
+            .thenReturn(ImmutableCloudMetadata.of(SPACE_GUID));
 
         when(client.list(ArgumentMatchers.contains("/v3/service_offerings"),
                          ArgumentMatchers.<ParameterizedTypeReference<V3ListResponse<V3ServiceOffering>>> any()))
@@ -96,11 +97,11 @@ class ServiceOfferingsV3OperationsTest {
     }
 
     private static V3ServiceOffering getOffering() {
-        return new V3ServiceOffering(OFFERING_GUID, "my-offering", "desc", true, false, null, null, null, null, null, null);
+        return new V3ServiceOffering(OFFERING_GUID, "my-offering", "desc", true, false, null, null, null, null, null, null, null);
     }
 
     private static V3ServicePlan getPlan(String name) {
-        return new V3ServicePlan(PLAN_GUID, name, null, true, "public", null, null, null, null, null);
+        return new V3ServicePlan(PLAN_GUID, name, null, true, "public", null, null, null, null, null, null, null, null, null, null);
     }
 
 }

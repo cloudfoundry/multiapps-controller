@@ -187,7 +187,7 @@ class DomainsV3OperationsTest {
         when(targetSpace.getOrganization())
             .thenReturn(getOrganizationWithGuid(ORG_GUID));
 
-        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/organizations/" + ORG_GUID + "/domains?per_page=5000",
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/organizations/" + ORG_GUID + "/domains?per_page=50",
                         "{\"resources\":[" + getDomainResourceJson(DOMAIN_GUID, DOMAIN_NAME) + "]}");
 
         List<CloudDomain> result = serverOperations.getDomainsForOrganization();
@@ -203,7 +203,7 @@ class DomainsV3OperationsTest {
         when(targetSpace.getOrganization())
             .thenReturn(getOrganizationWithGuid(ORG_GUID));
 
-        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/organizations/" + ORG_GUID + "/domains?per_page=5000",
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/organizations/" + ORG_GUID + "/domains?per_page=50",
                         "{\"resources\":[]}");
 
         Assertions.assertTrue(serverOperations.getDomainsForOrganization()
@@ -219,12 +219,12 @@ class DomainsV3OperationsTest {
     }
 
     private void stubEmptyDomainLookup(String name) {
-        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + name + "&per_page=5000",
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + name + "&per_page=50",
                         "{\"resources\":[]}");
     }
 
     private void stubDomainLookupWithResult(String name, String domainGuid) {
-        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + name + "&per_page=5000",
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/domains?names=" + name + "&per_page=50",
                         "{\"resources\":[" + getDomainResourceJson(domainGuid, name) + "]}");
     }
 
@@ -246,13 +246,13 @@ class DomainsV3OperationsTest {
     }
 
     private static V3Domain getSharedDomain(String name) {
-        return new V3Domain(GUID_STRING, name, null, null, null, null);
+        return new V3Domain(GUID_STRING, name, null, null, null, null, null);
     }
 
     private static V3Domain getPrivateDomain(String name) {
         V3DomainRelationships relationships = new V3DomainRelationships(new V3ToOneRelationship(new V3RelationshipData(ORG_GUID)));
 
-        return new V3Domain(GUID_STRING, name, null, null, null, relationships);
+        return new V3Domain(GUID_STRING, name, null, null, null, null, relationships);
     }
 
 }

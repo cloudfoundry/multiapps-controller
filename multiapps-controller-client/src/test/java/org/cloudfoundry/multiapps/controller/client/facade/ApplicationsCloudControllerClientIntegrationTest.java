@@ -21,6 +21,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloud
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudDomain;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDockerInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.InstancesInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.LifecycleType;
@@ -382,8 +383,8 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
     @DisplayName("Create application and update its metadata")
     void updateApplicationMetadata() {
         String applicationName = "test-application-15";
-        Metadata metadata = Metadata.builder()
-                                    .label("test-app", "test-app")
+        Metadata metadata = ImmutableMetadata.builder()
+                                    .putLabel("test-app", "test-app")
                                     .build();
         try {
             createAndVerifyDefaultApplication(applicationName);

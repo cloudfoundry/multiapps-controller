@@ -17,7 +17,7 @@ class V3BuildMapperTest {
     @Test
     void testToCloudBuildMapsAllFields() {
         V3Build build = new V3Build(GUID_STRING, null, null, "STAGED", null, new V3CreatedBy(USER_GUID, "admin"),
-                                    new V3PackageReference(PACKAGE_GUID), new V3DropletReference(DROPLET_GUID));
+                                    new V3PackageReference(PACKAGE_GUID), new V3DropletReference(DROPLET_GUID), null, null);
 
         CloudBuild result = V3BuildMapper.toCloudBuild(build);
 
@@ -37,7 +37,7 @@ class V3BuildMapperTest {
 
     @Test
     void testToCloudBuildNullCreatedByPackageAndDropletReturnNulls() {
-        V3Build build = new V3Build(GUID_STRING, null, null, "STAGING", "boom", null, null, null);
+        V3Build build = new V3Build(GUID_STRING, null, null, "STAGING", "boom", null, null, null, null, null);
 
         CloudBuild result = V3BuildMapper.toCloudBuild(build);
 
@@ -49,7 +49,7 @@ class V3BuildMapperTest {
 
     @Test
     void testToCLoudBuildDropletWithNullGuidReturnsNullDropletInfo() {
-        V3Build build = new V3Build(GUID_STRING, null, null, "FAILED", null, null, null, new V3DropletReference(null));
+        V3Build build = new V3Build(GUID_STRING, null, null, "FAILED", null, null, null, new V3DropletReference(null), null, null);
 
         Assertions.assertNull(V3BuildMapper.toCloudBuild(build)
                                            .getDropletInfo());
@@ -57,7 +57,7 @@ class V3BuildMapperTest {
 
     @Test
     void testToCloudBuildNullStateReturnsNullState() {
-        V3Build build = new V3Build(GUID_STRING, null, null, null, null, null, null, null);
+        V3Build build = new V3Build(GUID_STRING, null, null, null, null, null, null, null, null, null);
 
         Assertions.assertNull(V3BuildMapper.toCloudBuild(build)
                                            .getState());

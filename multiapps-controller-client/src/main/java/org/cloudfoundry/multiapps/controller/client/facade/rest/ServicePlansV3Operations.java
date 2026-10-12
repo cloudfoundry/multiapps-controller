@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.controller.Messages;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
@@ -13,6 +12,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ServicePlanVis
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Fields;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3GuidReference;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3QueryParameters;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 
@@ -40,14 +40,16 @@ public class ServicePlansV3Operations {
     }
 
     private UUID getRequiredServiceBrokerGuid(String name) {
-        String uri = CloudControllerV3Endpoints.SERVICE_BROKERS + CloudControllerV3Endpoints.QUERY_NAMES + name
-            + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+        String uri = V3Uri.path(CloudControllerV3Endpoints.SERVICE_BROKERS)
+                          .query(V3QueryParameters.NAMES, name)
+                          .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                          .build();
 
         return client.list(uri, GUID_REFERENCE_PAGE)
                      .stream()
                      .findFirst()
                      .map(broker -> UUID.fromString(broker.guid()))
-                     .orElseThrow(() -> new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+                     .orElseThrow(() -> new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
                                                                     MessageFormat.format(Messages.SERVICE_BROKER_0_NOT_FOUND, name)));
     }
 
@@ -57,12 +59,10 @@ public class ServicePlansV3Operations {
             return List.of();
         }
 
-        String offeringGuidsFilter = offeredServicesGuids.stream()
-                                                         .map(UUID::toString)
-                                                         .collect(Collectors.joining(","));
-
-        String uri = CloudControllerV3Endpoints.SERVICE_PLANS + CloudControllerV3Endpoints.QUERY_SERVICE_OFFERING_GUIDS
-            + offeringGuidsFilter + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE;
+        String uri = V3Uri.path(CloudControllerV3Endpoints.SERVICE_PLANS)
+                          .query(V3QueryParameters.SERVICE_OFFERING_GUIDS, offeredServicesGuids)
+                          .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                          .build();
 
         return client.list(uri, GUID_REFERENCE_PAGE)
                      .stream()
@@ -71,17 +71,13 @@ public class ServicePlansV3Operations {
     }
 
     private List<UUID> findServiceOfferingGuidsByBrokerGuid(UUID brokerGuid) {
-        StringBuilder query = new StringBuilder(CloudControllerV3Endpoints.SERVICE_OFFERINGS
-                                                    + CloudControllerV3Endpoints.QUERY_SERVICE_BROKER_GUIDS + brokerGuid
-                                                    + CloudControllerV3Endpoints.AMPERSAND_PER_PAGE
-                                                    + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE);
+        String uri = V3Uri.path(CloudControllerV3Endpoints.SERVICE_OFFERINGS)
+                          .query(V3QueryParameters.SERVICE_BROKER_GUIDS, brokerGuid)
+                          .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                          .query(V3QueryParameters.SPACE_GUIDS, OperationsUtil.getGuid(targetSpace))
+                          .build();
 
-        if (targetSpace != null && targetSpace.getGuid() != null) {
-            query.append(CloudControllerV3Endpoints.AMPERSAND_SPACE_GUIDS)
-                 .append(targetSpace.getGuid());
-        }
-
-        return client.list(query.toString(), GUID_REFERENCE_PAGE)
+        return client.list(uri, GUID_REFERENCE_PAGE)
                      .stream()
                      .map(offering -> UUID.fromString(offering.guid()))
                      .toList();

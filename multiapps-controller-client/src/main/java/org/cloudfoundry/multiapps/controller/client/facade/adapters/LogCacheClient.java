@@ -27,6 +27,13 @@ public class LogCacheClient {
     private static final String SOURCE_TYPE_KEY_NAME = "source_type";
     private static final int MAX_LOG_COUNT = 1000;
 
+    private static final String READ_LOGS_PATH = "/api/v1/read/{sourceId}";
+    private static final String ENVELOPE_TYPES_QUERY_PARAM = "envelope_types";
+    private static final String LOG_ENVELOPE_TYPE = "LOG";
+    private static final String DESCENDING_QUERY_PARAM = "descending";
+    private static final String LIMIT_QUERY_PARAM = "limit";
+    private static final String START_TIME_QUERY_PARAM = "start_time";
+
     private final RestClient restClient;
 
     public LogCacheClient(RestClient restClient) {
@@ -57,11 +64,11 @@ public class LogCacheClient {
         long startTime = secondsInNanos + instant.getNano() + 1;
 
         return restClient.get()
-                         .uri(uriBuilder -> uriBuilder.path("/api/v1/read/{sourceId}")
-                                                      .queryParam("envelope_types", "LOG")
-                                                      .queryParam("descending", Boolean.TRUE)
-                                                      .queryParam("limit", MAX_LOG_COUNT)
-                                                      .queryParam("start_time", startTime)
+                         .uri(uriBuilder -> uriBuilder.path(READ_LOGS_PATH)
+                                                      .queryParam(ENVELOPE_TYPES_QUERY_PARAM, LOG_ENVELOPE_TYPE)
+                                                      .queryParam(DESCENDING_QUERY_PARAM, Boolean.TRUE)
+                                                      .queryParam(LIMIT_QUERY_PARAM, MAX_LOG_COUNT)
+                                                      .queryParam(START_TIME_QUERY_PARAM, startTime)
                                                       .build(applicationGuid.toString()))
                          .retrieve()
                          .body(LogCacheReadResponse.class);

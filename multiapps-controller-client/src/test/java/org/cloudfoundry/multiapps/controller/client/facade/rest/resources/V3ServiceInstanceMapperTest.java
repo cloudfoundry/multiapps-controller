@@ -16,7 +16,7 @@ class V3ServiceInstanceMapperTest {
     @Test
     void testToCloudServiceInstanceMapsAllFields() {
         V3ServiceInstance instance = new V3ServiceInstance(GUID_STRING, "my-service", "managed", null, null, List.of("tag1", "tag2"),
-                                                           "syslog://drain", new V3LastOperation("create", "succeeded", "done"), null,
+                                                           "syslog://drain", null, new V3LastOperation("create", "succeeded", "done"), null,
                                                            null);
 
         CloudServiceInstance result = V3ServiceInstanceMapper.toCloudServiceInstance(instance, "my-plan", "my-label");
@@ -59,7 +59,7 @@ class V3ServiceInstanceMapperTest {
 
     @Test
     void testToCloudServiceInstanceNullTagsReturnEmptyList() {
-        V3ServiceInstance instance = new V3ServiceInstance(GUID_STRING, "s", "managed", null, null, null, null, null, null, null);
+        V3ServiceInstance instance = new V3ServiceInstance(GUID_STRING, "s", "managed", null, null, null, null, null, null, null, null);
 
         Assertions.assertTrue(V3ServiceInstanceMapper.toCloudServiceInstance(instance, null, null)
                                                      .getTags()
@@ -68,7 +68,7 @@ class V3ServiceInstanceMapperTest {
 
     @Test
     void testToCloudServiceInstanceNullLastOperationReturnsNullOperation() {
-        V3ServiceInstance instance = new V3ServiceInstance(GUID_STRING, "s", "managed", null, null, null, null, null, null, null);
+        V3ServiceInstance instance = new V3ServiceInstance(GUID_STRING, "s", "managed", null, null, null, null, null, null, null, null);
 
         Assertions.assertNull(V3ServiceInstanceMapper.toCloudServiceInstance(instance, null, null)
                                                      .getLastOperation());
@@ -76,7 +76,7 @@ class V3ServiceInstanceMapperTest {
 
     @Test
     void testToCloudServiceInstanceLastOperationWithNullTypeReturnsNullOperation() {
-        V3ServiceInstance instance = new V3ServiceInstance(GUID_STRING, "s", "managed", null, null, null, null,
+        V3ServiceInstance instance = new V3ServiceInstance(GUID_STRING, "s", "managed", null, null, null, null, null,
                                                            new V3LastOperation(null, "succeeded", "d"), null, null);
 
         Assertions.assertNull(V3ServiceInstanceMapper.toCloudServiceInstance(instance, null, null)
@@ -85,7 +85,7 @@ class V3ServiceInstanceMapperTest {
 
     @Test
     void testToCloudServiceInstanceWithoutAuxiliaryContentExcludesPlanAndOperation() {
-        V3ServiceInstance instance = new V3ServiceInstance(GUID_STRING, "my-service", "managed", null, null, List.of("t"), "syslog",
+        V3ServiceInstance instance = new V3ServiceInstance(GUID_STRING, "my-service", "managed", null, null, List.of("t"), "syslog", null,
                                                            new V3LastOperation("create", "succeeded", "d"), null, null);
 
         CloudServiceInstance result = V3ServiceInstanceMapper.toCloudServiceInstanceWithoutAuxiliaryContent(instance);
@@ -98,7 +98,7 @@ class V3ServiceInstanceMapperTest {
     }
 
     private static V3ServiceInstance buildInstanceWithType(String type) {
-        return new V3ServiceInstance(GUID_STRING, "s", type, null, null, null, null, null, null, null);
+        return new V3ServiceInstance(GUID_STRING, "s", type, null, null, null, null, null, null, null, null);
     }
 
 }

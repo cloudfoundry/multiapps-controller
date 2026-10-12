@@ -88,7 +88,6 @@ public class CloudControllerRestClientV3Impl implements CloudControllerRestClien
         return targetSpace;
     }
 
-
     @Override
     public void addDomain(String domainName) {
         domainsOperations.addDomain(domainName);
@@ -194,7 +193,7 @@ public class CloudControllerRestClientV3Impl implements CloudControllerRestClien
         CloudServiceKey serviceKey = getServiceKey(serviceInstanceName, serviceKeyName);
 
         if (serviceKey == null) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
                                               MessageFormat.format(Messages.SERVICE_KEY_0_NOT_FOUND, serviceKeyName));
         }
 
@@ -274,11 +273,6 @@ public class CloudControllerRestClientV3Impl implements CloudControllerRestClien
     @Override
     public List<CloudRoute> getApplicationRoutes(UUID applicationGuid) {
         return routesOperations.getApplicationRoutes(applicationGuid);
-    }
-
-    @Override
-    public boolean getApplicationSshEnabled(UUID applicationGuid) {
-        return processesOperations.getApplicationSshEnabled(applicationGuid);
     }
 
     @Override

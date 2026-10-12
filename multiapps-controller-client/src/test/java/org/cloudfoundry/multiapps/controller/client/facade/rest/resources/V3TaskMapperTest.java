@@ -11,7 +11,7 @@ class V3TaskMapperTest {
     @Test
     void testToCloudTaskMapsAllFields() {
         V3Task task = new V3Task(GUID_STRING, "migrate-db", "rails db:migrate", "SUCCEEDED", 256, 1024,
-                                 new V3Task.V3Result(null), "2026-08-04T10:15:30Z", "2026-08-04T10:16:30Z", null);
+                                 new V3Task.V3Result(null), "2026-08-04T10:15:30Z", "2026-08-04T10:16:30Z", null, null);
 
         CloudTask result = V3TaskMapper.toCloudTask(task);
 
@@ -36,7 +36,7 @@ class V3TaskMapperTest {
 
     @Test
     void testToCloudTaskMapsFailureReason() {
-        V3Task task = new V3Task(GUID_STRING, "t", "cmd", "FAILED", 256, 1024, new V3Task.V3Result("boom"), null, null, null);
+        V3Task task = new V3Task(GUID_STRING, "t", "cmd", "FAILED", 256, 1024, new V3Task.V3Result("boom"), null, null, null, null);
 
         Assertions.assertEquals("boom", V3TaskMapper.toCloudTask(task)
                                                     .getResult()
@@ -59,7 +59,7 @@ class V3TaskMapperTest {
     }
 
     private static V3Task buildTaskWithState(String state) {
-        return new V3Task(GUID_STRING, "t", "cmd", state, 256, 1024, null, null, null, null);
+        return new V3Task(GUID_STRING, "t", "cmd", state, 256, 1024, null, null, null, null, null);
     }
 
 }

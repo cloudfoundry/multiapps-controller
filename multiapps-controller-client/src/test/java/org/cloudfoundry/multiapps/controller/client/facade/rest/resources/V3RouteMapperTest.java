@@ -92,6 +92,38 @@ class V3RouteMapperTest {
         Assertions.assertNull(result.getRequestedProtocol());
     }
 
+    @Test
+    void testToCloudRouteWhenRelationshipsNullDoesNotThrow() {
+        V3Route route = new V3Route(ROUTE_GUID, null, null, null, "example.com", null, null, List.of(), null, null);
+
+        CloudRoute result = Assertions.assertDoesNotThrow(() -> V3RouteMapper.toCloudRoute(route));
+
+        Assertions.assertEquals("example.com", result.getDomain()
+                                                     .getName());
+        Assertions.assertNull(result.getDomain()
+                                    .getMetadata()
+                                    .getGuid());
+    }
+
+    @Test
+    void testToCloudRouteWhenDestinationAppOrProtocolNullDoesNotThrow() {
+        V3Destination destinationWithNullApp = new V3Destination(DESTINATION_GUID, null, 8080, 1, "http1");
+        V3Destination destinationWithNullProtocol = new V3Destination(DESTINATION_GUID, new V3DestinationApp(APP_GUID), 8080, 1, null);
+        V3Route route = buildRoute("myhost", "", null, "myhost.example.com",
+                                   List.of(destinationWithNullApp, destinationWithNullProtocol));
+
+        CloudRoute result = Assertions.assertDoesNotThrow(() -> V3RouteMapper.toCloudRoute(route));
+
+        Assertions.assertEquals(1, result.getDestinations()
+                                         .size());
+        Assertions.assertEquals(UUID.fromString(APP_GUID), result.getDestinations()
+                                                                 .get(0)
+                                                                 .getApplicationGuid());
+        Assertions.assertNull(result.getDestinations()
+                                    .get(0)
+                                    .getProtocol());
+    }
+
     private static V3Route buildRoute(String host, String path, Integer port, String url, List<V3Destination> destinations) {
         V3RouteRelationships relationships = new V3RouteRelationships(new V3ToOneRelationship(new V3RelationshipData(DOMAIN_GUID)),
                                                                       new V3ToOneRelationship(new V3RelationshipData(DOMAIN_GUID)));

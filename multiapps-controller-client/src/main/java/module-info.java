@@ -16,7 +16,6 @@ open module org.cloudfoundry.multiapps.controller.client {
     requires transitive spring.web;
 
     requires com.fasterxml.jackson.databind;
-    requires java.desktop;
     requires java.net.http;
     requires io.netty.handler;
     requires io.netty.transport;

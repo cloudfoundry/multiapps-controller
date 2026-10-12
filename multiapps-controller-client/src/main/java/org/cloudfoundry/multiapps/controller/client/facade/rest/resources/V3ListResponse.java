@@ -17,7 +17,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * </pre>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record V3ListResponse<R>(@JsonProperty("pagination") Pagination pagination, @JsonProperty("resources") List<R> resources) {
+public record V3ListResponse<R>(@JsonProperty(V3Fields.PAGINATION) Pagination pagination,
+                                @JsonProperty(V3Fields.RESOURCES) List<R> resources) {
 
     public List<R> resources() {
         return resources == null ? Collections.emptyList() : resources;
@@ -33,12 +34,13 @@ public record V3ListResponse<R>(@JsonProperty("pagination") Pagination paginatio
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Pagination(@JsonProperty("total_results") Integer totalResults, @JsonProperty("total_pages") Integer totalPages,
-                             @JsonProperty("next") Link next, @JsonProperty("previous") Link previous) {
+    public record Pagination(@JsonProperty(V3Fields.TOTAL_RESULTS) Integer totalResults,
+                             @JsonProperty(V3Fields.TOTAL_PAGES) Integer totalPages,
+                             @JsonProperty(V3Fields.NEXT) Link next, @JsonProperty(V3Fields.PREVIOUS) Link previous) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Link(@JsonProperty("href") String href) {
+    public record Link(@JsonProperty(V3Fields.HREF) String href) {
     }
 
 }

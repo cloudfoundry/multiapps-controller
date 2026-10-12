@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.client.facade.rest.resources;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.controller.Constants;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudApplication;
@@ -11,9 +12,6 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.Lifecycle;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.LifecycleType;
 
 public final class V3ApplicationMapper {
-
-    private static final String BUILDPACKS = "buildpacks";
-    private static final String STACK = "stack";
 
     private V3ApplicationMapper() {
     }
@@ -50,8 +48,8 @@ public final class V3ApplicationMapper {
             return Map.of();
         }
 
-        return Map.of(BUILDPACKS, data.buildpacks() == null ? List.of() : data.buildpacks(),
-                      STACK, data.stack() == null ? "" : data.stack());
+        return Map.of(V3Fields.BUILDPACKS, data.buildpacks() == null ? List.of() : data.buildpacks(), V3Fields.STACK,
+                      data.stack() == null ? Constants.EMPTY_STRING : data.stack());
     }
 
 }

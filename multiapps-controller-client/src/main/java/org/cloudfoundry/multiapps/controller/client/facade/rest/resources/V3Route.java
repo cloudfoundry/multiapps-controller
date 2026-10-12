@@ -18,10 +18,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * </pre>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record V3Route(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty("host") String host, @JsonProperty("path") String path,
-                      @JsonProperty(V3Fields.PORT) Integer port, @JsonProperty("url") String url,
+public record V3Route(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty(V3Fields.HOST) String host,
+                      @JsonProperty(V3Fields.PATH) String path,
+                      @JsonProperty(V3Fields.PORT) Integer port, @JsonProperty(V3Fields.URL) String url,
                       @JsonProperty(V3Fields.CREATED_AT) String createdAt, @JsonProperty(V3Fields.UPDATED_AT) String updatedAt,
-                      @JsonProperty("destinations") List<V3Destination> destinations, @JsonProperty(V3Fields.METADATA) V3Metadata metadata,
+                      @JsonProperty(V3Fields.DESTINATIONS) List<V3Destination> destinations,
+                      @JsonProperty(V3Fields.METADATA) V3Metadata metadata,
                       @JsonProperty(V3Fields.RELATIONSHIPS) V3RouteRelationships relationships) {
 
     public List<V3Destination> destinations() {
@@ -30,8 +32,8 @@ public record V3Route(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty("h
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record V3Destination(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty(V3Fields.APP) V3DestinationApp app,
-                                @JsonProperty(V3Fields.PORT) Integer port, @JsonProperty("weight") Integer weight,
-                                @JsonProperty("protocol") String protocol) {
+                                @JsonProperty(V3Fields.PORT) Integer port, @JsonProperty(V3Fields.WEIGHT) Integer weight,
+                                @JsonProperty(V3Fields.PROTOCOL) String protocol) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -40,7 +42,7 @@ public record V3Route(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty("h
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record V3RouteRelationships(@JsonProperty(V3Fields.SPACE) V3ToOneRelationship space,
-                                       @JsonProperty("domain") V3ToOneRelationship domain) {
+                                       @JsonProperty(V3Fields.DOMAIN) V3ToOneRelationship domain) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

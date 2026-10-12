@@ -37,7 +37,7 @@ class StacksV3OperationsTest {
 
     @Test
     void testGetStackReturnsMappedStackWhenFound() {
-        mockStackList(new V3Stack(GUID_STRING, "cflinuxfs4", "Ubuntu-based stack", null, null, null));
+        mockStackList(new V3Stack(GUID_STRING, "cflinuxfs4", "Ubuntu-based stack", null, null, null, null));
 
         CloudStack result = operations.getStack("cflinuxfs4");
 
@@ -63,8 +63,8 @@ class StacksV3OperationsTest {
 
     @Test
     void testGetStacksMapsAllResults() {
-        mockStackList(new V3Stack(GUID_STRING, "cflinuxfs4", null, null, null, null),
-                      new V3Stack(GUID_STRING, "cflinuxfs3", null, null, null, null));
+        mockStackList(new V3Stack(GUID_STRING, "cflinuxfs4", null, null, null, null, null),
+                      new V3Stack(GUID_STRING, "cflinuxfs3", null, null, null, null, null));
 
         List<CloudStack> result = operations.getStacks();
 

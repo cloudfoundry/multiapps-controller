@@ -8,13 +8,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * {@code GET /v3/organizations/{guid}/domains/default}).
  *
  * <pre>
- * { "guid": "...", "name": "example.com", "created_at": "...", "updated_at": "...",
+ * { "guid": "...", "name": "example.com", "internal": false, "created_at": "...", "updated_at": "...",
  *   "metadata": { "labels": {...}, "annotations": {...} },
  *   "relationships": { "organization": { "data": { "guid": "..." } | null } } }
  * </pre>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record V3Domain(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty(V3Fields.NAME) String name,
+                       @JsonProperty(V3Fields.INTERNAL) Boolean internal,
                        @JsonProperty(V3Fields.CREATED_AT) String createdAt, @JsonProperty(V3Fields.UPDATED_AT) String updatedAt,
                        @JsonProperty(V3Fields.METADATA) V3Metadata metadata,
                        @JsonProperty(V3Fields.RELATIONSHIPS) V3DomainRelationships relationships) {

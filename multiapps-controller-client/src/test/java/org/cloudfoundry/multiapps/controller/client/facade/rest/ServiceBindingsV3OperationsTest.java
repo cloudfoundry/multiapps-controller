@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -91,13 +92,13 @@ class ServiceBindingsV3OperationsTest {
             .thenReturn(spaceGuid);
 
         factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&space_guids="
+               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=50&space_guids="
                                                              + spaceGuid + "&names=my-app"))
                .andRespond(MockRestResponseCreators.withSuccess(getResourcesJson(APP_GUID), MediaType.APPLICATION_JSON));
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL
-                                                             + "/v3/service_instances?per_page=5000&space_guids=" + spaceGuid
+                                                             + "/v3/service_instances?per_page=50&space_guids=" + spaceGuid
                                                              + "&names=my-service"))
                .andRespond(MockRestResponseCreators.withSuccess(getResourcesJson(SERVICE_INSTANCE_GUID), MediaType.APPLICATION_JSON));
 
@@ -118,7 +119,7 @@ class ServiceBindingsV3OperationsTest {
             .thenReturn(null);
 
         factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&names=missing-app"))
+               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=50&names=missing-app"))
                .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
 
         Assertions.assertThrows(CloudOperationException.class,
@@ -133,7 +134,7 @@ class ServiceBindingsV3OperationsTest {
         stubAppLookup("my-app");
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL
-                                                             + "/v3/service_instances?per_page=5000&names=missing-service"))
+                                                             + "/v3/service_instances?per_page=50&names=missing-service"))
                .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
 
         Assertions.assertThrows(CloudOperationException.class,
@@ -152,7 +153,7 @@ class ServiceBindingsV3OperationsTest {
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL
                                                              + "/v3/service_credential_bindings?app_guids=" + APP_GUID
                                                              + "&service_instance_guids=" + SERVICE_INSTANCE_GUID
-                                                             + "&per_page=5000"))
+                                                             + "&per_page=50"))
                .andRespond(MockRestResponseCreators.withSuccess(getResourcesJson(BINDING_GUID), MediaType.APPLICATION_JSON));
 
         factory.server()
@@ -177,7 +178,7 @@ class ServiceBindingsV3OperationsTest {
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL
                                                              + "/v3/service_credential_bindings?app_guids=" + APP_GUID
                                                              + "&service_instance_guids=" + SERVICE_INSTANCE_GUID
-                                                             + "&per_page=5000"))
+                                                             + "&per_page=50"))
                .andRespond(MockRestResponseCreators.withSuccess(getResourcesJson(BINDING_GUID), MediaType.APPLICATION_JSON));
 
         factory.server()
@@ -201,7 +202,7 @@ class ServiceBindingsV3OperationsTest {
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL
                                                              + "/v3/service_credential_bindings?app_guids=" + APP_GUID
                                                              + "&service_instance_guids=" + SERVICE_INSTANCE_GUID
-                                                             + "&per_page=5000"))
+                                                             + "&per_page=50"))
                .andRespond(MockRestResponseCreators.withSuccess("{\"resources\":[]}", MediaType.APPLICATION_JSON));
 
         Assertions.assertThrows(CloudOperationException.class,
@@ -228,7 +229,7 @@ class ServiceBindingsV3OperationsTest {
     @Test
     void testGetServiceBindingReturnsMappedBinding() {
         factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_credential_bindings?guids="
-            + BINDING_GUID + "&per_page=5000", getBindingListJson());
+            + BINDING_GUID + "&per_page=50", getBindingListJson());
 
         CloudServiceBinding result = operations.getServiceBinding(UUID.fromString(BINDING_GUID));
 
@@ -240,7 +241,7 @@ class ServiceBindingsV3OperationsTest {
     @Test
     void testGetServiceBindingReturnsNullWhenNoBindingFound() {
         factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/service_credential_bindings?guids="
-            + BINDING_GUID + "&per_page=5000", "{\"resources\":[]}");
+            + BINDING_GUID + "&per_page=50", "{\"resources\":[]}");
 
         CloudServiceBinding result = operations.getServiceBinding(UUID.fromString(BINDING_GUID));
 
@@ -252,7 +253,7 @@ class ServiceBindingsV3OperationsTest {
     void testGetServiceAppBindingsReturnsMappedList() {
         factory.stubGet(MockControllerClientFactory.BASE_URL
             + "/v3/service_credential_bindings?service_instance_guids="
-            + SERVICE_INSTANCE_GUID + "&type=app&per_page=5000", getBindingListJson());
+            + SERVICE_INSTANCE_GUID + "&type=app&per_page=50", getBindingListJson());
 
         List<CloudServiceBinding> result = operations.getServiceAppBindings(UUID.fromString(SERVICE_INSTANCE_GUID));
 
@@ -265,7 +266,7 @@ class ServiceBindingsV3OperationsTest {
     @Test
     void testGetAppBindingsReturnsEmptyList() {
         factory.stubGet(MockControllerClientFactory.BASE_URL
-            + "/v3/service_credential_bindings?app_guids=" + APP_GUID + "&per_page=5000", "{\"resources\":[]}");
+            + "/v3/service_credential_bindings?app_guids=" + APP_GUID + "&per_page=50", "{\"resources\":[]}");
 
         List<CloudServiceBinding> result = operations.getAppBindings(UUID.fromString(APP_GUID));
 
@@ -278,7 +279,7 @@ class ServiceBindingsV3OperationsTest {
         factory.stubGet(MockControllerClientFactory.BASE_URL
             + "/v3/service_credential_bindings?app_guids=" + APP_GUID
             + "&service_instance_guids=" + SERVICE_INSTANCE_GUID
-            + "&per_page=5000", getBindingListJson());
+            + "&per_page=50", getBindingListJson());
 
         List<CloudServiceBinding> result = operations.getServiceBindingsForApplication(UUID.fromString(APP_GUID),
                                                                                        UUID.fromString(SERVICE_INSTANCE_GUID));
@@ -319,8 +320,8 @@ class ServiceBindingsV3OperationsTest {
                .andExpect(MockRestRequestMatchers.method(HttpMethod.PATCH))
                .andRespond(MockRestResponseCreators.withSuccess("{\"guid\":\"" + BINDING_GUID + "\"}", MediaType.APPLICATION_JSON));
 
-        Metadata metadata = Metadata.builder()
-                                    .label("key", "value")
+        Metadata metadata = ImmutableMetadata.builder()
+                                    .putLabel("key", "value")
                                     .build();
 
         Assertions.assertDoesNotThrow(() -> operations.updateServiceBindingMetadata(UUID.fromString(BINDING_GUID), metadata));
@@ -335,7 +336,7 @@ class ServiceBindingsV3OperationsTest {
                .andExpect(MockRestRequestMatchers.method(HttpMethod.PATCH))
                .andRespond(MockRestResponseCreators.withStatus(HttpStatus.UNPROCESSABLE_ENTITY));
 
-        Metadata metadata = Metadata.builder()
+        Metadata metadata = ImmutableMetadata.builder()
                                     .build();
 
         UUID bindingGuid = UUID.fromString(BINDING_GUID);
@@ -345,13 +346,13 @@ class ServiceBindingsV3OperationsTest {
 
     private void stubAppLookup(String appName) {
         factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&names=" + appName))
+               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=50&names=" + appName))
                .andRespond(MockRestResponseCreators.withSuccess(getResourcesJson(APP_GUID), MediaType.APPLICATION_JSON));
     }
 
     private void stubServiceInstanceLookup(String serviceName) {
         factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=5000&names="
+               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/service_instances?per_page=50&names="
                                                              + serviceName))
                .andRespond(MockRestResponseCreators.withSuccess(getResourcesJson(SERVICE_INSTANCE_GUID), MediaType.APPLICATION_JSON));
     }

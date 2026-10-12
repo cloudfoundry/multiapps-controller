@@ -133,25 +133,9 @@ class ProcessesV3OperationsTest {
     }
 
     @Test
-    void testGetApplicationSshEnabledReturnsTrue() {
-        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/ssh_enabled", "{\"enabled\":true,\"reason\":\"\"}");
-
-        Assertions.assertTrue(operations.getApplicationSshEnabled(UUID.fromString(APP_GUID)));
-        factory.verify();
-    }
-
-    @Test
-    void testGetApplicationSshEnabledReturnsFalseWhenEnabledIsNull() {
-        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/ssh_enabled", "{\"reason\":\"disabled globally\"}");
-
-        Assertions.assertFalse(operations.getApplicationSshEnabled(UUID.fromString(APP_GUID)));
-        factory.verify();
-    }
-
-    @Test
     void testGetApplicationFeaturesReturnsMap() {
-        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/features?per_page=5000",
-                   "{\"resources\":[{\"name\":\"ssh\",\"enabled\":true},{\"name\":\"revisions\",\"enabled\":false}]}");
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/features?per_page=50",
+                        "{\"resources\":[{\"name\":\"ssh\",\"enabled\":true},{\"name\":\"revisions\",\"enabled\":false}]}");
 
         Map<String, Boolean> result = operations.getApplicationFeatures(UUID.fromString(APP_GUID));
 
@@ -163,7 +147,7 @@ class ProcessesV3OperationsTest {
 
     @Test
     void testGetApplicationFeaturesReturnsEmptyMap() {
-        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/features?per_page=5000", "{\"resources\":[]}");
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/features?per_page=50", "{\"resources\":[]}");
 
         Map<String, Boolean> result = operations.getApplicationFeatures(UUID.fromString(APP_GUID));
 
@@ -174,7 +158,7 @@ class ProcessesV3OperationsTest {
     @Test
     void testGetCurrentDropletForApplicationReturnsDropletInfo() {
         factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/droplets/current",
-                   getDropletJson(MockControllerClientFactory.BASE_URL + "/v3/packages/" + PACKAGE_GUID));
+                        getDropletJson(MockControllerClientFactory.BASE_URL + "/v3/packages/" + PACKAGE_GUID));
 
         DropletInfo result = operations.getCurrentDropletForApplication(UUID.fromString(APP_GUID));
 
@@ -186,7 +170,7 @@ class ProcessesV3OperationsTest {
     @Test
     void testGetCurrentDropletForApplicationHandlesTrailingSlashInPackageLink() {
         factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID + "/droplets/current",
-                   getDropletJson(MockControllerClientFactory.BASE_URL + "/v3/packages/" + PACKAGE_GUID + "/"));
+                        getDropletJson(MockControllerClientFactory.BASE_URL + "/v3/packages/" + PACKAGE_GUID + "/"));
 
         DropletInfo result = operations.getCurrentDropletForApplication(UUID.fromString(APP_GUID));
 
@@ -212,7 +196,8 @@ class ProcessesV3OperationsTest {
         when(target.getGuid())
             .thenReturn(null);
 
-        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&names=my-app", "{\"resources\":[{\"guid\":\"" + APP_GUID + "\"}]}");
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=50&names=my-app",
+                        "{\"resources\":[{\"guid\":\"" + APP_GUID + "\"}]}");
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID))
@@ -247,7 +232,8 @@ class ProcessesV3OperationsTest {
         when(target.getGuid())
             .thenReturn(null);
 
-        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&names=my-app", "{\"resources\":[{\"guid\":\"" + APP_GUID + "\"}]}");
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=50&names=my-app",
+                        "{\"resources\":[{\"guid\":\"" + APP_GUID + "\"}]}");
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID))
                .andExpect(MockRestRequestMatchers.method(HttpMethod.PATCH))
@@ -282,8 +268,8 @@ class ProcessesV3OperationsTest {
         when(target.getGuid())
             .thenReturn(spaceGuid);
 
-        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&space_guids="
-                                                             + spaceGuid + "&names=my-app", "{\"resources\":[{\"guid\":\"" + APP_GUID + "\"}]}");
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=50&space_guids="
+                            + spaceGuid + "&names=my-app", "{\"resources\":[{\"guid\":\"" + APP_GUID + "\"}]}");
 
         factory.server()
                .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID))
@@ -312,7 +298,7 @@ class ProcessesV3OperationsTest {
             .thenReturn(null);
 
         factory.stubGet(MockControllerClientFactory.BASE_URL
-                                                             + "/v3/apps?per_page=5000&names=missing-app", "{\"resources\":[]}");
+                            + "/v3/apps?per_page=50&names=missing-app", "{\"resources\":[]}");
 
         Staging staging = ImmutableStaging.builder()
                                           .command("cmd")
@@ -326,7 +312,8 @@ class ProcessesV3OperationsTest {
         when(target.getGuid())
             .thenReturn(null);
 
-        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=5000&names=my-app", "{\"resources\":[{\"guid\":\"" + APP_GUID + "\"}]}");
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=50&names=my-app",
+                        "{\"resources\":[{\"guid\":\"" + APP_GUID + "\"}]}");
 
         Staging staging = ImmutableStaging.builder()
                                           .command("cmd")

@@ -11,6 +11,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -64,14 +65,14 @@ class UpdateServiceKeysMetadataStepTest extends SyncFlowableStepTest<UpdateServi
     private CloudServiceKey buildTestServiceKey(boolean generateMetadata) {
         Metadata v3Metadata;
         if (generateMetadata) {
-            v3Metadata = Metadata.builder()
-                                 .label(MtaMetadataLabels.MTA_ID, "098f6bcd4621d373cade4e832627b4f6")
-                                 .annotation(MtaMetadataAnnotations.MTA_ID, "test")
-                                 .annotation(MtaMetadataAnnotations.MTA_VERSION, "1")
-                                 .annotation(MtaMetadataAnnotations.MTA_RESOURCE, "test")
+            v3Metadata = ImmutableMetadata.builder()
+                                 .putLabel(MtaMetadataLabels.MTA_ID, "098f6bcd4621d373cade4e832627b4f6")
+                                 .putAnnotation(MtaMetadataAnnotations.MTA_ID, "test")
+                                 .putAnnotation(MtaMetadataAnnotations.MTA_VERSION, "1")
+                                 .putAnnotation(MtaMetadataAnnotations.MTA_RESOURCE, "test")
                                  .build();
         } else {
-            v3Metadata = Metadata.builder()
+            v3Metadata = ImmutableMetadata.builder()
                                  .labels(Collections.emptyMap())
                                  .annotations(Collections.emptyMap())
                                  .build();

@@ -18,10 +18,12 @@ public class JobsV3Operations {
     }
 
     public CloudAsyncJob getAsyncJob(String jobId) {
-        V3Job job = client.get(CloudControllerV3Endpoints.JOBS + "/" + jobId, V3Job.class);
+        V3Job job = client.get(V3Uri.path(CloudControllerV3Endpoints.JOB_BY_GUID, jobId)
+                                    .build(),
+                               V3Job.class);
 
         if (job == null) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
                                               MessageFormat.format(Messages.JOB_WITH_GUID_0_NOT_FOUND, jobId));
         }
 

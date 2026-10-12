@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Constants {
 
-    public static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofMinutes(1);
+    public static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofMinutes(2);
     public static final Duration JOB_POLL_MIN_INTERVAL = Duration.ofSeconds(1);
     public static final Duration JOB_POLL_MAX_INTERVAL = Duration.ofSeconds(15);
     public static final Duration DELETE_JOB_TIMEOUT = Duration.ofMinutes(5);
@@ -14,9 +14,9 @@ public class Constants {
 
     public static final int DEFAULT_CONNECTION_POOL_SIZE = 192;
     public static final int UNDEFINED_PORT = -1;
-    public static final int MAX_CONCURRENT_PAGES = 256;
+    public static final int MAX_CONCURRENT_PAGES = 4; //leaving it like that for testing purposes
     public static final int SECOND_PAGE = 2;
-    public static final int DEFAULT_CONCURRENT_TASKS = 256;
+    public static final int DEFAULT_CONCURRENT_TASKS = 8; //this one can be a bit more, but first tests will be like that
     public static final int MAX_CHAR_LENGTH_FOR_PARAMS_IN_REQUEST = 4000;
     public static final int JOB_POLL_INTERVAL_MULTIPLIER = 2;
 
@@ -36,13 +36,27 @@ public class Constants {
 
     public static final String EMPTY_STRING = "";
     public static final String COLON = ":";
+    public static final String COMMA = ",";
+    public static final String SPACE_SYMBOL = " ";
+    public static final String EQUALS = "=";
     public static final String PROTOCOL_SEPARATOR = "://";
+    public static final String QUESTION_MARK = "?";
+    public static final String AMPERSAND = "&";
     public static final String NEW_LINE = "\n";
+    public static final String SLASH = "/";
 
     public static final String PACKAGE_LINK = "package";
     public static final String WEB_PROCESS_TYPE = "web";
 
     public static final String USER_PROVIDED = "user-provided";
+
+    public static final String JOB_STATE_COMPLETE = "COMPLETE";
+    public static final String JOB_STATE_FAILED = "FAILED";
+
+    public static final String PER_PAGE = "per_page=";
+
+    public static final char OPEN_BRACE_CHAR = '{';
+    public static final char CLOSE_BRACE_CHAR = '}';
 
     private Constants() {
 

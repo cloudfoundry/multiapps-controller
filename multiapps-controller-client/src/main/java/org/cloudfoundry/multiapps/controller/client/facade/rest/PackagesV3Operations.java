@@ -69,10 +69,11 @@ public class PackagesV3Operations {
     }
 
     public CloudPackage getPackage(UUID packageGuid) {
-        V3Package packageResource = client.get(CloudControllerV3Endpoints.PACKAGES + "/" + packageGuid, V3Package.class);
+        V3Package packageResource = client.get(V3Uri.path(CloudControllerV3Endpoints.PACKAGE_BY_GUID, packageGuid)
+                                                    .build(), V3Package.class);
 
         if (packageResource == null) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
                                               MessageFormat.format(Messages.PACKAGE_0_NOT_FOUND, packageGuid));
         }
 
@@ -80,8 +81,9 @@ public class PackagesV3Operations {
     }
 
     public List<CloudPackage> getPackagesForApplication(UUID applicationGuid) {
-        return client.list(CloudControllerV3Endpoints.APPS + "/" + applicationGuid + "/packages" + CloudControllerV3Endpoints.QUERY_PER_PAGE
-                               + CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE, PACKAGE_PAGE)
+        return client.list(V3Uri.path(CloudControllerV3Endpoints.APP_PACKAGES, applicationGuid)
+                                .perPage(CloudControllerV3Endpoints.DEFAULT_PAGE_SIZE)
+                                .build(), PACKAGE_PAGE)
                      .stream()
                      .map(V3PackageMapper::toCloudPackage)
                      .toList();
@@ -98,7 +100,7 @@ public class PackagesV3Operations {
         }
 
         V3Package created = client.postForObject(CloudControllerV3Endpoints.PACKAGES,
-                                                 Map.of(V3Fields.TYPE, "docker", V3Fields.DATA, data, V3Fields.RELATIONSHIPS,
+                                                 Map.of(V3Fields.TYPE, V3Fields.DOCKER, V3Fields.DATA, data, V3Fields.RELATIONSHIPS,
                                                         applicationRelationship(applicationGuid)),
                                                  V3Package.class);
 
@@ -135,7 +137,7 @@ public class PackagesV3Operations {
         UUID packageGuid = createBitsPackage(applicationGuid).getGuid();
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("bits", new FileSystemResource(file));
+        body.add(V3Fields.BITS, new FileSystemResource(file));
 
         RestClient uploadClient = resolveUploadClient(uploadTimeout);
         uploadClient.post()
@@ -158,7 +160,7 @@ public class PackagesV3Operations {
 
     private CloudPackage createBitsPackage(UUID applicationGuid) {
         V3Package created = client.postForObject(CloudControllerV3Endpoints.PACKAGES,
-                                                 Map.of(V3Fields.TYPE, "bits", V3Fields.RELATIONSHIPS,
+                                                 Map.of(V3Fields.TYPE, V3Fields.BITS, V3Fields.RELATIONSHIPS,
                                                         applicationRelationship(applicationGuid)),
                                                  V3Package.class);
 
@@ -175,7 +177,7 @@ public class PackagesV3Operations {
 
         if (apps.isEmpty() || apps.getFirst()
                                   .guid() == null) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
                                               MessageFormat.format(Messages.APPLICATION_0_NOT_FOUND, applicationName));
         }
 
@@ -188,25 +190,25 @@ public class PackagesV3Operations {
     }
 
     private void processAsyncUpload(CloudPackage cloudPackage, UploadStatusCallback callback) {
-        while (true) {
+        boolean keepPolling = true;
+
+        while (keepPolling) {
             Upload upload = getUploadStatus(cloudPackage.getGuid());
             Status uploadStatus = upload.getStatus();
             boolean unsubscribe = callback.onProgress(uploadStatus.toString());
 
             if (unsubscribe || OperationsUtil.isUploadReady(uploadStatus)) {
-                return;
-            }
-
-            if (OperationsUtil.hasUploadFailed(uploadStatus)) {
+                keepPolling = false;
+            } else if (OperationsUtil.hasUploadFailed(uploadStatus)) {
                 callback.onError(upload.getErrorDetails()
                                        .getDescription());
-                return;
-            }
-
-            try {
-                MiscUtil.sleep(Constants.PACKAGE_UPLOAD_JOB_POLLING_PERIOD);
-            } catch (IllegalStateException e) {
-                return;
+                keepPolling = false;
+            } else {
+                try {
+                    MiscUtil.sleep(Constants.PACKAGE_UPLOAD_JOB_POLLING_PERIOD);
+                } catch (IllegalStateException e) {
+                    keepPolling = false;
+                }
             }
         }
     }

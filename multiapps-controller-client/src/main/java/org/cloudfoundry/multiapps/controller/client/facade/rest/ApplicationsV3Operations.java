@@ -1,12 +1,12 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
 import java.text.MessageFormat;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.cloudfoundry.multiapps.controller.Constants;
 import org.cloudfoundry.multiapps.controller.Messages;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
@@ -26,9 +26,8 @@ public class ApplicationsV3Operations {
     private static final ParameterizedTypeReference<V3ListResponse<V3Application>> APP_PAGE = new ParameterizedTypeReference<>() {
     };
 
-    private static final Duration DELETE_JOB_TIMEOUT = Duration.ofMinutes(5);
-
     private final CloudControllerV3Client client;
+
     private final CloudSpace targetSpace;
 
     public ApplicationsV3Operations(CloudControllerV3Client client, CloudSpace targetSpace) {
@@ -52,7 +51,7 @@ public class ApplicationsV3Operations {
 
     private void validateTargetSpace() {
         if (targetSpace == null || targetSpace.getGuid() == null) {
-            throw new CloudOperationException(HttpStatus.BAD_REQUEST, Messages.BAD_REQUEST,
+            throw new CloudOperationException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.getReasonPhrase(),
                                               Messages.TARGET_SPACE_REQUIRED_TO_CREATE_AN_APPLICATION);
         }
     }
@@ -82,7 +81,7 @@ public class ApplicationsV3Operations {
 
         ResponseEntity<Void> response = client.delete(CloudControllerV3Endpoints.APP_BY_GUID, applicationGuid);
 
-        client.followAsyncJob(response, DELETE_JOB_TIMEOUT);
+        client.followAsyncJob(response, Constants.DELETE_JOB_TIMEOUT);
     }
 
     public CloudApplication getApplication(String applicationName) {
@@ -97,7 +96,7 @@ public class ApplicationsV3Operations {
         }
 
         if (required) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, Messages.NOT_FOUND,
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
                                               MessageFormat.format(Messages.APPLICATION_0_NOT_FOUND, applicationName));
         }
 
@@ -109,14 +108,17 @@ public class ApplicationsV3Operations {
     }
 
     public String getApplicationName(UUID applicationGuid) {
-        V3Application app = client.get(CloudControllerV3Endpoints.APPS + "/" + applicationGuid, V3Application.class);
+        V3Application app = client.get(V3Uri.path(CloudControllerV3Endpoints.APP_BY_GUID, applicationGuid)
+                                            .build(),
+                                       V3Application.class);
 
         return app == null ? null : app.name();
     }
 
     public Map<String, String> getApplicationEnvironment(UUID applicationGuid) {
-        V3Application.V3EnvironmentVariables environmentVariablesJson = client.get(CloudControllerV3Endpoints.APPS + "/" + applicationGuid
-                                                                                       + "/environment_variables",
+        V3Application.V3EnvironmentVariables environmentVariablesJson = client.get(V3Uri.path(CloudControllerV3Endpoints.APP_ENV_VARS,
+                                                                                              applicationGuid)
+                                                                                        .build(),
                                                                                    V3Application.V3EnvironmentVariables.class);
 
         return environmentVariablesJson == null || environmentVariablesJson.environmentVariables() == null
@@ -137,11 +139,7 @@ public class ApplicationsV3Operations {
     }
 
     public List<CloudApplication> getApplicationsByMetadataLabelSelector(String labelSelector) {
-        String query = OperationsQueryUtil.buildApplicationsQuery(null, targetSpace);
-
-        if (labelSelector != null) {
-            query = query + CloudControllerV3Endpoints.AMPERSAND_LABEL_SELECTOR + labelSelector;
-        }
+        String query = OperationsQueryUtil.buildApplicationsQuery(null, targetSpace, labelSelector);
 
         return listApplications(query).stream()
                                       .map(app -> V3ApplicationMapper.toCloudApplication(app, targetSpace))

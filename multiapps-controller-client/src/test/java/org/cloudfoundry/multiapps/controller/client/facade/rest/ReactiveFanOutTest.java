@@ -32,14 +32,14 @@ class ReactiveFanOutTest {
         List<Integer> input = IntStream.rangeClosed(1, 20)
                                        .boxed()
                                        .toList();
-        CountDownLatch lastItemDone = new CountDownLatch(1);
+        CountDownLatch secondItemDone = new CountDownLatch(1);
 
         List<Integer> result = ReactiveFanOut.mapConcurrently(input, i -> {
-            if (i == 20) {
-                lastItemDone.countDown();
+            if (i == 2) {
+                secondItemDone.countDown();
             } else if (i == 1) {
                 try {
-                    lastItemDone.await();
+                    secondItemDone.await();
                 } catch (InterruptedException e) {
                     Thread.currentThread()
                           .interrupt();

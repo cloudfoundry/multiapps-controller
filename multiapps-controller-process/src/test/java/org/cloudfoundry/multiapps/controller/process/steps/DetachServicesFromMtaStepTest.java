@@ -11,6 +11,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceInstance;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -53,14 +54,14 @@ class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachServicesF
     }
 
     private static Metadata getMetadataWithoutMtaFields() {
-        return Metadata.builder()
-                       .label(MtaMetadataLabels.MTA_ID, null)
-                       .label(MtaMetadataLabels.MTA_NAMESPACE, null)
-                       .label(MtaMetadataLabels.SPACE_GUID, null)
-                       .annotation(MtaMetadataAnnotations.MTA_ID, null)
-                       .annotation(MtaMetadataAnnotations.MTA_VERSION, null)
-                       .annotation(MtaMetadataAnnotations.MTA_RESOURCE, null)
-                       .annotation(MtaMetadataLabels.MTA_NAMESPACE, null)
+        return ImmutableMetadata.builder()
+                       .putLabel(MtaMetadataLabels.MTA_ID, null)
+                       .putLabel(MtaMetadataLabels.MTA_NAMESPACE, null)
+                       .putLabel(MtaMetadataLabels.SPACE_GUID, null)
+                       .putAnnotation(MtaMetadataAnnotations.MTA_ID, null)
+                       .putAnnotation(MtaMetadataAnnotations.MTA_VERSION, null)
+                       .putAnnotation(MtaMetadataAnnotations.MTA_RESOURCE, null)
+                       .putAnnotation(MtaMetadataLabels.MTA_NAMESPACE, null)
                        .build();
     }
 
@@ -88,11 +89,11 @@ class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachServicesF
     }
 
     private CloudServiceInstance createServiceInstance(SimpleServiceInstance serviceInstance) {
-        Metadata v3Metadata = Metadata.builder()
-                                      .label(MtaMetadataLabels.MTA_ID, "098f6bcd4621d373cade4e832627b4f6")
-                                      .annotation(MtaMetadataAnnotations.MTA_ID, "test")
-                                      .annotation(MtaMetadataAnnotations.MTA_VERSION, "1")
-                                      .annotation(MtaMetadataAnnotations.MTA_RESOURCE, "test")
+        Metadata v3Metadata = ImmutableMetadata.builder()
+                                      .putLabel(MtaMetadataLabels.MTA_ID, "098f6bcd4621d373cade4e832627b4f6")
+                                      .putAnnotation(MtaMetadataAnnotations.MTA_ID, "test")
+                                      .putAnnotation(MtaMetadataAnnotations.MTA_VERSION, "1")
+                                      .putAnnotation(MtaMetadataAnnotations.MTA_RESOURCE, "test")
                                       .build();
         CloudMetadata metadata = ImmutableCloudMetadata.builder()
                                                        .guid(serviceInstance.guid)
