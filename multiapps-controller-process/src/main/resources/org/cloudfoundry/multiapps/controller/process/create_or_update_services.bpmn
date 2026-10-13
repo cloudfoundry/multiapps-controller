@@ -133,7 +133,25 @@
     <sequenceFlow id="flow77" sourceRef="exclusivegateway12" targetRef="sid-54FAC610-D57B-485C-8540-BFF2ED076B73">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
     </sequenceFlow>
-    <callActivity id="recreateServiceKeysSubProcess" name="Recreate Service Keys Sub Process" flowable:async="true" calledElement="recreateServiceKeysSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:fallbackToDefaultTenant="false"></callActivity>
+    <callActivity id="recreateServiceKeysSubProcess" name="Recreate Service Keys Sub Process" flowable:async="true" calledElement="recreateServiceKeysSubProcess" flowable:calledElementType="key" flowable:fallbackToDefaultTenant="false">
+      <extensionElements>
+        <flowable:in source="serviceToProcess" target="serviceToProcess"></flowable:in>
+        <flowable:in source="serviceKeysToCreate" target="serviceKeysToCreate"></flowable:in>
+        <flowable:in source="deleteServiceKeys" target="deleteServiceKeys"></flowable:in>
+        <flowable:in source="correlationId" target="correlationId"></flowable:in>
+        <flowable:in source="user" target="user"></flowable:in>
+        <flowable:in source="userGuid" target="userGuid"></flowable:in>
+        <flowable:in source="processId" target="processId"></flowable:in>
+        <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
+        <flowable:in source="mtaId" target="mtaId"></flowable:in>
+        <flowable:in source="namespace" target="namespace"></flowable:in>
+        <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
+        <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
+        <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
+        <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
+        <flowable:in source="externalLoggingServiceConfigurations" target="externalLoggingServiceConfigurations"></flowable:in>
+      </extensionElements>
+    </callActivity>
     <serviceTask id="CheckForServiceBindingOrKeyCreation" name="Check for service binding or key creation" flowable:async="true" flowable:delegateExpression="${checkForServiceBindingOrKeyOperationStep}"></serviceTask>
     <exclusiveGateway id="sid-8160DB7A-285D-44DB-BC0E-732B3A3C44DD" name="Exclusive Gateway"></exclusiveGateway>
     <intermediateCatchEvent id="sid-DD5C0525-B5AA-4DE5-B870-DE9C29209512" name="Wait">
