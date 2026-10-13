@@ -1,11 +1,13 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -23,6 +25,8 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationE
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.security.util.SecureLoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.util.NamespaceGlobalParameters;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutValueResolver;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
@@ -35,6 +39,8 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
 
     private ConfigurationEntryService configurationEntryService;
     private ModuleToDeployHelper moduleToDeployHelper;
+    @Inject
+    TimeoutValueResolver timeoutValueResolver;
 
     @Inject
     public ProcessDescriptorStep(ConfigurationEntryService configurationEntryService, ModuleToDeployHelper moduleToDeployHelper) {
@@ -58,6 +64,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
 
         setDynamicResolvableParametersIfAbsent(context, resolver);
         context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, descriptor);
+        preResolveServiceTimeoutsFromDescriptor(context, descriptor);
         // Set MTA modules in the context
         List<String> modulesForDeployment = context.getVariable(Variables.MODULES_FOR_DEPLOYMENT);
         List<String> invalidModulesSpecifiedForDeployment = findInvalidModulesSpecifiedForDeployment(descriptor, modulesForDeployment);
@@ -124,6 +131,19 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
                                                               .configurationEntryService(configurationEntryService)
                                                               .applicationConfiguration(configuration)
                                                               .build();
+    }
+
+    // Bind runs in a subprocess that does not receive the deployment descriptor, so the global-level
+    // services-bind-service-timeout is pre-resolved here into a process variable the resolver can read there.
+    private void preResolveServiceTimeoutsFromDescriptor(ProcessContext context, DeploymentDescriptor descriptor) {
+        TimeoutType timeoutType = TimeoutType.BIND_SERVICE;
+        Duration timeout = timeoutValueResolver.toDuration(
+            descriptor.getParameters() != null ? descriptor.getParameters().get(timeoutType.getGlobalLevelParamName()) : null,
+            timeoutType.getGlobalLevelParamName(),
+            timeoutType.getMaxAllowedValue());
+        if (timeout != null) {
+            context.setVariable(timeoutType.getGlobalFallbackVariable(), timeout);
+        }
     }
 
     private void setDynamicResolvableParametersIfAbsent(ProcessContext context, MtaDescriptorPropertiesResolver resolver) {
