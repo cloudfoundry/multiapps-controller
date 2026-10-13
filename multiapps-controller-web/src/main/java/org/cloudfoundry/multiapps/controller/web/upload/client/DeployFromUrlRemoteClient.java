@@ -38,6 +38,7 @@ public class DeployFromUrlRemoteClient {
     private static final Duration HTTP_CONNECT_TIMEOUT = Duration.ofMinutes(10);
     private static final String USERNAME_PASSWORD_URL_FORMAT = "{0}:{1}";
     private static final int ERROR_RESPONSE_BODY_MAX_LENGTH = 4 * 1024;
+    // Ten is value that is used by most HTTP clients (JDK HttpClient, curl, browsers)
     private static final int MAX_REDIRECTS = 10;
     private static final String REDIRECT_WITH_NO_LOCATION_HEADER = "redirect with no Location header";
 

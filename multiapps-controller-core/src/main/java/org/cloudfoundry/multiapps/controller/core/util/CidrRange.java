@@ -7,6 +7,8 @@ import java.text.MessageFormat;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 
+// CIDR (Classless Inter-Domain Routing) notation describes an IP address range as a base address
+// plus a prefix length, e.g. 10.0.0.0/8 or fc00::/7 — the prefix is how many leading bits are fixed.
 public class CidrRange {
 
     private final byte[] networkAddressBytes;
