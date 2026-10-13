@@ -64,6 +64,7 @@
         <azure-core-http-jdk-httpclient.version>1.0.4</azure-core-http-jdk-httpclient.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <hamcrest.version>2.2</hamcrest.version>
+        <bucket4j.version>8.20.0</bucket4j.version>
     </properties>
     <modules>
         <module>multiapps-controller-client</module>
@@ -837,6 +838,12 @@
                 <groupId>io.github.resilience4j</groupId>
                 <artifactId>resilience4j-ratelimiter</artifactId>
                 <version>${resilience4j.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/com.bucket4j/bucket4j_jdk17-postgresql -->
+            <dependency>
+                <groupId>com.bucket4j</groupId>
+                <artifactId>bucket4j_jdk17-postgresql</artifactId>
+                <version>${bucket4j.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-fips -->
             <dependency>
