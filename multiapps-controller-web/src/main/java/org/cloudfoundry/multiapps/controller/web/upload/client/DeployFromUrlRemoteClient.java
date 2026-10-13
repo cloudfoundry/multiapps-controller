@@ -104,7 +104,7 @@ public class DeployFromUrlRemoteClient {
         if (isRedirect(status)) {
             return followRedirect(response, url, jobId, userCredentials, redirectCount);
         }
-        if (status >= 200 & status < 300) {
+        if (status < 200 || status >= 300) {
             throwErrorResponseException(response, url, status, jobId);
         }
         return response;
