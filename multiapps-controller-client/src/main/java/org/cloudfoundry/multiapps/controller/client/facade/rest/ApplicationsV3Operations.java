@@ -196,7 +196,9 @@ public class ApplicationsV3Operations {
     }
 
     public void updateApplicationMetadata(UUID guid, Metadata metadata) {
-        client.patch(CloudControllerV3Endpoints.APP_BY_GUID, Map.of(V3Fields.METADATA, OperationsUtil.toMetadataMap(metadata)), guid);
+        Map<String, Object> metadataMap = OperationsUtil.toMetadataMap(metadata);
+        client.patch(CloudControllerV3Endpoints.APP_BY_GUID, Map.of(V3Fields.METADATA, metadataMap == null ? Map.of() : metadataMap),
+                     guid);
     }
 
     private void scaleWebProcess(UUID applicationGuid, Map<String, Object> scaleBody) {

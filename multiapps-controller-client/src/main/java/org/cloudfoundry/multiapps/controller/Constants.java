@@ -38,7 +38,7 @@ public class Constants {
     public static final String COLON = ":";
     public static final String COMMA = ",";
     public static final String SPACE_SYMBOL = " ";
-    public static final String EQUALS = "=";
+    public static final String EQUALS_SYMBOL = "=";
     public static final String PROTOCOL_SEPARATOR = "://";
     public static final String QUESTION_MARK = "?";
     public static final String AMPERSAND = "&";

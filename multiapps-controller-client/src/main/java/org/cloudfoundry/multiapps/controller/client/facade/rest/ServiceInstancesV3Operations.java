@@ -366,7 +366,8 @@ public class ServiceInstancesV3Operations {
     }
 
     private void assertSpaceProvided(String operation) {
-        Assert.notNull(targetSpace, "Unable to " + operation + " without specifying organization and space to use.");
+        Assert.notNull(OperationsUtil.getGuid(targetSpace),
+                       "Unable to " + operation + " without specifying organization and space to use.");
     }
 
     private record ServicePlanNames(String planName, String offeringName) {

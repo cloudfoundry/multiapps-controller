@@ -121,8 +121,9 @@ public class ServiceBindingsV3Operations {
     }
 
     public void updateServiceBindingMetadata(UUID guid, Metadata metadata) {
+        Map<String, Object> metadataMap = OperationsUtil.toMetadataMap(metadata);
         client.patch(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDING_BY_GUID,
-                     Map.of(V3Fields.METADATA, OperationsUtil.toMetadataMap(metadata)), guid);
+                     Map.of(V3Fields.METADATA, metadataMap == null ? Map.of() : metadataMap), guid);
     }
 
     private List<CloudServiceBinding> listBindings(String uri) {

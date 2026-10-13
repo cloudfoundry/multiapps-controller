@@ -31,7 +31,7 @@ public final class V3Uri {
 
     public V3Uri query(String key, Object value) {
         if (value != null) {
-            queryParameters.add(key + Constants.EQUALS + value);
+            queryParameters.add(key + Constants.EQUALS_SYMBOL + value);
         }
 
         return this;
@@ -39,7 +39,7 @@ public final class V3Uri {
 
     public V3Uri queryEncoded(String key, Object value) {
         if (value != null) {
-            queryParameters.add(key + Constants.EQUALS + encodeCommas(String.valueOf(value)));
+            queryParameters.add(key + Constants.EQUALS_SYMBOL + encodeCommas(String.valueOf(value)));
         }
 
         return this;
@@ -47,10 +47,10 @@ public final class V3Uri {
 
     public V3Uri query(String key, Collection<?> values) {
         if (values != null && !values.isEmpty()) {
-            queryParameters.add(key + Constants.EQUALS + values.stream()
-                                                               .map(String::valueOf)
-                                                               .map(V3Uri::encodeCommas)
-                                                               .collect(Collectors.joining(Constants.COMMA)));
+            queryParameters.add(key + Constants.EQUALS_SYMBOL + values.stream()
+                                                                      .map(String::valueOf)
+                                                                      .map(V3Uri::encodeCommas)
+                                                                      .collect(Collectors.joining(Constants.COMMA)));
         }
 
         return this;
