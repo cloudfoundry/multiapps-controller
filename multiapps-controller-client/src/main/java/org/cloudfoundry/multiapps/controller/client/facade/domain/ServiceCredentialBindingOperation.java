@@ -5,12 +5,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 
-import org.cloudfoundry.client.v3.LastOperation;
-import org.immutables.value.Value;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.cloudfoundry.multiapps.controller.client.facade.Nullable;
+import org.immutables.value.Value;
 
 @Value.Immutable
 @JsonSerialize(as = ImmutableServiceCredentialBindingOperation.class)
@@ -31,11 +29,12 @@ public abstract class ServiceCredentialBindingOperation {
     public abstract LocalDateTime getUpdatedAt();
 
     public static ServiceCredentialBindingOperation from(LastOperation lastOperation) {
-        String lastOperationType = lastOperation.getType();
-        String lastOperationState = lastOperation.getState();
-        String lastOperationDescription = lastOperation.getDescription();
-        String lastOperationCreatedAt = lastOperation.getCreatedAt();
-        String lastOperationUpdatedAt = lastOperation.getUpdatedAt();
+        String lastOperationType = lastOperation.type();
+        String lastOperationState = lastOperation.state();
+        String lastOperationDescription = lastOperation.description();
+        String lastOperationCreatedAt = lastOperation.createdAt();
+        String lastOperationUpdatedAt = lastOperation.updatedAt();
+
         return ImmutableServiceCredentialBindingOperation.builder()
                                                          .type(ServiceCredentialBindingOperation.Type.fromString(lastOperationType))
                                                          .state(ServiceCredentialBindingOperation.State.fromString(lastOperationState))
@@ -55,8 +54,9 @@ public abstract class ServiceCredentialBindingOperation {
                          .filter(type -> type.toString()
                                              .equals(value))
                          .findFirst()
-                         .orElseThrow(() -> new IllegalArgumentException(MessageFormat.format("Illegal service binding operation type: \"{0}\"",
-                                                                                              value)));
+                         .orElseThrow(
+                             () -> new IllegalArgumentException(MessageFormat.format("Illegal service binding operation type: \"{0}\"",
+                                                                                     value)));
         }
 
         @Override

@@ -26,5 +26,6 @@ public final class Messages {
     public static final String FAILED_TO_FETCH_APP_LOGS_FOR_APP = "Failed to fetch app logs for app: {0}";
 
     public static final String BUILDPACKS_ARE_REQUIRED_FOR_CNB_LIFECYCLE_TYPE = "Buildpacks are required for CNB lifecycle type.";
+    public static final String UNKNOWN_USER_ROLE_0 = "Unknown user role: \"{0}\"";
 
 }
