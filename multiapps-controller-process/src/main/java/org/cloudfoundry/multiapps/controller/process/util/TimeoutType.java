@@ -11,47 +11,53 @@ public enum TimeoutType {
     UPLOAD(new TimeoutParameterNames(SupportedParameters.UPLOAD_TIMEOUT, null, SupportedParameters.APPS_UPLOAD_TIMEOUT),
            Variables.APPS_UPLOAD_TIMEOUT_PROCESS_VARIABLE,
            null,
-           10800,
+           Limits.MAX_APP_TIMEOUT_SECONDS,
            null),
 
     STAGE(new TimeoutParameterNames(SupportedParameters.STAGE_TIMEOUT, null, SupportedParameters.APPS_STAGE_TIMEOUT),
           Variables.APPS_STAGE_TIMEOUT_PROCESS_VARIABLE,
           null,
-          10800,
+          Limits.MAX_APP_TIMEOUT_SECONDS,
           null),
 
     START(new TimeoutParameterNames(SupportedParameters.START_TIMEOUT, null, SupportedParameters.APPS_START_TIMEOUT),
           Variables.APPS_START_TIMEOUT_PROCESS_VARIABLE,
           null,
-          10800,
+          Limits.MAX_APP_TIMEOUT_SECONDS,
           null),
 
     TASK(new TimeoutParameterNames(SupportedParameters.TASK_EXECUTION_TIMEOUT, null, SupportedParameters.APPS_TASK_EXECUTION_TIMEOUT),
          Variables.APPS_TASK_EXECUTION_TIMEOUT_PROCESS_VARIABLE,
          null,
-         86400,
+         Limits.MAX_TASK_TIMEOUT_SECONDS,
          null),
 
     CREATE_SERVICE(
         new TimeoutParameterNames(null, SupportedParameters.CREATE_SERVICE_TIMEOUT, SupportedParameters.SERVICES_CREATE_SERVICE_TIMEOUT),
         Variables.CREATE_SERVICE_TIMEOUT_PROCESS_VARIABLE,
         null,
-        7200,
+        Limits.MAX_SERVICE_TIMEOUT_SECONDS,
         CloudServiceInstanceExtended::getCreateServiceTimeout),
 
     BIND_SERVICE(
         new TimeoutParameterNames(null, SupportedParameters.BIND_SERVICE_TIMEOUT, SupportedParameters.SERVICES_BIND_SERVICE_TIMEOUT),
         Variables.BIND_SERVICE_TIMEOUT_PROCESS_VARIABLE,
         Variables.BIND_SERVICE_TIMEOUT_GLOBAL_FALLBACK,
-        7200,
+        Limits.MAX_SERVICE_TIMEOUT_SECONDS,
         CloudServiceInstanceExtended::getBindServiceTimeout),
 
     CREATE_SERVICE_KEY(new TimeoutParameterNames(null, SupportedParameters.CREATE_SERVICE_KEY_TIMEOUT,
                                                  SupportedParameters.SERVICES_CREATE_SERVICE_KEY_TIMEOUT),
                        Variables.CREATE_SERVICE_KEY_TIMEOUT_PROCESS_VARIABLE,
                        null,
-                       7200,
+                       Limits.MAX_SERVICE_TIMEOUT_SECONDS,
                        CloudServiceInstanceExtended::getCreateServiceKeyTimeout);
+
+    private static final class Limits {
+        private static final int MAX_APP_TIMEOUT_SECONDS = 10800;
+        private static final int MAX_TASK_TIMEOUT_SECONDS = 86400;
+        private static final int MAX_SERVICE_TIMEOUT_SECONDS = 7200;
+    }
 
     @FunctionalInterface
     public interface ServiceTimeoutGetter {

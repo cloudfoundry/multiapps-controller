@@ -45,21 +45,23 @@ public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {
         return switch (timeoutType) {
             case UPLOAD, STAGE, START, TASK -> {
                 CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
-                yield app != null ? MessageFormat.format("Application {0}", app.getName()) : "Application";
+                yield app != null ? MessageFormat.format(Messages.TIMEOUT_OPERATION_APPLICATION_NAMED, app.getName())
+                    : Messages.TIMEOUT_OPERATION_APPLICATION;
             }
             case BIND_SERVICE -> {
                 String service = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
-                yield service != null ? MessageFormat.format("Service binding for {0}", service) : "Service binding";
+                yield service != null ? MessageFormat.format(Messages.TIMEOUT_OPERATION_SERVICE_BINDING_NAMED, service)
+                    : Messages.TIMEOUT_OPERATION_SERVICE_BINDING;
             }
-            case CREATE_SERVICE -> formatServiceOperation("Service creation", context);
-            case CREATE_SERVICE_KEY -> formatServiceOperation("Service key creation", context);
+            case CREATE_SERVICE -> formatServiceOperation(Messages.TIMEOUT_OPERATION_SERVICE_CREATION, context);
+            case CREATE_SERVICE_KEY -> formatServiceOperation(Messages.TIMEOUT_OPERATION_SERVICE_KEY_CREATION, context);
         };
     }
 
     private String formatServiceOperation(String operation, ProcessContext context) {
         CloudServiceInstanceExtended service = context.getVariable(Variables.SERVICE_TO_PROCESS);
         return service != null && service.getResourceName() != null
-            ? MessageFormat.format("{0} for {1}", operation, service.getResourceName())
+            ? MessageFormat.format(Messages.TIMEOUT_OPERATION_FOR_RESOURCE, operation, service.getResourceName())
             : operation;
     }
 

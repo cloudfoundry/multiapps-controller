@@ -64,7 +64,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
 
         setDynamicResolvableParametersIfAbsent(context, resolver);
         context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, descriptor);
-        preResolveServiceTimeoutsFromDescriptor(context, descriptor);
+        preResolveBindServiceTimeoutFromDescriptor(context, descriptor);
         // Set MTA modules in the context
         List<String> modulesForDeployment = context.getVariable(Variables.MODULES_FOR_DEPLOYMENT);
         List<String> invalidModulesSpecifiedForDeployment = findInvalidModulesSpecifiedForDeployment(descriptor, modulesForDeployment);
@@ -135,7 +135,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
 
     // Bind runs in a subprocess that does not receive the deployment descriptor, so the global-level
     // services-bind-service-timeout is pre-resolved here into a process variable the resolver can read there.
-    private void preResolveServiceTimeoutsFromDescriptor(ProcessContext context, DeploymentDescriptor descriptor) {
+    private void preResolveBindServiceTimeoutFromDescriptor(ProcessContext context, DeploymentDescriptor descriptor) {
         TimeoutType timeoutType = TimeoutType.BIND_SERVICE;
         Duration timeout = timeoutValueResolver.toDuration(
             descriptor.getParameters() != null ? descriptor.getParameters().get(timeoutType.getGlobalLevelParamName()) : null,

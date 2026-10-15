@@ -17,7 +17,7 @@ public final class DurationUtil {
             return null;
         }
         if (!(timeout instanceof Number number)) {
-            throw new ContentException(Messages.PARAMETER_0_MUST_BE_POSITIVE_WITH_MAX_VALUE_1, parameterName, maxAllowedValue);
+            throw new ContentException(Messages.PARAMETER_0_MUST_BE_A_NUMBER, parameterName);
         }
         int value = number.intValue();
         if (value < 0 || value > maxAllowedValue) {

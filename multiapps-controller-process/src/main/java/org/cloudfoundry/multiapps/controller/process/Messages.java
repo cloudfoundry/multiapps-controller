@@ -558,6 +558,13 @@ public class Messages {
     public static final String LAST_OPERATION_FOR_SERVICE = "Last operation for service \"{0}\": {1}";
     public static final String DELETING_ERROR_TYPE_O_FOR_PROCESS_1 = "Deleting error type \"{0}\" for process \"{1}\"";
     public static final String OPERATION_TIMEOUT_MESSAGE = "{0} timeout is set by \"{1}\" parameter to {2} seconds";
+    public static final String TIMEOUT_OPERATION_APPLICATION_NAMED = "Application {0}";
+    public static final String TIMEOUT_OPERATION_APPLICATION = "Application";
+    public static final String TIMEOUT_OPERATION_SERVICE_BINDING_NAMED = "Service binding for {0}";
+    public static final String TIMEOUT_OPERATION_SERVICE_BINDING = "Service binding";
+    public static final String TIMEOUT_OPERATION_SERVICE_CREATION = "Service creation";
+    public static final String TIMEOUT_OPERATION_SERVICE_KEY_CREATION = "Service key creation";
+    public static final String TIMEOUT_OPERATION_FOR_RESOURCE = "{0} for {1}";
     public static final String PROVIDED_EXTENSION_DESCRIPTORS = "Provided extension descriptors: {0}";
     public static final String CREATED_SUBSCRIPTION = "Created subscription with ID: {0}";
     public static final String UPDATING_SUBSCRIBER_0 = "Updating subscriber: {0} ";
