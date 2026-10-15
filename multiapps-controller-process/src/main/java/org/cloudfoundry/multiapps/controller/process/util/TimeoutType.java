@@ -1,45 +1,127 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
+import java.time.Duration;
+
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.process.variables.Variable;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
-import java.time.Duration;
-
 public enum TimeoutType {
+    UPLOAD(new TimeoutParameterNames(SupportedParameters.UPLOAD_TIMEOUT, null, SupportedParameters.APPS_UPLOAD_TIMEOUT),
+           Variables.APPS_UPLOAD_TIMEOUT_PROCESS_VARIABLE,
+           null,
+           Limits.MAX_APP_TIMEOUT_SECONDS,
+           null),
 
-    UPLOAD(SupportedParameters.UPLOAD_TIMEOUT, SupportedParameters.APPS_UPLOAD_TIMEOUT, Variables.APPS_UPLOAD_TIMEOUT_PROCESS_VARIABLE,
-        10800), STAGE(SupportedParameters.STAGE_TIMEOUT, SupportedParameters.APPS_STAGE_TIMEOUT,
-            Variables.APPS_STAGE_TIMEOUT_PROCESS_VARIABLE, 10800), START(SupportedParameters.START_TIMEOUT,
-                SupportedParameters.APPS_START_TIMEOUT, Variables.APPS_START_TIMEOUT_PROCESS_VARIABLE,
-                10800), TASK(SupportedParameters.TASK_EXECUTION_TIMEOUT, SupportedParameters.APPS_TASK_EXECUTION_TIMEOUT,
-                    Variables.APPS_TASK_EXECUTION_TIMEOUT_PROCESS_VARIABLE, 86400);
+    STAGE(new TimeoutParameterNames(SupportedParameters.STAGE_TIMEOUT, null, SupportedParameters.APPS_STAGE_TIMEOUT),
+          Variables.APPS_STAGE_TIMEOUT_PROCESS_VARIABLE,
+          null,
+          Limits.MAX_APP_TIMEOUT_SECONDS,
+          null),
 
-    private final String moduleLevelParamName;
-    private final String globalLevelParamName;
+    START(new TimeoutParameterNames(SupportedParameters.START_TIMEOUT, null, SupportedParameters.APPS_START_TIMEOUT),
+          Variables.APPS_START_TIMEOUT_PROCESS_VARIABLE,
+          null,
+          Limits.MAX_APP_TIMEOUT_SECONDS,
+          null),
+
+    TASK(new TimeoutParameterNames(SupportedParameters.TASK_EXECUTION_TIMEOUT, null, SupportedParameters.APPS_TASK_EXECUTION_TIMEOUT),
+         Variables.APPS_TASK_EXECUTION_TIMEOUT_PROCESS_VARIABLE,
+         null,
+         Limits.MAX_TASK_TIMEOUT_SECONDS,
+         null),
+
+    CREATE_SERVICE(
+        new TimeoutParameterNames(null, SupportedParameters.CREATE_SERVICE_TIMEOUT, SupportedParameters.SERVICES_CREATE_SERVICE_TIMEOUT),
+        Variables.CREATE_SERVICE_TIMEOUT_PROCESS_VARIABLE,
+        null,
+        Limits.MAX_SERVICE_TIMEOUT_SECONDS,
+        CloudServiceInstanceExtended::getCreateServiceTimeout),
+
+    BIND_SERVICE(
+        new TimeoutParameterNames(null, SupportedParameters.BIND_SERVICE_TIMEOUT, SupportedParameters.SERVICES_BIND_SERVICE_TIMEOUT),
+        Variables.BIND_SERVICE_TIMEOUT_PROCESS_VARIABLE,
+        Variables.BIND_SERVICE_TIMEOUT_GLOBAL_FALLBACK,
+        Limits.MAX_SERVICE_TIMEOUT_SECONDS,
+        CloudServiceInstanceExtended::getBindServiceTimeout),
+
+    CREATE_SERVICE_KEY(new TimeoutParameterNames(null, SupportedParameters.CREATE_SERVICE_KEY_TIMEOUT,
+                                                 SupportedParameters.SERVICES_CREATE_SERVICE_KEY_TIMEOUT),
+                       Variables.CREATE_SERVICE_KEY_TIMEOUT_PROCESS_VARIABLE,
+                       null,
+                       Limits.MAX_SERVICE_TIMEOUT_SECONDS,
+                       CloudServiceInstanceExtended::getCreateServiceKeyTimeout);
+
+    private static final class Limits {
+        private static final int MAX_APP_TIMEOUT_SECONDS = 10800;
+        private static final int MAX_TASK_TIMEOUT_SECONDS = 86400;
+        private static final int MAX_SERVICE_TIMEOUT_SECONDS = 7200;
+    }
+
+    @FunctionalInterface
+    public interface ServiceTimeoutGetter {
+        Duration getServiceTimeout(CloudServiceInstanceExtended service);
+    }
+
+    private final TimeoutParameterNames parameterNames;
     private final Variable<Duration> processVariable;
+    private final Variable<Duration> globalFallbackVariable;
     private final Integer maxAllowedValue;
+    private final ServiceTimeoutGetter serviceTimeoutGetter;
 
-    TimeoutType(String moduleLevelParamName, String globalLevelParamName, Variable<Duration> processVariable, Integer maxAllowedValue) {
-        this.moduleLevelParamName = moduleLevelParamName;
-        this.globalLevelParamName = globalLevelParamName;
+    TimeoutType(TimeoutParameterNames parameterNames,
+                Variable<Duration> processVariable,
+                Variable<Duration> globalFallbackVariable,
+                Integer maxAllowedValue,
+                ServiceTimeoutGetter serviceTimeoutGetter) {
+        this.parameterNames = parameterNames;
         this.processVariable = processVariable;
+        this.globalFallbackVariable = globalFallbackVariable;
         this.maxAllowedValue = maxAllowedValue;
+        this.serviceTimeoutGetter = serviceTimeoutGetter;
     }
 
     public String getModuleLevelParamName() {
-        return moduleLevelParamName;
+        return parameterNames.moduleLevelParamName();
     }
 
-    public String getProcessVariableAndGlobalLevelParamName() {
-        return globalLevelParamName;
+    public String getResourceLevelParamName() {
+        return parameterNames.resourceLevelParamName();
+    }
+
+    public String getGlobalLevelParamName() {
+        return parameterNames.globalLevelParamName();
     }
 
     public Variable<Duration> getProcessVariable() {
         return processVariable;
     }
 
+    public Variable<Duration> getGlobalFallbackVariable() {
+        return globalFallbackVariable;
+    }
+
     public Integer getMaxAllowedValue() {
         return maxAllowedValue;
+    }
+
+    public ServiceTimeoutGetter getServiceTimeoutGetter() {
+        return serviceTimeoutGetter;
+    }
+
+    public boolean isModuleScoped() {
+        return getModuleLevelParamName() != null;
+    }
+
+    public boolean isServiceScoped() {
+        return !isModuleScoped();
+    }
+
+    public String getEntityLevelParamName() {
+        return isModuleScoped() ? getModuleLevelParamName() : getResourceLevelParamName();
+    }
+
+    public record TimeoutParameterNames(String moduleLevelParamName, String resourceLevelParamName, String globalLevelParamName) {
     }
 }
