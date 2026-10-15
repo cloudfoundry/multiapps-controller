@@ -38,7 +38,7 @@ public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {
     private void logTimeout(ProcessContext context, TimeoutType timeoutType, TimeoutResolution resolution) {
         String operation = resolveOperationName(context, timeoutType);
         long seconds = resolution.timeout().toSeconds();
-        getStepLogger().info(Messages.OPERATION_TIMEOUT_MESSAGE, operation, resolution.parameterName(), seconds);
+        getStepLogger().infoWithoutProgressMessage(Messages.OPERATION_TIMEOUT_MESSAGE, operation, resolution.parameterName(), seconds);
     }
 
     private String resolveOperationName(ProcessContext context, TimeoutType timeoutType) {
