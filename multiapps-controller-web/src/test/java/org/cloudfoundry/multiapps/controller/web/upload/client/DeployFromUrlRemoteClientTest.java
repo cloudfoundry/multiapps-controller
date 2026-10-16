@@ -22,6 +22,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEnt
 import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.upload.UploadFromUrlContext;
+import org.cloudfoundry.multiapps.controller.web.upload.client.auth.AuthenticatorResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -80,7 +81,7 @@ class DeployFromUrlRemoteClientTest {
 
         public TestableDeployFromUrlRemoteClient(ApplicationConfiguration applicationConfiguration,
                                                  AddressValidator addressValidator) {
-            super(applicationConfiguration, addressValidator);
+            super(applicationConfiguration, addressValidator, new AuthenticatorResolver());
         }
 
         @Override
@@ -360,4 +361,45 @@ class DeployFromUrlRemoteClientTest {
         when(response.body()).thenReturn(new ByteArrayInputStream(new byte[0]));
         return response;
     }
+    @Test
+    void downloadFileFromUrlWithTokenSendsBearer() throws Exception {
+        when(userCredentials.getToken()).thenReturn("ghp_secret_token");
+        InputStream inputStream = new ByteArrayInputStream("test content".getBytes());
+        when(httpResponse.body()).thenReturn(inputStream);
+        when(httpResponse.headers()).thenReturn(httpHeaders);
+        when(httpResponse.uri()).thenReturn(URI.create(SECURE_URL));
+        when(httpResponse.statusCode()).thenReturn(200);
+        when(httpHeaders.firstValueAsLong(Constants.CONTENT_LENGTH)).thenReturn(OptionalLong.of(FILE_SIZE));
+        when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()))).thenReturn(httpResponse);
+
+        client.downloadFileFromUrl(uploadContext);
+
+        verify(httpClient).send(argThat(request -> request.headers()
+                                                          .firstValue("Authorization")
+                                                          .filter(value -> value.equals("Bearer ghp_secret_token"))
+                                                          .isPresent()),
+                                eq(HttpResponse.BodyHandlers.ofInputStream()));
+    }
+
+    @Test
+    void downloadFileFromUrlTokenTakesPrecedenceOverBasic() throws Exception {
+        when(userCredentials.getToken()).thenReturn("ghp_secret_token");
+        // username/password are also set in setUp(); the token must win.
+        InputStream inputStream = new ByteArrayInputStream("test content".getBytes());
+        when(httpResponse.body()).thenReturn(inputStream);
+        when(httpResponse.headers()).thenReturn(httpHeaders);
+        when(httpResponse.uri()).thenReturn(URI.create(SECURE_URL));
+        when(httpResponse.statusCode()).thenReturn(200);
+        when(httpHeaders.firstValueAsLong(Constants.CONTENT_LENGTH)).thenReturn(OptionalLong.of(FILE_SIZE));
+        when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()))).thenReturn(httpResponse);
+
+        client.downloadFileFromUrl(uploadContext);
+
+        verify(httpClient).send(argThat(request -> request.headers()
+                                                          .firstValue("Authorization")
+                                                          .filter(value -> value.startsWith("Bearer "))
+                                                          .isPresent()),
+                                eq(HttpResponse.BodyHandlers.ofInputStream()));
+    }
+
 }

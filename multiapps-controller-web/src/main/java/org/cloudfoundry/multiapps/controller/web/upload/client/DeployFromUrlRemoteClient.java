@@ -27,9 +27,9 @@ import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.upload.UploadFromUrlContext;
+import org.cloudfoundry.multiapps.controller.web.upload.client.auth.AuthenticatorResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 
 @Named
@@ -49,11 +49,13 @@ public class DeployFromUrlRemoteClient {
 
     private final ApplicationConfiguration applicationConfiguration;
     private final AddressValidator addressValidator;
+    private final AuthenticatorResolver authenticatorResolver;
 
     @Inject
-    public DeployFromUrlRemoteClient(ApplicationConfiguration applicationConfiguration, AddressValidator addressValidator) {
+    public DeployFromUrlRemoteClient(ApplicationConfiguration applicationConfiguration, AddressValidator addressValidator, AuthenticatorResolver authenticatorResolver) {
         this.applicationConfiguration = applicationConfiguration;
         this.addressValidator = addressValidator;
+        this.authenticatorResolver = authenticatorResolver;
     }
 
     public FileFromUrlData downloadFileFromUrl(UploadFromUrlContext uploadFromUrlContext) throws Exception {
@@ -175,22 +177,8 @@ public class DeployFromUrlRemoteClient {
                                  .GET()
                                  .timeout(Duration.ofMinutes(15));
         var uri = URI.create(decodedUrl);
-        var userInfo = uri.getUserInfo();
-        if (userCredentials != null) {
-            builder.uri(uri);
-            String userCredentialsUrlFormat = MessageFormat.format(USERNAME_PASSWORD_URL_FORMAT, userCredentials.getUsername(),
-                                                                   userCredentials.getPassword());
-            String encodedAuth = Base64.getEncoder()
-                                       .encodeToString(userCredentialsUrlFormat.getBytes());
-            builder.header(HttpHeaders.AUTHORIZATION, "Basic " + encodedAuth);
-        } else if (userInfo != null) {
-            builder.uri(URI.create(decodedUrl.replace(uri.getRawUserInfo() + "@", "")));
-            String encodedAuth = Base64.getEncoder()
-                                       .encodeToString(userInfo.getBytes());
-            builder.header(HttpHeaders.AUTHORIZATION, "Basic " + encodedAuth);
-        } else {
-            builder.uri(uri);
-        }
+        authenticatorResolver.resolve(userCredentials, decodedUrl)
+                             .applyTo(builder, uri);
         return builder.build();
     }
 

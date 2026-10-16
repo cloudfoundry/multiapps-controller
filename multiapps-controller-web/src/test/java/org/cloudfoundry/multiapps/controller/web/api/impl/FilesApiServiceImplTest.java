@@ -235,6 +235,35 @@ class FilesApiServiceImplTest {
     }
 
     @Test
+    void testStartDeployFromUrlAuditLogsStrippedUrl() {
+        AsyncUploadJobsQuery asyncUploadJobsQuery = mock(AsyncUploadJobsQuery.class, RETURNS_SELF);
+        when(uploadJobService.createQuery()).thenReturn(asyncUploadJobsQuery);
+        when(asyncUploadJobsQuery.list()).thenReturn(Collections.emptyList());
+
+        when(asyncUploadJobOrchestrator.executeUploadFromUrl(any(), any(), any(), any(), any())).thenReturn(
+            ImmutableAsyncUploadJobEntry.builder()
+                                        .id(UUID.randomUUID()
+                                                .toString())
+                                        .url("https://google.com")
+                                        .startedAt(JOB_TIMESTAMP)
+                                        .state(State.INITIAL)
+                                        .user("user1")
+                                        .spaceGuid(SPACE_GUID)
+                                        .instanceIndex(0)
+                                        .build());
+
+        String fileUrlWithUserInfo = Base64.getUrlEncoder()
+                                           .encodeToString(DECODED_URL_WITH_CREDENTIALS_IN_THE_URL.getBytes(StandardCharsets.UTF_8));
+        testedClass.startUploadFromUrl(SPACE_GUID, NAMESPACE, ImmutableFileUrl.builder()
+                                                                              .fileUrl(fileUrlWithUserInfo)
+                                                                              .build());
+
+        // The audit log must receive the userinfo-stripped URL, never the raw user:pass@ form.
+        verify(filesApiServiceAuditLog).logStartUploadFromUrl(eq("user1"), eq(SPACE_GUID), eq("https://google.com"));
+        verify(filesApiServiceAuditLog, never()).logStartUploadFromUrl(any(), any(), eq(DECODED_URL_WITH_CREDENTIALS_IN_THE_URL));
+    }
+
+    @Test
     void testStartDeployFromUrlWhenExecutorRejectsJob() {
         AsyncUploadJobsQuery asyncUploadJobsQuery = mock(AsyncUploadJobsQuery.class, RETURNS_SELF);
         when(uploadJobService.createQuery()).thenReturn(asyncUploadJobsQuery);
