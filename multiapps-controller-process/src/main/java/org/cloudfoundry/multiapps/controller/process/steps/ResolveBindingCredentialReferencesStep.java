@@ -1,16 +1,15 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
-import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceKeyCredentialResolver;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
-import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -27,7 +26,6 @@ public class ResolveBindingCredentialReferencesStep extends SyncFlowableStep {
         CloudControllerClient client = context.getControllerClient();
         Map<String, String> serviceInstanceNamesByRelationship = buildServiceInstanceNamesByRelationship(context);
         ServiceKeyCredentialResolver resolver = new ServiceKeyCredentialResolver(client, serviceInstanceNamesByRelationship);
-
         Map<String, Object> resolvedBindingParameters = resolver.resolveReferencesInMap(bindingParameters);
 
         context.setVariable(Variables.SERVICE_BINDING_PARAMETERS, resolvedBindingParameters);
@@ -35,16 +33,13 @@ public class ResolveBindingCredentialReferencesStep extends SyncFlowableStep {
     }
 
     private Map<String, String> buildServiceInstanceNamesByRelationship(ProcessContext context) {
-        DeploymentDescriptor descriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
         Map<String, String> serviceInstanceNamesByRelationship = new HashMap<>();
-        if (descriptor == null) {
+        List<CloudServiceInstanceExtended> servicesToBind = context.getVariable(Variables.SERVICES_TO_BIND);
+        if (servicesToBind == null) {
             return serviceInstanceNamesByRelationship;
         }
-        for (Resource resource : descriptor.getResources()) {
-            Object serviceName = resource.getParameters()
-                                         .get(SupportedParameters.SERVICE_NAME);
-            serviceInstanceNamesByRelationship.put(resource.getName(),
-                                                   serviceName instanceof String ? (String) serviceName : resource.getName());
+        for (CloudServiceInstanceExtended service : servicesToBind) {
+            serviceInstanceNamesByRelationship.put(service.getResourceName(), service.getName());
         }
         return serviceInstanceNamesByRelationship;
     }

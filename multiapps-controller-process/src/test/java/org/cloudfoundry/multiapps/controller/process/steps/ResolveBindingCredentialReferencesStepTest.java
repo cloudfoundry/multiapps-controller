@@ -6,10 +6,7 @@ import java.util.Map;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceKey;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
-import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -55,13 +52,11 @@ class ResolveBindingCredentialReferencesStepTest extends SyncFlowableStepTest<Re
     void testUsesReferencedResourceServiceNameForReadBack() {
         String referencedResourceName = "ztis-resource";
         String referencedServiceInstanceName = "custom-ztis-service-name";
-        DeploymentDescriptor descriptor = DeploymentDescriptor.createV3()
-                                                              .setId("test-id")
-                                                              .setResources(List.of(Resource.createV3()
-                                                                                            .setName(referencedResourceName)
-                                                                                            .setParameters(Map.of(SupportedParameters.SERVICE_NAME,
-                                                                                                                  referencedServiceInstanceName))));
-        context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, descriptor);
+        context.setVariable(Variables.SERVICES_TO_BIND,
+                            List.of(ImmutableCloudServiceInstanceExtended.builder()
+                                                                         .resourceName(referencedResourceName)
+                                                                         .name(referencedServiceInstanceName)
+                                                                         .build()));
         context.setVariable(Variables.SERVICE_BINDING_PARAMETERS,
                             Map.of("issuer",
                                    "{ds/" + referencedResourceName + "/service-keys." + REFERENCED_KEY + ".credentials.issuer}"));
