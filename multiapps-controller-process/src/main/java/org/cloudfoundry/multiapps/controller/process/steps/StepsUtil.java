@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.StringUtils;
@@ -307,6 +308,16 @@ public class StepsUtil {
                                     .label(MtaMetadataLabels.AUTOSCALER_LABEL, null)
                                     .build();
         client.updateApplicationMetadata(applicationId, metadata);
+    }
+
+    public static DeploymentDescriptor getDeploymentDescriptor(ProcessContext context) {
+        return Stream.of(Variables.DEPLOYMENT_DESCRIPTOR,
+                         Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS,
+                         Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR)
+                     .map(context::getVariable)
+                     .filter(Objects::nonNull)
+                     .findFirst()
+                     .orElse(null);
     }
 
 }

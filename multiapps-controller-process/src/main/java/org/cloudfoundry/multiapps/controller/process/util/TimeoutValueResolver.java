@@ -3,9 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
@@ -14,6 +12,7 @@ import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
 import org.cloudfoundry.multiapps.controller.core.util.DurationUtil;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
+import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variable;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -58,11 +57,7 @@ public class TimeoutValueResolver {
         if (paramName == null || descriptor == null) {
             return Optional.empty();
         }
-        String appName = Optional.ofNullable(context.getVariableIfSet(Variables.APP_TO_PROCESS))
-                                 .map(CloudApplicationExtended::getName)
-                                 .orElse(null);
-
-        return findModuleByAppName(descriptor, appName)
+        return findModule(context, descriptor)
             .flatMap(module -> toResolution(getParameter(module.getParameters(), paramName), paramName, timeoutType));
     }
 
@@ -133,23 +128,20 @@ public class TimeoutValueResolver {
         return DurationUtil.parseDuration(timeout, timeoutParameterName, maxAllowedValue);
     }
 
-    private Optional<Module> findModuleByAppName(DeploymentDescriptor descriptor, String appName) {
-        if (descriptor == null || appName == null) {
+    private Optional<Module> findModule(ProcessContext context, DeploymentDescriptor descriptor) {
+        CloudApplicationExtended app = context.getVariableIfSet(Variables.APP_TO_PROCESS);
+        if (app == null) {
             return Optional.empty();
         }
+        String moduleName = app.getModuleName() != null ? app.getModuleName() : app.getName();
         return descriptor.getModules()
                          .stream()
-                         .filter(m -> appName.equals(m.getName()))
+                         .filter(module -> module.getName()
+                                                 .equals(moduleName))
                          .findFirst();
     }
 
     private DeploymentDescriptor getDeploymentDescriptor(ProcessContext context) {
-        return Stream.of(Variables.DEPLOYMENT_DESCRIPTOR,
-                         Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS,
-                         Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR)
-                     .map(context::getVariable)
-                     .filter(Objects::nonNull)
-                     .findFirst()
-                     .orElse(null);
+        return StepsUtil.getDeploymentDescriptor(context);
     }
 }
