@@ -232,7 +232,7 @@ public class ServicesCloudModelBuilder {
         if (parameters == null) {
             return null;
         }
-        return DurationUtil.parseDurationSafely(parameters.get(timeoutParameterName))
+        return DurationUtil.parseDurationSafely(parameters.get(timeoutParameterName), DurationUtil.MAX_SERVICE_TIMEOUT_SECONDS)
                            .orElse(null);
     }
 

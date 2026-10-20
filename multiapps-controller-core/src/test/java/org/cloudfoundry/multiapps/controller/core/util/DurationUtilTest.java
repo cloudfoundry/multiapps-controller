@@ -57,33 +57,46 @@ class DurationUtilTest {
 
     @Test
     void testParseDurationSafelyWithValidValue() {
-        Optional<Duration> result = DurationUtil.parseDurationSafely(300);
+        Optional<Duration> result = DurationUtil.parseDurationSafely(300, MAX_VALUE);
         assertTrue(result.isPresent());
         assertEquals(Duration.ofSeconds(300), result.get());
     }
 
     @Test
     void testParseDurationSafelyWithNull() {
-        Optional<Duration> result = DurationUtil.parseDurationSafely(null);
+        Optional<Duration> result = DurationUtil.parseDurationSafely(null, MAX_VALUE);
         assertTrue(result.isEmpty());
     }
 
     @Test
     void testParseDurationSafelyWithZero() {
-        Optional<Duration> result = DurationUtil.parseDurationSafely(0);
+        Optional<Duration> result = DurationUtil.parseDurationSafely(0, MAX_VALUE);
         assertTrue(result.isEmpty());
     }
 
     @Test
     void testParseDurationSafelyWithNegative() {
-        Optional<Duration> result = DurationUtil.parseDurationSafely(-5);
+        Optional<Duration> result = DurationUtil.parseDurationSafely(-5, MAX_VALUE);
         assertTrue(result.isEmpty());
     }
 
     @Test
     void testParseDurationSafelyWithNonNumber() {
-        Optional<Duration> result = DurationUtil.parseDurationSafely("invalid");
+        Optional<Duration> result = DurationUtil.parseDurationSafely("invalid", MAX_VALUE);
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testParseDurationSafelyAboveMax() {
+        Optional<Duration> result = DurationUtil.parseDurationSafely(MAX_VALUE + 1, MAX_VALUE);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testParseDurationSafelyAtMax() {
+        Optional<Duration> result = DurationUtil.parseDurationSafely(MAX_VALUE, MAX_VALUE);
+        assertTrue(result.isPresent());
+        assertEquals(Duration.ofSeconds(MAX_VALUE), result.get());
     }
 }
 

@@ -4,6 +4,7 @@ import java.time.Duration;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
+import org.cloudfoundry.multiapps.controller.core.util.DurationUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variable;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
@@ -56,7 +57,7 @@ public enum TimeoutType {
     private static final class Limits {
         private static final int MAX_APP_TIMEOUT_SECONDS = 10800;
         private static final int MAX_TASK_TIMEOUT_SECONDS = 86400;
-        private static final int MAX_SERVICE_TIMEOUT_SECONDS = 7200;
+        private static final int MAX_SERVICE_TIMEOUT_SECONDS = DurationUtil.MAX_SERVICE_TIMEOUT_SECONDS;
     }
 
     @FunctionalInterface

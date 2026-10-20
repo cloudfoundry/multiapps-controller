@@ -8,6 +8,8 @@ import org.cloudfoundry.multiapps.controller.core.Messages;
 
 public final class DurationUtil {
 
+    public static final int MAX_SERVICE_TIMEOUT_SECONDS = 7200;
+
     private DurationUtil() {
         // utility class
     }
@@ -26,12 +28,12 @@ public final class DurationUtil {
         return Duration.ofSeconds(value);
     }
 
-    public static Optional<Duration> parseDurationSafely(Object timeout) {
+    public static Optional<Duration> parseDurationSafely(Object timeout, int maxAllowedValue) {
         if (timeout == null || !(timeout instanceof Number number)) {
             return Optional.empty();
         }
         long seconds = number.longValue();
-        return seconds > 0 ? Optional.of(Duration.ofSeconds(seconds)) : Optional.empty();
+        return seconds > 0 && seconds <= maxAllowedValue ? Optional.of(Duration.ofSeconds(seconds)) : Optional.empty();
     }
 }
 
