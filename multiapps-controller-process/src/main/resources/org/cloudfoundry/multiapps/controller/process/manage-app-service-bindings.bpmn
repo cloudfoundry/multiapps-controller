@@ -9,6 +9,8 @@
     <startEvent id="startEvent" name="Start" flowable:formFieldValidation="true"></startEvent>
     <serviceTask id="unbindServiceFromApplicationTask" name="Unbind Service from Application" flowable:async="true" flowable:delegateExpression="${unbindServiceFromApplicationStep}"></serviceTask>
     <serviceTask id="bindServiceToApplicationTask" name="Bind Service to Application" flowable:async="true" flowable:delegateExpression="${bindServiceToApplicationStep}"></serviceTask>
+    <serviceTask id="resolveBindingCredentialReferencesTask" name="Resolve Binding Credential References" flowable:async="true" flowable:delegateExpression="${resolveBindingCredentialReferencesStep}"></serviceTask>
+    <sequenceFlow id="sid-RESOLVE-BINDING-TO-BIND" sourceRef="resolveBindingCredentialReferencesTask" targetRef="bindServiceToApplicationTask"></sequenceFlow>
     <endEvent id="endEvent" name="End">
       <extensionElements>
         <flowable:executionListener event="end" delegateExpression="${manageAppServiceBindingEndListener}"></flowable:executionListener>
@@ -23,7 +25,7 @@
     <sequenceFlow id="sid-8FD6B60A-3F5B-4339-B958-7F983A3C6E64" sourceRef="sid-AB2AFF59-667E-4260-BCB5-D958FBF901A1" targetRef="unbindServiceFromApplicationTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${shouldUnbindServiceFromApp}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="sid-297C30EF-2F6E-42A7-AE45-F3C6C975DF88" sourceRef="sid-3DD45EF2-BB87-406C-98BC-507B59E921D8" targetRef="bindServiceToApplicationTask">
+    <sequenceFlow id="sid-297C30EF-2F6E-42A7-AE45-F3C6C975DF88" sourceRef="sid-3DD45EF2-BB87-406C-98BC-507B59E921D8" targetRef="resolveBindingCredentialReferencesTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${shouldBindServiceToApp}]]></conditionExpression>
     </sequenceFlow>
     <serviceTask id="checkForServiceBindingOperationInProgress" name="Check For Service Binding Operation In Progress" flowable:async="true" flowable:delegateExpression="${checkServiceBindingOperationStep}"></serviceTask>

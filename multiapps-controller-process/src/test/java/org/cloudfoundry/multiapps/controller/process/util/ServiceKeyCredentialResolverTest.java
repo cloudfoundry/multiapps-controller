@@ -49,6 +49,21 @@ class ServiceKeyCredentialResolverTest {
     }
 
     @Test
+    void testResolvesReferencesInMap() {
+        Mockito.when(client.getServiceKey(REFERENCED_SERVICE_INSTANCE, REFERENCED_KEY))
+               .thenReturn(buildReferencedKey(Map.of("issuer", "CN=the-issuer")));
+        Map<String, Object> bindingConfig = Map.of("issuer",
+                                                   "{ds/" + REFERENCED_RESOURCE + "/service-keys." + REFERENCED_KEY
+                                                       + ".credentials.issuer}",
+                                                   "static", "unchanged");
+
+        Map<String, Object> resolved = resolver.resolveReferencesInMap(bindingConfig);
+
+        Assertions.assertEquals("CN=the-issuer", resolved.get("issuer"));
+        Assertions.assertEquals("unchanged", resolved.get("static"));
+    }
+
+    @Test
     void testLeavesPlainCredentialsUntouched() {
         CloudServiceKey keyToResolve = buildKeyWithCredentials(Map.of("app-identifier", "caas-coll-client"));
 

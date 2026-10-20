@@ -30,20 +30,32 @@ public class ServiceKeyCredentialResolver {
         if (credentials == null || credentials.isEmpty()) {
             return serviceKey;
         }
-        Map<String, Object> resolvedCredentials = new LinkedHashMap<>(credentials);
-        boolean changed = false;
-        for (Map.Entry<String, Object> entry : credentials.entrySet()) {
-            if (!isServiceKeyCredentialReference(entry.getValue())) {
-                continue;
-            }
-            resolvedCredentials.put(entry.getKey(), resolveReference((String) entry.getValue()));
-            changed = true;
-        }
-        if (!changed) {
+        Map<String, Object> resolvedCredentials = resolveReferencesInMap(credentials);
+        if (resolvedCredentials == credentials) {
             return serviceKey;
         }
         return ImmutableCloudServiceKey.copyOf(serviceKey)
                                        .withCredentials(resolvedCredentials);
+    }
+
+    /**
+     * Resolves {@code {ds/...}} service-key credential references in an arbitrary map (e.g. a module's service-binding config), returning a
+     * new map with the resolved values. Returns the same map instance when there is nothing to resolve.
+     */
+    public Map<String, Object> resolveReferencesInMap(Map<String, Object> values) {
+        if (values == null || values.isEmpty()) {
+            return values;
+        }
+        Map<String, Object> resolved = new LinkedHashMap<>(values);
+        boolean changed = false;
+        for (Map.Entry<String, Object> entry : values.entrySet()) {
+            if (!isServiceKeyCredentialReference(entry.getValue())) {
+                continue;
+            }
+            resolved.put(entry.getKey(), resolveReference((String) entry.getValue()));
+            changed = true;
+        }
+        return changed ? resolved : values;
     }
 
     private boolean isServiceKeyCredentialReference(Object value) {
