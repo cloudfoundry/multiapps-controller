@@ -200,6 +200,9 @@
         <flowable:in source="stepPhase" target="stepPhase"></flowable:in>
         <flowable:in source="batchToProcess" target="batchToProcess"></flowable:in>
         <flowable:in source="externalLoggingServiceConfigurations" target="externalLoggingServiceConfigurations"></flowable:in>
+        <flowable:in source="servicesCreateServiceTimeout" target="servicesCreateServiceTimeout"></flowable:in>
+        <flowable:in source="servicesBindServiceTimeout" target="servicesBindServiceTimeout"></flowable:in>
+        <flowable:in source="servicesCreateServiceKeyTimeout" target="servicesCreateServiceKeyTimeout"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="true" flowable:collection="batchesToProcess" flowable:elementVariable="batchToProcess">
         <extensionElements></extensionElements>

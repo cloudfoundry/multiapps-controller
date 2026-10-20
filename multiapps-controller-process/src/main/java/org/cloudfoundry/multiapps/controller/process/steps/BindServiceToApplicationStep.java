@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -13,13 +14,14 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.DefaultApplicationServicesUpdateCallback;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceBindingPollingFactory;
+import org.cloudfoundry.multiapps.controller.process.util.TimeoutType;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 @Named("bindServiceToApplicationStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class BindServiceToApplicationStep extends AsyncFlowableStep {
+public class BindServiceToApplicationStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) throws Exception {
@@ -71,4 +73,8 @@ public class BindServiceToApplicationStep extends AsyncFlowableStep {
                                                                                                   .getName());
     }
 
+    @Override
+    public Duration getTimeout(ProcessContext context) {
+        return calculateTimeout(context, TimeoutType.BIND_SERVICE);
+    }
 }
