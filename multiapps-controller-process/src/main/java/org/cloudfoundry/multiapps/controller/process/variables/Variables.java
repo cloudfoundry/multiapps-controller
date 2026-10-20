@@ -1005,6 +1005,7 @@ public interface Variables {
 
     Variable<Duration> BIND_SERVICE_TIMEOUT_GLOBAL_FALLBACK = ImmutableSimpleVariable.<Duration> builder()
                                                                                      .name("servicesBindServiceTimeoutGlobalFallback")
+                                                                                     .defaultValue(Duration.ofHours(1))
                                                                                      .build();
 
 }
