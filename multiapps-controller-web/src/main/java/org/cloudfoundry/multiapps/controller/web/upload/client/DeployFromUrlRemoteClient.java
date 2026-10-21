@@ -11,8 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.Base64;
-
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.apache.commons.io.IOUtils;
@@ -30,13 +28,13 @@ import org.cloudfoundry.multiapps.controller.web.upload.UploadFromUrlContext;
 import org.cloudfoundry.multiapps.controller.web.upload.client.auth.AuthenticatorResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 
 @Named
 public class DeployFromUrlRemoteClient {
 
     private static final Duration HTTP_CONNECT_TIMEOUT = Duration.ofMinutes(10);
-    private static final String USERNAME_PASSWORD_URL_FORMAT = "{0}:{1}";
     private static final int ERROR_RESPONSE_BODY_MAX_LENGTH = 4 * 1024;
     // Ten is value that is used by most HTTP clients (JDK HttpClient, curl, browsers)
     private static final int MAX_REDIRECTS = 10;
