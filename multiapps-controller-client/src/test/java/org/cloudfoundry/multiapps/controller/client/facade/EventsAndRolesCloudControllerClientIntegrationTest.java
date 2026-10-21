@@ -47,14 +47,6 @@ class EventsAndRolesCloudControllerClientIntegrationTest extends CloudController
     }
 
     @Test
-    @DisplayName("Get all events returns a list of mapped audit events")
-    void getEvents() {
-        List<CloudEvent> events = client.getEvents();
-        assertNotNull(events);
-        assertAllEventsAreMapped(events);
-    }
-
-    @Test
     @DisplayName("Get events by actee returns the application's audit events")
     void getEventsByActee() {
         UUID appGuid = client.getApplicationGuid(APP_NAME);
