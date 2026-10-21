@@ -5,8 +5,8 @@ import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessTypeDeserializer;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessTypeSerializer;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 public interface DyntraceProcessEntity {
 

@@ -13,7 +13,7 @@ import org.cloudfoundry.multiapps.mta.model.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 
 public class BaseMtaMetadataParser {
 

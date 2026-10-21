@@ -34,7 +34,7 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires com.azure.storage.blob;
     requires com.azure.core.http.jdk.httpclient;
     requires com.fasterxml.jackson.annotation;
-    requires com.fasterxml.jackson.databind;
+    requires tools.jackson.databind;
     requires com.google.auth;
     requires com.google.auth.oauth2;
     requires com.google.auto.service;

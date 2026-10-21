@@ -20,7 +20,7 @@ import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationEntr
 import org.cloudfoundry.multiapps.controller.persistence.query.impl.ConfigurationEntryQueryImpl;
 import org.cloudfoundry.multiapps.mta.model.Version;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 
 @Named
 public class ConfigurationEntryService extends PersistenceService<ConfigurationEntry, ConfigurationEntryDto, Long> {

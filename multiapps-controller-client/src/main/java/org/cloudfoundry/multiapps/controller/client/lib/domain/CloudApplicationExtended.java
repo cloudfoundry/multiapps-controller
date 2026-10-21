@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 import org.cloudfoundry.multiapps.common.AllowNulls;
 import org.cloudfoundry.multiapps.common.Nullable;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;

@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;

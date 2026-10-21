@@ -20,8 +20,6 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
 import org.springframework.security.web.authentication.switchuser.SwitchUserFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
 
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
-
 @ComponentScan(basePackageClasses = org.cloudfoundry.multiapps.controller.PackageMarker.class)
 @EnableWebSecurity
 public class SecurityConfiguration {
@@ -45,34 +43,28 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.sessionManagement()
-                   .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                   .and()
-                   .authorizeRequests()
-                   .requestMatchers(antMatcher(HttpMethod.GET, "/**"))
-                   .hasAnyAuthority(TokenFactory.SCOPE_CC_READ, TokenFactory.SCOPE_CC_ADMIN)
-                   .requestMatchers(antMatcher(HttpMethod.POST, "/**"))
-                   .hasAnyAuthority(TokenFactory.SCOPE_CC_WRITE, TokenFactory.SCOPE_CC_ADMIN)
-                   .requestMatchers(antMatcher(HttpMethod.PUT, "/**"))
-                   .hasAnyAuthority(TokenFactory.SCOPE_CC_WRITE, TokenFactory.SCOPE_CC_ADMIN)
-                   .requestMatchers(antMatcher(HttpMethod.DELETE, "/**"))
-                   .hasAnyAuthority(TokenFactory.SCOPE_CC_WRITE, TokenFactory.SCOPE_CC_ADMIN)
-                   .and()
+        return http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                   .authorizeHttpRequests(authorize -> authorize.requestMatchers(HttpMethod.GET, "/**")
+                                                                 .hasAnyAuthority(TokenFactory.SCOPE_CC_READ, TokenFactory.SCOPE_CC_ADMIN)
+                                                                 .requestMatchers(HttpMethod.POST, "/**")
+                                                                 .hasAnyAuthority(TokenFactory.SCOPE_CC_WRITE, TokenFactory.SCOPE_CC_ADMIN)
+                                                                 .requestMatchers(HttpMethod.PUT, "/**")
+                                                                 .hasAnyAuthority(TokenFactory.SCOPE_CC_WRITE, TokenFactory.SCOPE_CC_ADMIN)
+                                                                 .requestMatchers(HttpMethod.DELETE, "/**")
+                                                                 .hasAnyAuthority(TokenFactory.SCOPE_CC_WRITE, TokenFactory.SCOPE_CC_ADMIN))
                    .addFilterBefore(authenticationLoaderFilter, AbstractPreAuthenticatedProcessingFilter.class)
                    .addFilterBefore(exceptionHandlerFilter, AuthenticationLoaderFilter.class)
                    .addFilterAfter(requestSizeFilter, AuthenticationLoaderFilter.class)
                    .addFilterAfter(csrfHeadersFilter, CsrfFilter.class)
                    .addFilterAfter(compositeUriAuthorizationFilter, SwitchUserFilter.class)
-                   .exceptionHandling()
-                   .accessDeniedHandler(accessDeniedHandler())
-                   .and()
+                   .exceptionHandling(exceptionHandling -> exceptionHandling.accessDeniedHandler(accessDeniedHandler()))
                    .build();
     }
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring()
-                         .requestMatchers(antMatcher("/public/**"));
+                         .requestMatchers("/public/**");
     }
 
     @Bean

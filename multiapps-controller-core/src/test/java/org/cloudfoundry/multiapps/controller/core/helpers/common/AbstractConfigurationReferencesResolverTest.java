@@ -31,7 +31,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 
 public abstract class AbstractConfigurationReferencesResolverTest {
     protected static class ServiceMockConfiguration {

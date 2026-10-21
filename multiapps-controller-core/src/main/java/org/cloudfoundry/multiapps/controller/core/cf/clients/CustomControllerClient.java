@@ -12,6 +12,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.CloudCredentials;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerHeaderConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.http.HttpHeaders;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -47,7 +48,7 @@ public abstract class CustomControllerClient {
     private PaginationV3 addPageOfResources(String uri, ResourcesResponseMapper<?> responseMapper) {
         String responseString = webClient.get()
                                          .uri(uri)
-                                         .headers(httpHeaders -> httpHeaders.addAll(generateRequestHeaders()))
+                                         .headers(httpHeaders -> httpHeaders.addAll(new HttpHeaders(generateRequestHeaders())))
                                          .retrieve()
                                          .bodyToMono(String.class)
                                          .block();
