@@ -1,9 +1,6 @@
 package org.cloudfoundry.multiapps.controller.client.facade;
 
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -509,15 +506,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
                                                               .build())
                                   .url(APPLICATION_HOST + "." + DEFAULT_DOMAIN)
                                   .build();
-    }
-
-    private static Path getStaticfileApplicationContentPath() {
-        URL url = ApplicationsCloudControllerClientIntegrationTest.class.getResource(STATICFILE_APPLICATION_CONTENT);
-        try {
-            return Paths.get(url.toURI());
-        } catch (URISyntaxException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
 }

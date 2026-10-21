@@ -36,15 +36,16 @@ public final class V3ApplicationMapper {
             return null;
         }
 
+        LifecycleType lifecycleType = LifecycleType.valueOf(lifecycle.type()
+                                                                     .toUpperCase());
         return ImmutableLifecycle.builder()
-                                 .type(LifecycleType.valueOf(lifecycle.type()
-                                                                      .toUpperCase()))
-                                 .data(extractLifecycleData(lifecycle.data()))
+                                 .type(lifecycleType)
+                                 .data(extractLifecycleData(lifecycle.data(), lifecycleType))
                                  .build();
     }
 
-    private static Map<String, Object> extractLifecycleData(V3Application.V3LifecycleData data) {
-        if (data == null) {
+    private static Map<String, Object> extractLifecycleData(V3Application.V3LifecycleData data, LifecycleType lifecycleType) {
+        if (lifecycleType == LifecycleType.DOCKER || data == null) {
             return Map.of();
         }
 

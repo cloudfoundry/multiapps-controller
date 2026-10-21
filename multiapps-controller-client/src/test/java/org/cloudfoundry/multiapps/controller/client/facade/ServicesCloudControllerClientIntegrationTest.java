@@ -1,15 +1,5 @@
 package org.cloudfoundry.multiapps.controller.client.facade;
 
-import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.APPLICATION_HOST;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,12 +9,37 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.cloudfoundry.multiapps.controller.client.facade.broker.FailConfiguration;
+import org.cloudfoundry.multiapps.controller.client.facade.broker.ImmutableFailConfiguration;
+import org.cloudfoundry.multiapps.controller.client.facade.broker.ImmutableServiceBrokerConfiguration;
+import org.cloudfoundry.multiapps.controller.client.facade.broker.ServiceBrokerConfiguration;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBroker;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceOffering;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServicePlan;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudDomain;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudRoute;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceBroker;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceInstance;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.JobState;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceInstanceType;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServicePlanVisibility;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
+import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
+import org.cloudfoundry.multiapps.controller.client.facade.dto.ImmutableApplicationToCreateDto;
+import org.cloudfoundry.multiapps.controller.client.facade.util.JsonUtil;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -38,26 +53,13 @@ import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import org.cloudfoundry.multiapps.controller.client.facade.broker.FailConfiguration;
-import org.cloudfoundry.multiapps.controller.client.facade.broker.ImmutableFailConfiguration;
-import org.cloudfoundry.multiapps.controller.client.facade.broker.ImmutableServiceBrokerConfiguration;
-import org.cloudfoundry.multiapps.controller.client.facade.broker.ServiceBrokerConfiguration;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBroker;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudDomain;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudRoute;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceBroker;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceInstance;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
-import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
-import org.cloudfoundry.multiapps.controller.client.facade.dto.ImmutableApplicationToCreateDto;
-import org.cloudfoundry.multiapps.controller.client.facade.util.JsonUtil;
+import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.APPLICATION_HOST;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class ServicesCloudControllerClientIntegrationTest extends CloudControllerClientIntegrationTest {
 
@@ -76,7 +78,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
         }
         Path brokerPath = Paths.get(brokerPathString);
         if (Files.notExists(brokerPath)) {
-            fail(MessageFormat.format("Specified service broker path \"{0}\" not exists", brokerPathString));
+            fail(MessageFormat.format("Specified service broker path \"{0}\" does not exists", brokerPathString));
         }
         pushServiceBrokerApplication(brokerPath);
         try {
@@ -155,10 +157,10 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
 
     static Stream<Arguments> createManagedService() {
         return Stream.of(
-                         // (1) Without specified broker name
-                         Arguments.of("test-managed-service", null),
-                         // (2) With specified broker name
-                         Arguments.of("test-managed-service-with-broker", "test-service-broker"));
+            // (1) Without specified broker name
+            Arguments.of("test-managed-service", null),
+            // (2) With specified broker name
+            Arguments.of("test-managed-service-with-broker", "test-service-broker"));
     }
 
     @ParameterizedTest
@@ -436,6 +438,110 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     }
 
     @Test
+    @DisplayName("Get service offerings includes the broker's offering with its plans")
+    void getServiceOfferings() {
+        if (!pushedServiceBroker) {
+            return;
+        }
+
+        List<CloudServiceOffering> offerings = client.getServiceOfferings();
+
+        CloudServiceOffering finchServiceOffering = offerings.stream()
+                                                             .filter(offering -> IntegrationTestConstants.SERVICE_OFFERING.equals(
+                                                                 offering.getName()))
+                                                             .findFirst()
+                                                             .orElseThrow(() -> new IllegalStateException(MessageFormat.format(
+                                                                 "Service offering \"{0}\" not found in \"{1}\" offerings",
+                                                                 IntegrationTestConstants.SERVICE_OFFERING, offerings.size())));
+
+        assertFalse(finchServiceOffering.getServicePlans()
+                                        .isEmpty(), "Expected the offering to expose at least one service plan");
+        assertTrue(finchServiceOffering.getServicePlans()
+                                       .stream()
+                                       .anyMatch(plan -> IntegrationTestConstants.SERVICE_PLAN.equals(plan.getName())),
+                   MessageFormat.format("Expected plan \"{0}\" in the offering's plans", IntegrationTestConstants.SERVICE_PLAN));
+    }
+
+    @Test
+    @DisplayName("Update service plan visibility for broker makes the broker's plans public")
+    void updateServicePlanVisibilityForBroker() {
+        if (!pushedServiceBroker) {
+            return;
+        }
+
+        client.updateServicePlanVisibilityForBroker(IntegrationTestConstants.SERVICE_BROKER_NAME, ServicePlanVisibility.PUBLIC);
+
+        CloudServiceOffering finchServiceOffering = client.getServiceOfferings()
+                                                          .stream()
+                                                          .filter(o -> IntegrationTestConstants.SERVICE_OFFERING.equals(o.getName()))
+                                                          .findFirst()
+                                                          .orElseThrow(() -> new IllegalStateException(MessageFormat.format(
+                                                              "Service offering \"{0}\" not found after updating plan visibility",
+                                                              IntegrationTestConstants.SERVICE_OFFERING)));
+
+        List<CloudServicePlan> plans = finchServiceOffering.getServicePlans();
+        assertFalse(plans.isEmpty(),
+                    "Expected the broker's offering to expose plans");
+        assertTrue(plans.stream()
+                        .allMatch(plan -> Boolean.TRUE.equals(plan.isPublic())),
+                   MessageFormat.format("Expected all plans of \"{0}\" to be public after the visibility update, but was \"{1}\"",
+                                        IntegrationTestConstants.SERVICE_OFFERING,
+                                        plans.stream()
+                                             .collect(Collectors.toMap(CloudServicePlan::getName, CloudServicePlan::isPublic))));
+    }
+
+    @Test
+    @DisplayName("Set service instance metadata, find it by label selector (with auxiliary content and without it), then unset the label")
+    void findServiceInstanceByMetadataLabelSelectorDifferentOptionsAndUnset() {
+        String serviceName = "service-test-label-selector";
+        String labelKey = "integration-test-label";
+        String labelValue = "bindings-coverage";
+
+        try {
+            client.createUserProvidedServiceInstance(buildUserProvidedService(serviceName));
+            UUID serviceGuid = client.getServiceInstance(serviceName)
+                                     .getGuid();
+
+            client.updateServiceInstanceMetadata(serviceGuid, ImmutableMetadata.builder()
+                                                                               .putLabel(labelKey, labelValue)
+                                                                               .build());
+
+            String selector = labelKey + "=" + labelValue;
+
+            List<CloudServiceInstance> foundServices = client.getServiceInstancesByMetadataLabelSelector(selector);
+            assertTrue(foundServices.stream()
+                                    .anyMatch(service -> serviceName.equals(service.getName())),
+                       MessageFormat.format("Expected service \"{0}\" to be found by label selector \"{1}\"", serviceName, selector));
+
+            List<CloudServiceInstance> foundServicesWithoutAuxiliaryContent = client.getServiceInstancesWithoutAuxiliaryContentByMetadataLabelSelector(
+                selector);
+            assertTrue(foundServicesWithoutAuxiliaryContent.stream()
+                                                           .anyMatch(service -> serviceName.equals(service.getName())),
+                       MessageFormat.format("Expected service \"{0}\" to be found by the without auxiliary content label selector \"{1}\"",
+                                            serviceName, selector));
+
+            List<CloudServiceInstance> foundServicesByNames = client.getServiceInstancesWithoutAuxiliaryContentByNames(
+                List.of(serviceName));
+            assertEquals(1, foundServicesByNames.size());
+            assertEquals(serviceName, foundServicesByNames.getFirst()
+                                                          .getName());
+
+            client.updateServiceInstanceMetadata(serviceGuid, ImmutableMetadata.builder()
+                                                                               .putLabel(labelKey, null)
+                                                                               .build());
+            List<CloudServiceInstance> servicesAfterUnsettingTheSelector = client.getServiceInstancesByMetadataLabelSelector(selector);
+            assertTrue(servicesAfterUnsettingTheSelector.stream()
+                                                        .noneMatch(service -> serviceName.equals(service.getName())),
+                       MessageFormat.format("Expected service \"{0}\" to no longer match the selector after the label was unset",
+                                            serviceName));
+        } catch (Exception e) {
+            fail(e);
+        } finally {
+            client.deleteServiceInstance(serviceName);
+        }
+    }
+
+    @Test
     void testFetchingOfFailedServiceKey() {
         if (!pushedServiceBroker) {
             return;
@@ -451,7 +557,8 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
             CloudServiceInstance serviceInstance = client.getServiceInstance(testServiceInstanceName);
             createServiceKeySync(testServiceInstanceName, "successful-key", Map.of("test-key", "test-value"));
             FailConfiguration failConfiguration = ImmutableFailConfiguration.builder()
-                                                                            .operationType(FailConfiguration.OperationType.CREATE_SERVICE_KEY.toString())
+                                                                            .operationType(
+                                                                                FailConfiguration.OperationType.CREATE_SERVICE_KEY.toString())
                                                                             .addInstanceId(serviceInstance.getGuid())
                                                                             .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                                                                             .build();
@@ -502,7 +609,8 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
 
     private void configureServiceBroker(List<FailConfiguration> failConfigurations) {
         ServiceBrokerConfiguration serviceBrokerConfiguration = ImmutableServiceBrokerConfiguration.builder()
-                                                                                                   .asyncDurationForServiceCredentialBindingsInMillis(100)
+                                                                                                   .asyncDurationForServiceCredentialBindingsInMillis(
+                                                                                                       100)
                                                                                                    .failConfigurations(failConfigurations)
                                                                                                    .build();
         String serviceBrokerUrl = getServiceBrokerUrl(SERVICE_BROKER_ENDPOINT, client.getDefaultDomain()
@@ -567,29 +675,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                                               .routes(routes)
                                               .env(appEnv)
                                               .build();
-    }
-
-    private static Map<String, String> getServiceBrokerEnvConfiguration() {
-        URL url = ServicesCloudControllerClientIntegrationTest.class.getResource(IntegrationTestConstants.SERVICE_BROKER_ENV_CONTENT);
-        String configuration;
-        try {
-            configuration = Files.readString(Paths.get(url.toURI()));
-        } catch (URISyntaxException | IOException e) {
-            throw new IllegalStateException(e);
-        }
-        return JsonUtil.convertJsonToMap(configuration)
-                       .entrySet()
-                       .stream()
-                       .collect(Collectors.toMap(Map.Entry::getKey,
-                                                 ServicesCloudControllerClientIntegrationTest::convertMapEntryValueToString));
-
-    }
-
-    private static String convertMapEntryValueToString(Map.Entry<String, Object> entry) {
-        if (entry.getValue() instanceof String) {
-            return (String) entry.getValue();
-        }
-        return JsonUtil.convertToJson(entry.getValue(), true);
     }
 
     private static void createServiceBroker(String serviceBrokerName, String serviceBrokerEndpoint) {
