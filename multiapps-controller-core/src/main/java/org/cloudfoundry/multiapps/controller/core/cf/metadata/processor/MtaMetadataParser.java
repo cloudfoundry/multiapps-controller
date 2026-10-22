@@ -70,12 +70,14 @@ public class MtaMetadataParser extends BaseMtaMetadataParser {
         String moduleName = parseNameAttribute(metadataAnnotations, MtaMetadataAnnotations.MTA_MODULE);
         List<String> providedDependencies = parseModuleProvidedDependencies(application.getName(), metadataAnnotations,
                                                                             MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES);
+        List<String> requiredDependencies = parseList(metadataAnnotations, MtaMetadataAnnotations.MTA_MODULE_REQUIRED_DEPENDENCIES);
         List<String> boundMtaServices = parseList(metadataAnnotations, MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES);
         return ImmutableDeployedMtaApplication.builder()
                                               .from(application)
                                               .moduleName(moduleName)
                                               .boundMtaServices(boundMtaServices)
                                               .providedDependencyNames(providedDependencies)
+                                              .requiredDependencyNames(requiredDependencies)
                                               .build();
     }
 
