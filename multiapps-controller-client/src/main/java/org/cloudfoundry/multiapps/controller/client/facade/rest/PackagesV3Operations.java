@@ -193,7 +193,20 @@ public class PackagesV3Operations {
         boolean keepPolling = true;
 
         while (keepPolling) {
-            Upload upload = getUploadStatus(cloudPackage.getGuid());
+            Upload upload;
+
+            try {
+                upload = getUploadStatus(cloudPackage.getGuid());
+            } catch (CloudOperationException e) {
+                if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                    // package was most probably already consumed by CF between the polls, meaning that since the build was already created from the package object, the package is not needed anymore
+                    // and the cf blobstore garbage collector has deleted it
+                    keepPolling = false;
+                    continue;
+                }
+                throw e;
+            }
+
             Status uploadStatus = upload.getStatus();
             boolean unsubscribe = callback.onProgress(uploadStatus.toString());
 
