@@ -7,6 +7,7 @@ import org.cloudfoundry.multiapps.common.Nullable;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
@@ -15,6 +16,7 @@ import io.swagger.annotations.ApiModelProperty;
 @Value.Immutable
 @JsonSerialize(as = ImmutableMta.class)
 @JsonDeserialize(as = ImmutableMta.class)
+@JsonPropertyOrder({ "metadata", "modules", "services" })
 public interface Mta {
 
     @Nullable

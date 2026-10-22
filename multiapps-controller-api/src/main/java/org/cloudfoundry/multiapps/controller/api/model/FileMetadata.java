@@ -11,6 +11,7 @@ import org.cloudfoundry.multiapps.mta.model.ConfigurationIdentifier;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
@@ -19,6 +20,7 @@ import io.swagger.annotations.ApiModelProperty;
 @Value.Immutable
 @JsonSerialize(as = ImmutableFileMetadata.class)
 @JsonDeserialize(as = ImmutableFileMetadata.class)
+@JsonPropertyOrder({ "id", "name", "size", "digest", "digestAlgorithm", "space", "namespace" })
 public abstract class FileMetadata implements AuditableConfiguration {
 
     @Nullable

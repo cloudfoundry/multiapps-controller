@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 import org.cloudfoundry.multiapps.common.Nullable;
@@ -9,6 +10,7 @@ import org.immutables.value.Value;
 @Value.Immutable
 @JsonSerialize(as = ImmutableFileUrl.class)
 @JsonDeserialize(as = ImmutableFileUrl.class)
+@JsonPropertyOrder({ "file_url", "credentials" })
 public interface FileUrl {
 
     @Value.Parameter

@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.api.model;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModelProperty;
@@ -12,6 +13,7 @@ import org.immutables.value.Value;
 @Value.Immutable
 @JsonSerialize(as = ImmutableAsyncUploadResult.class)
 @JsonDeserialize(as = ImmutableAsyncUploadResult.class)
+@JsonPropertyOrder({ "status", "bytes_processed", "error", "file", "mta_id", "schema_version", "client_actions" })
 public interface AsyncUploadResult {
 
     enum JobStatus {
