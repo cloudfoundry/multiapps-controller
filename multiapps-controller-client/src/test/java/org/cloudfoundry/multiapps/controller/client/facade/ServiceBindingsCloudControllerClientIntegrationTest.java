@@ -91,13 +91,27 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
         if (!pushedServiceBroker) {
             return;
         }
-        client.deleteApplication(APP_NAME);
-        String jobId = client.deleteServiceBroker(IntegrationTestConstants.SERVICE_BROKER_NAME);
-        pollServiceBrokerOperation(jobId);
-        client.deleteApplication(IntegrationTestConstants.SERVICE_BROKER_APP_NAME);
-        client.deleteRoute(IntegrationTestConstants.SERVICE_BROKER_HOST, client.getDefaultDomain()
-                                                                               .getName(),
-                           null);
+
+        deleteApplication(APP_NAME);
+
+        try {
+            String jobId = client.deleteServiceBroker(IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME);
+            pollServiceBrokerOperation(jobId);
+        } catch (CloudOperationException e) {
+            if (e.getStatusCode() != HttpStatus.NOT_FOUND) {
+                throw e;
+            }
+        }
+
+        deleteApplication(IntegrationTestConstants.SERVICE_BROKER_BINDINGS_APP_NAME);
+
+        try {
+            client.deleteRoute(IntegrationTestConstants.SERVICE_BROKER_BINDINGS_HOST, client.getDefaultDomain()
+                                                                                            .getName(),
+                               null);
+        } catch (CloudOperationException e) {
+            // empty on purpose
+        }
     }
 
     @Test
@@ -293,6 +307,14 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
         }
     }
 
+    private static void deleteApplication(String appName) {
+        try {
+            client.deleteApplication(appName);
+        } catch (CloudOperationException e) {
+            // empty on purpose
+        }
+    }
+
     private void waitForServiceDeletion() {
         for (int attempt = 0; attempt < MAX_SERVICE_DELETION_POLL_ATTEMPTS; attempt++) {
             CloudServiceInstance serviceInstance = client.getServiceInstance(SERVICE_NAME, false);
@@ -373,9 +395,10 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
 
     private static void pushServiceBrokerApplication(Path brokerPath) throws InterruptedException {
         client.createApplication(getServiceBrokerApplicationToCreate());
-        CloudPackage cloudPackage = ApplicationUtil.uploadApplication(client, IntegrationTestConstants.SERVICE_BROKER_APP_NAME, brokerPath);
-        ApplicationUtil.stageApplication(client, IntegrationTestConstants.SERVICE_BROKER_APP_NAME, cloudPackage);
-        ApplicationUtil.startApplication(client, IntegrationTestConstants.SERVICE_BROKER_APP_NAME);
+        CloudPackage cloudPackage = ApplicationUtil.uploadApplication(client, IntegrationTestConstants.SERVICE_BROKER_BINDINGS_APP_NAME,
+                                                                      brokerPath);
+        ApplicationUtil.stageApplication(client, IntegrationTestConstants.SERVICE_BROKER_BINDINGS_APP_NAME, cloudPackage);
+        ApplicationUtil.startApplication(client, IntegrationTestConstants.SERVICE_BROKER_BINDINGS_APP_NAME);
     }
 
     private static ApplicationToCreateDto getServiceBrokerApplicationToCreate() {
@@ -387,15 +410,15 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
                                           .build();
 
         Set<CloudRoute> routes = Set.of(ImmutableCloudRoute.builder()
-                                                           .host(IntegrationTestConstants.SERVICE_BROKER_HOST)
+                                                           .host(IntegrationTestConstants.SERVICE_BROKER_BINDINGS_HOST)
                                                            .domain(ImmutableCloudDomain.builder()
                                                                                        .name(defaultDomain)
                                                                                        .build())
-                                                           .url(IntegrationTestConstants.SERVICE_BROKER_HOST + "." + defaultDomain)
+                                                           .url(IntegrationTestConstants.SERVICE_BROKER_BINDINGS_HOST + "." + defaultDomain)
                                                            .build());
 
         return ImmutableApplicationToCreateDto.builder()
-                                              .name(IntegrationTestConstants.SERVICE_BROKER_APP_NAME)
+                                              .name(IntegrationTestConstants.SERVICE_BROKER_BINDINGS_APP_NAME)
                                               .staging(staging)
                                               .diskQuotaInMb(IntegrationTestConstants.SERVICE_BROKER_DISK_IN_MB)
                                               .memoryInMb(IntegrationTestConstants.SERVICE_BROKER_MEMORY_IN_MB)
@@ -412,11 +435,11 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
                                        .getGuid()
                                        .toString();
 
-        String brokerUrl = MessageFormat.format("https://{0}.{1}/{2}", IntegrationTestConstants.SERVICE_BROKER_HOST, defaultDomain,
+        String brokerUrl = MessageFormat.format("https://{0}.{1}/{2}", IntegrationTestConstants.SERVICE_BROKER_BINDINGS_HOST, defaultDomain,
                                                 SERVICE_BROKER_ENDPOINT);
 
         String jobId = client.createServiceBroker(ImmutableCloudServiceBroker.builder()
-                                                                             .name(IntegrationTestConstants.SERVICE_BROKER_NAME)
+                                                                             .name(IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME)
                                                                              .username(IntegrationTestConstants.SERVICE_BROKER_USERNAME)
                                                                              .password(IntegrationTestConstants.SERVICE_BROKER_PASSWORD)
                                                                              .url(brokerUrl)
