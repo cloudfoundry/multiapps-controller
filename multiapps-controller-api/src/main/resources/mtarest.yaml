@@ -242,6 +242,48 @@ paths:
           description: "Internal Server Error"
       security:
       - oauth2: []
+  /api/v1/spaces/{spaceGuid}/mtas/graph:
+    post:
+      summary: "Build dependency graph from a descriptor"
+      description: "Parses a supplied mtad.yaml and returns its module/resource dependency\
+        \ graph"
+      operationId: "buildGraphFromDescriptor"
+      consumes:
+      - "application/yaml"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "spaceGuid"
+        in: "path"
+        description: "GUID of space with mtas"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "mtad.yaml content"
+        required: false
+        schema:
+          type: "string"
+      - name: "format"
+        in: "query"
+        description: "Output format: json (default) or dot"
+        required: false
+        type: "string"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/MtaGraph"
+        "400":
+          description: "Bad Request"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "500":
+          description: "Internal Server Error"
+      security:
+      - oauth2: []
   /api/v1/spaces/{spaceGuid}/mtas/{mtaId}:
     get:
       summary: "Retrieve a specific deployed MTA by ID"
@@ -265,6 +307,45 @@ paths:
           description: "OK"
           schema:
             $ref: "#/definitions/Mta"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "404":
+          description: "Not Found"
+        "500":
+          description: "Internal Server Error"
+      security:
+      - oauth2: []
+  /api/v1/spaces/{spaceGuid}/mtas/{mtaId}/graph:
+    get:
+      summary: "Retrieve the dependency graph of a deployed MTA"
+      description: "Retrieves the module/resource dependency graph of a Multi-Target\
+        \ Application in a space"
+      operationId: "getMtaGraph"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "spaceGuid"
+        in: "path"
+        description: "GUID of space with mtas"
+        required: true
+        type: "string"
+      - name: "mtaId"
+        in: "path"
+        description: "mtaID of requested mta"
+        required: true
+        type: "string"
+      - name: "namespace"
+        in: "query"
+        description: "Namespace of the MTA"
+        required: false
+        type: "string"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/MtaGraph"
         "401":
           description: "Unauthorized"
         "403":
@@ -582,6 +663,68 @@ definitions:
           type: "string"
           enum:
           - "RETRY_UPLOAD"
+  DryRunResult:
+    type: "object"
+    properties:
+      appsToCreate:
+        type: "array"
+        readOnly: true
+        items:
+          type: "string"
+      appsToUpdate:
+        type: "array"
+        readOnly: true
+        items:
+          type: "string"
+      appsToDelete:
+        type: "array"
+        readOnly: true
+        items:
+          type: "string"
+      servicesToCreate:
+        type: "array"
+        readOnly: true
+        items:
+          type: "string"
+      servicesToUpdate:
+        type: "array"
+        readOnly: true
+        items:
+          type: "string"
+      servicesToDelete:
+        type: "array"
+        readOnly: true
+        items:
+          type: "string"
+      routesToCreate:
+        type: "array"
+        readOnly: true
+        items:
+          type: "string"
+      routesToDelete:
+        type: "array"
+        readOnly: true
+        items:
+          type: "string"
+  FailureReason:
+    type: "object"
+    properties:
+      code:
+        type: "string"
+        readOnly: true
+        enum:
+        - "CONTENT_VALIDATION_ERROR"
+        - "MODULE_STARTUP_FAILURE"
+        - "SERVICE_OPERATION_FAILURE"
+        - "CF_API_UNAVAILABLE"
+        - "QUOTA_EXCEEDED"
+        - "INTERNAL_ERROR"
+      retryable:
+        type: "boolean"
+        readOnly: true
+      summary:
+        type: "string"
+        readOnly: true
   FileMetadata:
     type: "object"
     properties:
@@ -732,6 +875,40 @@ definitions:
         uniqueItems: true
         items:
           type: "string"
+  MtaGraph:
+    type: "object"
+    properties:
+      nodes:
+        type: "array"
+        readOnly: true
+        items:
+          $ref: "#/definitions/MtaGraphNode"
+      edges:
+        type: "array"
+        readOnly: true
+        items:
+          $ref: "#/definitions/MtaGraphEdge"
+  MtaGraphEdge:
+    type: "object"
+    properties:
+      from:
+        type: "string"
+        readOnly: true
+      to:
+        type: "string"
+        readOnly: true
+      type:
+        type: "string"
+        readOnly: true
+  MtaGraphNode:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        readOnly: true
+      type:
+        type: "string"
+        readOnly: true
   Operation:
     type: "object"
     properties:
@@ -779,6 +956,17 @@ definitions:
         enum:
         - "CONTENT"
         - "INFRASTRUCTURE"
+      failureReason:
+        readOnly: true
+        $ref: "#/definitions/FailureReason"
+      dryRunResult:
+        readOnly: true
+        $ref: "#/definitions/DryRunResult"
+      outputs:
+        type: "object"
+        readOnly: true
+        additionalProperties:
+          type: "string"
       messages:
         type: "array"
         readOnly: true

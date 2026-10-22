@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
 import jakarta.xml.bind.annotation.XmlEnum;
 import jakarta.xml.bind.annotation.XmlType;
 
@@ -99,6 +98,15 @@ public abstract class Operation implements AuditableConfiguration {
 
     @Nullable
     public abstract ErrorType getErrorType();
+
+    @Nullable
+    public abstract FailureReason getFailureReason();
+
+    @Nullable
+    public abstract DryRunResult getDryRunResult();
+
+    @Nullable
+    public abstract Map<String, String> getOutputs();
 
     public abstract List<Message> getMessages();
 
