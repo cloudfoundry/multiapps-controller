@@ -1,11 +1,11 @@
 package org.cloudfoundry.multiapps.controller.api.model;
 
-import java.io.IOException;
 import java.time.ZonedDateTime;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 public class ZonedDateTimeSerializer extends StdSerializer<ZonedDateTime> {
 
@@ -16,7 +16,7 @@ public class ZonedDateTimeSerializer extends StdSerializer<ZonedDateTime> {
     }
 
     @Override
-    public void serialize(ZonedDateTime value, JsonGenerator generator, SerializerProvider provider) throws IOException {
+    public void serialize(ZonedDateTime value, JsonGenerator generator, SerializationContext context) throws JacksonException {
         if (value != null) {
             generator.writeString(Operation.DATE_TIME_FORMATTER.format(value));
         } else {

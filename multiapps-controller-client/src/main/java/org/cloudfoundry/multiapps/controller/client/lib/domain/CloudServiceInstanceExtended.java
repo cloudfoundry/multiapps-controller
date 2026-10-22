@@ -1,7 +1,7 @@
 package org.cloudfoundry.multiapps.controller.client.lib.domain;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 import org.cloudfoundry.multiapps.common.Nullable;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.immutables.value.Value;

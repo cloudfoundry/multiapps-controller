@@ -1,12 +1,11 @@
 package org.cloudfoundry.multiapps.controller.persistence.model.adapter;
 
-import java.io.IOException;
-
 import org.cloudfoundry.multiapps.mta.model.Version;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 public class VersionJsonDeserializer extends StdDeserializer<Version> {
 
@@ -17,9 +16,8 @@ public class VersionJsonDeserializer extends StdDeserializer<Version> {
     }
 
     @Override
-    public Version deserialize(JsonParser parser, DeserializationContext context) throws IOException {
-        String value = parser.getCodec()
-                             .readValue(parser, String.class);
+    public Version deserialize(JsonParser parser, DeserializationContext context) throws JacksonException {
+        String value = context.readValue(parser, String.class);
         return Version.parseVersion(value);
     }
 

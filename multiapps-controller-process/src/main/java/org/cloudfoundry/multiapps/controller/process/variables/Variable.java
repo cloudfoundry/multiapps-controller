@@ -4,7 +4,7 @@ import java.lang.reflect.Type;
 
 import org.cloudfoundry.multiapps.common.Nullable;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 
 public interface Variable<T> {
 

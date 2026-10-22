@@ -1,10 +1,9 @@
 package org.cloudfoundry.multiapps.controller.api.model;
 
-import java.io.IOException;
-
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 public class ProcessTypeSerializer extends StdSerializer<ProcessType> {
 
@@ -15,7 +14,7 @@ public class ProcessTypeSerializer extends StdSerializer<ProcessType> {
     }
 
     @Override
-    public void serialize(ProcessType value, JsonGenerator generator, SerializerProvider provider) throws IOException {
+    public void serialize(ProcessType value, JsonGenerator generator, SerializationContext context) throws JacksonException {
         if (value != null) {
             generator.writeString(value.getName());
         } else {

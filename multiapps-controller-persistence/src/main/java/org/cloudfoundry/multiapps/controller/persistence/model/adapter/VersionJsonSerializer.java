@@ -1,12 +1,11 @@
 package org.cloudfoundry.multiapps.controller.persistence.model.adapter;
 
-import java.io.IOException;
-
 import org.cloudfoundry.multiapps.mta.model.Version;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 public class VersionJsonSerializer extends StdSerializer<Version> {
 
@@ -17,7 +16,7 @@ public class VersionJsonSerializer extends StdSerializer<Version> {
     }
 
     @Override
-    public void serialize(Version value, JsonGenerator generator, SerializerProvider provider) throws IOException {
+    public void serialize(Version value, JsonGenerator generator, SerializationContext context) throws JacksonException {
         if (value != null) {
             generator.writeString(value.toString());
         } else {

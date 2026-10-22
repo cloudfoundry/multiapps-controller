@@ -18,14 +18,16 @@ import org.cloudfoundry.multiapps.mta.model.ConfigurationIdentifier;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 import io.swagger.annotations.ApiModelProperty;
 
 @Value.Immutable
 @JsonSerialize(as = ImmutableOperation.class)
 @JsonDeserialize(as = ImmutableOperation.class)
+@JsonPropertyOrder({ "processId", "processType", "startedAt", "endedAt", "spaceId", "mtaId", "namespace", "user", "acquiredLock", "state", "errorType", "messages", "parameters" })
 public abstract class Operation implements AuditableConfiguration {
 
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_ZONED_DATE_TIME;
@@ -61,48 +63,61 @@ public abstract class Operation implements AuditableConfiguration {
     }
 
     @Nullable
+    @ApiModelProperty(accessMode = ApiModelProperty.AccessMode.READ_ONLY)
     public abstract String getProcessId();
 
     @Nullable
+    @ApiModelProperty(accessMode = ApiModelProperty.AccessMode.READ_ONLY)
     @JsonSerialize(using = ProcessTypeSerializer.class)
     @JsonDeserialize(using = ProcessTypeDeserializer.class)
     public abstract ProcessType getProcessType();
 
     @Nullable
+    @ApiModelProperty(accessMode = ApiModelProperty.AccessMode.READ_ONLY)
     @JsonSerialize(using = ZonedDateTimeSerializer.class)
     @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
     public abstract ZonedDateTime getStartedAt();
 
     @Nullable
+    @ApiModelProperty(accessMode = ApiModelProperty.AccessMode.READ_ONLY)
     @JsonSerialize(using = ZonedDateTimeSerializer.class)
     @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
     public abstract ZonedDateTime getEndedAt();
 
     @Nullable
+    @ApiModelProperty(accessMode = ApiModelProperty.AccessMode.READ_ONLY)
     public abstract String getSpaceId();
 
     @Nullable
+    @ApiModelProperty(accessMode = ApiModelProperty.AccessMode.READ_ONLY)
     public abstract String getMtaId();
 
     @Nullable
+    @ApiModelProperty(accessMode = ApiModelProperty.AccessMode.READ_ONLY)
     public abstract String getNamespace();
 
     @Nullable
+    @ApiModelProperty(accessMode = ApiModelProperty.AccessMode.READ_ONLY)
     public abstract String getUser();
 
     @Nullable
+    @ApiModelProperty(accessMode = ApiModelProperty.AccessMode.READ_ONLY)
     @JsonProperty("acquiredLock")
     public abstract Boolean hasAcquiredLock();
 
     @Nullable
+    @ApiModelProperty(accessMode = ApiModelProperty.AccessMode.READ_ONLY)
     public abstract State getState();
 
     @Nullable
+    @ApiModelProperty(accessMode = ApiModelProperty.AccessMode.READ_ONLY)
     public abstract ErrorType getErrorType();
 
+    @ApiModelProperty(accessMode = ApiModelProperty.AccessMode.READ_ONLY)
     public abstract List<Message> getMessages();
 
     @AllowNulls
+    @ApiModelProperty(accessMode = ApiModelProperty.AccessMode.READ_ONLY)
     public abstract Map<String, Object> getParameters();
 
     @Override

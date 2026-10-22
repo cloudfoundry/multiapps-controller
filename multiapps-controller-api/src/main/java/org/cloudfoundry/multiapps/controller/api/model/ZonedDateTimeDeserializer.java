@@ -1,11 +1,11 @@
 package org.cloudfoundry.multiapps.controller.api.model;
 
-import java.io.IOException;
 import java.time.ZonedDateTime;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 public class ZonedDateTimeDeserializer extends StdDeserializer<ZonedDateTime> {
 
@@ -16,9 +16,8 @@ public class ZonedDateTimeDeserializer extends StdDeserializer<ZonedDateTime> {
     }
 
     @Override
-    public ZonedDateTime deserialize(JsonParser parser, DeserializationContext context) throws IOException {
-        String zonedDateTime = parser.getCodec()
-                                     .readValue(parser, String.class);
+    public ZonedDateTime deserialize(JsonParser parser, DeserializationContext context) throws JacksonException {
+        String zonedDateTime = context.readValue(parser, String.class);
         return ZonedDateTime.parse(zonedDateTime, Operation.DATE_TIME_FORMATTER);
     }
 

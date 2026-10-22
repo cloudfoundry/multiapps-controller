@@ -24,8 +24,8 @@ open module org.cloudfoundry.multiapps.controller.process {
     requires transitive org.cloudfoundry.multiapps.controller.core;
 
     requires org.cloudfoundry.client;
-    requires com.fasterxml.jackson.core;
-    requires com.fasterxml.jackson.databind;
+    requires tools.jackson.core;
+    requires tools.jackson.databind;
     requires com.google.common;
     requires flowable.bpmn.model;
     requires flowable.engine.common;

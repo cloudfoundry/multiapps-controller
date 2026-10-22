@@ -30,7 +30,8 @@ class CFExceptionMapperTest {
     @MethodSource
     void testHandleException(Exception exception, RestResponse expectedResponse) {
         ResponseEntity<String> response = exceptionMapper.handleException(exception);
-        assertEquals(expectedResponse.getStatus(), response.getStatusCodeValue());
+        assertEquals(expectedResponse.getStatus(), response.getStatusCode()
+                                                           .value());
         assertEquals(expectedResponse.getEntity(), response.getBody());
     }
 
@@ -69,7 +70,8 @@ class CFExceptionMapperTest {
         expectedMessage.append(httpStatus.getReasonPhrase());
         RestResponse expectedResponse = new RestResponse(httpStatus.value(), expectedMessage.toString());
 
-        assertEquals(expectedResponse.getStatus(), response.getStatusCodeValue());
+        assertEquals(expectedResponse.getStatus(), response.getStatusCode()
+                                                           .value());
         assertEquals(expectedResponse.getEntity(), response.getBody());
     }
 

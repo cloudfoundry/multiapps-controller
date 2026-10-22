@@ -44,7 +44,8 @@ public class CompositeUriAuthorizationFilter extends AuthorizationFilter {
             return true;
         } catch (Exception e) {
             ResponseEntity<String> responseEntity = exceptionMapper.handleException(e);
-            ServletUtil.send(response, responseEntity.getStatusCodeValue(), responseEntity.getBody());
+            ServletUtil.send(response, responseEntity.getStatusCode()
+                                                     .value(), responseEntity.getBody());
             return false;
         }
     }

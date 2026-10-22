@@ -15,7 +15,7 @@ import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.flowable.common.engine.api.variable.VariableContainer;
 import org.flowable.variable.api.delegate.VariableScope;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 
 /**
  * 

@@ -16,13 +16,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.util.UrlPathHelper;
+import tools.jackson.databind.json.JsonMapper;
 
 @Configuration
 @EnableWebMvc
@@ -40,33 +38,20 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     }
 
     @Override
-    public void configurePathMatch(PathMatchConfigurer configurer) {
-        configurer.setUseSuffixPatternMatch(false);
-        UrlPathHelper urlPathHelper = new UrlPathHelper();
-        urlPathHelper.setUrlDecode(false);
-        configurer.setUrlPathHelper(urlPathHelper);
-    }
-
-    @Override
-    public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
-        configurer.favorPathExtension(false);
-    }
-
-    @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         converters.add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
         converters.add(createJsonHttpMessageConverter());
         converters.add(new XmlNamespaceIgnoringHttpMessageConverter());
     }
 
-    private MappingJackson2HttpMessageConverter createJsonHttpMessageConverter() {
-        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter(JsonUtil.getObjectMapper(JsonSerializationStrategy.DEFAULT));
-        mappingJackson2HttpMessageConverter.setSupportedMediaTypes(buildSupportedMediaTypes(mappingJackson2HttpMessageConverter));
-        return mappingJackson2HttpMessageConverter;
+    private JacksonJsonHttpMessageConverter createJsonHttpMessageConverter() {
+        JacksonJsonHttpMessageConverter jacksonJsonHttpMessageConverter = new JacksonJsonHttpMessageConverter((JsonMapper) JsonUtil.getObjectMapper(JsonSerializationStrategy.DEFAULT));
+        jacksonJsonHttpMessageConverter.setSupportedMediaTypes(buildSupportedMediaTypes(jacksonJsonHttpMessageConverter));
+        return jacksonJsonHttpMessageConverter;
     }
 
-    private List<MediaType> buildSupportedMediaTypes(MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter) {
-        List<MediaType> supportedMediaTypes = new ArrayList<>(mappingJackson2HttpMessageConverter.getSupportedMediaTypes());
+    private List<MediaType> buildSupportedMediaTypes(JacksonJsonHttpMessageConverter jacksonJsonHttpMessageConverter) {
+        List<MediaType> supportedMediaTypes = new ArrayList<>(jacksonJsonHttpMessageConverter.getSupportedMediaTypes());
         supportedMediaTypes.add(MediaType.APPLICATION_JSON);
         return supportedMediaTypes;
     }

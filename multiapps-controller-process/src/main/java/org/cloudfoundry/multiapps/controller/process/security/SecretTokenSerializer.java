@@ -2,20 +2,20 @@ package org.cloudfoundry.multiapps.controller.process.security;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.IntNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.IntNode;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.StringNode;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -26,7 +26,9 @@ import org.flowable.common.engine.api.variable.VariableContainer;
 
 public class SecretTokenSerializer<T> implements Serializer<T> {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
+    private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder()
+                                                                .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                                                                .build();
 
     private final Serializer<T> serializer;
 
@@ -227,7 +229,7 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
     }
 
     private JsonNode processObjectNode(JsonNode currentNode, boolean censor, AtomicBoolean changed) {
-        ObjectNode objectNode = currentNode.deepCopy();
+        ObjectNode objectNode = (ObjectNode) currentNode.deepCopy();
 
         List<String> fields = collectObjectNodeFields(objectNode);
         processObjectNodeFields(fields, objectNode, changed, censor);
@@ -236,13 +238,7 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
     }
 
     private List<String> collectObjectNodeFields(ObjectNode objectNode) {
-        List<String> fields = new ArrayList<>();
-        Iterator<String> fieldsIterator = objectNode.fieldNames();
-
-        while (fieldsIterator.hasNext()) {
-            fields.add(fieldsIterator.next());
-        }
-        return fields;
+        return new ArrayList<>(objectNode.propertyNames());
     }
 
     private void processObjectNodeFields(List<String> fields, ObjectNode objectNode, AtomicBoolean changed, boolean censor) {
@@ -270,7 +266,7 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
     }
 
     private JsonNode processArrayNode(JsonNode currentNode, boolean censor, AtomicBoolean changed) {
-        ArrayNode arrayNode = currentNode.deepCopy();
+        ArrayNode arrayNode = (ArrayNode) currentNode.deepCopy();
         for (int i = 0; i < arrayNode.size(); i++) {
             arrayNode.set(i, processJsonValue(arrayNode.get(i), censor, changed));
         }
@@ -354,14 +350,14 @@ public class SecretTokenSerializer<T> implements Serializer<T> {
 
     private static JsonNode forceToInteger(String numberString) {
         if (!looksLikeStandardInteger(numberString)) {
-            return TextNode.valueOf(numberString);
+            return StringNode.valueOf(numberString);
         }
 
         try {
             int parsedNumber = Integer.parseInt(numberString);
             return IntNode.valueOf(parsedNumber);
         } catch (NumberFormatException e) {
-            return TextNode.valueOf(numberString);
+            return StringNode.valueOf(numberString);
         }
 
     }

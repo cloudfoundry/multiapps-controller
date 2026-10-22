@@ -60,7 +60,7 @@ class CloudControllerResponseErrorHandlerTest {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.RETRY_AFTER, "60");
         ClientHttpResponseMock response = new ClientHttpResponseMock(HttpStatus.TOO_MANY_REQUESTS, toInputStream("{}"), headers);
-        CloudOperationException e = assertThrows(CloudOperationException.class, () -> handler.handleError(response));
+        CloudOperationException e = assertThrows(CloudOperationException.class, () -> handler.handleError(null, null, response));
         assertEquals(HttpStatus.TOO_MANY_REQUESTS, e.getStatusCode());
         assertEquals(60L, e.getRetryAfterSeconds());
     }
@@ -68,7 +68,7 @@ class CloudControllerResponseErrorHandlerTest {
     @Test
     void testWith429WithoutRetryAfterHeader() {
         ClientHttpResponseMock response = new ClientHttpResponseMock(HttpStatus.TOO_MANY_REQUESTS, toInputStream("{}"));
-        CloudOperationException e = assertThrows(CloudOperationException.class, () -> handler.handleError(response));
+        CloudOperationException e = assertThrows(CloudOperationException.class, () -> handler.handleError(null, null, response));
         assertEquals(HttpStatus.TOO_MANY_REQUESTS, e.getStatusCode());
         assertNull(e.getRetryAfterSeconds());
     }
@@ -78,7 +78,7 @@ class CloudControllerResponseErrorHandlerTest {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.RETRY_AFTER, "0");
         ClientHttpResponseMock response = new ClientHttpResponseMock(HttpStatus.TOO_MANY_REQUESTS, toInputStream("{}"), headers);
-        CloudOperationException e = assertThrows(CloudOperationException.class, () -> handler.handleError(response));
+        CloudOperationException e = assertThrows(CloudOperationException.class, () -> handler.handleError(null, null, response));
         assertEquals(0L, e.getRetryAfterSeconds());
     }
 
@@ -87,7 +87,7 @@ class CloudControllerResponseErrorHandlerTest {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.RETRY_AFTER, "-1");
         ClientHttpResponseMock response = new ClientHttpResponseMock(HttpStatus.TOO_MANY_REQUESTS, toInputStream("{}"), headers);
-        CloudOperationException e = assertThrows(CloudOperationException.class, () -> handler.handleError(response));
+        CloudOperationException e = assertThrows(CloudOperationException.class, () -> handler.handleError(null, null, response));
         assertNull(e.getRetryAfterSeconds());
     }
 
@@ -96,7 +96,7 @@ class CloudControllerResponseErrorHandlerTest {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.RETRY_AFTER, "not-a-number");
         ClientHttpResponseMock response = new ClientHttpResponseMock(HttpStatus.TOO_MANY_REQUESTS, toInputStream("{}"), headers);
-        CloudOperationException e = assertThrows(CloudOperationException.class, () -> handler.handleError(response));
+        CloudOperationException e = assertThrows(CloudOperationException.class, () -> handler.handleError(null, null, response));
         assertEquals(HttpStatus.TOO_MANY_REQUESTS, e.getStatusCode());
         assertNull(e.getRetryAfterSeconds());
     }
@@ -104,7 +104,7 @@ class CloudControllerResponseErrorHandlerTest {
     @Test
     void testNon429DoesNotSetRetryAfterSeconds() {
         ClientHttpResponseMock response = new ClientHttpResponseMock(HttpStatus.INTERNAL_SERVER_ERROR, toInputStream("{}"));
-        CloudOperationException e = assertThrows(CloudOperationException.class, () -> handler.handleError(response));
+        CloudOperationException e = assertThrows(CloudOperationException.class, () -> handler.handleError(null, null, response));
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, e.getStatusCode());
         assertNull(e.getRetryAfterSeconds());
     }
@@ -115,15 +115,18 @@ class CloudControllerResponseErrorHandlerTest {
         headers.add(HttpHeaders.RETRY_AFTER, "30");
         ClientHttpResponseMock response = new ClientHttpResponseMock(HttpStatus.TOO_MANY_REQUESTS,
                                                                      toInputStream("{\"description\":\"rate limit exceeded\"}"), headers);
-        CloudOperationException e = assertThrows(CloudOperationException.class, () -> handler.handleError(response));
+        CloudOperationException e = assertThrows(CloudOperationException.class, () -> handler.handleError(null, null, response));
         assertEquals(HttpStatus.TOO_MANY_REQUESTS, e.getStatusCode());
         assertEquals(30L, e.getRetryAfterSeconds());
         assertEquals("rate limit exceeded", e.getDescription());
     }
 
     private void testWithError(ClientHttpResponseMock response, CloudOperationException expectedException) {
-        CloudOperationException exception = assertThrows(CloudOperationException.class, () -> handler.handleError(response));
-        assertEquals(expectedException.getStatusCode(), exception.getStatusCode());
+        CloudOperationException exception = assertThrows(CloudOperationException.class, () -> handler.handleError(null, null, response));
+        assertEquals(expectedException.getStatusCode()
+                                      .value(),
+                     exception.getStatusCode()
+                              .value());
         assertEquals(expectedException.getStatusText(), exception.getStatusText());
         assertEquals(expectedException.getDescription(), exception.getDescription());
     }
@@ -132,7 +135,7 @@ class CloudControllerResponseErrorHandlerTest {
     void testWithNonClientOrServerError() {
         HttpStatus statusCode = HttpStatus.PERMANENT_REDIRECT;
         ClientHttpResponseMock response = new ClientHttpResponseMock(HttpStatus.PERMANENT_REDIRECT, null);
-        RestClientException exception = assertThrows(RestClientException.class, () -> handler.handleError(response));
+        RestClientException exception = assertThrows(RestClientException.class, () -> handler.handleError(null, null, response));
         assertEquals("Unknown status code [" + statusCode + "]", exception.getMessage());
     }
 
@@ -169,11 +172,6 @@ class CloudControllerResponseErrorHandlerTest {
         @Override
         public HttpStatus getStatusCode() {
             return statusCode;
-        }
-
-        @Override
-        public int getRawStatusCode() {
-            return statusCode.value();
         }
 
         @Override
