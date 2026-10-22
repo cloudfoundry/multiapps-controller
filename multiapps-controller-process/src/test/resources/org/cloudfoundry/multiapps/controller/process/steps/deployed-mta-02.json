@@ -12,6 +12,7 @@
         "node-hdi-container"
       ],
       "providedDependencyNames": [],
+      "requiredDependencyNames": [],
       "routes": []
     }
   ],

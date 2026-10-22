@@ -8,19 +8,22 @@
       "moduleName": "a",
       "name": "a",
       "boundMtaServices": [],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "requiredDependencyNames": []
     },
     {
       "moduleName": "b",
       "name": "b",
       "boundMtaServices": [],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "requiredDependencyNames": []
     },
     {
       "moduleName": "c",
       "name": "c",
       "boundMtaServices": [],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "requiredDependencyNames": []
     }
   ],
   "services": []
