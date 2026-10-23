@@ -2,7 +2,9 @@ package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import org.cloudfoundry.multiapps.controller.Messages;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
@@ -14,6 +16,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Orga
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3QueryParameters;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ResourceMappers;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Space;
+import org.cloudfoundry.multiapps.controller.client.util.ResilientCloudOperationExecutor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 
@@ -21,27 +24,36 @@ public class CloudSpaceClient {
 
     private final CloudControllerV3Client client;
 
+    private static final ResilientCloudOperationExecutor executor = new ResilientCloudOperationExecutor();
+
     public CloudSpaceClient(CloudControllerV3Client client) {
         this.client = client;
     }
 
     public CloudSpace getSpace(UUID spaceGuid) {
-        V3Space space = client.getOptional(V3Uri.path(CloudControllerV3Endpoints.SPACE_BY_GUID, spaceGuid)
-                                                .build(), V3Space.class)
-                              .orElseThrow(() -> new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
-                                                                             MessageFormat.format(Messages.SPACE_WITH_GUID_0_NOT_FOUND,
-                                                                                                  spaceGuid)));
+        Supplier<Optional<V3Space>> spaceCall = () -> client.getOptional(
+            V3Uri.path(CloudControllerV3Endpoints.SPACE_BY_GUID, spaceGuid)
+                 .build(), V3Space.class);
+
+        V3Space space = executor.execute(spaceCall)
+                                .orElseThrow(() -> new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
+                                                                               MessageFormat.format(Messages.SPACE_WITH_GUID_0_NOT_FOUND,
+                                                                                                    spaceGuid)));
 
         String orgGuid = space.organizationGuid();
-        V3Organization org = client.getOptional(V3Uri.path(CloudControllerV3Endpoints.ORGANIZATION_BY_GUID, orgGuid)
-                                                     .build(), V3Organization.class)
-                                   .orElseThrow(
-                                       () -> new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
-                                                                         MessageFormat.format(
-                                                                             Messages.ORGANIZATION_WITH_GUID_0_NOT_FOUND,
-                                                                             orgGuid)));
+        Supplier<Optional<V3Organization>> organizationCall = () -> client.getOptional(
+            V3Uri.path(CloudControllerV3Endpoints.ORGANIZATION_BY_GUID, orgGuid)
+                 .build(), V3Organization.class);
 
-        return mapToCloudSpace(space, org);
+        V3Organization organization = executor.execute(organizationCall)
+                                              .orElseThrow(
+                                                  () -> new CloudOperationException(HttpStatus.NOT_FOUND,
+                                                                                    HttpStatus.NOT_FOUND.getReasonPhrase(),
+                                                                                    MessageFormat.format(
+                                                                                        Messages.ORGANIZATION_WITH_GUID_0_NOT_FOUND,
+                                                                                        orgGuid)));
+
+        return mapToCloudSpace(space, organization);
     }
 
     public CloudSpace getSpace(String organizationName, String spaceName) {
@@ -52,11 +64,13 @@ public class CloudSpaceClient {
     }
 
     private V3Organization findOrganizationByName(String organizationName) {
-        List<V3Organization> organizations = client.list(V3Uri.path(CloudControllerV3Endpoints.ORGANIZATIONS)
-                                                              .queryEncoded(V3QueryParameters.NAMES, organizationName)
-                                                              .build(),
-                                                         new ParameterizedTypeReference<V3ListResponse<V3Organization>>() {
-                                                         });
+        Supplier<List<V3Organization>> organizationsCall = () -> client.list(V3Uri.path(CloudControllerV3Endpoints.ORGANIZATIONS)
+                                                                                  .queryEncoded(V3QueryParameters.NAMES, organizationName)
+                                                                                  .build(),
+                                                                             new ParameterizedTypeReference<V3ListResponse<V3Organization>>() {
+                                                                             });
+
+        List<V3Organization> organizations = executor.execute(organizationsCall);
 
         if (organizations.isEmpty()) {
             throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
@@ -67,13 +81,15 @@ public class CloudSpaceClient {
     }
 
     private V3Space findSpaceByName(String spaceName, V3Organization org) {
-        List<V3Space> spaces = client.list(
+        Supplier<List<V3Space>> spacesCall = () -> client.list(
             V3Uri.path(CloudControllerV3Endpoints.SPACES)
                  .query(V3QueryParameters.ORGANIZATION_GUIDS, org.guid())
                  .queryEncoded(V3QueryParameters.NAMES, spaceName)
                  .build(),
             new ParameterizedTypeReference<V3ListResponse<V3Space>>() {
             });
+
+        List<V3Space> spaces = executor.execute(spacesCall);
 
         if (spaces.isEmpty()) {
             throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
