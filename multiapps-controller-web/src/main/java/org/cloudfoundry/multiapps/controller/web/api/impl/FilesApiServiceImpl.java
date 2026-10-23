@@ -128,7 +128,7 @@ public class FilesApiServiceImpl implements FilesApiService {
                                              .decode(fileUrl.getFileUrl()));
         String urlWithoutUserInfo = UriUtil.stripUserInfo(decodedUrl);
         LOGGER.trace(Messages.RECEIVED_UPLOAD_FROM_URL_REQUEST, urlWithoutUserInfo);
-        filesApiServiceAuditLog.logStartUploadFromUrl(SecurityContextUtil.getUsername(), spaceGuid, decodedUrl);
+        filesApiServiceAuditLog.logStartUploadFromUrl(SecurityContextUtil.getUsername(), spaceGuid, urlWithoutUserInfo);
 
         var existingJob = getExistingJob(spaceGuid, namespace, urlWithoutUserInfo);
         if (existingJob == null) {

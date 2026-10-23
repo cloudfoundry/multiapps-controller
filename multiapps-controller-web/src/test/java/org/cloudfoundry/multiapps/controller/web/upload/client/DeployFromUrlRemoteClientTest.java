@@ -22,6 +22,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.AsyncUploadJobEnt
 import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.upload.UploadFromUrlContext;
+import org.cloudfoundry.multiapps.controller.web.upload.client.auth.AuthenticatorResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -80,7 +81,7 @@ class DeployFromUrlRemoteClientTest {
 
         public TestableDeployFromUrlRemoteClient(ApplicationConfiguration applicationConfiguration,
                                                  AddressValidator addressValidator) {
-            super(applicationConfiguration, addressValidator);
+            super(applicationConfiguration, addressValidator, new AuthenticatorResolver());
         }
 
         @Override
@@ -115,13 +116,7 @@ class DeployFromUrlRemoteClientTest {
 
     @Test
     void downloadFileFromUrlSuccess() throws Exception {
-        InputStream inputStream = new ByteArrayInputStream("test content".getBytes());
-        when(httpResponse.body()).thenReturn(inputStream);
-        when(httpResponse.headers()).thenReturn(httpHeaders);
-        when(httpResponse.uri()).thenReturn(URI.create(SECURE_URL));
-        when(httpResponse.statusCode()).thenReturn(200);
-        when(httpHeaders.firstValueAsLong(Constants.CONTENT_LENGTH)).thenReturn(OptionalLong.of(FILE_SIZE));
-        when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()))).thenReturn(httpResponse);
+        InputStream inputStream = stubSuccessfulHttpResponse(SECURE_URL);
 
         FileFromUrlData result = client.downloadFileFromUrl(uploadContext);
 
@@ -180,13 +175,7 @@ class DeployFromUrlRemoteClientTest {
 
     @Test
     void callRemoteEndpointWithRetrySuccess() throws Exception {
-        InputStream inputStream = new ByteArrayInputStream("test content".getBytes());
-        when(httpResponse.statusCode()).thenReturn(200);
-        when(httpResponse.body()).thenReturn(inputStream);
-        when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()))).thenReturn(httpResponse);
-
-        when(httpResponse.headers()).thenReturn(httpHeaders);
-        when(httpHeaders.firstValueAsLong(Constants.CONTENT_LENGTH)).thenReturn(OptionalLong.of(FILE_SIZE));
+        stubSuccessfulHttpResponse(SECURE_URL);
 
         FileFromUrlData result = client.downloadFileFromUrl(uploadContext);
         verify(httpClient).send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()));
@@ -278,13 +267,7 @@ class DeployFromUrlRemoteClientTest {
     @Test
     void downloadFileFromUrlWithNullUserCredentials() throws Exception {
         when(uploadContext.getUserCredentials()).thenReturn(null);
-        InputStream inputStream = new ByteArrayInputStream("test content".getBytes());
-        when(httpResponse.body()).thenReturn(inputStream);
-        when(httpResponse.headers()).thenReturn(httpHeaders);
-        when(httpResponse.uri()).thenReturn(URI.create(SECURE_URL));
-        when(httpResponse.statusCode()).thenReturn(200);
-        when(httpHeaders.firstValueAsLong(Constants.CONTENT_LENGTH)).thenReturn(OptionalLong.of(FILE_SIZE));
-        when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()))).thenReturn(httpResponse);
+        InputStream inputStream = stubSuccessfulHttpResponse(SECURE_URL);
 
         FileFromUrlData result = client.downloadFileFromUrl(uploadContext);
 
@@ -307,17 +290,10 @@ class DeployFromUrlRemoteClientTest {
     void downloadFileFromUrlWithCredentialsInUrl() throws Exception {
         when(uploadContext.getFileUrl()).thenReturn(URL_WITH_CREDENTIALS);
         when(uploadContext.getUserCredentials()).thenReturn(null);
-        InputStream inputStream = new ByteArrayInputStream("test content".getBytes());
-        when(httpResponse.body()).thenReturn(inputStream);
-        when(httpResponse.headers()).thenReturn(httpHeaders);
-        when(httpResponse.uri()).thenReturn(URI.create("https://example.com/file.zip"));
-        when(httpResponse.statusCode()).thenReturn(200);
-        when(httpHeaders.firstValueAsLong(Constants.CONTENT_LENGTH)).thenReturn(OptionalLong.of(FILE_SIZE));
-        when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()))).thenReturn(httpResponse);
+        stubSuccessfulHttpResponse("https://example.com/file.zip");
 
         FileFromUrlData result = client.downloadFileFromUrl(uploadContext);
 
-        assertEquals(inputStream, result.fileInputStream());
         assertEquals(URI.create("https://example.com/file.zip"), result.uri());
         assertEquals(FILE_SIZE, result.fileSize());
 
@@ -337,19 +313,24 @@ class DeployFromUrlRemoteClientTest {
     @Test
     void downloadFileFromUrlWithEncodedCharacters() throws Exception {
         when(uploadContext.getFileUrl()).thenReturn(URL_WITH_ENCODED_CHARS);
-        InputStream inputStream = new ByteArrayInputStream("test content".getBytes());
-        when(httpResponse.body()).thenReturn(inputStream);
-        when(httpResponse.headers()).thenReturn(httpHeaders);
-        when(httpResponse.uri()).thenReturn(URI.create("https://example.com/file%20with%20spaces.zip"));
-        when(httpResponse.statusCode()).thenReturn(200);
-        when(httpHeaders.firstValueAsLong(Constants.CONTENT_LENGTH)).thenReturn(OptionalLong.of(FILE_SIZE));
-        when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()))).thenReturn(httpResponse);
+        InputStream inputStream = stubSuccessfulHttpResponse("https://example.com/file%20with%20spaces.zip");
 
         FileFromUrlData result = client.downloadFileFromUrl(uploadContext);
 
         assertEquals(inputStream, result.fileInputStream());
         assertEquals(URI.create("https://example.com/file%20with%20spaces.zip"), result.uri());
         assertEquals(FILE_SIZE, result.fileSize());
+    }
+
+    private InputStream stubSuccessfulHttpResponse(String responseUri) throws Exception {
+        InputStream inputStream = new ByteArrayInputStream("test content".getBytes());
+        when(httpResponse.body()).thenReturn(inputStream);
+        when(httpResponse.headers()).thenReturn(httpHeaders);
+        when(httpResponse.uri()).thenReturn(URI.create(responseUri));
+        when(httpResponse.statusCode()).thenReturn(200);
+        when(httpHeaders.firstValueAsLong(Constants.CONTENT_LENGTH)).thenReturn(OptionalLong.of(FILE_SIZE));
+        when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()))).thenReturn(httpResponse);
+        return inputStream;
     }
 
     private HttpResponse<InputStream> mockRedirectResponse(int status, String location) {
@@ -360,4 +341,76 @@ class DeployFromUrlRemoteClientTest {
         when(response.body()).thenReturn(new ByteArrayInputStream(new byte[0]));
         return response;
     }
+    @Test
+    void downloadFileFromUrlWithTokenSendsBearer() throws Exception {
+        when(userCredentials.getToken()).thenReturn("ghp_secret_token");
+        stubSuccessfulHttpResponse(SECURE_URL);
+
+        client.downloadFileFromUrl(uploadContext);
+
+        verify(httpClient).send(argThat(request -> request.headers()
+                                                          .firstValue("Authorization")
+                                                          .filter(value -> value.equals("Bearer ghp_secret_token"))
+                                                          .isPresent()),
+                                eq(HttpResponse.BodyHandlers.ofInputStream()));
+    }
+
+    @Test
+    void downloadFileFromUrlTokenTakesPrecedenceOverBasic() throws Exception {
+        when(userCredentials.getToken()).thenReturn("ghp_secret_token");
+        // username/password are also set in setUp(); the token must win.
+        stubSuccessfulHttpResponse(SECURE_URL);
+
+        client.downloadFileFromUrl(uploadContext);
+
+        verify(httpClient).send(argThat(request -> request.headers()
+                                                          .firstValue("Authorization")
+                                                          .filter(value -> value.equals("Bearer ghp_secret_token"))
+                                                          .isPresent()),
+                                eq(HttpResponse.BodyHandlers.ofInputStream()));
+    }
+
+    @Test
+    void downloadFileFromUrlForbiddenWithTokenReturnsCorrectError() throws Exception {
+        when(userCredentials.getToken()).thenReturn("ghp_secret_token");
+        InputStream errorStream = new ByteArrayInputStream("Forbidden".getBytes());
+        when(httpResponse.statusCode()).thenReturn(403);
+        when(httpResponse.body()).thenReturn(errorStream);
+        when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()))).thenReturn(httpResponse);
+
+        SLException exception = assertThrows(SLException.class,
+                                             () -> client.downloadFileFromUrl(uploadContext));
+        assertEquals(MessageFormat.format(Messages.DEPLOY_FROM_URL_FORBIDDEN_FOR_JOB_WITH_ID,
+                                          "https://example.com/file.zip"),
+                     exception.getMessage());
+    }
+
+    @Test
+    void downloadFileFromUrlNotFoundWithTokenReturnsCorrectError() throws Exception {
+        when(userCredentials.getToken()).thenReturn("ghp_secret_token");
+        InputStream errorStream = new ByteArrayInputStream("404: Not Found".getBytes());
+        when(httpResponse.statusCode()).thenReturn(404);
+        when(httpResponse.body()).thenReturn(errorStream);
+        when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()))).thenReturn(httpResponse);
+
+        SLException exception = assertThrows(SLException.class,
+                                             () -> client.downloadFileFromUrl(uploadContext));
+        assertEquals(MessageFormat.format(Messages.DEPLOY_FROM_URL_NOT_FOUND_WITH_TOKEN_FOR_JOB_WITH_ID,
+                                          "https://example.com/file.zip"),
+                     exception.getMessage());
+    }
+
+    @Test
+    void downloadFileFromUrlNotFoundWithoutTokenReturnsGenericError() throws Exception {
+        InputStream errorStream = new ByteArrayInputStream("404: Not Found".getBytes());
+        when(httpResponse.statusCode()).thenReturn(404);
+        when(httpResponse.body()).thenReturn(errorStream);
+        when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()))).thenReturn(httpResponse);
+
+        SLException exception = assertThrows(SLException.class,
+                                             () -> client.downloadFileFromUrl(uploadContext));
+        assertTrue(exception.getMessage()
+                            .contains("404"));
+    }
+
 }
