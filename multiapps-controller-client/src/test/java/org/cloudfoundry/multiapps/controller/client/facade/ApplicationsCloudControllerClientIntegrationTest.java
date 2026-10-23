@@ -1,7 +1,11 @@
 package org.cloudfoundry.multiapps.controller.client.facade;
 
-import org.cloudfoundry.client.v3.Metadata;
-import org.cloudfoundry.client.v3.processes.HealthCheckType;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudBuild;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
@@ -9,13 +13,16 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudProcess;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.DockerInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.HealthCheckType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudDomain;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDockerInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.InstancesInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.LifecycleType;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Status;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
@@ -25,15 +32,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
-
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.APPLICATION_HOST;
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.DEFAULT_DOMAIN;
@@ -85,7 +83,7 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
         String applicationName = "test-app-1";
         Staging staging = ImmutableStaging.builder()
                                           .addBuildpack(JAVA_BUILDPACK)
-                                          .healthCheckType(HealthCheckType.PROCESS.getValue())
+                                          .healthCheckType(HealthCheckType.PROCESS.toString())
                                           .healthCheckHttpEndpoint(HEALTH_CHECK_ENDPOINT)
                                           .healthCheckTimeout(HEALTH_CHECK_TIMEMOUT)
                                           .build();
@@ -157,27 +155,12 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
         String applicationName = "test-application-16";
         try {
             createAndVerifyDefaultApplication(applicationName);
+            client.updateApplicationStaging(applicationName, ImmutableStaging.builder()
+                                                                             .healthCheckType(HealthCheckType.PROCESS.toString())
+                                                                             .build());
             UUID applicationGuid = client.getApplicationGuid(applicationName);
-            var processResponse = delegate.applicationsV3()
-                                          .getProcess(org.cloudfoundry.client.v3.applications.GetApplicationProcessRequest.builder()
-                                                                                                                          .applicationId(
-                                                                                                                              applicationGuid.toString())
-                                                                                                                          .type("web")
-                                                                                                                          .build())
-                                          .block();
-            delegate.processes()
-                    .update(org.cloudfoundry.client.v3.processes.UpdateProcessRequest.builder()
-                                                                                     .processId(processResponse.getId())
-                                                                                     .healthCheck(
-                                                                                         org.cloudfoundry.client.v3.processes.HealthCheck.builder()
-                                                                                                                                         .type(
-                                                                                                                                             HealthCheckType.PROCESS)
-                                                                                                                                         .build())
-                                                                                     .build())
-                    .block();
             CloudProcess cloudProcess = client.getApplicationProcess(applicationGuid);
-            assertEquals(org.cloudfoundry.multiapps.controller.client.facade.domain.HealthCheckType.PROCESS,
-                         cloudProcess.getHealthCheckType());
+            assertEquals(HealthCheckType.PROCESS, cloudProcess.getHealthCheckType());
         } catch (Exception e) {
             fail(e);
         } finally {
@@ -397,8 +380,8 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
     @DisplayName("Create application and update its metadata")
     void updateApplicationMetadata() {
         String applicationName = "test-application-15";
-        Metadata metadata = Metadata.builder()
-                                    .label("test-app", "test-app")
+        Metadata metadata = ImmutableMetadata.builder()
+                                    .putLabel("test-app", "test-app")
                                     .build();
         try {
             createAndVerifyDefaultApplication(applicationName);
@@ -523,15 +506,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
                                                               .build())
                                   .url(APPLICATION_HOST + "." + DEFAULT_DOMAIN)
                                   .build();
-    }
-
-    private static Path getStaticfileApplicationContentPath() {
-        URL url = ApplicationsCloudControllerClientIntegrationTest.class.getResource(STATICFILE_APPLICATION_CONTENT);
-        try {
-            return Paths.get(url.toURI());
-        } catch (URISyntaxException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
 }

@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation.State;
@@ -489,8 +489,8 @@ class OperationInFinalStateHandlerTest {
         DeployedMtaApplication application = ImmutableDeployedMtaApplication.builder()
                                                                             .name("app-1")
                                                                             .moduleName("module-1")
-                                                                            .v3Metadata(Metadata.builder()
-                                                                                                .annotation(
+                                                                            .v3Metadata(ImmutableMetadata.builder()
+                                                                                                .putAnnotation(
                                                                                                     MtaMetadataAnnotations.MTA_VERSION,
                                                                                                     mtaVersion)
                                                                                                 .build())

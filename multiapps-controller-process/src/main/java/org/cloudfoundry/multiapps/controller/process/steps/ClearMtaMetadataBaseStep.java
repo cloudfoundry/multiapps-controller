@@ -4,7 +4,7 @@ import java.text.MessageFormat;
 import java.util.UUID;
 
 import org.apache.commons.collections4.MapUtils;
-import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;

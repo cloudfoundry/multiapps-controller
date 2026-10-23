@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
@@ -99,8 +99,8 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
                                                       .addApplication(ImmutableDeployedMtaApplication.builder()
                                                                                                      .moduleName("test-module")
                                                                                                      .name("test-app")
-                                                                                                     .v3Metadata(Metadata.builder()
-                                                                                                                         .annotation(
+                                                                                                     .v3Metadata(ImmutableMetadata.builder()
+                                                                                                                         .putAnnotation(
                                                                                                                              MtaMetadataAnnotations.MTA_VERSION,
                                                                                                                              MTA_VERSION_2)
                                                                                                                          .build())
@@ -116,8 +116,8 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
                                                     .addApplication(ImmutableDeployedMtaApplication.builder()
                                                                                                    .moduleName("test-module")
                                                                                                    .name("mta-backup-test-app")
-                                                                                                   .v3Metadata(Metadata.builder()
-                                                                                                                       .annotation(
+                                                                                                   .v3Metadata(ImmutableMetadata.builder()
+                                                                                                                       .putAnnotation(
                                                                                                                            MtaMetadataAnnotations.MTA_VERSION,
                                                                                                                            MTA_VERSION_1)
                                                                                                                        .build())

@@ -8,7 +8,7 @@ import java.util.Objects;
 
 import jakarta.inject.Named;
 import org.apache.commons.collections4.ListUtils;
-import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;

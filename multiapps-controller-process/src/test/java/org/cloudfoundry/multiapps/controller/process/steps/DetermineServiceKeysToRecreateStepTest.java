@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
@@ -125,11 +125,11 @@ class DetermineServiceKeysToRecreateStepTest extends SyncFlowableStepTest<Determ
         CloudServiceInstanceExtended serviceInstance = buildCloudServiceInstanceExtended(false);
         CloudServiceKey serviceKeyToUpdate = buildCloudServiceKey();
         CloudServiceKey existingVersionOfKey = ImmutableCloudServiceKey.copyOf(serviceKeyToUpdate)
-                                                                       .withV3Metadata(Metadata.builder()
-                                                                                               .label(MtaMetadataLabels.MTA_ID, "aaaaa")
-                                                                                               .annotation(MtaMetadataAnnotations.MTA_ID,
+                                                                       .withV3Metadata(ImmutableMetadata.builder()
+                                                                                               .putLabel(MtaMetadataLabels.MTA_ID, "aaaaa")
+                                                                                               .putAnnotation(MtaMetadataAnnotations.MTA_ID,
                                                                                                            "different-test-mta")
-                                                                                               .annotation(
+                                                                                               .putAnnotation(
                                                                                                    MtaMetadataAnnotations.MTA_VERSION,
                                                                                                    MTA_VERSION)
                                                                                                .build());
@@ -156,10 +156,10 @@ class DetermineServiceKeysToRecreateStepTest extends SyncFlowableStepTest<Determ
         return ImmutableCloudServiceKey.builder()
                                        .name(SERVICE_KEY_NAME)
                                        .metadata(ImmutableCloudMetadata.of(SERVICE_KEY_GUID))
-                                       .v3Metadata(Metadata.builder()
-                                                           .label(MtaMetadataLabels.MTA_ID, MTA_ID_HASH)
-                                                           .annotation(MtaMetadataAnnotations.MTA_ID, MTA_ID)
-                                                           .annotation(MtaMetadataAnnotations.MTA_VERSION, MTA_VERSION)
+                                       .v3Metadata(ImmutableMetadata.builder()
+                                                           .putLabel(MtaMetadataLabels.MTA_ID, MTA_ID_HASH)
+                                                           .putAnnotation(MtaMetadataAnnotations.MTA_ID, MTA_ID)
+                                                           .putAnnotation(MtaMetadataAnnotations.MTA_VERSION, MTA_VERSION)
                                                            .build())
                                        .serviceKeyOperation(ImmutableServiceCredentialBindingOperation.builder()
                                                                                                       .type(
