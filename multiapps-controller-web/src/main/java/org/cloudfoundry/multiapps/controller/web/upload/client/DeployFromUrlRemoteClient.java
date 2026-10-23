@@ -106,7 +106,7 @@ public class DeployFromUrlRemoteClient {
             return followRedirect(response, url, jobId, userCredentials, redirectCount);
         }
         if (status < 200 || status >= 300) {
-            throwErrorResponseException(response, url, status, jobId);
+            throwErrorResponseException(response, url, status, jobId, userCredentials);
         }
         return response;
     }
@@ -130,15 +130,27 @@ public class DeployFromUrlRemoteClient {
     }
 
     private void throwErrorResponseException(HttpResponse<InputStream> response, String url, int status,
-                                             String jobId) throws IOException {
+                                             String jobId, UserCredentials userCredentials) throws IOException {
         String error = LogSanitizer.sanitize(readErrorBodyFromResponse(response));
         LOGGER.error(error);
         if (status == HttpStatus.UNAUTHORIZED.value()) {
             throw new SLException(MessageFormat.format(Messages.DEPLOY_FROM_URL_WRONG_CREDENTIALS_FOR_JOB_WITH_ID,
                                                        UriUtil.stripUserInfo(url), jobId));
         }
+        if (status == HttpStatus.FORBIDDEN.value()) {
+            throw new SLException(MessageFormat.format(Messages.DEPLOY_FROM_URL_FORBIDDEN_FOR_JOB_WITH_ID,
+                                                       UriUtil.stripUserInfo(url)));
+        }
+        if (status == HttpStatus.NOT_FOUND.value() && hasToken(userCredentials)) {
+            throw new SLException(MessageFormat.format(Messages.DEPLOY_FROM_URL_NOT_FOUND_WITH_TOKEN_FOR_JOB_WITH_ID,
+                                                       UriUtil.stripUserInfo(url)));
+        }
         throw new SLException(MessageFormat.format(Messages.ERROR_FROM_REMOTE_MTAR_ENDPOINT_FOR_JOB_WITH_ID,
                                                    getMaskedUri(urlDecodeUrl(url)), status, error, jobId));
+    }
+
+    private boolean hasToken(UserCredentials userCredentials) {
+        return userCredentials != null && userCredentials.getToken() != null;
     }
 
     private boolean isRedirect(int statusCode) {

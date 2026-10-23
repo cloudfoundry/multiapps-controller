@@ -370,4 +370,47 @@ class DeployFromUrlRemoteClientTest {
                                 eq(HttpResponse.BodyHandlers.ofInputStream()));
     }
 
+    @Test
+    void downloadFileFromUrlForbiddenWithTokenReturnsCorrectError() throws Exception {
+        when(userCredentials.getToken()).thenReturn("ghp_secret_token");
+        InputStream errorStream = new ByteArrayInputStream("Forbidden".getBytes());
+        when(httpResponse.statusCode()).thenReturn(403);
+        when(httpResponse.body()).thenReturn(errorStream);
+        when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()))).thenReturn(httpResponse);
+
+        SLException exception = assertThrows(SLException.class,
+                                             () -> client.downloadFileFromUrl(uploadContext));
+        assertEquals(MessageFormat.format(Messages.DEPLOY_FROM_URL_FORBIDDEN_FOR_JOB_WITH_ID,
+                                          "https://example.com/file.zip"),
+                     exception.getMessage());
+    }
+
+    @Test
+    void downloadFileFromUrlNotFoundWithTokenReturnsCorrectError() throws Exception {
+        when(userCredentials.getToken()).thenReturn("ghp_secret_token");
+        InputStream errorStream = new ByteArrayInputStream("404: Not Found".getBytes());
+        when(httpResponse.statusCode()).thenReturn(404);
+        when(httpResponse.body()).thenReturn(errorStream);
+        when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()))).thenReturn(httpResponse);
+
+        SLException exception = assertThrows(SLException.class,
+                                             () -> client.downloadFileFromUrl(uploadContext));
+        assertEquals(MessageFormat.format(Messages.DEPLOY_FROM_URL_NOT_FOUND_WITH_TOKEN_FOR_JOB_WITH_ID,
+                                          "https://example.com/file.zip"),
+                     exception.getMessage());
+    }
+
+    @Test
+    void downloadFileFromUrlNotFoundWithoutTokenReturnsGenericError() throws Exception {
+        InputStream errorStream = new ByteArrayInputStream("404: Not Found".getBytes());
+        when(httpResponse.statusCode()).thenReturn(404);
+        when(httpResponse.body()).thenReturn(errorStream);
+        when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()))).thenReturn(httpResponse);
+
+        SLException exception = assertThrows(SLException.class,
+                                             () -> client.downloadFileFromUrl(uploadContext));
+        assertTrue(exception.getMessage()
+                            .contains("404"));
+    }
+
 }
