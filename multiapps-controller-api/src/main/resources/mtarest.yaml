@@ -813,6 +813,43 @@ definitions:
         uniqueItems: true
         items:
           type: "string"
+  MtaGraph:
+    type: "object"
+    properties:
+      nodes:
+        type: "array"
+        readOnly: true
+        items:
+          $ref: "#/definitions/MtaGraphNode"
+      edges:
+        type: "array"
+        readOnly: true
+        items:
+          $ref: "#/definitions/MtaGraphEdge"
+  MtaGraphEdge:
+    type: "object"
+    properties:
+      from:
+        type: "string"
+        readOnly: true
+      to:
+        type: "string"
+        readOnly: true
+      type:
+        type: "string"
+        readOnly: true
+      name:
+        type: "string"
+        readOnly: true
+  MtaGraphNode:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        readOnly: true
+      type:
+        type: "string"
+        readOnly: true
   Operation:
     type: "object"
     properties:
