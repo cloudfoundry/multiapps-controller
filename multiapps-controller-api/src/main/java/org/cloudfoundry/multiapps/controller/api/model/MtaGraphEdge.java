@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.api.model;
 
 import org.immutables.value.Value;
 
+import org.cloudfoundry.multiapps.common.Nullable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -24,5 +25,10 @@ public interface MtaGraphEdge {
     @ApiModelProperty
     @JsonProperty("type")
     String getType();
+
+    @Nullable
+    @ApiModelProperty
+    @JsonProperty("name")
+    String getName();
 
 }

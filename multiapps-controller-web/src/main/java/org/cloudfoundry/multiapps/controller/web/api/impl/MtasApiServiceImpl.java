@@ -121,6 +121,11 @@ public class MtasApiServiceImpl implements MtasApiService {
             }
         }
 
+        java.util.Set<String> resourceNames = new java.util.HashSet<>();
+        for (DeployedMtaService service : mta.getServices()) {
+            resourceNames.add(resolveResourceName(service));
+        }
+
         List<MtaGraphNode> nodes = new ArrayList<>();
         for (DeployedMtaApplication application : mta.getApplications()) {
             nodes.add(buildNode(application.getModuleName(), "module"));
@@ -138,7 +143,9 @@ public class MtasApiServiceImpl implements MtasApiService {
             for (String required : application.getRequiredDependencyNames()) {
                 String providerModule = providedDepToModule.get(required);
                 if (providerModule != null) {
-                    edges.add(buildEdge(providerModule, application.getModuleName(), "provides"));
+                    edges.add(buildEdge(providerModule, application.getModuleName(), "provides", required));
+                } else if (resourceNames.contains(required)) {
+                    edges.add(buildEdge(application.getModuleName(), required, "requires-resource", required));
                 }
             }
         }
@@ -161,10 +168,15 @@ public class MtasApiServiceImpl implements MtasApiService {
     }
 
     private MtaGraphEdge buildEdge(String from, String to, String type) {
+        return buildEdge(from, to, type, null);
+    }
+
+    private MtaGraphEdge buildEdge(String from, String to, String type, String name) {
         return ImmutableMtaGraphEdge.builder()
                                     .from(from)
                                     .to(to)
                                     .type(type)
+                                    .name(name)
                                     .build();
     }
 
@@ -306,8 +318,9 @@ public class MtasApiServiceImpl implements MtasApiService {
             sb.append("  \"").append(node.getId()).append("\" [shape=").append(shape).append("];\n");
         }
         for (MtaGraphEdge edge : graph.getEdges()) {
+            String label = edge.getName() != null ? edge.getType() + " " + edge.getName() : edge.getType();
             sb.append("  \"").append(edge.getFrom()).append("\" -> \"").append(edge.getTo())
-              .append("\" [label=\"").append(edge.getType()).append("\"];\n");
+              .append("\" [label=\"").append(label).append("\"];\n");
         }
         sb.append("}\n");
         return sb.toString();
@@ -342,9 +355,9 @@ public class MtasApiServiceImpl implements MtasApiService {
                 String depName = req.getName();
                 String providerModule = providedDepToModule.get(depName);
                 if (providerModule != null) {
-                    edges.add(buildEdge(providerModule, module.getName(), "provides"));
+                    edges.add(buildEdge(providerModule, module.getName(), "provides", depName));
                 } else if (resourceNames.contains(depName)) {
-                    edges.add(buildEdge(module.getName(), depName, "requires-resource"));
+                    edges.add(buildEdge(module.getName(), depName, "requires-resource", depName));
                 }
             }
         }

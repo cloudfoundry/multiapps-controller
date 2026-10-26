@@ -900,6 +900,9 @@ definitions:
       type:
         type: "string"
         readOnly: true
+      name:
+        type: "string"
+        readOnly: true
   MtaGraphNode:
     type: "object"
     properties:
