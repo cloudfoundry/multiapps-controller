@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,24 +23,13 @@ public class ResolveBindingCredentialReferencesStep extends SyncFlowableStep {
             return StepPhase.DONE;
         }
         CloudControllerClient client = context.getControllerClient();
-        Map<String, String> serviceInstanceNamesByRelationship = buildServiceInstanceNamesByRelationship(context);
+        List<CloudServiceInstanceExtended> servicesToBind = context.getVariable(Variables.SERVICES_TO_BIND);
+        Map<String, String> serviceInstanceNamesByRelationship = ServiceKeyCredentialResolver.buildServiceInstanceNamesFromServicesToBind(servicesToBind);
         ServiceKeyCredentialResolver resolver = new ServiceKeyCredentialResolver(client, serviceInstanceNamesByRelationship);
         Map<String, Object> resolvedBindingParameters = resolver.resolveReferencesInMap(bindingParameters);
 
         context.setVariable(Variables.SERVICE_BINDING_PARAMETERS, resolvedBindingParameters);
         return StepPhase.DONE;
-    }
-
-    private Map<String, String> buildServiceInstanceNamesByRelationship(ProcessContext context) {
-        Map<String, String> serviceInstanceNamesByRelationship = new HashMap<>();
-        List<CloudServiceInstanceExtended> servicesToBind = context.getVariable(Variables.SERVICES_TO_BIND);
-        if (servicesToBind == null) {
-            return serviceInstanceNamesByRelationship;
-        }
-        for (CloudServiceInstanceExtended service : servicesToBind) {
-            serviceInstanceNamesByRelationship.put(service.getResourceName(), service.getName());
-        }
-        return serviceInstanceNamesByRelationship;
     }
 
     @Override
