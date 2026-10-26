@@ -279,12 +279,19 @@ public class AsyncUploadJobOrchestrator {
                                                                                   .withFinishedAt(LocalDateTime.now(ZoneOffset.UTC))
                                                                                   .withError(
                                                                                       MessageFormat.format(Messages.ASYNC_UPLOAD_JOB_ERROR,
-                                                                                                           e.getMessage(),
+                                                                                                           toUserMessage(e),
                                                                                                            jobEntry.getId()))
                                                                                   .withState(AsyncUploadJobEntry.State.ERROR));
         } finally {
             lock.unlock();
         }
+    }
+
+    private String toUserMessage(Exception e) {
+        if (e instanceof SLException) {
+            return e.getMessage();
+        }
+        return Messages.DEPLOY_FROM_URL_CONNECTION_FAILED;
     }
 
 }
