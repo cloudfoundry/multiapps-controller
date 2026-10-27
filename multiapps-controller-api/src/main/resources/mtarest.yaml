@@ -779,6 +779,14 @@ definitions:
         enum:
         - "CONTENT"
         - "INFRASTRUCTURE"
+      dryRunResult:
+        readOnly: true
+        $ref: "#/definitions/DryRunResult"
+      outputs:
+        type: "object"
+        readOnly: true
+        additionalProperties:
+          type: "string"
       messages:
         type: "array"
         readOnly: true
@@ -789,6 +797,49 @@ definitions:
         readOnly: true
         additionalProperties:
           type: "object"
+  DryRunResult:
+    type: "object"
+    properties:
+      appsToCreate:
+        type: "array"
+        readOnly: true
+        items:
+          type: "string"
+      appsToUpdate:
+        type: "array"
+        readOnly: true
+        items:
+          type: "string"
+      appsToDelete:
+        type: "array"
+        readOnly: true
+        items:
+          type: "string"
+      servicesToCreate:
+        type: "array"
+        readOnly: true
+        items:
+          type: "string"
+      servicesToUpdate:
+        type: "array"
+        readOnly: true
+        items:
+          type: "string"
+      servicesToDelete:
+        type: "array"
+        readOnly: true
+        items:
+          type: "string"
+      routesToCreate:
+        type: "array"
+        readOnly: true
+        items:
+          type: "string"
+      routesToDelete:
+        type: "array"
+        readOnly: true
+        items:
+          type: "string"
   ProcessType:
     type: "object"
     properties:

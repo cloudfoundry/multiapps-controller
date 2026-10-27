@@ -100,6 +100,12 @@ public abstract class Operation implements AuditableConfiguration {
     @Nullable
     public abstract ErrorType getErrorType();
 
+    @Nullable
+    public abstract DryRunResult getDryRunResult();
+
+    @Nullable
+    public abstract Map<String, String> getOutputs();
+
     public abstract List<Message> getMessages();
 
     @AllowNulls
