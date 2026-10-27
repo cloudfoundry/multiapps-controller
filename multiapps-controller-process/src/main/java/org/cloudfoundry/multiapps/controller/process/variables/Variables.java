@@ -987,4 +987,25 @@ public interface Variables {
                                                                          .name("parentProcessInstanceId")
                                                                          .defaultValue(null)
                                                                          .build();
+
+    Variable<Duration> CREATE_SERVICE_TIMEOUT_PROCESS_VARIABLE = ImmutableSimpleVariable.<Duration> builder()
+                                                                                        .name("servicesCreateServiceTimeout")
+                                                                                        .defaultValue(Duration.ofHours(1))
+                                                                                        .build();
+
+    Variable<Duration> BIND_SERVICE_TIMEOUT_PROCESS_VARIABLE = ImmutableSimpleVariable.<Duration> builder()
+                                                                                      .name("servicesBindServiceTimeout")
+                                                                                      .defaultValue(Duration.ofHours(1))
+                                                                                      .build();
+
+    Variable<Duration> CREATE_SERVICE_KEY_TIMEOUT_PROCESS_VARIABLE = ImmutableSimpleVariable.<Duration> builder()
+                                                                                            .name("servicesCreateServiceKeyTimeout")
+                                                                                            .defaultValue(Duration.ofHours(1))
+                                                                                            .build();
+
+    Variable<Duration> BIND_SERVICE_TIMEOUT_GLOBAL_FALLBACK = ImmutableSimpleVariable.<Duration> builder()
+                                                                                     .name("servicesBindServiceTimeoutGlobalFallback")
+                                                                                     .defaultValue(Duration.ofHours(1))
+                                                                                     .build();
+
 }
