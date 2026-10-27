@@ -17,6 +17,9 @@ public class ScaleAppStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
+        if (Boolean.TRUE.equals(context.getVariable(Variables.DRY_RUN))) {
+            return StepPhase.DONE;
+        }
         CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
         CloudApplication existingApp = context.getVariable(Variables.EXISTING_APP);
         CloudControllerClient client = context.getControllerClient();
