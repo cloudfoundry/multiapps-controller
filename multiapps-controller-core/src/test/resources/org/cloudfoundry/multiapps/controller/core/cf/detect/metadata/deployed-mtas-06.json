@@ -49,6 +49,7 @@
         "moduleName": "mta-module",
         "boundMtaServices": [],
         "providedDependencyNames": [],
+      "requiredDependencyNames": [],
         "productizationState": "LIVE"
       }
     ],

@@ -11,11 +11,15 @@ import org.cloudfoundry.multiapps.controller.api.Constants.PathVariables;
 import org.cloudfoundry.multiapps.controller.api.Constants.RequestVariables;
 import org.cloudfoundry.multiapps.controller.api.Constants.Resources;
 import org.cloudfoundry.multiapps.controller.api.model.Mta;
+import org.cloudfoundry.multiapps.controller.api.model.MtaGraph;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.Api;
@@ -48,6 +52,23 @@ public class MtasApi {
         return delegate.getMta(spaceGuid, mtaId);
     }
 
+    @GetMapping(path = Endpoints.MTA_GRAPH, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Retrieve the dependency graph of a deployed MTA", notes = "Retrieves the module/resource dependency graph of a Multi-Target Application in a space", response = MtaGraph.class, authorizations = {
+        @Authorization(value = "oauth2", scopes = {
+
+        }) }, tags = {})
+    @ApiResponses(value = { @ApiResponse(code = 200, message = HttpResponses.OK, response = MtaGraph.class),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 404, message = HttpResponses.NOT_FOUND),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
+    public ResponseEntity<MtaGraph>
+           getMtaGraph(@ApiParam(value = "GUID of space with mtas") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+                       @ApiParam(value = "mtaID of requested mta") @PathVariable(RequestVariables.MTA_ID) String mtaId,
+                       @ApiParam(value = "Namespace of the MTA") @RequestParam(value = RequestVariables.NAMESPACE, required = false) String namespace) {
+        return delegate.getMtaGraph(spaceGuid, mtaId, namespace);
+    }
+
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Retrieve all deployed MTAs in a space", notes = "Retrieves all Multi-Target Applications in a space", response = Mta.class, responseContainer = "List", authorizations = {
         @Authorization(value = "oauth2", scopes = {
@@ -60,6 +81,26 @@ public class MtasApi {
     public ResponseEntity<List<Mta>>
            getMtas(@ApiParam(value = "GUID of space with mtas") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid) {
         return delegate.getMtas(spaceGuid);
+    }
+
+    @PostMapping(path = Endpoints.DESCRIPTOR_GRAPH, consumes = "application/yaml", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Build dependency graph from a descriptor", notes = "Parses a supplied mtad.yaml and returns its module/resource dependency graph", response = MtaGraph.class, authorizations = {
+        @Authorization(value = "oauth2", scopes = {
+
+        }) }, tags = {})
+    @ApiResponses(value = { @ApiResponse(code = 200, message = HttpResponses.OK, response = MtaGraph.class),
+        @ApiResponse(code = 400, message = HttpResponses.BAD_REQUEST),
+        @ApiResponse(code = 401, message = HttpResponses.UNAUTHORIZED),
+        @ApiResponse(code = 403, message = HttpResponses.FORBIDDEN),
+        @ApiResponse(code = 500, message = HttpResponses.INTERNAL_SERVER_ERROR) })
+    public ResponseEntity<?>
+           buildGraphFromDescriptor(@ApiParam(value = "GUID of space with mtas") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+                                    @ApiParam(value = "mtad.yaml content") @RequestBody String descriptorYaml,
+                                    @ApiParam(value = "Output format: json (default) or dot") @RequestParam(value = RequestVariables.FORMAT, required = false) String format) {
+        if ("dot".equalsIgnoreCase(format)) {
+            return delegate.buildGraphFromDescriptorAsDot(spaceGuid, descriptorYaml);
+        }
+        return delegate.buildGraphFromDescriptor(spaceGuid, descriptorYaml);
     }
 
 }
