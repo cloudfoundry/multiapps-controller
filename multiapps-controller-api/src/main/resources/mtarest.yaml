@@ -214,6 +214,87 @@ paths:
           description: "Internal Server Error"
       security:
       - oauth2: []
+  /api/v1/spaces/{spaceGuid}/mtas/graph:
+    post:
+      summary: "Build dependency graph from a descriptor"
+      description: "Parses a supplied mtad.yaml and returns its module/resource dependency\
+        \ graph"
+      operationId: "buildGraphFromDescriptor"
+      consumes:
+      - "application/yaml"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "spaceGuid"
+        in: "path"
+        description: "GUID of space with mtas"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "mtad.yaml content"
+        required: false
+        schema:
+          type: "string"
+      - name: "format"
+        in: "query"
+        description: "Output format: json (default) or dot"
+        required: false
+        type: "string"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/MtaGraph"
+        "400":
+          description: "Bad Request"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "500":
+          description: "Internal Server Error"
+      security:
+      - oauth2: []
+  /api/v1/spaces/{spaceGuid}/mtas/{mtaId}/graph:
+    get:
+      summary: "Retrieve the dependency graph of a deployed MTA"
+      description: "Retrieves the module/resource dependency graph of a Multi-Target\
+        \ Application in a space"
+      operationId: "getMtaGraph"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "spaceGuid"
+        in: "path"
+        description: "GUID of space with mtas"
+        required: true
+        type: "string"
+      - name: "mtaId"
+        in: "path"
+        description: "mtaID of requested mta"
+        required: true
+        type: "string"
+      - name: "namespace"
+        in: "query"
+        description: "Namespace of the MTA"
+        required: false
+        type: "string"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/MtaGraph"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "404":
+          description: "Not Found"
+        "500":
+          description: "Internal Server Error"
+      security:
+      - oauth2: []
   /api/v1/spaces/{spaceGuid}/mtas:
     get:
       summary: "Retrieve all deployed MTAs in a space"
@@ -789,6 +870,43 @@ definitions:
         readOnly: true
         additionalProperties:
           type: "object"
+  MtaGraph:
+    type: "object"
+    properties:
+      nodes:
+        type: "array"
+        readOnly: true
+        items:
+          $ref: "#/definitions/MtaGraphNode"
+      edges:
+        type: "array"
+        readOnly: true
+        items:
+          $ref: "#/definitions/MtaGraphEdge"
+  MtaGraphEdge:
+    type: "object"
+    properties:
+      from:
+        type: "string"
+        readOnly: true
+      to:
+        type: "string"
+        readOnly: true
+      type:
+        type: "string"
+        readOnly: true
+      name:
+        type: "string"
+        readOnly: true
+  MtaGraphNode:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        readOnly: true
+      type:
+        type: "string"
+        readOnly: true
   ProcessType:
     type: "object"
     properties:
