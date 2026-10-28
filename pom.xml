@@ -42,7 +42,7 @@
         <jclouds.version>2.7.0</jclouds.version>
         <guava.version>33.5.0-jre</guava.version>
         <resilience4j.version>2.4.0</resilience4j.version>
-        <immutables.version>2.12.1</immutables.version>
+        <immutables.version>2.12.3</immutables.version>
         <micrometer.version>1.17.1</micrometer.version>
         <aliyun-sdk-oss.version>3.18.5</aliyun-sdk-oss.version>
         <aws.sdk.version>2.47.5</aws.sdk.version>
