@@ -77,17 +77,14 @@ public class ServiceKeyCredentialResolver {
         if (values == null || values.isEmpty()) {
             return values;
         }
-        Map<String, Object> resolved = null;
+        Map<String, Object> resolved = new LinkedHashMap<>(values);
         for (Map.Entry<String, Object> entry : values.entrySet()) {
             if (!isServiceKeyCredentialReference(entry.getValue())) {
                 continue;
             }
-            if (resolved == null) {
-                resolved = new LinkedHashMap<>(values);
-            }
             resolved.put(entry.getKey(), resolveReference((String) entry.getValue()));
         }
-        return resolved != null ? resolved : values;
+        return resolved;
     }
 
     private boolean isServiceKeyCredentialReference(Object value) {
