@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;

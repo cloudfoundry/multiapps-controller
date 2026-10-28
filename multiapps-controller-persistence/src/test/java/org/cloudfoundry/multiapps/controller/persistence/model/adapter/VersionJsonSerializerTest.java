@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.persistence.model.adapter;
 
-import java.io.IOException;
-
 import org.cloudfoundry.multiapps.mta.model.Version;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,15 +8,15 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
 
 class VersionJsonSerializerTest {
 
     @Mock
     private JsonGenerator generator;
     @Mock
-    private SerializerProvider serializerProvider;
+    private SerializationContext serializationContext;
 
     private VersionJsonSerializer serializer;
 
@@ -30,18 +28,18 @@ class VersionJsonSerializerTest {
     }
 
     @Test
-    void testSerializeWritesStringForNonNullVersion() throws IOException {
+    void testSerializeWritesStringForNonNullVersion() {
         Version version = Version.parseVersion("1.2.3");
 
-        serializer.serialize(version, generator, serializerProvider);
+        serializer.serialize(version, generator, serializationContext);
 
         Mockito.verify(generator)
                .writeString(version.toString());
     }
 
     @Test
-    void testSerializeWritesNullForNullVersion() throws IOException {
-        serializer.serialize(null, generator, serializerProvider);
+    void testSerializeWritesNullForNullVersion() {
+        serializer.serialize(null, generator, serializationContext);
 
         Mockito.verify(generator)
                .writeNull();

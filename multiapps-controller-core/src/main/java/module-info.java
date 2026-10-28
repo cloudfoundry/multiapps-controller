@@ -48,8 +48,8 @@ open module org.cloudfoundry.multiapps.controller.core {
 
     requires org.cloudfoundry.client;
     requires com.fasterxml.jackson.annotation;
-    requires com.fasterxml.jackson.core;
-    requires com.fasterxml.jackson.databind;
+    requires tools.jackson.core;
+    requires tools.jackson.databind;
     requires com.google.common;
     requires java.sql;
     requires jakarta.xml.bind;

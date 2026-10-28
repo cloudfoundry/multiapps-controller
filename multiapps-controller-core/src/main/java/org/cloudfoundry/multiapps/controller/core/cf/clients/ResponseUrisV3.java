@@ -30,7 +30,7 @@ public class ResponseUrisV3 {
 
     private UriComponents retrieveUriFromUrl(String url) {
         String decodedUrl = URLDecoder.decode(url, StandardCharsets.UTF_8);
-        return UriComponentsBuilder.fromHttpUrl(decodedUrl)
+        return UriComponentsBuilder.fromUriString(decodedUrl)
                                    .host(null)
                                    .scheme(null)
                                    .build();

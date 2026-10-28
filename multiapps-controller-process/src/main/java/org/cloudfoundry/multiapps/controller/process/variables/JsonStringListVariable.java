@@ -7,7 +7,7 @@ import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.flowable.common.engine.api.variable.VariableContainer;
 import org.immutables.value.Value;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 
 @Value.Immutable
 public abstract class JsonStringListVariable<T> implements ListVariable<T, List<T>> {

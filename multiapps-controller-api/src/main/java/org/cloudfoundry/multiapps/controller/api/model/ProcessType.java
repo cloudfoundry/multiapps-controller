@@ -4,8 +4,10 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 // An enum is NOT used here intentionally. This allows other projects to extend this class if they want to add another process type.
+@JsonPropertyOrder({ "name" })
 public class ProcessType {
 
     private static final String DEPLOY_NAME = "DEPLOY";

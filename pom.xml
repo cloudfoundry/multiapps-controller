@@ -25,12 +25,12 @@
         <commons-collections4.version>4.5.0</commons-collections4.version>
         <snakeyaml.version>2.6</snakeyaml.version>
         <httpclient.version>5.6.4</httpclient.version>
-        <eclipselink.version>4.0.9</eclipselink.version>
+        <eclipselink.version>5.0.2</eclipselink.version>
         <flowable.version>7.2.0</flowable.version>
-        <spring.version>6.2.19</spring.version>
-        <spring-security.version>6.5.11</spring-security.version>
+        <spring.version>7.0.9</spring.version>
+        <spring-security.version>7.1.1</spring-security.version>
         <hikari.version>7.0.2</hikari.version>
-        <jackson-annotations.version>2.21</jackson-annotations.version>
+        <jackson-annotations.version>2.22</jackson-annotations.version>
         <jackson.version>3.2.3</jackson.version>
         <fasterxml.jackson.version>2.22.3</fasterxml.jackson.version>
         <liquibase.version>4.33.0</liquibase.version>
@@ -49,7 +49,7 @@
         <!-- auto-service hasn't had a new release since 12.06.2023 - should check for alternatives in the future -->
         <auto-service.version>1.1.1</auto-service.version>
         <commons-codec.version>1.21.0</commons-codec.version>
-        <multiapps.version>2.52.0</multiapps.version>
+        <multiapps.version>2.53.0-SNAPSHOT</multiapps.version>
         <java-cfenv.version>4.0.0</java-cfenv.version>
         <jaxb-api.version>4.0.5</jaxb-api.version>
         <jaxb-core.version>4.0.7</jaxb-core.version>
@@ -716,6 +716,9 @@
                 <version>${jackson-annotations.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
+            <!-- Jackson 2 core/databind pinned ONLY to force a safe transitive 2.x version (cloudfoundry-client-reactor,
+                 flowable, Spring may otherwise drag in an older 2.13.x). Application (de)serialization uses the Jackson 3
+                 tools.jackson.core mapper; jackson-annotations stays on 2.x by design (Jackson 3 reuses the 2.x annotations). -->
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>

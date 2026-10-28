@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.test.Tester;

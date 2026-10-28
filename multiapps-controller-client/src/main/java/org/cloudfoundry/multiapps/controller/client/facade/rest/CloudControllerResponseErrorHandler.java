@@ -1,18 +1,22 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.util.CloudUtil;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestClientException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 public class CloudControllerResponseErrorHandler extends DefaultResponseErrorHandler {
 
@@ -22,14 +26,15 @@ public class CloudControllerResponseErrorHandler extends DefaultResponseErrorHan
         String statusText = response.getStatusText();
         Long retryAfterSeconds = extractRetryAfterSeconds(response, statusCode);
 
-        ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally
+        ObjectMapper mapper = JsonMapper.builder()
+                                        .build(); // can reuse, share globally
 
         if (response.getBody() != null) {
             try {
                 @SuppressWarnings("unchecked") Map<String, Object> responseBody = mapper.readValue(response.getBody(), Map.class);
                 String description = getTrimmedDescription(responseBody);
                 return new CloudOperationException(statusCode, statusText, description, null, retryAfterSeconds);
-            } catch (IOException e) {
+            } catch (JacksonException e) {
                 // Fall through. Handled below.
             }
         }
@@ -80,7 +85,7 @@ public class CloudControllerResponseErrorHandler extends DefaultResponseErrorHan
     }
 
     @Override
-    public void handleError(ClientHttpResponse response) throws IOException {
+    public void handleError(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
         HttpStatus statusCode = HttpStatus.valueOf(response.getStatusCode()
                                                            .value());
         switch (statusCode.series()) {

@@ -3,8 +3,8 @@ package org.cloudfoundry.multiapps.controller.client.facade.domain;
 import org.cloudfoundry.client.v3.jobs.JobState;
 import org.immutables.value.Value;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 import org.cloudfoundry.multiapps.controller.client.facade.Nullable;
 
 @Value.Immutable

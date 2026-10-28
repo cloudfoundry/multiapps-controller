@@ -18,7 +18,8 @@ public class RestResponse {
     }
 
     public RestResponse(ResponseEntity<?> response) {
-        this.status = response.getStatusCodeValue();
+        this.status = response.getStatusCode()
+                              .value();
         this.entity = response.getBody();
     }
 

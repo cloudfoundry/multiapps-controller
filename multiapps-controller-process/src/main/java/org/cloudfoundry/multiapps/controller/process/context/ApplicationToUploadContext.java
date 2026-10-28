@@ -7,8 +7,8 @@ import org.cloudfoundry.multiapps.controller.process.util.ArchiveEntryWithStream
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.immutables.value.Value;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 @Value.Immutable
 @JsonSerialize(as = ImmutableApplicationToUploadContext.class)

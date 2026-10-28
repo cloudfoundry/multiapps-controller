@@ -4,8 +4,8 @@ import org.cloudfoundry.multiapps.common.Nullable;
 import org.cloudfoundry.multiapps.controller.api.model.parameters.ParameterConverter;
 import org.immutables.value.Value;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 @Value.Immutable
 @JsonSerialize(as = ImmutableParameterMetadata.class)

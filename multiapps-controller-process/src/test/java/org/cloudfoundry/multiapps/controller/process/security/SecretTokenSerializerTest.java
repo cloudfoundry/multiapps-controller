@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 import org.cloudfoundry.multiapps.controller.process.security.store.SecretTokenStore;
 import org.cloudfoundry.multiapps.controller.process.security.util.SecretTokenUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Serializer;
@@ -238,7 +238,7 @@ public class SecretTokenSerializerTest {
         assertFalse(tokenizedJsonResult.contains("\"instancesNumber\":7"));
 
         String valueAtFirst = serializer.deserialize(tokenizedJsonResult);
-        JsonNode root = new ObjectMapper().readTree(valueAtFirst);
+        JsonNode root = JsonMapper.builder().build().readTree(valueAtFirst);
         assertTrue(root.get("instancesNumber")
                        .isInt());
         assertEquals(7, root.get("instancesNumber")
@@ -267,7 +267,7 @@ public class SecretTokenSerializerTest {
         assertFalse(tokenizedJsonResult.contains("\"instancesNumber\":\"3\""));
 
         String valueAtFirst = serializer.deserialize(tokenizedJsonResult);
-        JsonNode root = new ObjectMapper().readTree(valueAtFirst);
+        JsonNode root = JsonMapper.builder().build().readTree(valueAtFirst);
         JsonNode arrayFromJson = root.get("array");
         assertEquals(3, arrayFromJson.get(0)
                                      .get("instancesNumber")

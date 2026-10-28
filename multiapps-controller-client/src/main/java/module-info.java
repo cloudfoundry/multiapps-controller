@@ -16,7 +16,7 @@ open module org.cloudfoundry.multiapps.controller.client {
     requires spring.security.oauth2.core;
     requires transitive spring.web;
 
-    requires com.fasterxml.jackson.databind;
+    requires tools.jackson.databind;
     requires org.apache.commons.collections4;
     requires org.apache.commons.io;
     requires org.apache.commons.logging;

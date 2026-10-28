@@ -6,8 +6,8 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.immutables.value.Value;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 @Value.Immutable
 @JsonSerialize(as = ImmutableArchiveEntryWithStreamPositions.class)
