@@ -380,7 +380,7 @@ class DeployFromUrlRemoteClientTest {
 
         SLException exception = assertThrows(SLException.class,
                                              () -> client.downloadFileFromUrl(uploadContext));
-        assertEquals(MessageFormat.format(Messages.DEPLOY_FROM_URL_FORBIDDEN_FOR_JOB_WITH_ID,
+        assertEquals(MessageFormat.format(Messages.DEPLOY_FROM_URL_FORBIDDEN,
                                           "https://example.com/file.zip"),
                      exception.getMessage());
     }
@@ -395,7 +395,7 @@ class DeployFromUrlRemoteClientTest {
 
         SLException exception = assertThrows(SLException.class,
                                              () -> client.downloadFileFromUrl(uploadContext));
-        assertEquals(MessageFormat.format(Messages.DEPLOY_FROM_URL_NOT_FOUND_WITH_TOKEN_FOR_JOB_WITH_ID,
+        assertEquals(MessageFormat.format(Messages.DEPLOY_FROM_URL_NOT_FOUND_WITH_TOKEN,
                                           "https://example.com/file.zip"),
                      exception.getMessage());
     }

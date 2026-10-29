@@ -14,6 +14,7 @@ import java.util.Arrays;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.UserCredentials;
 import org.cloudfoundry.multiapps.controller.client.util.CheckedSupplier;
@@ -138,11 +139,11 @@ public class DeployFromUrlRemoteClient {
                                                        UriUtil.stripUserInfo(url), jobId));
         }
         if (status == HttpStatus.FORBIDDEN.value()) {
-            throw new SLException(MessageFormat.format(Messages.DEPLOY_FROM_URL_FORBIDDEN_FOR_JOB_WITH_ID,
+            throw new SLException(MessageFormat.format(Messages.DEPLOY_FROM_URL_FORBIDDEN,
                                                        UriUtil.stripUserInfo(url)));
         }
         if (status == HttpStatus.NOT_FOUND.value() && hasToken(userCredentials)) {
-            throw new SLException(MessageFormat.format(Messages.DEPLOY_FROM_URL_NOT_FOUND_WITH_TOKEN_FOR_JOB_WITH_ID,
+            throw new SLException(MessageFormat.format(Messages.DEPLOY_FROM_URL_NOT_FOUND_WITH_TOKEN,
                                                        UriUtil.stripUserInfo(url)));
         }
         throw new SLException(MessageFormat.format(Messages.ERROR_FROM_REMOTE_MTAR_ENDPOINT_FOR_JOB_WITH_ID,
@@ -150,7 +151,7 @@ public class DeployFromUrlRemoteClient {
     }
 
     private boolean hasToken(UserCredentials userCredentials) {
-        return userCredentials != null && userCredentials.getToken() != null;
+        return userCredentials != null && StringUtils.isNotBlank(userCredentials.getToken());
     }
 
     private boolean isRedirect(int statusCode) {

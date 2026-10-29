@@ -23,8 +23,8 @@ public final class Messages {
     public static final String NO_VALID_OBJECT_STORE_CONFIGURATION_FOUND = "No valid Object Store configuration found!";
     public static final String MISSING_PROPERTIES_FOR_CREATING_THE_SPECIFIC_PROVIDER = "Missing properties for creating the specific provider!";
     public static final String DEPLOY_FROM_URL_WRONG_CREDENTIALS_FOR_JOB_WITH_ID = "Credentials to {0} are wrong. Make sure that they are correct. Job id: {1}";
-    public static final String DEPLOY_FROM_URL_FORBIDDEN_FOR_JOB_WITH_ID = "Access to {0} is forbidden. Make sure the provided token has the required permissions.";
-    public static final String DEPLOY_FROM_URL_NOT_FOUND_WITH_TOKEN_FOR_JOB_WITH_ID = "The resource at {0} was not found. If it is private, verify the provided token is valid and has read access.";
+    public static final String DEPLOY_FROM_URL_FORBIDDEN = "Access to {0} is forbidden. Make sure the provided token has the required permissions.";
+    public static final String DEPLOY_FROM_URL_NOT_FOUND_WITH_TOKEN = "The resource at {0} was not found. If it is private, verify the provided token is valid and has read access.";
     public static final String DEPLOY_FROM_URL_CONNECTION_FAILED = "Failed to connect to the remote endpoint. Check the URL is reachable and the server is available.";
     public static final String DEPLOY_FROM_URL_TARGET_ADDRESS_0_DENIED_FOR_JOB_WITH_ID_1 = "Download target host \"{0}\" resolves to a denied address. Job id: {1}";
     public static final String JOB_NOT_UPDATED_FOR_0_SECONDS = "Job not updated for {0} seconds";

@@ -55,6 +55,17 @@ class AuthenticatorResolverTest {
     }
 
     @Test
+    void blankTokenFallsBackToBasic() {
+        UserCredentials credentials = ImmutableUserCredentials.builder()
+                                                              .username(USERNAME)
+                                                              .password(PASSWORD)
+                                                              .token("")
+                                                              .build();
+        RequestAuthenticator authenticator = resolver.resolve(credentials, PLAIN_URL);
+        assertInstanceOf(BasicAuthenticator.class, authenticator);
+    }
+
+    @Test
     void urlUserInfoResolvesToUrlUserInfoAuthenticator() {
         RequestAuthenticator authenticator = resolver.resolve(null, URL_WITH_USERINFO);
         assertInstanceOf(UrlUserInfoAuthenticator.class, authenticator);
