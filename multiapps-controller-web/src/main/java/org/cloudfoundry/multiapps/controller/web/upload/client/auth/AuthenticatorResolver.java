@@ -4,6 +4,7 @@ import java.net.URI;
 
 import jakarta.inject.Named;
 
+import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.api.model.UserCredentials;
 
 /**
@@ -22,10 +23,10 @@ import org.cloudfoundry.multiapps.controller.api.model.UserCredentials;
 public class AuthenticatorResolver {
 
     public RequestAuthenticator resolve(UserCredentials userCredentials, String decodedUrl) {
-        if (userCredentials != null && userCredentials.getToken() != null) {
-            return new BearerTokenAuthenticator(userCredentials.getToken());
-        }
         if (userCredentials != null) {
+            if (StringUtils.isNotBlank(userCredentials.getToken())) {
+                return new BearerTokenAuthenticator(userCredentials.getToken());
+            }
             return new BasicAuthenticator(userCredentials.getUsername(), userCredentials.getPassword());
         }
         if (URI.create(decodedUrl).getUserInfo() != null) {
