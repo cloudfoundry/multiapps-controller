@@ -227,7 +227,6 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
         when(client.getApplicationEnvironment(application.getGuid())).thenReturn(env);
         application = prepareAppWithStaging(application, staging);
         when(client.getApplication(application.getName(), false)).thenReturn(application);
-        when(client.getApplicationSshEnabled(application.getGuid())).thenReturn(staging.isSshEnabled() != null && staging.isSshEnabled());
         when(client.getApplicationRoutes(application.getGuid())).thenReturn(List.copyOf(routes));
         String command = staging.getCommand() == null ? DEFAULT_COMMAND : staging.getCommand();
         var hcType = staging.getHealthCheckType();

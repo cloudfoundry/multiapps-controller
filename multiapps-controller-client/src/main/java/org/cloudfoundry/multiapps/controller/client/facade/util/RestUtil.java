@@ -83,7 +83,7 @@ public class RestUtil {
         }
     }
 
-    private X509ExtendedTrustManager createDummyTrustManager() {
+    public static X509ExtendedTrustManager createDummyTrustManager() {
         return new X509ExtendedTrustManager() {
 
             @Override

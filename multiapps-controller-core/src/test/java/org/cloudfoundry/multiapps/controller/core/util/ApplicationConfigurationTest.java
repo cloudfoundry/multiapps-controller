@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.jsonwebtoken.lang.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.core.Messages;
@@ -613,8 +613,8 @@ class ApplicationConfigurationTest {
 
     @Test
     void testLoad() {
-        when(environment.getString(ApplicationConfiguration.OBJECTSTORE_REGIONS, Strings.EMPTY))
-            .thenReturn(Strings.EMPTY);
+        when(environment.getString(ApplicationConfiguration.OBJECTSTORE_REGIONS, StringUtils.EMPTY))
+            .thenReturn(StringUtils.EMPTY);
         Map<String, Object> vcapApplication = injectFileInEnvironment(VCAP_APPLICATION, ApplicationConfiguration.CFG_VCAP_APPLICATION);
         configuration.load();
         Assertions.assertEquals(vcapApplication.get("cf_api"), configuration.getControllerUrl()

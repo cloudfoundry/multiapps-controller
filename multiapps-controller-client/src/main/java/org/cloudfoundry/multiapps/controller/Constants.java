@@ -1,0 +1,65 @@
+package org.cloudfoundry.multiapps.controller;
+
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
+
+public class Constants {
+
+    public static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofMinutes(2);
+    public static final Duration JOB_POLL_MIN_INTERVAL = Duration.ofSeconds(1);
+    public static final Duration JOB_POLL_MAX_INTERVAL = Duration.ofSeconds(15);
+    public static final Duration DELETE_JOB_TIMEOUT = Duration.ofMinutes(5);
+    public static final Duration BINDING_OPERATIONS_TIMEOUT = Duration.ofMinutes(10);
+    public static final long PACKAGE_UPLOAD_JOB_POLLING_PERIOD = TimeUnit.SECONDS.toMillis(5);
+
+    public static final int DEFAULT_CONNECTION_POOL_SIZE = 192;
+    public static final int UNDEFINED_PORT = -1;
+    public static final int MAX_CONCURRENT_PAGES = 4; //leaving it like that for testing purposes
+    public static final int SECOND_PAGE = 2;
+    public static final int DEFAULT_CONCURRENT_TASKS = 8; //this one can be a bit more, but first tests will be like that
+    public static final int MAX_CHAR_LENGTH_FOR_PARAMS_IN_REQUEST = 4000;
+    public static final int JOB_POLL_INTERVAL_MULTIPLIER = 2;
+
+    public static final String CONNECTION_POOL_NAME = "cf-controller-client";
+    public static final String LOOP_RESOURCES_SUFFIX = "-loop-resources";
+    public static final String UPLOAD_MONITOR_THREAD_NAME_PREFIX = "app-upload-monitor-";
+    public static final String CF_API_V3 = "/v3";
+    public static final String HREF = "href";
+    public static final String CLOUD_CONTROLLER_CF_ROOT_DOCUMENT_NAME = "cloud_controller_v3";
+    public static final String LOG_CACHE_CF_ROOT_DOCUMENT_NAME = "log_cache";
+    public static final String API_HOST_PREFIX = "api.";
+    public static final String LOG_CACHE_PREFIX = "log-cache.";
+    public static final String ROOT_DOCUMENT_LINKS_LIST = "links";
+    public static final String TYPE = "type";
+    public static final String DATA = "data";
+    public static final String CLOUD_NATIVE_BUILDPACK = "cnb";
+
+    public static final String EMPTY_STRING = "";
+    public static final String COLON = ":";
+    public static final String COMMA = ",";
+    public static final String SPACE_SYMBOL = " ";
+    public static final String EQUALS_SYMBOL = "=";
+    public static final String PROTOCOL_SEPARATOR = "://";
+    public static final String QUESTION_MARK = "?";
+    public static final String AMPERSAND = "&";
+    public static final String NEW_LINE = "\n";
+    public static final String SLASH = "/";
+
+    public static final String PACKAGE_LINK = "package";
+    public static final String WEB_PROCESS_TYPE = "web";
+
+    public static final String USER_PROVIDED = "user-provided";
+
+    public static final String JOB_STATE_COMPLETE = "COMPLETE";
+    public static final String JOB_STATE_FAILED = "FAILED";
+
+    public static final String PER_PAGE = "per_page=";
+
+    public static final char OPEN_BRACE_CHAR = '{';
+    public static final char CLOSE_BRACE_CHAR = '}';
+
+    private Constants() {
+
+    }
+
+}
