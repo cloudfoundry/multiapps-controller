@@ -22,4 +22,9 @@ public interface UserCredentials {
     @JsonProperty("password")
     String getPassword();
     //this could potentially contain a TLS certificate as well, if the remote endpoint is a custom registry/repository
+
+    @Nullable
+    @Value.Parameter
+    @JsonProperty("token")
+    String getToken();
 }

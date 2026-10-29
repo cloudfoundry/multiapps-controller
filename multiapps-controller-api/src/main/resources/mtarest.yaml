@@ -804,3 +804,6 @@ definitions:
       password:
         type: "string"
         readOnly: true
+      token:
+        type: "string"
+        readOnly: true
