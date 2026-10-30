@@ -16,6 +16,8 @@
     </intermediateCatchEvent>
     <sequenceFlow id="sid-B3A86402-0BC1-465A-BAD2-93829333DC41" sourceRef="sid-F4EBBC99-8981-4446-AC1B-C0784AE40B43" targetRef="checkForServiceKeyOperationsInProgress"></sequenceFlow>
     <serviceTask id="createServiceKey" name="Create Service Key" flowable:async="true" flowable:delegateExpression="${createServiceKeyStep}"></serviceTask>
+    <serviceTask id="resolveServiceKeyCredentialReferences" name="Resolve Service Key Credential References" flowable:async="true" flowable:delegateExpression="${resolveServiceKeyCredentialReferencesStep}"></serviceTask>
+    <sequenceFlow id="sid-RESOLVE-TO-CREATE" sourceRef="resolveServiceKeyCredentialReferences" targetRef="createServiceKey"></sequenceFlow>
     <endEvent id="sid-9EDD5B98-B265-45B1-A803-875D219B57A4" name="End"></endEvent>
     <exclusiveGateway id="sid-72D65FFE-5C1F-4F0D-ABE2-8BD2677A02CB" default="sid-7B00943B-08BB-4B8B-AE9C-119EE95559E8"></exclusiveGateway>
     <intermediateCatchEvent id="sid-4E70F863-226F-436B-BE8A-FF9E5E9A037C">
@@ -34,7 +36,7 @@
     </sequenceFlow>
     <sequenceFlow id="sid-7C5012B6-BC95-492E-A10D-C5B71F0D540C" sourceRef="createServiceKey" targetRef="sid-72D65FFE-5C1F-4F0D-ABE2-8BD2677A02CB"></sequenceFlow>
     <sequenceFlow id="sid-7B00943B-08BB-4B8B-AE9C-119EE95559E8" sourceRef="sid-72D65FFE-5C1F-4F0D-ABE2-8BD2677A02CB" targetRef="sid-9EDD5B98-B265-45B1-A803-875D219B57A4"></sequenceFlow>
-    <sequenceFlow id="sid-CC4F8D6C-48CB-4F88-B40C-651021CB216E" sourceRef="sid-FBA43AEE-A382-4C41-99A4-B4854C534ED7" targetRef="createServiceKey"></sequenceFlow>
+    <sequenceFlow id="sid-CC4F8D6C-48CB-4F88-B40C-651021CB216E" sourceRef="sid-FBA43AEE-A382-4C41-99A4-B4854C534ED7" targetRef="resolveServiceKeyCredentialReferences"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_createServiceKeySubProcess">
     <bpmndi:BPMNPlane bpmnElement="createServiceKeySubProcess" id="BPMNPlane_createServiceKeySubProcess">

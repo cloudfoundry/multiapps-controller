@@ -60,4 +60,29 @@ class DynamicResolvableParametersFactoryTest {
         assertTrue(resultParameters.isEmpty(), MessageFormat.format("Expected empty Set but contains \"{0}\"", resultParameters));
     }
 
+    @Test
+    void testDetectionOfServiceKeyCredentialReferenceInServiceKeysConfig() {
+        DynamicResolvableParameter expectedParameter = ImmutableDynamicResolvableParameter.builder()
+                                                                                          .parameterName("service-keys.ztis-key.credentials.issuer")
+                                                                                          .relationshipEntityName("ztis-config")
+                                                                                          .build();
+
+        DeploymentDescriptor descriptor = DeploymentDescriptor.createV3()
+                                                              .setId("test-id")
+                                                              .setResources(List.of(Resource.createV3()
+                                                                                            .setName("caas-v2")
+                                                                                            .setParameters(Map.of("service-keys",
+                                                                                                                  List.of(Map.of("name",
+                                                                                                                                 "caas-v2-key",
+                                                                                                                                 "config",
+                                                                                                                                 Map.of("issuer",
+                                                                                                                                        "{ds/ztis-config/service-keys.ztis-key.credentials.issuer}")))))));
+
+        DynamicResolvableParametersFactory factory = new DynamicResolvableParametersFactory(descriptor);
+        Set<DynamicResolvableParameter> resultParameters = factory.create();
+
+        assertTrue(resultParameters.contains(expectedParameter),
+                   MessageFormat.format("Expected parameter \"{0}\" was not found in the Set \"{1}\"", expectedParameter, resultParameters));
+    }
+
 }
