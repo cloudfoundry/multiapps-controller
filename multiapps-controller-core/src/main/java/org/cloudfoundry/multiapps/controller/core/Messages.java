@@ -193,6 +193,9 @@ public final class Messages {
     public static final String SPRING_SCHEDULER_TASK_EXECUTOR_THREADS = "Spring scheduler task executor threads: {0}";
     public static final String FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS = "Files async executor max threads: {0}";
     public static final String DEPLOY_FROM_URL_EXECUTOR_MAX_THREADS = "Deploy from URL executor max threads: {0}";
+    public static final String CLOUD_LOGGING_EXECUTOR_CORE_THREADS = "Cloud logging executor core threads: {0}";
+    public static final String CLOUD_LOGGING_EXECUTOR_MAX_THREADS = "Cloud logging executor max threads: {0}";
+    public static final String CLOUD_LOGGING_EXECUTOR_QUEUE_CAPACITY = "Cloud logging executor queue capacity: {0}";
     public static final String DEPLOY_FROM_URL_ADDRESS_DENY_LIST_0 = "Deploy from URL address deny list: {0}";
     public static final String DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED_0 = "Deploy from URL address validation enabled: {0}";
     public static final String DEPLOY_FROM_URL_TARGET_ADDRESS_0_DENIED_FOR_JOB_WITH_ID_1 = "Download target host \"{0}\" resolves to a denied address. Job id: {1}";
