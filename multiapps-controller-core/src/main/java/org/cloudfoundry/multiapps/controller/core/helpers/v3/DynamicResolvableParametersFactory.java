@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDynamicResolvableParameter;
+import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.cloudfoundry.multiapps.mta.util.DynamicParameterUtil;
@@ -34,6 +35,7 @@ public class DynamicResolvableParametersFactory
 
         addDynamicResolvableParameter(dynamicResolvableParameters, parametersStringValues);
         addDynamicResolvableParameter(dynamicResolvableParameters, propertiesStringValues);
+        addDynamicResolvableParametersFromServiceKeysConfig(dynamicResolvableParameters, resource.getParameters());
     }
 
     private List<String> getStringValueParameters(Map<String, Object> parameters) {
@@ -56,6 +58,31 @@ public class DynamicResolvableParametersFactory
                                                                                    .build());
             }
         }
+    }
+
+    private void addDynamicResolvableParametersFromServiceKeysConfig(Set<DynamicResolvableParameter> dynamicResolvableParameters,
+                                                                     Map<String, Object> parameters) {
+        Object serviceKeys = parameters.get(SupportedParameters.SERVICE_KEYS);
+        if (!(serviceKeys instanceof List<?> serviceKeysList)) {
+            return;
+        }
+        for (Object serviceKey : serviceKeysList) {
+            if (serviceKey instanceof Map<?, ?> serviceKeyMap) {
+                addDynamicResolvableParametersFromConfig(dynamicResolvableParameters, serviceKeyMap.get(SupportedParameters.SERVICE_KEY_CONFIG));
+            }
+        }
+    }
+
+    private void addDynamicResolvableParametersFromConfig(Set<DynamicResolvableParameter> dynamicResolvableParameters, Object config) {
+        if (!(config instanceof Map<?, ?> configMap)) {
+            return;
+        }
+        List<String> configStringValues = configMap.values()
+                                                   .stream()
+                                                   .filter(String.class::isInstance)
+                                                   .map(String.class::cast)
+                                                   .collect(Collectors.toList());
+        addDynamicResolvableParameter(dynamicResolvableParameters, configStringValues);
     }
 
 }
