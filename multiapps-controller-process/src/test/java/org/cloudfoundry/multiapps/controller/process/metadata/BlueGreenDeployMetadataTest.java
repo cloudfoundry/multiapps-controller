@@ -44,21 +44,24 @@ public class BlueGreenDeployMetadataTest extends MetadataBaseTest {
                 Variables.ABORT_ON_ERROR.getName(),
                 Variables.MODULES_FOR_DEPLOYMENT.getName(),
                 Variables.RESOURCES_FOR_DEPLOYMENT.getName(),
-                Variables.NO_CONFIRM.getName(),
-                Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY.getName(),
-                Variables.SKIP_IDLE_START.getName(),
-                Variables.SHOULD_APPLY_INCREMENTAL_INSTANCES_UPDATE.getName(),
                 Variables.APPS_START_TIMEOUT_PROCESS_VARIABLE.getName(),
                 Variables.APPS_STAGE_TIMEOUT_PROCESS_VARIABLE.getName(),
                 Variables.APPS_UPLOAD_TIMEOUT_PROCESS_VARIABLE.getName(),
                 Variables.APPS_TASK_EXECUTION_TIMEOUT_PROCESS_VARIABLE.getName(),
-                Variables.SKIP_APP_DIGEST_CALCULATION.getName(),
-                Variables.SHOULD_BACKUP_PREVIOUS_VERSION.getName(),
-                Variables.STOP_ORDER_IS_DEPENDENCY_AWARE.getName(),
+                Variables.CREATE_SERVICE_TIMEOUT_PROCESS_VARIABLE.getName(),
+                Variables.CREATE_SERVICE_KEY_TIMEOUT_PROCESS_VARIABLE.getName(),
+                Variables.BIND_SERVICE_TIMEOUT_PROCESS_VARIABLE.getName(),
                 Variables.IS_SECURITY_ENABLED.getName(),
                 Variables.DISPOSABLE_USER_PROVIDED_SERVICE_NAME.getName(),
                 Variables.IS_DISPOSABLE_USER_PROVIDED_SERVICE_ENABLED.getName(),
-                Variables.API_REQUEST_PATH.getName()
+                Variables.API_REQUEST_PATH.getName(),
+                Variables.NO_CONFIRM.getName(),
+                Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY.getName(),
+                Variables.SKIP_IDLE_START.getName(),
+                Variables.SHOULD_APPLY_INCREMENTAL_INSTANCES_UPDATE.getName(),
+                Variables.SKIP_APP_DIGEST_CALCULATION.getName(),
+                Variables.SHOULD_BACKUP_PREVIOUS_VERSION.getName(),
+                Variables.STOP_ORDER_IS_DEPENDENCY_AWARE.getName()
             // @formatter:on
         };
     }
