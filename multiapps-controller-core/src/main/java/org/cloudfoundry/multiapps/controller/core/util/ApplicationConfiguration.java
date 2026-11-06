@@ -96,6 +96,9 @@ public class ApplicationConfiguration {
     static final String CFG_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS = "SPRING_SCHEDULER_TASK_EXECUTOR_THREADS";
     static final String CFG_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS = "FILES_ASYNC_UPLOAD_EXECUTOR_THREADS";
     static final String CFG_DEPLOY_FROM_URL_EXECUTOR_MAX_THREADS = "DEPLOY_FROM_URL_EXECUTOR_MAX_THREADS";
+    static final String CFG_CLOUD_LOGGING_EXECUTOR_CORE_THREADS = "CLOUD_LOGGING_EXECUTOR_CORE_THREADS";
+    static final String CFG_CLOUD_LOGGING_EXECUTOR_MAX_THREADS = "CLOUD_LOGGING_EXECUTOR_MAX_THREADS";
+    static final String CFG_CLOUD_LOGGING_EXECUTOR_QUEUE_CAPACITY = "CLOUD_LOGGING_EXECUTOR_QUEUE_CAPACITY";
     static final String CFG_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER = "ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER";
     static final String CFG_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER = "THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER";
     static final String CFG_THREADS_FOR_FILE_STORAGE_UPLOAD = "THREADS_FOR_FILE_STORAGE_UPLOAD";
@@ -163,6 +166,9 @@ public class ApplicationConfiguration {
     public static final int DEFAULT_SPRING_SCHEDULER_TASK_EXECUTOR_THREADS = 3;
     public static final int DEFAULT_FILES_ASYNC_UPLOAD_EXECUTOR_MAX_THREADS = 6;
     public static final int DEFAULT_DEPLOY_FROM_URL_EXECUTOR_MAX_THREADS = 26;
+    public static final Integer DEFAULT_CLOUD_LOGGING_EXECUTOR_CORE_THREADS = 4;
+    public static final Integer DEFAULT_CLOUD_LOGGING_EXECUTOR_MAX_THREADS = 8;
+    public static final Integer DEFAULT_CLOUD_LOGGING_EXECUTOR_QUEUE_CAPACITY = 128;
     public static final boolean DEFAULT_ENABLE_ON_START_FILES_WITHOUT_CONTENT_CLEANER = false;
     public static final int DEFAULT_THREADS_FOR_FILE_UPLOAD_TO_CONTROLLER = 6;
     public static final int DEFAULT_THREADS_FOR_FILE_STORAGE_UPLOAD = 7;
@@ -230,6 +236,9 @@ public class ApplicationConfiguration {
     private Integer springSchedulerTaskExecutorThreads;
     private Integer filesAsyncUploadExecutorThreads;
     private Integer deployFromUrlExecutorMaxThreads;
+    private Integer cloudLoggingExecutorCoreThreads;
+    private Integer cloudLoggingExecutorMaxThreads;
+    private Integer cloudLoggingExecutorQueueCapacity;
     private Boolean isOnStartFilesWithoutContentCleanerEnabledThroughEnvironment;
     private Integer threadsForFileUploadToController;
     private Integer threadsForFileStorageUpload;
@@ -292,6 +301,9 @@ public class ApplicationConfiguration {
         getAbortedOperationsTtlInSeconds();
         getFilesAsyncUploadExecutorMaxThreads();
         getDeployFromUrlExecutorMaxThreads();
+        getCloudLoggingExecutorCoreThreads();
+        getCloudLoggingExecutorMaxThreads();
+        getCloudLoggingExecutorQueueCapacity();
         getObjectStoreRegions();
     }
 
@@ -443,6 +455,27 @@ public class ApplicationConfiguration {
             deployFromUrlExecutorMaxThreads = getDeployFromUrlExecutorMaxThreadsFromEnvironment();
         }
         return deployFromUrlExecutorMaxThreads;
+    }
+
+    public Integer getCloudLoggingExecutorCoreThreads() {
+        if (cloudLoggingExecutorCoreThreads == null) {
+            cloudLoggingExecutorCoreThreads = getCloudLoggingExecutorCoreThreadsFromEnvironment();
+        }
+        return cloudLoggingExecutorCoreThreads;
+    }
+
+    public Integer getCloudLoggingExecutorMaxThreads() {
+        if (cloudLoggingExecutorMaxThreads == null) {
+            cloudLoggingExecutorMaxThreads = getCloudLoggingExecutorMaxThreadsFromEnvironment();
+        }
+        return cloudLoggingExecutorMaxThreads;
+    }
+
+    public Integer getCloudLoggingExecutorQueueCapacity() {
+        if (cloudLoggingExecutorQueueCapacity == null) {
+            cloudLoggingExecutorQueueCapacity = getCloudLoggingExecutorQueueCapacityFromEnvironment();
+        }
+        return cloudLoggingExecutorQueueCapacity;
     }
 
     public String getGlobalAuditorUser() {
@@ -929,6 +962,27 @@ public class ApplicationConfiguration {
     private Integer getDeployFromUrlExecutorMaxThreadsFromEnvironment() {
         Integer value = environment.getInteger(CFG_DEPLOY_FROM_URL_EXECUTOR_MAX_THREADS, DEFAULT_DEPLOY_FROM_URL_EXECUTOR_MAX_THREADS);
         logEnvironmentVariable(CFG_DEPLOY_FROM_URL_EXECUTOR_MAX_THREADS, Messages.DEPLOY_FROM_URL_EXECUTOR_MAX_THREADS, value);
+        return value;
+    }
+
+    private Integer getCloudLoggingExecutorCoreThreadsFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_CLOUD_LOGGING_EXECUTOR_CORE_THREADS,
+                                                       DEFAULT_CLOUD_LOGGING_EXECUTOR_CORE_THREADS);
+        logEnvironmentVariable(CFG_CLOUD_LOGGING_EXECUTOR_CORE_THREADS, Messages.CLOUD_LOGGING_EXECUTOR_CORE_THREADS, value);
+        return value;
+    }
+
+    private Integer getCloudLoggingExecutorMaxThreadsFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_CLOUD_LOGGING_EXECUTOR_MAX_THREADS,
+                                                       DEFAULT_CLOUD_LOGGING_EXECUTOR_MAX_THREADS);
+        logEnvironmentVariable(CFG_CLOUD_LOGGING_EXECUTOR_MAX_THREADS, Messages.CLOUD_LOGGING_EXECUTOR_MAX_THREADS, value);
+        return value;
+    }
+
+    private Integer getCloudLoggingExecutorQueueCapacityFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_CLOUD_LOGGING_EXECUTOR_QUEUE_CAPACITY,
+                                                       DEFAULT_CLOUD_LOGGING_EXECUTOR_QUEUE_CAPACITY);
+        logEnvironmentVariable(CFG_CLOUD_LOGGING_EXECUTOR_QUEUE_CAPACITY, Messages.CLOUD_LOGGING_EXECUTOR_QUEUE_CAPACITY, value);
         return value;
     }
 

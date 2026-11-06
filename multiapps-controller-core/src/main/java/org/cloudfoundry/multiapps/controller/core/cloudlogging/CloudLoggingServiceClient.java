@@ -62,7 +62,7 @@ public class CloudLoggingServiceClient {
         webClientCache.remove(operationId);
     }
 
-    @Async("asyncExecutor")
+    @Async("cloudLoggingAsyncExecutor")
     public void sendLogsToCloudLoggingService(LoggingConfiguration loggingConfiguration,
                                               List<ExternalOperationLogEntry> logEntryBatch) {
         WebClient webClient;
