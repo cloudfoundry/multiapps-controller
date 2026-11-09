@@ -69,7 +69,7 @@ public class JCloudsObjectStoreFileStorage extends ObjectStoreFileStorage {
         } catch (ContainerNotFoundException e) {
             uploadDurationTracker.recordObjectStoreUpload(getElapsedTimeInMillis(startTime),
                                                           UploadTimeoutMatcher.isUploadTimeoutException(e));
-            throw new FileStorageException(MessageFormat.format(Messages.FILE_UPLOAD_FAILED, fileEntry.getName(),
+            throw new FileStorageException(MessageFormat.format(Messages.UPLOAD_OF_FILE_WITH_NAMESPACE_FAILED, fileEntry.getName(),
                                                                 fileEntry.getNamespace()));
         }
         uploadDurationTracker.recordObjectStoreUpload(getElapsedTimeInMillis(startTime), false);

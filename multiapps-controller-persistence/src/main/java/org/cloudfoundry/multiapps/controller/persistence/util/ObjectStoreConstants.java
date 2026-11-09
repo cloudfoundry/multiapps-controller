@@ -22,4 +22,10 @@ public class ObjectStoreConstants {
     public static final Duration AWS_OBJECT_STORE_SOCKET_TIMEOUT_CONFIG_IN_MINUTES = Duration.ofMinutes(10);
     public static final Duration AWS_OBJECT_STORE_CONNECTION_TIMEOUT_CONFIG_IN_SECONDS = Duration.ofSeconds(10);
     public static final String BYTES_RANGE_FORMAT = "bytes=%d-%d";
+
+    // AliCloud OSS
+    public static final Duration ALI_OBJECT_STORE_REQUEST_TIMEOUT_CONFIG_IN_MINUTES = Duration.ofMinutes(30);
+    public static final Duration ALI_OBJECT_STORE_SOCKET_TIMEOUT_CONFIG_IN_MINUTES = Duration.ofMinutes(10);
+    public static final Duration ALI_OBJECT_STORE_CONNECTION_TIMEOUT_CONFIG_IN_SECONDS = Duration.ofSeconds(10);
+    public static final int ALI_OBJECT_STORE_MAX_ERROR_RETRY_CONFIG = OBJECT_STORE_MAX_ATTEMPTS_CONFIG;
 }

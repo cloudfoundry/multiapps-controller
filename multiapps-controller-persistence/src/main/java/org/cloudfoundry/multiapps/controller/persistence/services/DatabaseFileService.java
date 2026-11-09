@@ -1,19 +1,20 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import org.cloudfoundry.multiapps.controller.persistence.Constants;
-import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
-import org.cloudfoundry.multiapps.controller.persistence.Messages;
-import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
-import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
-import org.cloudfoundry.multiapps.controller.persistence.query.options.StreamFetchingOptions;
-import org.cloudfoundry.multiapps.controller.persistence.query.providers.BlobSqlFileQueryProvider;
-import org.cloudfoundry.multiapps.controller.persistence.query.providers.SqlFileQueryProvider;
-
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import org.cloudfoundry.multiapps.controller.persistence.Constants;
+import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
+import org.cloudfoundry.multiapps.controller.persistence.Messages;
+import org.cloudfoundry.multiapps.controller.persistence.model.FileDeletionResult;
+import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.query.options.StreamFetchingOptions;
+import org.cloudfoundry.multiapps.controller.persistence.query.providers.BlobSqlFileQueryProvider;
+import org.cloudfoundry.multiapps.controller.persistence.query.providers.SqlFileQueryProvider;
 
 public class DatabaseFileService extends FileService {
 
@@ -84,8 +85,9 @@ public class DatabaseFileService extends FileService {
     }
 
     @Override
-    public int deleteModifiedBefore(LocalDateTime modificationTime) throws FileStorageException {
-        return deleteFileAttributesModifiedBefore(modificationTime);
+    public FileDeletionResult deleteModifiedBefore(LocalDateTime modificationTime) throws FileStorageException {
+        int deletedActualFilesFromDatabase = deleteFileAttributesModifiedBefore(modificationTime);
+        return new FileDeletionResult(Constants.ZERO_DELETED_FILES_FROM_OBJECT_STORE, deletedActualFilesFromDatabase);
     }
 
     @Override

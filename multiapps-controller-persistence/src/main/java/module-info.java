@@ -3,9 +3,6 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     exports org.cloudfoundry.multiapps.controller.persistence;
     exports org.cloudfoundry.multiapps.controller.persistence.dialects;
     exports org.cloudfoundry.multiapps.controller.persistence.dto;
-    exports org.cloudfoundry.multiapps.controller.persistence.jclouds.providers.aliyun;
-    exports org.cloudfoundry.multiapps.controller.persistence.jclouds.providers.aliyun.blobstore;
-    exports org.cloudfoundry.multiapps.controller.persistence.jclouds.providers.aliyun.blobstore.config;
     exports org.cloudfoundry.multiapps.controller.persistence.model;
     exports org.cloudfoundry.multiapps.controller.persistence.model.adapter;
     exports org.cloudfoundry.multiapps.controller.persistence.model.filters;
@@ -37,9 +34,7 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires com.fasterxml.jackson.databind;
     requires com.google.auth;
     requires com.google.auth.oauth2;
-    requires com.google.auto.service;
     requires com.google.common;
-    requires com.google.guice;
     requires com.zaxxer.hikari;
     requires flowable.engine;
     requires flowable.engine.common.api;

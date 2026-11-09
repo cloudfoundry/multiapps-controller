@@ -1,11 +1,13 @@
 package org.cloudfoundry.multiapps.controller.process.jobs;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
+import org.cloudfoundry.multiapps.controller.persistence.model.FileDeletionResult;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersistenceService;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +33,7 @@ class ProcessLogsCleanerTest {
 
     @Test
     void testExecute() throws FileStorageException {
+        when(processLogsPersistenceService.deleteModifiedBefore(EXPIRATION_TIME)).thenReturn(new FileDeletionResult(0, 1));
         cleaner.execute(EXPIRATION_TIME);
         verify(processLogsPersistenceService).deleteModifiedBefore(EXPIRATION_TIME);
     }
