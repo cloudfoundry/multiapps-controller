@@ -33,13 +33,15 @@
       "moduleName": "d",
       "name": "d",
       "boundMtaServices": [],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "requiredDependencyNames": []
     },
     {
       "moduleName": "e",
       "name": "e",
       "boundMtaServices": [],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "requiredDependencyNames": []
     }
   ],
   "services": []

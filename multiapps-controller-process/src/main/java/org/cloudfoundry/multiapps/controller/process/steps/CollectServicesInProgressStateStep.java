@@ -30,6 +30,9 @@ public abstract class CollectServicesInProgressStateStep extends TimeoutAsyncFlo
 
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) {
+        if (Boolean.TRUE.equals(context.getVariable(Variables.DRY_RUN))) {
+            return StepPhase.DONE;
+        }
         List<CloudServiceInstanceExtended> existingServicesInProgress = getExistingServicesInProgress(context);
         if (existingServicesInProgress.isEmpty()) {
             return StepPhase.DONE;

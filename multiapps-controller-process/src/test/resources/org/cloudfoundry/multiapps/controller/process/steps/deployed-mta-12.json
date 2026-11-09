@@ -10,7 +10,8 @@
       "boundMtaService": [
         "node-hdi-container"
       ],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "requiredDependencyNames": []
     },
     {
       "moduleName": "node-hello-world-backend",
@@ -19,7 +20,8 @@
         "uaa",
         "node-hdi-container"
       ],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "requiredDependencyNames": []
     },
     {
       "moduleName": "node-hello-world",
@@ -27,7 +29,8 @@
       "boundMtaService": [
         "uaa"
       ],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "requiredDependencyNames": []
     }
   ],
   "services": [

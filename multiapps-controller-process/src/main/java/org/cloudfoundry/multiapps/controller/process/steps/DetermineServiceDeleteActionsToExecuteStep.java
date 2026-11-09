@@ -64,6 +64,13 @@ public class DetermineServiceDeleteActionsToExecuteStep extends SyncFlowableStep
         }
         List<CloudServiceBinding> serviceBindings = controllerClient.getServiceAppBindings(serviceInstance.getGuid());
         List<CloudServiceKey> serviceKeys = controllerClient.getServiceKeys(serviceInstance);
+        if (Boolean.TRUE.equals(context.getVariable(Variables.DRY_RUN))) {
+            var cs = new org.cloudfoundry.multiapps.controller.process.client.DryRunChangeSet();
+            cs.servicesDelete.add(serviceInstanceToDelete);
+            context.setVariable(Variables.DRY_RUN_CHANGE_SET, cs);
+            context.setVariable(Variables.SERVICE_DELETION_ACTIONS, Collections.emptyList());
+            return StepPhase.DONE;
+        }
         if (isDeletePossible(context, serviceBindings, serviceKeys)) {
             context.getStepLogger()
                    .debug(Messages.WILL_DELETE_SERVICE_BINDINGS_SERVICE_KEYS_AND_SERVICE_INSTANCE_0, serviceInstanceToDelete);

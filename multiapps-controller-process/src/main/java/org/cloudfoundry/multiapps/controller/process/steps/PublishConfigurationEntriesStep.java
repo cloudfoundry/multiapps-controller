@@ -2,7 +2,9 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -47,6 +49,7 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
         if (CollectionUtils.isEmpty(entriesToPublish)) {
             context.setVariable(Variables.PUBLISHED_ENTRIES, Collections.emptyList());
             getStepLogger().debug(Messages.NO_PUBLIC_PROVIDED_DEPENDENCIES_FOR_PUBLISHING);
+            collectOutputs(context, app);
             return StepPhase.DONE;
         }
         Set<DynamicResolvableParameter> dynamicResolvableParameters = context.getVariable(Variables.DYNAMIC_RESOLVABLE_PARAMETERS);
@@ -61,6 +64,7 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
         context.setVariable(Variables.PUBLISHED_ENTRIES, publishedEntries);
 
         getStepLogger().debug(Messages.PUBLIC_PROVIDED_DEPENDENCIES_PUBLISHED);
+        collectOutputs(context, app);
         return StepPhase.DONE;
     }
 
@@ -106,6 +110,20 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
                                                                             .target(targetEntry.getTargetSpace())
                                                                             .list();
         return existingEntries.isEmpty() ? null : existingEntries.get(0);
+    }
+
+    private void collectOutputs(ProcessContext context, CloudApplicationExtended app) {
+        app.getRoutes()
+           .stream()
+           .findFirst()
+           .ifPresent(route -> {
+               Map<String, String> outputs = context.getVariable(Variables.DEPLOYMENT_OUTPUTS);
+               if (outputs == null) {
+                   outputs = new LinkedHashMap<>();
+               }
+               outputs.put(app.getName() + ".url", "https://" + route.getUrl());
+               context.setVariable(Variables.DEPLOYMENT_OUTPUTS, outputs);
+           });
     }
 
 }

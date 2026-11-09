@@ -10,7 +10,8 @@
       "boundMtaServices": [
         "s-1"
       ],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "requiredDependencyNames": []
     },
     {
       "moduleName": "b",
@@ -19,13 +20,15 @@
         "s-1",
         "s-2"
       ],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "requiredDependencyNames": []
     },
     {
       "moduleName": "c",
       "name": "c",
       "boundMtaServices": [],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "requiredDependencyNames": []
     },
     {
       "moduleName": "d",
@@ -34,13 +37,15 @@
         "s-3",
         "s-4"
       ],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "requiredDependencyNames": []
     },
     {
       "moduleName": "e",
       "name": "e",
       "boundMtaServices": [],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "requiredDependencyNames": []
     }
   ],
   "services": [

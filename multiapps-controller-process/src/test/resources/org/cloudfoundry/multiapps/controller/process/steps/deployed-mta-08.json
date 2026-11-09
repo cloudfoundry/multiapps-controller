@@ -11,13 +11,15 @@
         "s-1",
         "s-2"
       ],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "requiredDependencyNames": []
     },
     {
       "moduleName": "b",
       "name": "b",
       "boundMtaServices": [],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "requiredDependencyNames": []
     },
     {
       "moduleName": "c",
@@ -25,7 +27,8 @@
       "boundMtaServices": [
         "s-3"
       ],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "requiredDependencyNames": []
     },
     {
       "moduleName": "d",
@@ -34,13 +37,15 @@
         "s-1",
         "s-3"
       ],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "requiredDependencyNames": []
     },
     {
       "moduleName": "e",
       "name": "e",
       "boundMtaServices": [],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "requiredDependencyNames": []
     }
   ],
   "services": [

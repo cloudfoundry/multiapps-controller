@@ -11,7 +11,8 @@
         "s-1",
         "s-2"
       ],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "requiredDependencyNames": []
     },
     {
       "moduleName": "e",
@@ -19,7 +20,8 @@
       "boundMtaServices": [
         "s-1"
       ],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "requiredDependencyNames": []
     }
   ],
   "services": [

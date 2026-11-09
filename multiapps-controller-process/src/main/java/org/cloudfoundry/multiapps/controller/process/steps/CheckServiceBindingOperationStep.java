@@ -23,6 +23,9 @@ public class CheckServiceBindingOperationStep extends AsyncFlowableStep {
 
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) throws Exception {
+        if (Boolean.TRUE.equals(context.getVariable(Variables.DRY_RUN))) {
+            return StepPhase.DONE;
+        }
         List<CloudServiceBinding> serviceBindings = getServiceBindingsForProcessing(context);
         if (serviceBindings.isEmpty()) {
             return StepPhase.DONE;

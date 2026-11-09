@@ -28,7 +28,9 @@ import org.cloudfoundry.multiapps.controller.core.model.ApplicationColor;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.core.model.DynamicResolvableParameter;
+import org.cloudfoundry.multiapps.controller.api.model.FailureReason;
 import org.cloudfoundry.multiapps.controller.core.model.ErrorType;
+import org.cloudfoundry.multiapps.controller.process.client.DryRunChangeSet;
 import org.cloudfoundry.multiapps.controller.core.model.IncrementalAppInstanceUpdateConfiguration;
 import org.cloudfoundry.multiapps.controller.core.model.Phase;
 import org.cloudfoundry.multiapps.controller.core.model.SubprocessPhase;
@@ -520,6 +522,10 @@ public interface Variables {
                                                           .name("errorType")
                                                           .type(ErrorType.class)
                                                           .build();
+    Variable<FailureReason.Code> FAILURE_REASON_CODE = ImmutableEnumVariable.<FailureReason.Code> builder()
+                                                                             .name("failureReasonCode")
+                                                                             .type(FailureReason.Code.class)
+                                                                             .build();
     Variable<ApplicationColor> IDLE_MTA_COLOR = ImmutableEnumVariable.<ApplicationColor> builder()
                                                                      .name("idleMtaColor")
                                                                      .type(ApplicationColor.class)
@@ -987,4 +993,19 @@ public interface Variables {
                                                                          .name("parentProcessInstanceId")
                                                                          .defaultValue(null)
                                                                          .build();
+
+    Variable<Boolean> DRY_RUN = ImmutableSimpleVariable.<Boolean> builder()
+                                                       .name("dryRun")
+                                                       .defaultValue(false)
+                                                       .build();
+
+    Variable<DryRunChangeSet> DRY_RUN_CHANGE_SET = ImmutableJsonBinaryVariable.<DryRunChangeSet> builder()
+                                                                               .name("dryRunChangeSet")
+                                                                               .type(Variable.typeReference(DryRunChangeSet.class))
+                                                                               .build();
+
+    Variable<Map<String, String>> DEPLOYMENT_OUTPUTS = ImmutableJsonBinaryVariable.<Map<String, String>> builder()
+                                                                                   .name("deploymentOutputs")
+                                                                                   .type(new TypeReference<Map<String, String>>() {})
+                                                                                   .build();
 }
