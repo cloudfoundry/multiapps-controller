@@ -85,6 +85,17 @@ class ServiceKeyCredentialResolverTest {
         Assertions.assertThrows(ContentException.class, () -> resolver.resolve(keyToResolve));
     }
 
+    @Test
+    void testFailsLoudlyWhenReferencedKeyDoesNotExist() {
+        Mockito.when(client.getServiceKey(REFERENCED_SERVICE_INSTANCE, REFERENCED_KEY))
+               .thenReturn(null);
+        CloudServiceKey keyToResolve = buildKeyWithCredentials(Map.of("issuer",
+                                                                      "{ds/" + REFERENCED_RESOURCE + "/service-keys." + REFERENCED_KEY
+                                                                          + ".credentials.issuer}"));
+
+        Assertions.assertThrows(ContentException.class, () -> resolver.resolve(keyToResolve));
+    }
+
     private CloudServiceKey buildKeyWithCredentials(Map<String, Object> credentials) {
         return ImmutableCloudServiceKey.builder()
                                        .name("caas-v2-key")
