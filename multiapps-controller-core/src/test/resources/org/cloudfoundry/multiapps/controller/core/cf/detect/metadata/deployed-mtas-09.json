@@ -54,6 +54,7 @@
           "mta-service-2"
         ],
         "providedDependencyNames": [],
+      "requiredDependencyNames": [],
         "productizationState": "LIVE"
       }
     ],

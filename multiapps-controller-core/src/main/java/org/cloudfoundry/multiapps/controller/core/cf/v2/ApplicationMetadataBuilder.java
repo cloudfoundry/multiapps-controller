@@ -13,18 +13,22 @@ import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotat
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.ProvidedDependency;
+import org.cloudfoundry.multiapps.mta.model.RequiredDependency;
 
 public class ApplicationMetadataBuilder {
 
     public static Metadata build(DeploymentDescriptor deploymentDescriptor, String namespace, Module module, List<String> services) {
         String mtaModuleAnnotation = buildMtaModuleAnnotation(module);
         String mtaModuleProvidedDependenciesAnnotation = buildMtaModuleProvidedDependenciesAnnotation(module);
+        String mtaModuleRequiredDependenciesAnnotation = buildMtaModuleRequiredDependenciesAnnotation(module);
         String mtaServicesAnnotation = buildBoundMtaServicesAnnotation(services);
 
         Metadata.Builder builder = MtaMetadataBuilder.init(deploymentDescriptor, namespace)
                                                      .annotation(MtaMetadataAnnotations.MTA_MODULE, mtaModuleAnnotation)
                                                      .annotation(MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES,
                                                                  mtaModuleProvidedDependenciesAnnotation)
+                                                     .annotation(MtaMetadataAnnotations.MTA_MODULE_REQUIRED_DEPENDENCIES,
+                                                                 mtaModuleRequiredDependenciesAnnotation)
                                                      .annotation(MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES, mtaServicesAnnotation);
 
         return builder.build();
@@ -43,6 +47,14 @@ public class ApplicationMetadataBuilder {
                                                   .map(ProvidedDependency::getName)
                                                   .collect(Collectors.toList());
         return JsonUtil.toJson(providedDependencies);
+    }
+
+    private static String buildMtaModuleRequiredDependenciesAnnotation(Module module) {
+        List<String> requiredDependencies = module.getRequiredDependencies()
+                                                  .stream()
+                                                  .map(RequiredDependency::getName)
+                                                  .collect(Collectors.toList());
+        return JsonUtil.toJson(requiredDependencies);
     }
 
     private static String buildBoundMtaServicesAnnotation(List<String> services) {

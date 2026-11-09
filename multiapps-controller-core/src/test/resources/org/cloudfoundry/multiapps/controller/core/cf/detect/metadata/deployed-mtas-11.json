@@ -28,6 +28,7 @@
         "moduleName": "mta-module-3",
         "boundMtaServices": [],
         "providedDependencyNames": [],
+      "requiredDependencyNames": [],
         "productizationState": "LIVE"
       }
     ],
