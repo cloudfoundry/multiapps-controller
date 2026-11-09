@@ -11,9 +11,12 @@ import jakarta.inject.Named;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.controller.api.model.FailureReason;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.cloudlogging.CloudLoggingServiceClient;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerException;
+import org.cloudfoundry.multiapps.controller.client.facade.CloudServiceBrokerException;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableProgressMessage;
@@ -24,14 +27,19 @@ import org.cloudfoundry.multiapps.controller.persistence.services.OperationServi
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
+import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.impl.context.Context;
 import org.flowable.engine.runtime.Execution;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Named
 public class OperationInErrorStateHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OperationInErrorStateHandler.class);
 
     protected final FlowableFacade flowableFacade;
     private final OperationService operationService;
@@ -58,6 +66,7 @@ public class OperationInErrorStateHandler {
 
     public void handle(FlowableEngineEvent event, Throwable throwable) {
         HistoricOperationEvent.EventType eventType = toEventType(throwable);
+        storeFailureReasonCode(event, throwable);
         handle(event, eventType, throwable.getMessage());
     }
 
@@ -72,6 +81,31 @@ public class OperationInErrorStateHandler {
     HistoricOperationEvent.EventType toEventType(Throwable throwable) {
         return hasCause(throwable, ContentException.class) ? HistoricOperationEvent.EventType.FAILED_BY_CONTENT_ERROR
             : HistoricOperationEvent.EventType.FAILED_BY_INFRASTRUCTURE_ERROR;
+    }
+
+    FailureReason.Code toFailureReasonCode(Throwable throwable) {
+        if (hasCause(throwable, ContentException.class)) {
+            return FailureReason.Code.CONTENT_VALIDATION_ERROR;
+        }
+        if (hasCause(throwable, CloudServiceBrokerException.class)) {
+            return FailureReason.Code.SERVICE_OPERATION_FAILURE;
+        }
+        if (hasCause(throwable, CloudControllerException.class)) {
+            return FailureReason.Code.CF_API_UNAVAILABLE;
+        }
+        return FailureReason.Code.INTERNAL_ERROR;
+    }
+
+    private void storeFailureReasonCode(FlowableEngineEvent event, Throwable throwable) {
+        String processInstanceId = flowableFacade.getProcessInstanceId(event.getExecutionId());
+        FailureReason.Code code = toFailureReasonCode(throwable);
+        try {
+            getProcessEngineConfiguration().getRuntimeService()
+                                           .setVariable(processInstanceId, Variables.FAILURE_REASON_CODE.getName(),
+                                                        code.name());
+        } catch (Exception e) {
+            LOGGER.warn("Failed to store failure reason code for process {}: {}", processInstanceId, e.getMessage());
+        }
     }
 
     private <T extends Throwable> boolean hasCause(Throwable throwable, Class<T> clazz) {

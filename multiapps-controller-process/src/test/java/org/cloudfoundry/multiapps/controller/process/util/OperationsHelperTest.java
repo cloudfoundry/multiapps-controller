@@ -11,6 +11,7 @@ import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.Constants;
+import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.metadata.ProcessTypeToOperationMetadataMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -29,13 +30,15 @@ class OperationsHelperTest {
     private ProcessTypeToOperationMetadataMapper metadataMapper;
     @Mock
     private ProcessHelper processHelper;
+    @Mock
+    private FlowableFacade flowableFacade;
 
     private final OperationsHelper operationsHelper;
 
     OperationsHelperTest() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        operationsHelper = new OperationsHelper(operationService, metadataMapper, processHelper);
+        operationsHelper = new OperationsHelper(operationService, metadataMapper, processHelper, flowableFacade);
     }
 
     @Test

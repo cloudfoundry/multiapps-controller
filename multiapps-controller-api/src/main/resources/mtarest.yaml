@@ -779,6 +779,9 @@ definitions:
         enum:
         - "CONTENT"
         - "INFRASTRUCTURE"
+      failureReason:
+        readOnly: true
+        $ref: "#/definitions/FailureReason"
       messages:
         type: "array"
         readOnly: true
@@ -789,6 +792,25 @@ definitions:
         readOnly: true
         additionalProperties:
           type: "object"
+  FailureReason:
+    type: "object"
+    properties:
+      code:
+        type: "string"
+        readOnly: true
+        enum:
+        - "CONTENT_VALIDATION_ERROR"
+        - "MODULE_STARTUP_FAILURE"
+        - "SERVICE_OPERATION_FAILURE"
+        - "CF_API_UNAVAILABLE"
+        - "QUOTA_EXCEEDED"
+        - "INTERNAL_ERROR"
+      retryable:
+        type: "boolean"
+        readOnly: true
+      summary:
+        type: "string"
+        readOnly: true
   ProcessType:
     type: "object"
     properties:

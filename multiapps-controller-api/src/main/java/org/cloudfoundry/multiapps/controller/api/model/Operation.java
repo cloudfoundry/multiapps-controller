@@ -100,6 +100,9 @@ public abstract class Operation implements AuditableConfiguration {
     @Nullable
     public abstract ErrorType getErrorType();
 
+    @Nullable
+    public abstract FailureReason getFailureReason();
+
     public abstract List<Message> getMessages();
 
     @AllowNulls
