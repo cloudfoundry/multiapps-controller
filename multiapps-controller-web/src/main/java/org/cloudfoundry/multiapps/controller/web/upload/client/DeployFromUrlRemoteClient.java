@@ -161,9 +161,10 @@ public class DeployFromUrlRemoteClient {
             throw new SLException(MessageFormat.format(Messages.DEPLOY_FROM_URL_WRONG_CREDENTIALS_FOR_JOB_WITH_ID,
                                                        UriUtil.stripUserInfo(url), jobId));
         }
-        if (status == HttpStatus.FORBIDDEN.value() && hasToken(userCredentials)) {
-            throw new SLException(MessageFormat.format(Messages.DEPLOY_FROM_URL_FORBIDDEN,
-                                                       UriUtil.stripUserInfo(url)));
+        if (status == HttpStatus.FORBIDDEN.value()) {
+            String forbiddenMessage = hasToken(userCredentials) ? Messages.DEPLOY_FROM_URL_FORBIDDEN
+                : Messages.DEPLOY_FROM_URL_FORBIDDEN_NO_TOKEN;
+            throw new SLException(MessageFormat.format(forbiddenMessage, UriUtil.stripUserInfo(url)));
         }
         if (status == HttpStatus.NOT_FOUND.value() && hasToken(userCredentials)) {
             throw new SLException(MessageFormat.format(Messages.DEPLOY_FROM_URL_NOT_FOUND_WITH_TOKEN,

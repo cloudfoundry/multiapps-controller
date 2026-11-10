@@ -24,6 +24,7 @@ public final class Messages {
     public static final String MISSING_PROPERTIES_FOR_CREATING_THE_SPECIFIC_PROVIDER = "Missing properties for creating the specific provider!";
     public static final String DEPLOY_FROM_URL_WRONG_CREDENTIALS_FOR_JOB_WITH_ID = "Credentials to {0} are wrong. Make sure that they are correct. Job id: {1}";
     public static final String DEPLOY_FROM_URL_FORBIDDEN = "Access to {0} is forbidden. Make sure the provided token has the required permissions.";
+    public static final String DEPLOY_FROM_URL_FORBIDDEN_NO_TOKEN = "Access to {0} is forbidden. Make sure the provided credentials have the required permissions.";
     public static final String DEPLOY_FROM_URL_NOT_FOUND_WITH_TOKEN = "The resource at {0} was not found. If it is private, verify the provided token is valid and has read access.";
     public static final String DEPLOY_FROM_URL_CONNECTION_FAILED = "Failed to connect to the remote endpoint. Check the URL is reachable and the server is available.";
     public static final String DEPLOY_FROM_URL_DROPPING_CREDENTIALS_ON_CROSS_HOST_REDIRECT_FOR_JOB_WITH_ID = "Dropping credentials on cross-host redirect while downloading the MTA archive. Job id: {0}";
