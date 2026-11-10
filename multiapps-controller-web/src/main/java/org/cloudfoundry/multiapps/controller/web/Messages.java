@@ -26,6 +26,7 @@ public final class Messages {
     public static final String DEPLOY_FROM_URL_FORBIDDEN = "Access to {0} is forbidden. Make sure the provided token has the required permissions.";
     public static final String DEPLOY_FROM_URL_NOT_FOUND_WITH_TOKEN = "The resource at {0} was not found. If it is private, verify the provided token is valid and has read access.";
     public static final String DEPLOY_FROM_URL_CONNECTION_FAILED = "Failed to connect to the remote endpoint. Check the URL is reachable and the server is available.";
+    public static final String DEPLOY_FROM_URL_DROPPING_CREDENTIALS_ON_CROSS_HOST_REDIRECT_FOR_JOB_WITH_ID = "Dropping credentials on cross-host redirect while downloading the MTA archive. Job id: {0}";
     public static final String DEPLOY_FROM_URL_TARGET_ADDRESS_0_DENIED_FOR_JOB_WITH_ID_1 = "Download target host \"{0}\" resolves to a denied address. Job id: {1}";
     public static final String JOB_NOT_UPDATED_FOR_0_SECONDS = "Job not updated for {0} seconds";
     public static final String TOO_MANY_ACTIVE_OPERATIONS_IN_SPACE = "Too many active operations in space";

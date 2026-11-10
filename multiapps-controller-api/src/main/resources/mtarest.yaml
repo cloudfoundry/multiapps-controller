@@ -611,9 +611,7 @@ definitions:
     properties:
       file_url:
         type: "string"
-        readOnly: true
       credentials:
-        readOnly: true
         $ref: "#/definitions/UserCredentials"
   Info:
     type: "object"
@@ -800,10 +798,7 @@ definitions:
     properties:
       username:
         type: "string"
-        readOnly: true
       password:
         type: "string"
-        readOnly: true
       token:
         type: "string"
-        readOnly: true

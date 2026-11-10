@@ -341,6 +341,62 @@ class DeployFromUrlRemoteClientTest {
         when(response.body()).thenReturn(new ByteArrayInputStream(new byte[0]));
         return response;
     }
+
+    @Test
+    void crossHostRedirectDropsAuthorizationHeader() throws Exception {
+        when(userCredentials.getToken()).thenReturn("ghp_secret_token");
+        String crossHostRedirectUrl = "https://cdn.other-host.com/file.zip";
+        HttpResponse<InputStream> redirectResponse = mockRedirectResponse(302, crossHostRedirectUrl);
+        when(httpResponse.statusCode()).thenReturn(200);
+        when(httpResponse.body()).thenReturn(new ByteArrayInputStream("test content".getBytes()));
+        when(httpResponse.headers()).thenReturn(httpHeaders);
+        when(httpResponse.uri()).thenReturn(URI.create(crossHostRedirectUrl));
+        when(httpHeaders.firstValueAsLong(Constants.CONTENT_LENGTH)).thenReturn(OptionalLong.of(FILE_SIZE));
+        when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()))).thenReturn(redirectResponse)
+                                                                                                    .thenReturn(httpResponse);
+
+        client.downloadFileFromUrl(uploadContext);
+
+        // First hop (original host) must carry the bearer token.
+        verify(httpClient).send(argThat(request -> request.uri()
+                                                          .getHost()
+                                                          .equals("example.com")
+                                    && hasBearerToken(request)), eq(HttpResponse.BodyHandlers.ofInputStream()));
+        // Second hop (different host) must NOT carry any Authorization header.
+        verify(httpClient).send(argThat(request -> request.uri()
+                                                          .getHost()
+                                                          .equals("cdn.other-host.com")
+                                    && request.headers()
+                                              .firstValue("Authorization")
+                                              .isEmpty()), eq(HttpResponse.BodyHandlers.ofInputStream()));
+    }
+
+    @Test
+    void sameHostRedirectPreservesAuthorizationHeader() throws Exception {
+        when(userCredentials.getToken()).thenReturn("ghp_secret_token");
+        String sameHostRedirectUrl = "https://example.com/other/file.zip";
+        HttpResponse<InputStream> redirectResponse = mockRedirectResponse(302, sameHostRedirectUrl);
+        when(httpResponse.statusCode()).thenReturn(200);
+        when(httpResponse.body()).thenReturn(new ByteArrayInputStream("test content".getBytes()));
+        when(httpResponse.headers()).thenReturn(httpHeaders);
+        when(httpResponse.uri()).thenReturn(URI.create(sameHostRedirectUrl));
+        when(httpHeaders.firstValueAsLong(Constants.CONTENT_LENGTH)).thenReturn(OptionalLong.of(FILE_SIZE));
+        when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream()))).thenReturn(redirectResponse)
+                                                                                                    .thenReturn(httpResponse);
+
+        client.downloadFileFromUrl(uploadContext);
+
+        // Both hops stay on the original host, so both must carry the bearer token.
+        verify(httpClient, times(2)).send(argThat(this::hasBearerToken), eq(HttpResponse.BodyHandlers.ofInputStream()));
+    }
+
+    private boolean hasBearerToken(HttpRequest request) {
+        return request.headers()
+                      .firstValue("Authorization")
+                      .filter(value -> value.equals("Bearer ghp_secret_token"))
+                      .isPresent();
+    }
+
     @Test
     void downloadFileFromUrlWithTokenSendsBearer() throws Exception {
         when(userCredentials.getToken()).thenReturn("ghp_secret_token");

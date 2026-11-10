@@ -127,7 +127,30 @@ public class DeployFromUrlRemoteClient {
             throw new SLException(Messages.MTAR_ENDPOINT_NOT_SECURE_FOR_JOB_WITH_ID, jobId);
         }
         addressValidator.validateTarget(resolvedLocation, jobId);
-        return followRedirectsWithValidation(resolvedLocation, jobId, userCredentials, redirectCount + 1);
+        UserCredentials credentialsForNextHop = resolveCredentialsForRedirect(url, resolvedLocation, userCredentials, jobId);
+        return followRedirectsWithValidation(resolvedLocation, jobId, credentialsForNextHop, redirectCount + 1);
+    }
+
+    // Credentials (an explicit token/basic credential, or user info embedded in the URL) are only
+    // trusted for the host the caller originally pointed at. When a redirect crosses to a different
+    // host we drop them, so the Authorization header is never forwarded to a target the caller did
+    // not name. Once dropped they stay dropped for every subsequent hop, even one that points back
+    // at the original host. Same-host redirects keep the credentials so the normal fetch still works.
+    private UserCredentials resolveCredentialsForRedirect(String currentUrl, String resolvedLocation, UserCredentials userCredentials,
+                                                          String jobId) {
+        if (isSameHost(currentUrl, resolvedLocation)) {
+            return userCredentials;
+        }
+        LOGGER.debug(Messages.DEPLOY_FROM_URL_DROPPING_CREDENTIALS_ON_CROSS_HOST_REDIRECT_FOR_JOB_WITH_ID, jobId);
+        return null;
+    }
+
+    private boolean isSameHost(String firstUrl, String secondUrl) {
+        String firstHost = URI.create(firstUrl)
+                              .getHost();
+        String secondHost = URI.create(secondUrl)
+                               .getHost();
+        return firstHost != null && firstHost.equalsIgnoreCase(secondHost);
     }
 
     private void throwErrorResponseException(HttpResponse<InputStream> response, String url, int status,
@@ -138,7 +161,7 @@ public class DeployFromUrlRemoteClient {
             throw new SLException(MessageFormat.format(Messages.DEPLOY_FROM_URL_WRONG_CREDENTIALS_FOR_JOB_WITH_ID,
                                                        UriUtil.stripUserInfo(url), jobId));
         }
-        if (status == HttpStatus.FORBIDDEN.value()) {
+        if (status == HttpStatus.FORBIDDEN.value() && hasToken(userCredentials)) {
             throw new SLException(MessageFormat.format(Messages.DEPLOY_FROM_URL_FORBIDDEN,
                                                        UriUtil.stripUserInfo(url)));
         }
