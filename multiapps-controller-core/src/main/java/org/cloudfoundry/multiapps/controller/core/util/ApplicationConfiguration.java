@@ -110,6 +110,13 @@ public class ApplicationConfiguration {
     static final String CFG_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR = "OP_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR";
     static final String CFG_OPERATION_RATE_LIMIT_PER_USER_CAPACITY = "OP_RATE_LIMIT_PER_USER_CAPACITY";
     static final String CFG_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR = "OP_RATE_LIMIT_PER_USER_REFILL_PER_HOUR";
+    static final String CFG_FAILED_AUTH_RATE_LIMITING_ENABLED = "FAILED_AUTH_RATE_LIMITING_ENABLED";
+    static final String CFG_FAILED_AUTH_RATE_LIMIT_PER_IP_CAPACITY = "FAILED_AUTH_RATE_LIMIT_PER_IP_CAPACITY";
+    static final String CFG_FAILED_AUTH_RATE_LIMIT_PER_IP_REFILL_PER_HOUR = "FAILED_AUTH_RATE_LIMIT_PER_IP_REFILL_PER_HOUR";
+    static final String CFG_FAILED_AUTH_RATE_LIMIT_PER_USER_CAPACITY = "FAILED_AUTH_RATE_LIMIT_PER_USER_CAPACITY";
+    static final String CFG_FAILED_AUTH_RATE_LIMIT_PER_USER_REFILL_PER_HOUR = "FAILED_AUTH_RATE_LIMIT_PER_USER_REFILL_PER_HOUR";
+    static final String CFG_ANONYMOUS_RATE_LIMIT_PER_IP_CAPACITY = "ANONYMOUS_RATE_LIMIT_PER_IP_CAPACITY";
+    static final String CFG_ANONYMOUS_RATE_LIMIT_PER_IP_REFILL_PER_HOUR = "ANONYMOUS_RATE_LIMIT_PER_IP_REFILL_PER_HOUR";
     static final String CFG_DEPLOY_FROM_URL_ADDRESS_DENY_LIST = "DEPLOY_FROM_URL_ADDRESS_DENY_LIST";
     static final String CFG_DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED = "DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED";
 
@@ -180,6 +187,13 @@ public class ApplicationConfiguration {
     public static final int DEFAULT_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR = 800;
     public static final int DEFAULT_OPERATION_RATE_LIMIT_PER_USER_CAPACITY = 150;
     public static final int DEFAULT_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR = 300;
+    public static final boolean DEFAULT_FAILED_AUTH_RATE_LIMITING_ENABLED = false;
+    public static final int DEFAULT_FAILED_AUTH_RATE_LIMIT_PER_IP_CAPACITY = 20;
+    public static final int DEFAULT_FAILED_AUTH_RATE_LIMIT_PER_IP_REFILL_PER_HOUR = 20;
+    public static final int DEFAULT_FAILED_AUTH_RATE_LIMIT_PER_USER_CAPACITY = 10;
+    public static final int DEFAULT_FAILED_AUTH_RATE_LIMIT_PER_USER_REFILL_PER_HOUR = 10;
+    public static final int DEFAULT_ANONYMOUS_RATE_LIMIT_PER_IP_CAPACITY = 5000;
+    public static final int DEFAULT_ANONYMOUS_RATE_LIMIT_PER_IP_REFILL_PER_HOUR = 5000;
     public static final boolean DEFAULT_DEPLOY_FROM_URL_ADDRESS_VALIDATION_ENABLED = false;
     public static final String DEFAULT_DEPLOY_FROM_URL_ADDRESS_DENY_LIST = "127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,100.100.100.200/32,::1/128,fe80::/10,fc00::/7";
 
@@ -253,6 +267,13 @@ public class ApplicationConfiguration {
     private Integer operationRateLimitPerSpaceRefillPerHour;
     private Integer operationRateLimitPerUserCapacity;
     private Integer operationRateLimitPerUserRefillPerHour;
+    private Boolean failedAuthRateLimitingEnabled;
+    private Integer failedAuthRateLimitPerIpCapacity;
+    private Integer failedAuthRateLimitPerIpRefillPerHour;
+    private Integer failedAuthRateLimitPerUserCapacity;
+    private Integer failedAuthRateLimitPerUserRefillPerHour;
+    private Integer anonymousRateLimitPerIpCapacity;
+    private Integer anonymousRateLimitPerIpRefillPerHour;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -328,7 +349,11 @@ public class ApplicationConfiguration {
                       CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS, CFG_SERVICE_HANDLING_MAX_PARALLEL_THREADS,
                       CFG_OPERATION_RATE_LIMITING_ENABLED, CFG_MAX_ACTIVE_OPERATIONS_PER_SPACE, CFG_MAX_ACTIVE_OPERATIONS_PER_USER,
                       CFG_OPERATION_RATE_LIMIT_PER_SPACE_CAPACITY, CFG_OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR,
-                      CFG_OPERATION_RATE_LIMIT_PER_USER_CAPACITY, CFG_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR);
+                      CFG_OPERATION_RATE_LIMIT_PER_USER_CAPACITY, CFG_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR,
+                      CFG_FAILED_AUTH_RATE_LIMITING_ENABLED, CFG_FAILED_AUTH_RATE_LIMIT_PER_IP_CAPACITY,
+                      CFG_FAILED_AUTH_RATE_LIMIT_PER_IP_REFILL_PER_HOUR, CFG_FAILED_AUTH_RATE_LIMIT_PER_USER_CAPACITY,
+                      CFG_FAILED_AUTH_RATE_LIMIT_PER_USER_REFILL_PER_HOUR, CFG_ANONYMOUS_RATE_LIMIT_PER_IP_CAPACITY,
+                      CFG_ANONYMOUS_RATE_LIMIT_PER_IP_REFILL_PER_HOUR);
     }
 
     public URL getControllerUrl() {
@@ -778,6 +803,55 @@ public class ApplicationConfiguration {
             operationRateLimitPerUserRefillPerHour = getOperationRateLimitPerUserRefillPerHourFromEnvironment();
         }
         return operationRateLimitPerUserRefillPerHour;
+    }
+
+    public boolean isFailedAuthRateLimitingEnabled() {
+        if (failedAuthRateLimitingEnabled == null) {
+            failedAuthRateLimitingEnabled = isFailedAuthRateLimitingEnabledThroughEnvironment();
+        }
+        return failedAuthRateLimitingEnabled;
+    }
+
+    public Integer getFailedAuthRateLimitPerIpCapacity() {
+        if (failedAuthRateLimitPerIpCapacity == null) {
+            failedAuthRateLimitPerIpCapacity = getFailedAuthRateLimitPerIpCapacityFromEnvironment();
+        }
+        return failedAuthRateLimitPerIpCapacity;
+    }
+
+    public Integer getFailedAuthRateLimitPerIpRefillPerHour() {
+        if (failedAuthRateLimitPerIpRefillPerHour == null) {
+            failedAuthRateLimitPerIpRefillPerHour = getFailedAuthRateLimitPerIpRefillPerHourFromEnvironment();
+        }
+        return failedAuthRateLimitPerIpRefillPerHour;
+    }
+
+    public Integer getFailedAuthRateLimitPerUserCapacity() {
+        if (failedAuthRateLimitPerUserCapacity == null) {
+            failedAuthRateLimitPerUserCapacity = getFailedAuthRateLimitPerUserCapacityFromEnvironment();
+        }
+        return failedAuthRateLimitPerUserCapacity;
+    }
+
+    public Integer getFailedAuthRateLimitPerUserRefillPerHour() {
+        if (failedAuthRateLimitPerUserRefillPerHour == null) {
+            failedAuthRateLimitPerUserRefillPerHour = getFailedAuthRateLimitPerUserRefillPerHourFromEnvironment();
+        }
+        return failedAuthRateLimitPerUserRefillPerHour;
+    }
+
+    public Integer getAnonymousRateLimitPerIpCapacity() {
+        if (anonymousRateLimitPerIpCapacity == null) {
+            anonymousRateLimitPerIpCapacity = getAnonymousRateLimitPerIpCapacityFromEnvironment();
+        }
+        return anonymousRateLimitPerIpCapacity;
+    }
+
+    public Integer getAnonymousRateLimitPerIpRefillPerHour() {
+        if (anonymousRateLimitPerIpRefillPerHour == null) {
+            anonymousRateLimitPerIpRefillPerHour = getAnonymousRateLimitPerIpRefillPerHourFromEnvironment();
+        }
+        return anonymousRateLimitPerIpRefillPerHour;
     }
 
     public String getDeployFromUrlAddressDenyList() {
@@ -1290,6 +1364,57 @@ public class ApplicationConfiguration {
                                                        DEFAULT_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR);
         logEnvironmentVariable(CFG_OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR,
                                Messages.OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR, value);
+        return value;
+    }
+
+    private Boolean isFailedAuthRateLimitingEnabledThroughEnvironment() {
+        Boolean value = environment.getBoolean(CFG_FAILED_AUTH_RATE_LIMITING_ENABLED, DEFAULT_FAILED_AUTH_RATE_LIMITING_ENABLED);
+        logEnvironmentVariable(CFG_FAILED_AUTH_RATE_LIMITING_ENABLED, Messages.FAILED_AUTH_RATE_LIMITING_ENABLED, value);
+        return value;
+    }
+
+    private Integer getFailedAuthRateLimitPerIpCapacityFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_FAILED_AUTH_RATE_LIMIT_PER_IP_CAPACITY,
+                                                       DEFAULT_FAILED_AUTH_RATE_LIMIT_PER_IP_CAPACITY);
+        logEnvironmentVariable(CFG_FAILED_AUTH_RATE_LIMIT_PER_IP_CAPACITY, Messages.FAILED_AUTH_RATE_LIMIT_PER_IP_CAPACITY, value);
+        return value;
+    }
+
+    private Integer getFailedAuthRateLimitPerIpRefillPerHourFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_FAILED_AUTH_RATE_LIMIT_PER_IP_REFILL_PER_HOUR,
+                                                       DEFAULT_FAILED_AUTH_RATE_LIMIT_PER_IP_REFILL_PER_HOUR);
+        logEnvironmentVariable(CFG_FAILED_AUTH_RATE_LIMIT_PER_IP_REFILL_PER_HOUR,
+                               Messages.FAILED_AUTH_RATE_LIMIT_PER_IP_REFILL_PER_HOUR, value);
+        return value;
+    }
+
+    private Integer getFailedAuthRateLimitPerUserCapacityFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_FAILED_AUTH_RATE_LIMIT_PER_USER_CAPACITY,
+                                                       DEFAULT_FAILED_AUTH_RATE_LIMIT_PER_USER_CAPACITY);
+        logEnvironmentVariable(CFG_FAILED_AUTH_RATE_LIMIT_PER_USER_CAPACITY, Messages.FAILED_AUTH_RATE_LIMIT_PER_USER_CAPACITY, value);
+        return value;
+    }
+
+    private Integer getFailedAuthRateLimitPerUserRefillPerHourFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_FAILED_AUTH_RATE_LIMIT_PER_USER_REFILL_PER_HOUR,
+                                                       DEFAULT_FAILED_AUTH_RATE_LIMIT_PER_USER_REFILL_PER_HOUR);
+        logEnvironmentVariable(CFG_FAILED_AUTH_RATE_LIMIT_PER_USER_REFILL_PER_HOUR,
+                               Messages.FAILED_AUTH_RATE_LIMIT_PER_USER_REFILL_PER_HOUR, value);
+        return value;
+    }
+
+    private Integer getAnonymousRateLimitPerIpCapacityFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_ANONYMOUS_RATE_LIMIT_PER_IP_CAPACITY,
+                                                       DEFAULT_ANONYMOUS_RATE_LIMIT_PER_IP_CAPACITY);
+        logEnvironmentVariable(CFG_ANONYMOUS_RATE_LIMIT_PER_IP_CAPACITY, Messages.ANONYMOUS_RATE_LIMIT_PER_IP_CAPACITY, value);
+        return value;
+    }
+
+    private Integer getAnonymousRateLimitPerIpRefillPerHourFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_ANONYMOUS_RATE_LIMIT_PER_IP_REFILL_PER_HOUR,
+                                                       DEFAULT_ANONYMOUS_RATE_LIMIT_PER_IP_REFILL_PER_HOUR);
+        logEnvironmentVariable(CFG_ANONYMOUS_RATE_LIMIT_PER_IP_REFILL_PER_HOUR,
+                               Messages.ANONYMOUS_RATE_LIMIT_PER_IP_REFILL_PER_HOUR, value);
         return value;
     }
 

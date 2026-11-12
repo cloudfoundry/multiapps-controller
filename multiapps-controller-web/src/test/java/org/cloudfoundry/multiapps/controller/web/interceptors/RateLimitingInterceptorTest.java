@@ -1,33 +1,38 @@
 package org.cloudfoundry.multiapps.controller.web.interceptors;
 
-import java.time.Duration;
-import io.github.resilience4j.ratelimiter.RateLimiterConfig;
-import io.github.resilience4j.ratelimiter.internal.AtomicRateLimiter;
+import java.util.concurrent.TimeUnit;
+
+import io.github.bucket4j.ConsumptionProbe;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.cloudfoundry.multiapps.controller.web.util.RateLimiterProvider;
+import org.cloudfoundry.multiapps.controller.web.Constants;
+import org.cloudfoundry.multiapps.controller.web.util.AnonymousRateLimiter;
+import org.cloudfoundry.multiapps.controller.web.util.ClientIpResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RateLimitingInterceptorTest {
 
-    private static final String X_CF_TRUE_CLIENT_IP = "X-CF-True-Client-IP";
     private static final String CLIENT_IP = "203.0.113.42";
-    private static final String REMOTE_ADDR = "10.0.0.1";
+    private static final int CAPACITY = 5000;
+    private static final long REMAINING = 4999;
+    private static final long NANOS_TO_WAIT = TimeUnit.SECONDS.toNanos(42);
 
     @Mock
     private HttpServletRequest request;
     @Mock
     private HttpServletResponse response;
     @Mock
-    private RateLimiterProvider rateLimiterProvider;
+    private AnonymousRateLimiter anonymousRateLimiter;
+    @Mock
+    private ClientIpResolver clientIpResolver;
 
     private RateLimitingInterceptor interceptor;
 
@@ -35,107 +40,60 @@ class RateLimitingInterceptorTest {
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        interceptor = new RateLimitingInterceptor(rateLimiterProvider);
-    }
-
-    @Test
-    void usesTrueClientIpHeaderWhenPresent() throws Exception {
-        Mockito.when(request.getHeader(HttpHeaders.AUTHORIZATION))
-               .thenReturn(null);
-        Mockito.when(request.getHeader(X_CF_TRUE_CLIENT_IP))
+        Mockito.when(anonymousRateLimiter.getCapacity())
+               .thenReturn(CAPACITY);
+        Mockito.when(clientIpResolver.resolve(request))
                .thenReturn(CLIENT_IP);
-        AtomicRateLimiter rateLimiter = newRateLimiter();
-        Mockito.when(rateLimiterProvider.getRateLimiter(CLIENT_IP))
-               .thenReturn(rateLimiter);
+        interceptor = new RateLimitingInterceptor(anonymousRateLimiter, clientIpResolver);
+    }
+
+    @Test
+    void throttlesByResolvedClientIpAndSetsHeadersWhenAllowed() throws Exception {
+        Mockito.when(anonymousRateLimiter.tryConsume(CLIENT_IP))
+               .thenReturn(ConsumptionProbe.consumed(REMAINING, NANOS_TO_WAIT));
 
         assertTrue(interceptor.preHandle(request, response, new Object()));
 
-        Mockito.verify(rateLimiterProvider)
-               .getRateLimiter(CLIENT_IP);
+        Mockito.verify(clientIpResolver)
+               .resolve(request);
+        Mockito.verify(anonymousRateLimiter)
+               .tryConsume(CLIENT_IP);
+        Mockito.verify(response)
+               .setHeader(Constants.RATE_LIMIT, Integer.toString(CAPACITY));
+        Mockito.verify(response)
+               .setHeader(Constants.RATE_LIMIT_REMAINING, Long.toString(REMAINING));
+        Mockito.verify(response, Mockito.never())
+               .sendError(Mockito.anyInt(), Mockito.anyString());
+    }
+
+    @Test
+    void doesNotSkipWhenAuthorizationHeaderPresent() throws Exception {
+        Mockito.when(anonymousRateLimiter.tryConsume(CLIENT_IP))
+               .thenReturn(ConsumptionProbe.consumed(REMAINING, NANOS_TO_WAIT));
+
+        assertTrue(interceptor.preHandle(request, response, new Object()));
+
+        Mockito.verify(anonymousRateLimiter)
+               .tryConsume(CLIENT_IP);
         Mockito.verify(request, Mockito.never())
-               .getRemoteAddr();
-    }
-
-    @Test
-    void fallsBackToRemoteAddrWhenHeaderAbsent() throws Exception {
-        Mockito.when(request.getHeader(HttpHeaders.AUTHORIZATION))
-               .thenReturn(null);
-        Mockito.when(request.getHeader(X_CF_TRUE_CLIENT_IP))
-               .thenReturn(null);
-        Mockito.when(request.getRemoteAddr())
-               .thenReturn(REMOTE_ADDR);
-        AtomicRateLimiter rateLimiter = newRateLimiter();
-        Mockito.when(rateLimiterProvider.getRateLimiter(REMOTE_ADDR))
-               .thenReturn(rateLimiter);
-
-        assertTrue(interceptor.preHandle(request, response, new Object()));
-
-        Mockito.verify(rateLimiterProvider)
-               .getRateLimiter(REMOTE_ADDR);
-    }
-
-    @Test
-    void fallsBackToRemoteAddrWhenHeaderBlank() throws Exception {
-        Mockito.when(request.getHeader(HttpHeaders.AUTHORIZATION))
-               .thenReturn(null);
-        Mockito.when(request.getHeader(X_CF_TRUE_CLIENT_IP))
-               .thenReturn("   ");
-        Mockito.when(request.getRemoteAddr())
-               .thenReturn(REMOTE_ADDR);
-        AtomicRateLimiter rateLimiter = newRateLimiter();
-        Mockito.when(rateLimiterProvider.getRateLimiter(REMOTE_ADDR))
-               .thenReturn(rateLimiter);
-
-        assertTrue(interceptor.preHandle(request, response, new Object()));
-
-        Mockito.verify(rateLimiterProvider)
-               .getRateLimiter(REMOTE_ADDR);
-    }
-
-    @Test
-    void skipsRateLimitingWhenAuthorizationHeaderPresent() throws Exception {
-        Mockito.when(request.getHeader(HttpHeaders.AUTHORIZATION))
-               .thenReturn("Bearer token");
-
-        assertTrue(interceptor.preHandle(request, response, new Object()));
-
-        Mockito.verifyNoInteractions(rateLimiterProvider);
+               .getHeader(org.springframework.http.HttpHeaders.AUTHORIZATION);
     }
 
     @Test
     void rejectsRequestWith429WhenLimitExceeded() throws Exception {
-        Mockito.when(request.getHeader(HttpHeaders.AUTHORIZATION))
-               .thenReturn(null);
-        Mockito.when(request.getHeader(X_CF_TRUE_CLIENT_IP))
-               .thenReturn(CLIENT_IP);
-        AtomicRateLimiter rateLimiter = exhaustedRateLimiter();
-        Mockito.when(rateLimiterProvider.getRateLimiter(CLIENT_IP))
-               .thenReturn(rateLimiter);
+        Mockito.when(anonymousRateLimiter.tryConsume(CLIENT_IP))
+               .thenReturn(ConsumptionProbe.rejected(0, NANOS_TO_WAIT, NANOS_TO_WAIT));
 
         assertFalse(interceptor.preHandle(request, response, new Object()));
 
         Mockito.verify(response)
+               .setHeader(Constants.RATE_LIMIT, Integer.toString(CAPACITY));
+        Mockito.verify(response)
+               .setHeader(Constants.RATE_LIMIT_REMAINING, Long.toString(0));
+        Mockito.verify(response)
+               .setHeader(Mockito.eq(Constants.RATE_LIMIT_RESET), Mockito.anyString());
+        Mockito.verify(response)
                .sendError(HttpStatus.TOO_MANY_REQUESTS.value(), HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase());
-    }
-
-    private static AtomicRateLimiter newRateLimiter() {
-        RateLimiterConfig config = RateLimiterConfig.custom()
-                                                    .limitForPeriod(10)
-                                                    .limitRefreshPeriod(Duration.ofHours(1))
-                                                    .timeoutDuration(Duration.ZERO)
-                                                    .build();
-        return new AtomicRateLimiter("test", config);
-    }
-
-    private static AtomicRateLimiter exhaustedRateLimiter() {
-        RateLimiterConfig config = RateLimiterConfig.custom()
-                                                    .limitForPeriod(1)
-                                                    .limitRefreshPeriod(Duration.ofHours(1))
-                                                    .timeoutDuration(Duration.ZERO)
-                                                    .build();
-        AtomicRateLimiter rateLimiter = new AtomicRateLimiter("test", config);
-        rateLimiter.acquirePermission();
-        return rateLimiter;
     }
 
 }

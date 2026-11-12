@@ -13,6 +13,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.cloudfoundry.multiapps.controller.client.facade.oauth2.OAuth2AccessTokenWithAdditionalInfo;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.web.util.ClientIpResolver;
+import org.cloudfoundry.multiapps.controller.web.util.FailedAuthRateLimiter;
 import org.cloudfoundry.multiapps.controller.web.util.TokenGenerator;
 import org.cloudfoundry.multiapps.controller.web.util.TokenGeneratorFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,10 +36,13 @@ import static org.cloudfoundry.multiapps.controller.client.util.TokenProperties.
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 
 class AuthenticationLoaderFilterTest {
 
     private static final long EXPIRES_AT_IN_MILLIS = 1617114290L;
+    private static final String CLIENT_IP = "203.0.113.42";
 
     @Mock
     private HttpServletRequest request;
@@ -49,6 +54,10 @@ class AuthenticationLoaderFilterTest {
     private ApplicationConfiguration applicationConfiguration;
     @Mock
     private TokenGeneratorFactory tokenGeneratorFactory;
+    @Mock
+    private FailedAuthRateLimiter failedAuthRateLimiter;
+    @Mock
+    private ClientIpResolver clientIpResolver;
     @InjectMocks
     private AuthenticationLoaderFilter authenticationLoaderFilter;
 
@@ -56,6 +65,8 @@ class AuthenticationLoaderFilterTest {
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
+        Mockito.when(clientIpResolver.resolve(request))
+               .thenReturn(CLIENT_IP);
     }
 
     @Test
@@ -65,6 +76,8 @@ class AuthenticationLoaderFilterTest {
                                                                                                                          filterChain));
         assertEquals(HttpStatus.UNAUTHORIZED, HttpStatus.valueOf(responseStatusException.getStatusCode()
                                                                                         .value()));
+        Mockito.verify(failedAuthRateLimiter)
+               .recordFailedAttempt(CLIENT_IP, null);
     }
 
     @Test
@@ -76,6 +89,45 @@ class AuthenticationLoaderFilterTest {
         authenticationLoaderFilter.doFilterInternal(request, response, filterChain);
         Mockito.verify(filterChain)
                .doFilter(request, response);
+        Mockito.verify(failedAuthRateLimiter)
+               .checkAllowed(CLIENT_IP, null);
+        Mockito.verify(failedAuthRateLimiter, Mockito.never())
+               .recordFailedAttempt(any(), any());
+    }
+
+    @Test
+    void testBearerTokenGenerationFailureRecordsFailedAttempt() throws ServletException, IOException {
+        Mockito.when(request.getHeader(HttpHeaders.AUTHORIZATION))
+               .thenReturn("Bearer token");
+        TokenGenerator tokenGenerator = Mockito.mock(TokenGenerator.class);
+        Mockito.when(tokenGenerator.generate(any()))
+               .thenThrow(new RuntimeException("bad token"));
+        Mockito.when(tokenGeneratorFactory.createGenerator(any()))
+               .thenReturn(tokenGenerator);
+
+        assertThrows(RuntimeException.class,
+                     () -> authenticationLoaderFilter.doFilterInternal(request, response, filterChain));
+
+        Mockito.verify(failedAuthRateLimiter)
+               .checkAllowed(CLIENT_IP, null);
+        Mockito.verify(failedAuthRateLimiter)
+               .recordFailedAttempt(CLIENT_IP, null);
+    }
+
+    @Test
+    void testCheckAllowedRunsBeforeTokenGeneration() throws ServletException, IOException {
+        OAuth2AccessTokenWithAdditionalInfo mockedToken = getMockedOAuth2AccessTokenWithAdditionalInfo();
+        Mockito.when(request.getHeader(HttpHeaders.AUTHORIZATION))
+               .thenReturn("Bearer token");
+        mockTokenParsingStrategyFactory(mockedToken);
+
+        authenticationLoaderFilter.doFilterInternal(request, response, filterChain);
+
+        org.mockito.InOrder inOrder = Mockito.inOrder(failedAuthRateLimiter, tokenGeneratorFactory);
+        inOrder.verify(failedAuthRateLimiter)
+               .checkAllowed(eq(CLIENT_IP), isNull());
+        inOrder.verify(tokenGeneratorFactory)
+               .createGenerator(any());
     }
 
     public static Stream<Arguments> testWithInvalidAuthorizationHeaderBasicAuth() {

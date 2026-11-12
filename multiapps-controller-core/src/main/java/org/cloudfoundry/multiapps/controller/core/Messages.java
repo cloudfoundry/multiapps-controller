@@ -213,6 +213,13 @@ public final class Messages {
     public static final String OPERATION_RATE_LIMIT_PER_SPACE_REFILL_PER_HOUR = "Operation rate limit per space refill per hour: {0}";
     public static final String OPERATION_RATE_LIMIT_PER_USER_CAPACITY = "Operation rate limit per user capacity: {0}";
     public static final String OPERATION_RATE_LIMIT_PER_USER_REFILL_PER_HOUR = "Operation rate limit per user refill per hour: {0}";
+    public static final String FAILED_AUTH_RATE_LIMITING_ENABLED = "Failed authentication rate limiting enabled: {0}";
+    public static final String FAILED_AUTH_RATE_LIMIT_PER_IP_CAPACITY = "Failed authentication rate limit per IP capacity: {0}";
+    public static final String FAILED_AUTH_RATE_LIMIT_PER_IP_REFILL_PER_HOUR = "Failed authentication rate limit per IP refill per hour: {0}";
+    public static final String FAILED_AUTH_RATE_LIMIT_PER_USER_CAPACITY = "Failed authentication rate limit per user capacity: {0}";
+    public static final String FAILED_AUTH_RATE_LIMIT_PER_USER_REFILL_PER_HOUR = "Failed authentication rate limit per user refill per hour: {0}";
+    public static final String ANONYMOUS_RATE_LIMIT_PER_IP_CAPACITY = "Anonymous rate limit per IP capacity: {0}";
+    public static final String ANONYMOUS_RATE_LIMIT_PER_IP_REFILL_PER_HOUR = "Anonymous rate limit per IP refill per hour: {0}";
 
     // Debug messages
     public static final String DEPLOYMENT_DESCRIPTOR = "Deployment descriptor: {0}";

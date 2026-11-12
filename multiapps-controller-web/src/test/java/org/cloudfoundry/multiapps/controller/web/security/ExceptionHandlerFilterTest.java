@@ -10,11 +10,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.cloudfoundry.multiapps.controller.web.util.OperationRateLimitExceededException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -61,6 +63,26 @@ class ExceptionHandlerFilterTest {
         assertDoesNotThrow(() -> exceptionHandlerFilter.doFilterInternal(request, response, filterChain));
         Mockito.verify(response)
                .setStatus(HttpStatus.UNAUTHORIZED.value());
+    }
+
+    @Test
+    void testDoInternalFilterThrowingOperationRateLimitExceededException() throws IOException, ServletException {
+        OperationRateLimitExceededException exception = new OperationRateLimitExceededException("Too many requests", 42L);
+        PrintWriter printWriter = Mockito.mock(PrintWriter.class);
+        Mockito.when(response.getWriter())
+               .thenReturn(printWriter);
+        Mockito.doThrow(exception)
+               .when(filterChain)
+               .doFilter(request, response);
+
+        assertDoesNotThrow(() -> exceptionHandlerFilter.doFilterInternal(request, response, filterChain));
+
+        Mockito.verify(response)
+               .setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+        Mockito.verify(response)
+               .setHeader(HttpHeaders.RETRY_AFTER, "42");
+        Mockito.verify(printWriter)
+               .write("Too many requests");
     }
 
     @Test
