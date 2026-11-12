@@ -9,8 +9,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.http.HttpStatus;
+import org.cloudfoundry.multiapps.controller.web.util.OperationRateLimitExceededException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -20,16 +22,25 @@ import org.springframework.web.server.ResponseStatusException;
 public class ExceptionHandlerFilter extends OncePerRequestFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionHandlerFilter.class);
+    private static final String TEXT_PLAIN_UTF_8 = "text/plain; charset=UTF-8";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws ServletException, IOException {
         try {
             filterChain.doFilter(request, response);
+        } catch (OperationRateLimitExceededException e) {
+            LOGGER.error(e.getMessage(), e);
+            response.setStatus(org.springframework.http.HttpStatus.TOO_MANY_REQUESTS.value());
+            response.setHeader(HttpHeaders.RETRY_AFTER, Long.toString(e.getRetryAfterSeconds()));
+            response.setContentType(TEXT_PLAIN_UTF_8);
+            response.getWriter()
+                    .write(e.getMessage());
         } catch (ResponseStatusException e) {
             LOGGER.error(e.getMessage(), e);
             response.setStatus(e.getStatusCode()
                                 .value());
+            response.setContentType(TEXT_PLAIN_UTF_8);
             response.getWriter()
                     .write(e.getMessage());
         } catch (InsufficientAuthenticationException e) {

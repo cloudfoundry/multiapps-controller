@@ -2,62 +2,48 @@ package org.cloudfoundry.multiapps.controller.web.interceptors;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import io.github.resilience4j.ratelimiter.RateLimiterConfig;
-import io.github.resilience4j.ratelimiter.internal.AtomicRateLimiter;
-import io.github.resilience4j.ratelimiter.internal.AtomicRateLimiter.AtomicRateLimiterMetrics;
+
+import io.github.bucket4j.ConsumptionProbe;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.cloudfoundry.multiapps.controller.web.Constants;
-import org.cloudfoundry.multiapps.controller.web.util.RateLimiterProvider;
-import org.springframework.http.HttpHeaders;
+import org.cloudfoundry.multiapps.controller.web.util.AnonymousRateLimiter;
+import org.cloudfoundry.multiapps.controller.web.util.ClientIpResolver;
 import org.springframework.http.HttpStatus;
 
+/**
+ * Throttles requests by source IP using a cluster-aware token bucket. Unlike authentication, this choke point also covers paths that bypass
+ * the security filter chain (such as {@code /public/**}) and anonymous callers, so it throttles every request regardless of whether an
+ * {@code Authorization} header is present.
+ */
 @Named
 public class RateLimitingInterceptor implements CustomHandlerInterceptor {
 
-    private final RateLimiterProvider rateLimiterProvider;
+    private final AnonymousRateLimiter anonymousRateLimiter;
+    private final ClientIpResolver clientIpResolver;
 
     @Inject
-    public RateLimitingInterceptor(RateLimiterProvider rateLimiterProvider) {
-        this.rateLimiterProvider = rateLimiterProvider;
+    public RateLimitingInterceptor(AnonymousRateLimiter anonymousRateLimiter, ClientIpResolver clientIpResolver) {
+        this.anonymousRateLimiter = anonymousRateLimiter;
+        this.clientIpResolver = clientIpResolver;
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if (!shouldRateLimit(request)) {
-            return true;
-        }
-        String ipAddress = resolveClientIp(request);
-        AtomicRateLimiter rateLimiter = rateLimiterProvider.getRateLimiter(ipAddress);
+        String ipAddress = clientIpResolver.resolve(request);
+        ConsumptionProbe probe = anonymousRateLimiter.tryConsume(ipAddress);
 
-        boolean hasAcquiredPermission = rateLimiter.acquirePermission();
-        AtomicRateLimiterMetrics metrics = rateLimiter.getDetailedMetrics();
-        RateLimiterConfig config = rateLimiter.getRateLimiterConfig();
+        response.setHeader(Constants.RATE_LIMIT, Integer.toString(anonymousRateLimiter.getCapacity()));
+        response.setHeader(Constants.RATE_LIMIT_REMAINING, Long.toString(probe.getRemainingTokens()));
 
-        response.setHeader(Constants.RATE_LIMIT, Integer.toString(config.getLimitForPeriod()));
-        response.setHeader(Constants.RATE_LIMIT_REMAINING, Integer.toString(metrics.getAvailablePermissions()));
-
-        if (!hasAcquiredPermission) {
-            response.setHeader(Constants.RATE_LIMIT_RESET, Long.toString(getUtcTimeForNextReset(metrics.getNanosToWait())));
+        if (!probe.isConsumed()) {
+            response.setHeader(Constants.RATE_LIMIT_RESET, Long.toString(getUtcTimeForNextReset(probe.getNanosToWaitForRefill())));
             response.sendError(HttpStatus.TOO_MANY_REQUESTS.value(), HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase());
             return false;
         }
         return true;
-    }
-
-    private static boolean shouldRateLimit(HttpServletRequest request) {
-        return request.getHeader(HttpHeaders.AUTHORIZATION) == null;
-    }
-
-    private static String resolveClientIp(HttpServletRequest request) {
-        String trueClientIp = request.getHeader(Constants.X_CF_TRUE_CLIENT_IP_HEADER);
-        if (trueClientIp != null && !trueClientIp.isBlank()) {
-
-            return trueClientIp;
-        }
-        return request.getRemoteAddr();
     }
 
     private static long getUtcTimeForNextReset(long nanosToWaitForReset) {
