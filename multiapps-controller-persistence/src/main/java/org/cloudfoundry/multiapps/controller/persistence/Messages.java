@@ -61,6 +61,9 @@ public final class Messages {
     public static final String CANNOT_PARSE_CONTAINER_URI_OF_OBJECT_STORE = "Cannot parse container_uri of object store";
     public static final String MISSING_CONTAINER_URI_IN_THE_CREDENTIALS = "Missing container uri in the credentials";
     public static final String INVALID_LOG_FILE = "Invalid log file";
+    public static final String ALI_OBJECT_STORE_CONNECTION_TEST_FAILED_FOR_BUCKET_0_ENDPOINT_1 = "Connection test to Ali object store failed for bucket \"{0}\" at endpoint \"{1}\". \"{2}\"";
+    public static final String ALI_OBJECT_STORE_OPERATION_0_FAILED_FOR_KEY_1 = "Ali object store operation \"{0}\" failed for key \"{1}\". \"{2}\"";
+    public static final String ALI_OBJECT_STORE_LISTING_FAILED_FOR_BUCKET_0 = "Ali object store listing failed for bucket \"{0}\". \"{1}\"";
 
     // WARN log messages:
     public static final String COULD_NOT_CLOSE_RESULT_SET = "Could not close result set.";
@@ -78,6 +81,11 @@ public final class Messages {
     public static final String TIME_ELAPSED_FOR_GCP_OS_UPLOAD_0_IN_MILLIS = "Time elapsed for GCP object store upload: {0} in millis";
     public static final String TIME_ELAPSED_FOR_AZURE_OS_UPLOAD_0_IN_MILLIS = "Time elapsed for Azure object store upload: {0} in millis";
     public static final String TIME_ELAPSED_FOR_AWS_OS_UPLOAD_0_IN_MILLIS = "Time elapsed for AWS object store upload: {0} in millis";
+    public static final String TIME_ELAPSED_FOR_ALI_OS_UPLOAD_0_IN_MILLIS = "Time elapsed for Ali object store upload: {0} in millis";
+    public static final String MISSING_ENDPOINT_OR_HOST_FOR_ALI_OBJECT_STORE = "AliCloud OSS requires either 'endpoint' or 'host' in the object store service credentials";
+    public static final String INITIALIZING_ALI_OBJECT_STORE_CLIENT_FOR_BUCKET_0_ENDPOINT_1_REGION_2 = "Initializing Ali object store client for bucket \"{0}\" at endpoint \"{1}\", region \"{2}\"";
+    public static final String ALI_SERVICE_ERROR_CODE_0_REQUEST_ID_1_MESSAGE_2 = "AliCloud OSS service error [errorCode=\"{0}\", requestId=\"{1}\"]: \"{2}\"";
+    public static final String ALI_NETWORK_ERROR_CAUSE_0_MESSAGE_1 = "AliCloud OSS network/client error [cause=\"{0}\"]: \"{1}\"";
 
     // DEBUG log messages:
     public static final String STORED_FILE_0 = "Stored file: \"{0}\"";
@@ -95,6 +103,7 @@ public final class Messages {
     public static final String DELETED_0_SECRET_TOKENS_WITH_EXPIRATION_DATE_1 = "Deleted secret tokens \"{0}\" with an expiration date \"{1}\"";
     public static final String CREATING_WEBCLIENT_WITH_MTLS_CONFIGURATION_FOR_ENDPOINT_1 = "Creating WebClient with mTLS configuration for endpoint: {0}";
     public static final String FAILED_TO_DELETE_FILE_0_IN_OBJECT_STORE_REASON_1 = "Failed to delete file \"{0}\" in object store. Reason: {1}";
+    public static final String OBJECT_STORE_DID_NOT_CONFIRM_DELETION = "Object store did not confirm deletion";
     public static final String S3_UPLOAD_FAILED_FILE_0_SIZE_1 = "S3 upload failed for file \"{0}\" (size={1}). Root cause chain: {2}";
 
     protected Messages() {

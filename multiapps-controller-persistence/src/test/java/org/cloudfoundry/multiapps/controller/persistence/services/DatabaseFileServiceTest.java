@@ -1,12 +1,5 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -27,10 +20,10 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.xml.bind.DatatypeConverter;
-
 import org.apache.commons.io.IOUtils;
 import org.cloudfoundry.multiapps.common.util.DigestHelper;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
+import org.cloudfoundry.multiapps.controller.persistence.model.FileDeletionResult;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.test.TestDataSourceProvider;
@@ -39,6 +32,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DatabaseFileServiceTest {
 
@@ -179,12 +179,12 @@ class DatabaseFileServiceTest {
         setModificationDate(fileEntryToDelete2, pastMoment);
 
         LocalDateTime deleteDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(currentMillis - oldFilesTtl), ZoneId.systemDefault());
-        int deletedFiles = fileService.deleteModifiedBefore(deleteDate);
+        FileDeletionResult deletedFiles = fileService.deleteModifiedBefore(deleteDate);
 
         assertNotNull(fileService.getFile(SPACE_1, fileEntryToRemain1.getId()));
         assertNotNull(fileService.getFile(SPACE_2, fileEntryToRemain2.getId()));
 
-        assertEquals(2, deletedFiles);
+        assertEquals(2, deletedFiles.deletedFromDatabase());
         assertNull(fileService.getFile(SPACE_1, fileEntryToDelete1.getId()));
         assertNull(fileService.getFile(SPACE_2, fileEntryToDelete2.getId()));
     }
@@ -195,7 +195,7 @@ class DatabaseFileServiceTest {
         verifyFileIsStored(fileEntry);
         InputStream inputStream = null;
         InputStream existingFileStream = null;
-           try {
+        try {
             inputStream = fileService.openInputStream(SPACE_1, fileEntry.getId());
             existingFileStream = getResource(PIC_RESOURCE_NAME);
             byte[] fileContent = IOUtils.toByteArray(inputStream);

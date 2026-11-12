@@ -1,17 +1,5 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import jakarta.xml.bind.DatatypeConverter;
-import org.cloudfoundry.multiapps.controller.persistence.Constants;
-import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
-import org.cloudfoundry.multiapps.controller.persistence.Messages;
-import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
-import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
-import org.cloudfoundry.multiapps.controller.persistence.query.providers.ExternalSqlFileQueryProvider;
-import org.cloudfoundry.multiapps.controller.persistence.query.providers.SqlFileQueryProvider;
-import org.cloudfoundry.multiapps.controller.persistence.util.SqlQueryExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,6 +15,19 @@ import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+
+import jakarta.xml.bind.DatatypeConverter;
+import org.cloudfoundry.multiapps.controller.persistence.Constants;
+import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
+import org.cloudfoundry.multiapps.controller.persistence.Messages;
+import org.cloudfoundry.multiapps.controller.persistence.model.FileDeletionResult;
+import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.query.providers.ExternalSqlFileQueryProvider;
+import org.cloudfoundry.multiapps.controller.persistence.query.providers.SqlFileQueryProvider;
+import org.cloudfoundry.multiapps.controller.persistence.util.SqlQueryExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FileService {
 
@@ -150,9 +151,10 @@ public class FileService {
         return deleteFileAttributesBySpaceIds(spaceIds);
     }
 
-    public int deleteModifiedBefore(LocalDateTime modificationTime) throws FileStorageException {
-        int deletedItems = fileStorage.deleteFilesModifiedBefore(modificationTime);
-        return deleteFileAttributesModifiedBefore(modificationTime) + deletedItems;
+    public FileDeletionResult deleteModifiedBefore(LocalDateTime modificationTime) throws FileStorageException {
+        int deletedFilesFromObjectStore = fileStorage.deleteFilesModifiedBefore(modificationTime);
+        int deletedFileAttributesFromDatabase = deleteFileAttributesModifiedBefore(modificationTime);
+        return new FileDeletionResult(deletedFilesFromObjectStore, deletedFileAttributesFromDatabase);
     }
 
     public boolean deleteFile(String space, String id) throws FileStorageException {

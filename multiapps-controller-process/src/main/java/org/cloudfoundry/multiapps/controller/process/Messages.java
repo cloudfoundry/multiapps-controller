@@ -307,7 +307,8 @@ public class Messages {
     public static final String WILL_CLEAN_UP_DATA_STORED_BEFORE_0 = "Will clean-up data stored before: {0}";
     public static final String WILL_DELETE_HISTORIC_PROCESSES_BEFORE_0 = "Will delete Flowable historic processes before: {0}";
     public static final String DELETED_HISTORIC_PROCESSES_0 = "Deleted historic processes: {0}";
-    public static final String DELETED_FILES_0 = "Deleted files: {0}";
+    public static final String DELETED_ACTUAL_FILES_FROM_OBJECT_STORE_0_AND_DELETED_FILE_ATTRIBUTES_ENTRIES_FROM_DATABASE_1 = "Deleted actual files from object store {0} and deleted file attributes entries from database {1}";
+    public static final String DELETED_ACTUAL_FILES_FROM_DATABASE_0 = "Deleted actual files from database {0}";
     public static final String DELETED_FILE_UPLOAD_JOBS_0 = "Deleted file upload jobs: {0}";
     public static final String FILES_FOR_OPERATION_0_WERE_UPDATED_1 = "Files for operation {0} were updated: {1}";
     public static final String ABORTED_OPERATIONS_0 = "Aborted operations: {0}";
