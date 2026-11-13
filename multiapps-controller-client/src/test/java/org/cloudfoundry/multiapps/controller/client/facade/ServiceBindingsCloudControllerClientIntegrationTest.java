@@ -33,6 +33,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.InstanceInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.InstancesInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.JobState;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServicePlanVisibility;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ImmutableApplicationToCreateDto;
@@ -105,6 +106,10 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
         }
 
         if (pushedServiceBroker) {
+            System.out.println("[SETUP] making the broker's service plans public ...");
+            client.updateServicePlanVisibilityForBroker(IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME, ServicePlanVisibility.PUBLIC);
+            System.out.println("[SETUP] service plans made public");
+
             System.out.println("[SETUP] pushing the binding test application ...");
             pushApplication();
             System.out.println("[SETUP] setUp complete");
