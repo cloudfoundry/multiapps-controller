@@ -12,8 +12,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
-import org.cloudfoundry.multiapps.controller.client.facade.broker.ImmutableServiceBrokerConfiguration;
-import org.cloudfoundry.multiapps.controller.client.facade.broker.ServiceBrokerConfiguration;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
@@ -38,11 +36,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.SERVICE_BROKER_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -82,7 +76,7 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
         pushServiceBrokerApplication(brokerPath);
 
         try {
-            createServiceBroker();
+            createServiceBroker(IntegrationTestConstants.SERVICE_BROKER_NAME, SERVICE_BROKER_ENDPOINT);
             pushedServiceBroker = true;
         } catch (CloudOperationException e) {
             if (e.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
@@ -102,30 +96,15 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
 
     @AfterAll
     static void tearDown() {
-        if (!pushedServiceBroker) {
-            return;
-        }
-
-        deleteApplication(APP_NAME);
-
-        try {
-            String jobId = client.deleteServiceBroker(IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME);
-            pollServiceBrokerOperation(jobId);
-        } catch (CloudOperationException e) {
-            if (e.getStatusCode() != HttpStatus.NOT_FOUND) {
-                throw e;
-            }
-        }
-
-        deleteApplication(IntegrationTestConstants.SERVICE_BROKER_BINDINGS_APP_NAME);
-
-        try {
-            client.deleteRoute(IntegrationTestConstants.SERVICE_BROKER_BINDINGS_HOST, client.getDefaultDomain()
-                                                                                            .getName(),
+        if (pushedServiceBroker) {
+            String jobId = client.deleteServiceBroker(IntegrationTestConstants.SERVICE_BROKER_NAME);
+            pollServiceBrokerOperation(jobId, IntegrationTestConstants.SERVICE_BROKER_NAME);
+            client.deleteApplication(IntegrationTestConstants.SERVICE_BROKER_APP_NAME);
+            client.deleteRoute(IntegrationTestConstants.SERVICE_BROKER_HOST, client.getDefaultDomain()
+                                                                                   .getName(),
                                null);
-        } catch (CloudOperationException e) {
-            LOGGER.warn(MessageFormat.format("Deletion of route \"{0}\" failed during teardown: \"{1}\"",
-                                             IntegrationTestConstants.SERVICE_BROKER_BINDINGS_HOST, e.getMessage()));
+            deleteApplication(APP_NAME);
+            deleteApplication(IntegrationTestConstants.SERVICE_BROKER_BINDINGS_APP_NAME);
         }
     }
 
@@ -426,75 +405,48 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
                                               .build();
     }
 
-    private static void createServiceBroker() {
+    private static void createServiceBroker(String serviceBrokerName, String serviceBrokerEndpoint) {
         String defaultDomain = client.getDefaultDomain()
                                      .getName();
-
         String targetSpaceGuid = target.getMetadata()
                                        .getGuid()
                                        .toString();
-
-        String brokerUrl = getServiceBrokerUrl(SERVICE_BROKER_ENDPOINT, defaultDomain);
-
-        configureServiceBroker();
-        waitForBrokerCatalogToBeReachable(brokerUrl);
-
         String jobId = client.createServiceBroker(ImmutableCloudServiceBroker.builder()
-                                                                             .name(IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME)
+                                                                             .name(serviceBrokerName)
                                                                              .username(IntegrationTestConstants.SERVICE_BROKER_USERNAME)
                                                                              .password(IntegrationTestConstants.SERVICE_BROKER_PASSWORD)
-                                                                             .url(brokerUrl)
+                                                                             .url(getServiceBrokerUrl(serviceBrokerEndpoint, defaultDomain))
                                                                              .spaceGuid(targetSpaceGuid)
                                                                              .build());
-        pollServiceBrokerOperation(jobId);
+        pollServiceBrokerOperation(jobId, serviceBrokerName);
     }
 
     private static String getServiceBrokerUrl(String serviceBrokerEndpoint, String domain) {
-        return MessageFormat.format("https://{0}.{1}/{2}", IntegrationTestConstants.SERVICE_BROKER_BINDINGS_HOST, domain,
-                                    serviceBrokerEndpoint);
+        return MessageFormat.format("https://{0}.{1}/{2}", IntegrationTestConstants.SERVICE_BROKER_HOST, domain, serviceBrokerEndpoint);
     }
 
-    private static void configureServiceBroker() {
-        ServiceBrokerConfiguration serviceBrokerConfiguration = ImmutableServiceBrokerConfiguration.builder()
-                                                                                                   .asyncDurationForServiceCredentialBindingsInMillis(
-                                                                                                       100)
-                                                                                                   .build();
-        String serviceBrokerUrl = getServiceBrokerUrl(SERVICE_BROKER_ENDPOINT, client.getDefaultDomain()
-                                                                                     .getName());
-        WebClient.create()
-                 .put()
-                 .uri(serviceBrokerUrl)
-                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                 .body(BodyInserters.fromValue(serviceBrokerConfiguration))
-                 .retrieve()
-                 .toBodilessEntity()
-                 .block();
-    }
-
-    private static void waitForBrokerCatalogToBeReachable(String brokerUrl) {
-        String catalogUrl = brokerUrl + "/v2/catalog";
-        WebClient webClient = WebClient.create();
-
-        for (int attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
-            try {
-                webClient.get()
-                         .uri(catalogUrl)
-                         .headers(headers -> headers.setBasicAuth(IntegrationTestConstants.SERVICE_BROKER_USERNAME,
-                                                                  IntegrationTestConstants.SERVICE_BROKER_PASSWORD))
-                         .retrieve()
-                         .toBodilessEntity()
-                         .block();
-
-                return;
-            } catch (RuntimeException e) {
-                LOGGER.warn(MessageFormat.format("Service broker catalog \"{0}\" not reachable yet (attempt \"{1}\"): \"{2}\"", catalogUrl,
-                                                 attempt + 1, e.getMessage()));
-                MiscUtil.sleep(TimeUnit.SECONDS.toMillis(1));
-            }
+    private static void pollServiceBrokerOperation(String jobId, String serviceBrokerName) {
+        CloudAsyncJob job = client.getAsyncJob(jobId);
+        while (job.getState() != JobState.COMPLETE && !hasAsyncJobFailed(job)) {
+            sleep(TimeUnit.SECONDS, 1);
+            job = client.getAsyncJob(jobId);
         }
+        if (hasAsyncJobFailed(job)) {
+            fail(MessageFormat.format("Polling async operation of service broker \"{0}\" failed with \"{1}\"", serviceBrokerName,
+                                      job.getErrors()));
+        }
+    }
 
-        fail(MessageFormat.format("Service broker catalog \"{0}\" did not become reachable after \"{1}\" attempts", catalogUrl,
-                                  MAX_POLL_ATTEMPTS));
+    private static void sleep(TimeUnit timeUnit, int value) {
+        try {
+            Thread.sleep(timeUnit.toMillis(value));
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static boolean hasAsyncJobFailed(CloudAsyncJob job) {
+        return job.getState() == JobState.FAILED;
     }
 
     private static void pollServiceBrokerOperation(String jobId) {
