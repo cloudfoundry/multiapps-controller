@@ -23,6 +23,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudProcess;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.HealthCheckType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudDomain;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceBroker;
@@ -39,6 +40,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCrea
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ImmutableApplicationToCreateDto;
 import org.cloudfoundry.multiapps.controller.client.facade.util.JsonUtil;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -182,7 +184,7 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
     @AfterAll
     static void tearDown() {
         if (!pushedServiceBroker) {
-            return;
+            return; // cleanup no-op: nothing was provisioned
         }
 
         deleteApplication(APP_NAME);
@@ -191,7 +193,9 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
             String jobId = client.deleteServiceBroker(IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME);
             pollServiceBrokerOperation(jobId);
         } catch (CloudOperationException e) {
-            if (e.getStatusCode() != HttpStatus.NOT_FOUND) {
+            // Best-effort cleanup: a NOT_FOUND broker is already gone, and a failed delete job must not mask
+            // the test outcome by crashing @AfterAll. Swallow both.
+            if (e.getStatusCode() != HttpStatus.NOT_FOUND && e.getStatusCode() != HttpStatus.INTERNAL_SERVER_ERROR) {
                 throw e;
             }
         }
@@ -210,9 +214,7 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
     @Test
     @DisplayName("Bind a service instance to an application and list the binding using all the different ways")
     void bindServiceInstanceAndListBindings() {
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
         try {
             createManagedService();
             UUID appGuid = client.getApplicationGuid(APP_NAME);
@@ -252,9 +254,7 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
     @Test
     @DisplayName("Unbind a service instance and verify the binding is removed")
     void unbindServiceInstance() {
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
         try {
             createManagedService();
             UUID appGuid = client.getApplicationGuid(APP_NAME);
@@ -279,9 +279,7 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
     @Test
     @DisplayName("Unbinding operation when no binding exists throws a CloudOperationException")
     void unbindWhenNoBindingExistsThrows() {
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
         try {
             createManagedService();
             assertThrows(CloudOperationException.class, () -> client.unbindServiceInstance(APP_NAME, SERVICE_NAME));
@@ -295,9 +293,7 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
     @Test
     @DisplayName("An application with no bindings returns an empty binding list")
     void appWithoutBindingsReturnsEmptyList() {
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
 
         UUID appGuid = client.getApplicationGuid(APP_NAME);
         assertTrue(client.getAppBindings(appGuid)
@@ -307,9 +303,7 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
     @Test
     @DisplayName("Set service binding metadata and then unset the label by sending a null value")
     void updateServiceBindingMetadata() {
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
 
         try {
             createManagedService();
@@ -342,9 +336,7 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
         String bindingParameterKey = "binding-param-key";
         String bindingParameterValue = "binding-param-value";
 
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
 
         Map<String, Object> bindParameters = Map.of(bindingParameterKey, bindingParameterValue);
 
@@ -504,6 +496,12 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
 
         Staging staging = ImmutableStaging.builder()
                                           .addBuildpack(IntegrationTestConstants.JAVA_BUILDPACK)
+                                          // Gate readiness on the catalog endpoint CF itself fetches at broker registration.
+                                          // A port health check reports RUNNING as soon as Tomcat opens its port, before
+                                          // budgie's webapp context has mounted and parsed the CATALOG env, so a fresh
+                                          // createServiceBroker races ahead and CF's catalog fetch returns a Tomcat 404.
+                                          .healthCheckType(HealthCheckType.HTTP.toString())
+                                          .healthCheckHttpEndpoint("/" + SERVICE_BROKER_ENDPOINT + "/v2/catalog")
                                           .build();
 
         Set<CloudRoute> routes = Set.of(ImmutableCloudRoute.builder()
@@ -554,7 +552,13 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
             CloudAsyncJob job = client.getAsyncJob(jobId);
 
             if (job.getState() == JobState.FAILED) {
-                fail(MessageFormat.format("Polling async operation of service broker failed with \"{0}\"", job.getErrors()));
+                // Throw a CloudOperationException (not a JUnit fail()/AssertionFailedError) so the async-job
+                // failure flows through setUp's catch (CloudOperationException) and is reported as an
+                // attributed "Service broker creation failed!" instead of a bare assertion error buried in a
+                // polling helper. Carrying a non-422 status guarantees it is NOT silently swallowed.
+                throw new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR, "Service broker async operation failed",
+                                                  MessageFormat.format("Polling async operation of service broker failed with \"{0}\"",
+                                                                       job.getErrors()));
             }
 
             if (job.getState() == JobState.COMPLETE) {
@@ -564,7 +568,8 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
             MiscUtil.sleep(TimeUnit.SECONDS.toMillis(1));
         }
 
-        fail(MessageFormat.format("Timeout polling the service broker job \"{0}\"", jobId));
+        throw new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR, "Service broker async operation timed out",
+                                          MessageFormat.format("Timeout polling the service broker job \"{0}\"", jobId));
     }
 
 }

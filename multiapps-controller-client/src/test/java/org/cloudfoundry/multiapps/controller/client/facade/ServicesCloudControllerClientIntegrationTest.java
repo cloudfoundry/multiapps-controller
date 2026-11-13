@@ -32,6 +32,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceIn
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceOffering;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServicePlan;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.HealthCheckType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudDomain;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceBroker;
@@ -49,6 +50,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCrea
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ImmutableApplicationToCreateDto;
 import org.cloudfoundry.multiapps.controller.client.facade.util.JsonUtil;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -255,9 +257,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     @MethodSource
     @DisplayName("Create a managed service")
     void createManagedService(String serviceName, String brokerName) {
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
         try {
             client.createServiceInstance(ImmutableCloudServiceInstance.builder()
                                                                       .name(serviceName)
@@ -279,9 +279,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     @Test
     @DisplayName("Update managed service")
     void updateManagedService() {
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
         String serviceName = "test-service";
         Map<String, Object> parameters = Map.of("test-key", "test-value", "test-key-2", "test-value-2");
         List<String> serviceTags = List.of("test", "prod");
@@ -352,9 +350,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     @MethodSource
     @DisplayName("Get service instance")
     void getServiceInstance(String serviceName, boolean required, Class<? extends Exception> expectedException, boolean expectedService) {
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
         String serviceNameToCreate = "test-service";
 
         try {
@@ -383,9 +379,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     @Test
     @DisplayName("Delete service instance")
     void deleteServiceInstance() {
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
         String serviceName = "test-service";
 
         try {
@@ -421,9 +415,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     @Test
     @DisplayName("Create space scoped service broker")
     void createSpaceScopedServiceBroker() {
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
         String serviceBrokerName = "test-space-scoped-service-broker";
         String defaultDomain = client.getDefaultDomain()
                                      .getName();
@@ -449,9 +441,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     @Test
     @DisplayName("Update space scoped service broker")
     void updateSpaceScopedServiceBroker() {
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
         String serviceBrokerName = "test-space-scoped-service-broker";
         String targetSpaceGuid = target.getMetadata()
                                        .getGuid()
@@ -492,9 +482,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     @Test
     @DisplayName("Delete space scoped service broker")
     void deleteSpaceScopedServiceBroker() {
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
         String serviceBrokerName = "test-space-scoped-service-broker";
 
         try {
@@ -516,9 +504,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     @Test
     @DisplayName("Get service offerings includes the broker's offering with its plans")
     void getServiceOfferings() {
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
 
         List<CloudServiceOffering> offerings = client.getServiceOfferings();
 
@@ -541,9 +527,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     @Test
     @DisplayName("Update service plan visibility for broker makes the broker's plans public")
     void updateServicePlanVisibilityForBroker() {
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
 
         client.updateServicePlanVisibilityForBroker(IntegrationTestConstants.SERVICE_BROKER_NAME, ServicePlanVisibility.PUBLIC);
 
@@ -617,9 +601,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
 
     @Test
     void testFetchingOfFailedServiceKey() {
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
         String testServiceInstanceName = "service-instance-with-failed-service-keys";
         try {
             client.createServiceInstance(ImmutableCloudServiceInstance.builder()
@@ -732,6 +714,12 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                                      .getName();
         Staging staging = ImmutableStaging.builder()
                                           .addBuildpack(IntegrationTestConstants.JAVA_BUILDPACK)
+                                          // Gate readiness on the catalog endpoint CF itself fetches at broker registration.
+                                          // A port health check reports RUNNING as soon as Tomcat opens its port, before
+                                          // budgie's webapp context has mounted and parsed the CATALOG env, so a fresh
+                                          // createServiceBroker races ahead and CF's catalog fetch returns a Tomcat 404.
+                                          .healthCheckType(HealthCheckType.HTTP.toString())
+                                          .healthCheckHttpEndpoint("/" + SERVICE_BROKER_ENDPOINT + "/v2/catalog")
                                           .build();
         Set<CloudRoute> routes = Set.of(ImmutableCloudRoute.builder()
                                                            .host(IntegrationTestConstants.SERVICE_BROKER_HOST)
