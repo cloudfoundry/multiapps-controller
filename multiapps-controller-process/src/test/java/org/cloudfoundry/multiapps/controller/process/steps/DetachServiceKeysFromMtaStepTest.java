@@ -5,10 +5,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
@@ -61,14 +62,14 @@ class DetachServiceKeysFromMtaStepTest extends SyncFlowableStepTest<DetachServic
     }
 
     private static Metadata getMetadataWithoutMtaFields() {
-        return Metadata.builder()
-                       .label(MtaMetadataLabels.MTA_ID, null)
-                       .label(MtaMetadataLabels.MTA_NAMESPACE, null)
-                       .label(MtaMetadataLabels.SPACE_GUID, null)
-                       .annotation(MtaMetadataAnnotations.MTA_ID, null)
-                       .annotation(MtaMetadataAnnotations.MTA_VERSION, null)
-                       .annotation(MtaMetadataAnnotations.MTA_RESOURCE, null)
-                       .annotation(MtaMetadataLabels.MTA_NAMESPACE, null)
+        return ImmutableMetadata.builder()
+                       .putLabel(MtaMetadataLabels.MTA_ID, null)
+                       .putLabel(MtaMetadataLabels.MTA_NAMESPACE, null)
+                       .putLabel(MtaMetadataLabels.SPACE_GUID, null)
+                       .putAnnotation(MtaMetadataAnnotations.MTA_ID, null)
+                       .putAnnotation(MtaMetadataAnnotations.MTA_VERSION, null)
+                       .putAnnotation(MtaMetadataAnnotations.MTA_RESOURCE, null)
+                       .putAnnotation(MtaMetadataLabels.MTA_NAMESPACE, null)
                        .build();
     }
 
@@ -87,14 +88,14 @@ class DetachServiceKeysFromMtaStepTest extends SyncFlowableStepTest<DetachServic
     private static DeployedMtaServiceKey createDeployedServiceKey(String name, boolean generateMetadata) {
         Metadata v3Metadata;
         if (generateMetadata) {
-            v3Metadata = Metadata.builder()
-                                 .label(MtaMetadataLabels.MTA_ID, "098f6bcd4621d373cade4e832627b4f6")
-                                 .annotation(MtaMetadataAnnotations.MTA_ID, "test")
-                                 .annotation(MtaMetadataAnnotations.MTA_VERSION, "1")
-                                 .annotation(MtaMetadataAnnotations.MTA_RESOURCE, "test")
+            v3Metadata = ImmutableMetadata.builder()
+                                 .putLabel(MtaMetadataLabels.MTA_ID, "098f6bcd4621d373cade4e832627b4f6")
+                                 .putAnnotation(MtaMetadataAnnotations.MTA_ID, "test")
+                                 .putAnnotation(MtaMetadataAnnotations.MTA_VERSION, "1")
+                                 .putAnnotation(MtaMetadataAnnotations.MTA_RESOURCE, "test")
                                  .build();
         } else {
-            v3Metadata = Metadata.builder()
+            v3Metadata = ImmutableMetadata.builder()
                                  .labels(Collections.emptyMap())
                                  .annotations(Collections.emptyMap())
                                  .build();

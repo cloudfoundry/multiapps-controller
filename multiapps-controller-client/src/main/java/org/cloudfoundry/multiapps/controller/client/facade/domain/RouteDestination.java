@@ -21,6 +21,7 @@ public abstract class RouteDestination extends CloudEntity implements Derivable<
     @Nullable
     public abstract Integer getWeight();
 
+    @Nullable
     public abstract String getProtocol();
 
     @Override

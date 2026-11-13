@@ -3,7 +3,7 @@ package org.cloudfoundry.multiapps.controller.client.facade.domain;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.cloudfoundry.multiapps.controller.client.facade.Nullable;
-import org.cloudfoundry.AllowNulls;
+import org.cloudfoundry.multiapps.controller.client.facade.AllowNulls;
 import org.immutables.value.Value;
 
 import java.util.Map;

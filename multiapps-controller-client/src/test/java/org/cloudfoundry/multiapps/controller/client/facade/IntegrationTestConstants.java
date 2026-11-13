@@ -30,4 +30,9 @@ public class IntegrationTestConstants {
     public static final String SERVICE_OFFERING = "finch";
     public static final String SERVICE_PLAN = "grey";
     public static final String SERVICE_PLAN_2 = "white";
+
+    // Second service broker constants
+    public static final String SERVICE_BROKER_BINDINGS_APP_NAME = "binding-test-service-broker-app";
+    public static final String SERVICE_BROKER_BINDINGS_NAME = "binding-test-service-broker";
+    public static final String SERVICE_BROKER_BINDINGS_HOST = "binding-test-service-foo-broker";
 }

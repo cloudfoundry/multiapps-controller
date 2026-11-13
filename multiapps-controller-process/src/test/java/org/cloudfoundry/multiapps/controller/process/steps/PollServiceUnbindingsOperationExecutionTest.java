@@ -2,13 +2,13 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.List;
 import java.util.UUID;
-import org.cloudfoundry.client.v3.jobs.JobState;
-import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudAsyncJob;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceInstance;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.JobState;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceInstanceType;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;

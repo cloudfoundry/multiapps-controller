@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.ServiceBindingOperationCallback;
@@ -32,6 +31,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudTask;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.DockerInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.DropletInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.InstancesInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServicePlanVisibility;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Upload;
@@ -273,12 +273,6 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     public List<CloudRoute> getApplicationRoutes(UUID applicationGuid) {
         logger.debug(Messages.GETTING_ROUTES_FOR_APPLICATION_0, applicationGuid);
         return delegate.getApplicationRoutes(applicationGuid);
-    }
-
-    @Override
-    public boolean getApplicationSshEnabled(UUID applicationGuid) {
-        logger.debug(Messages.GETTING_SSH_ENABLED_FOR_APPLICATION_0, applicationGuid);
-        return delegate.getApplicationSshEnabled(applicationGuid);
     }
 
     @Override

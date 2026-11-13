@@ -7,7 +7,7 @@ import java.util.Map;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.apache.commons.lang3.StringUtils;
-import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudEntity;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;

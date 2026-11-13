@@ -200,18 +200,6 @@ class ResilientCloudControllerClientTest {
     }
 
     @Test
-    void testGetApplicationSshEnabledRetriesAndReturnsBoolean() {
-        UUID guid = UUID.randomUUID();
-        Mockito.when(restClient.getApplicationSshEnabled(guid))
-               .thenThrow(new CloudOperationException(HttpStatus.BAD_GATEWAY))
-               .thenReturn(true);
-
-        Assertions.assertTrue(client.getApplicationSshEnabled(guid));
-        Mockito.verify(restClient, Mockito.times(2))
-               .getApplicationSshEnabled(guid);
-    }
-
-    @Test
     void testAsyncUploadWithOverrideTimeoutUsesPlainRetry() {
         Path file = Paths.get("/tmp/some.mtar");
         UploadStatusCallback callback = Mockito.mock(UploadStatusCallback.class);

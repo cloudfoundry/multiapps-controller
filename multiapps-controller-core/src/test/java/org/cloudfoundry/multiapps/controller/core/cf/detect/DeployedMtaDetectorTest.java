@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.test.Tester;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
@@ -20,6 +19,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceIn
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceInstance;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.entity.processor.MtaMetadataApplicationCollector;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.entity.processor.MtaMetadataEntityAggregator;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.entity.processor.MtaMetadataEntityCollector;
@@ -259,7 +259,7 @@ class DeployedMtaDetectorTest {
                                                                             .guid(NameUtil.getUUID(name))
                                                                             .build())
                                             .name(name)
-                                            .v3Metadata(Metadata.builder()
+                                            .v3Metadata(ImmutableMetadata.builder()
                                                                 .annotations(annotations)
                                                                 .labels(labels)
                                                                 .build())
@@ -279,7 +279,7 @@ class DeployedMtaDetectorTest {
                                                                                 .guid(NameUtil.getUUID(name))
                                                                                 .build())
                                                 .name(name)
-                                                .v3Metadata(Metadata.builder()
+                                                .v3Metadata(ImmutableMetadata.builder()
                                                                     .annotations(annotations)
                                                                     .labels(labels)
                                                                     .build())

@@ -8,10 +8,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.test.Tester;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
@@ -194,8 +194,8 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
                                                                                     .guid(UUID.randomUUID())
                                                                                     .build())
                                                     .syslogDrainUrl(SYSLOG_DRAIN_URL)
-                                                    .v3Metadata(Metadata.builder()
-                                                                        .label(METADATA_LABEL, METADATA_LABEL_VALUE)
+                                                    .v3Metadata(ImmutableMetadata.builder()
+                                                                        .putLabel(METADATA_LABEL, METADATA_LABEL_VALUE)
                                                                         .build())
                                                     .isOptional(isOptional)
                                                     .build();
