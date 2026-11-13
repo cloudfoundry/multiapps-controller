@@ -10,6 +10,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
@@ -28,7 +29,6 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableUploa
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Status;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Upload;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Fields;
-import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3GuidReference;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Package;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3PackageMapper;
@@ -46,16 +46,31 @@ public class PackagesV3Operations {
     private static final ParameterizedTypeReference<V3ListResponse<V3Package>> PACKAGE_PAGE = new ParameterizedTypeReference<>() {
     };
 
-    private static final ParameterizedTypeReference<V3ListResponse<V3GuidReference>> APP_PAGE = new ParameterizedTypeReference<>() {
-    };
-
     private final CloudControllerV3Client client;
 
     private final CloudSpace targetSpace;
 
     private final Function<Duration, RestClient> uploadRestClientFactory;
 
-    private final ExecutorService uploadMonitorExecutor = createUploadMonitorExecutor();
+    private static final ExecutorService UPLOAD_MONITOR_EXECUTOR = createUploadMonitorExecutor();
+
+    static {
+        Runtime.getRuntime()
+               .addShutdownHook(new Thread(() -> {
+                   UPLOAD_MONITOR_EXECUTOR.shutdown();
+
+                   try {
+                       if (!UPLOAD_MONITOR_EXECUTOR.awaitTermination(Constants.SECONDS_BEFORE_MONITOR_JOBS_ARE_TERMINATED,
+                                                                     TimeUnit.SECONDS)) {
+                           UPLOAD_MONITOR_EXECUTOR.shutdownNow();
+                       }
+                   } catch (InterruptedException e) {
+                       UPLOAD_MONITOR_EXECUTOR.shutdownNow();
+                       Thread.currentThread()
+                             .interrupt();
+                   }
+               }, Constants.UPLOAD_MONITOR_THREAD_NAME_PREFIX + Constants.UPLOAD_MONITOR_SHUTDOWN_THREAD_NAME));
+    }
 
     public PackagesV3Operations(CloudControllerV3Client client, CloudSpace targetSpace) {
         this(client, targetSpace, null);
@@ -133,7 +148,7 @@ public class PackagesV3Operations {
         Assert.notNull(applicationName, "AppName must not be null");
         Assert.notNull(file, "File must not be null");
 
-        UUID applicationGuid = getRequiredApplicationGuid(applicationName);
+        UUID applicationGuid = OperationsUtil.getRequiredApplicationGuid(client, targetSpace, applicationName);
         UUID packageGuid = createBitsPackage(applicationGuid).getGuid();
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
@@ -171,22 +186,8 @@ public class PackagesV3Operations {
         return Map.of(V3Fields.APP, Map.of(V3Fields.DATA, Map.of(V3Fields.GUID, applicationGuid.toString())));
     }
 
-    private UUID getRequiredApplicationGuid(String applicationName) {
-        String applicationsQuery = OperationsQueryUtil.buildApplicationsQuery(applicationName, targetSpace);
-        List<V3GuidReference> apps = client.list(applicationsQuery, APP_PAGE);
-
-        if (apps.isEmpty() || apps.getFirst()
-                                  .guid() == null) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
-                                              MessageFormat.format(Messages.APPLICATION_0_NOT_FOUND, applicationName));
-        }
-
-        return UUID.fromString(apps.getFirst()
-                                   .guid());
-    }
-
     private void processAsyncUploadInBackground(CloudPackage cloudPackage, UploadStatusCallback callback) {
-        uploadMonitorExecutor.execute(() -> processAsyncUpload(cloudPackage, callback));
+        UPLOAD_MONITOR_EXECUTOR.execute(() -> processAsyncUpload(cloudPackage, callback));
     }
 
     private void processAsyncUpload(CloudPackage cloudPackage, UploadStatusCallback callback) {
@@ -204,29 +205,45 @@ public class PackagesV3Operations {
                     keepPolling = false;
                     continue;
                 }
-                throw e;
+                callback.onError(e.getMessage());
+                keepPolling = false;
+                continue;
             }
 
-            Status uploadStatus = upload.getStatus();
-            boolean unsubscribe = callback.onProgress(uploadStatus.toString());
-
-            if (unsubscribe || OperationsUtil.isUploadReady(uploadStatus)) {
-                keepPolling = false;
-            } else if (OperationsUtil.hasUploadFailed(uploadStatus)) {
-                callback.onError(upload.getErrorDetails()
-                                       .getDescription());
-                keepPolling = false;
-            } else {
-                try {
-                    MiscUtil.sleep(Constants.PACKAGE_UPLOAD_JOB_POLLING_PERIOD);
-                } catch (IllegalStateException e) {
-                    keepPolling = false;
-                }
+            keepPolling = handleUploadStatus(upload, callback);
+            if (keepPolling) {
+                keepPolling = sleepBeforeNextPoll();
             }
         }
     }
 
-    private ExecutorService createUploadMonitorExecutor() {
+    private boolean handleUploadStatus(Upload upload, UploadStatusCallback callback) {
+        Status uploadStatus = upload.getStatus();
+        boolean unsubscribe = callback.onProgress(uploadStatus.toString());
+
+        if (unsubscribe || OperationsUtil.isUploadReady(uploadStatus)) {
+            return false;
+        }
+
+        if (OperationsUtil.hasUploadFailed(uploadStatus)) {
+            callback.onError(upload.getErrorDetails()
+                                   .getDescription());
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean sleepBeforeNextPoll() {
+        try {
+            MiscUtil.sleep(Constants.PACKAGE_UPLOAD_JOB_POLLING_PERIOD);
+            return true;
+        } catch (IllegalStateException e) {
+            return false;
+        }
+    }
+
+    private static ExecutorService createUploadMonitorExecutor() {
         ThreadFactory threadFactory = Thread.ofVirtual()
                                             .name(Constants.UPLOAD_MONITOR_THREAD_NAME_PREFIX, 0)
                                             .factory();

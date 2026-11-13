@@ -1,27 +1,19 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
 
-import org.cloudfoundry.multiapps.controller.Messages;
-import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudEvent;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3AuditEvent;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3AuditEventMapper;
-import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3GuidReference;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3QueryParameters;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatus;
 
 public class EventsV3Operations {
 
     private static final ParameterizedTypeReference<V3ListResponse<V3AuditEvent>> EVENT_PAGE = new ParameterizedTypeReference<>() {
-    };
-
-    private static final ParameterizedTypeReference<V3ListResponse<V3GuidReference>> APP_PAGE = new ParameterizedTypeReference<>() {
     };
 
     private final CloudControllerV3Client client;
@@ -55,22 +47,9 @@ public class EventsV3Operations {
     }
 
     public List<CloudEvent> getApplicationEvents(String applicationName) {
-        UUID applicationGuid = getRequiredApplicationGuid(applicationName);
+        UUID applicationGuid = OperationsUtil.getRequiredApplicationGuid(client, targetSpace, applicationName);
 
         return getEventsByTarget(applicationGuid);
-    }
-
-    private UUID getRequiredApplicationGuid(String applicationName) {
-        String applicationsQuery = OperationsQueryUtil.buildApplicationsQuery(applicationName, targetSpace);
-        List<V3GuidReference> apps = client.list(applicationsQuery, APP_PAGE);
-
-        if (apps.isEmpty()) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
-                                              MessageFormat.format(Messages.APPLICATION_0_NOT_FOUND, applicationName));
-        }
-
-        return UUID.fromString(apps.getFirst()
-                                   .guid());
     }
 
 }

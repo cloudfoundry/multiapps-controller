@@ -19,7 +19,6 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3AppFeature;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Droplet;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Fields;
-import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3GuidReference;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3InstancesInfoMapper;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Process;
@@ -30,9 +29,6 @@ import org.springframework.http.HttpStatus;
 public class ProcessesV3Operations {
 
     private static final ParameterizedTypeReference<V3ListResponse<V3AppFeature>> APP_FEATURE_PAGE = new ParameterizedTypeReference<>() {
-    };
-
-    private static final ParameterizedTypeReference<V3ListResponse<V3GuidReference>> APP_PAGE = new ParameterizedTypeReference<>() {
     };
 
     private final CloudControllerV3Client client;
@@ -107,10 +103,15 @@ public class ProcessesV3Operations {
     }
 
     public void updateApplicationStaging(String applicationName, Staging staging) {
-        UUID applicationGuid = getRequiredApplicationGuid(applicationName);
-        Map<String, Object> applicationLifecycle = OperationsUtil.buildApplicationLifecycle(staging);
+        UUID applicationGuid = OperationsUtil.getRequiredApplicationGuid(client, targetSpace, applicationName);
+        Map<String, Object> applicationLifecycle = OperationsUtil.buildLifecycle(staging);
 
         client.patch(CloudControllerV3Endpoints.APP_BY_GUID, Map.of(V3Fields.LIFECYCLE, applicationLifecycle), applicationGuid);
+        updateApplicationProcess(applicationGuid, staging);
+    }
+
+    public void updateApplicationProcessAndFeatures(String applicationName, Staging staging) {
+        UUID applicationGuid = OperationsUtil.getRequiredApplicationGuid(client, targetSpace, applicationName);
         updateApplicationProcess(applicationGuid, staging);
     }
 
@@ -136,20 +137,6 @@ public class ProcessesV3Operations {
 
     private void updateAppFeature(UUID applicationGuid, String featureName, boolean enabled) {
         client.patch(CloudControllerV3Endpoints.APP_FEATURE, Map.of(V3Fields.ENABLED, enabled), applicationGuid, featureName);
-    }
-
-    private UUID getRequiredApplicationGuid(String applicationName) {
-        String applicationsQuery = OperationsQueryUtil.buildApplicationsQuery(applicationName, targetSpace);
-
-        List<V3GuidReference> apps = client.list(applicationsQuery, APP_PAGE);
-
-        if (apps.isEmpty()) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
-                                              MessageFormat.format(Messages.APPLICATION_0_NOT_FOUND, applicationName));
-        }
-
-        return UUID.fromString(apps.getFirst()
-                                   .guid());
     }
 
 }

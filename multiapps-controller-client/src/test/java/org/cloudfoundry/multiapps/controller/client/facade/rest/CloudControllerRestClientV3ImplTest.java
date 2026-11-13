@@ -214,7 +214,7 @@ class CloudControllerRestClientV3ImplTest {
     }
 
     @Test
-    void testCreateApplicationWithStagingUpdatesStagingThroughProcess() {
+    void testCreateApplicationWithStagingUpdatesProcessWithoutRePatchingLifecycle() {
         when(target.getGuid())
             .thenReturn(UUID.fromString(SPACE_GUID));
 
@@ -224,11 +224,6 @@ class CloudControllerRestClientV3ImplTest {
                .andRespond(MockRestResponseCreators.withSuccess(getAppJson(), MediaType.APPLICATION_JSON));
 
         stubGet(APPS_BASE + "&space_guids=" + SPACE_GUID + "&names=my-app", getAppListJson());
-
-        factory.server()
-               .expect(MockRestRequestMatchers.requestTo(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID))
-               .andExpect(MockRestRequestMatchers.method(HttpMethod.PATCH))
-               .andRespond(MockRestResponseCreators.withSuccess());
 
         stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
                     + "/processes/web", getWebProcessJson());

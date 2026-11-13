@@ -14,15 +14,17 @@ public class Constants {
 
     public static final int DEFAULT_CONNECTION_POOL_SIZE = 192;
     public static final int UNDEFINED_PORT = -1;
-    public static final int MAX_CONCURRENT_PAGES = 4; //leaving it like that for testing purposes
+    public static final int MAX_CONCURRENT_PAGES = 4;
     public static final int SECOND_PAGE = 2;
-    public static final int DEFAULT_CONCURRENT_TASKS = 8; //this one can be a bit more, but first tests will be like that
+    public static final int DEFAULT_CONCURRENT_TASKS = 8;
     public static final int MAX_CHAR_LENGTH_FOR_PARAMS_IN_REQUEST = 4000;
     public static final int JOB_POLL_INTERVAL_MULTIPLIER = 2;
+    public static final int SECONDS_BEFORE_MONITOR_JOBS_ARE_TERMINATED = 3;
 
     public static final String CONNECTION_POOL_NAME = "cf-controller-client";
     public static final String LOOP_RESOURCES_SUFFIX = "-loop-resources";
     public static final String UPLOAD_MONITOR_THREAD_NAME_PREFIX = "app-upload-monitor-";
+    public static final String UPLOAD_MONITOR_SHUTDOWN_THREAD_NAME = "shutdown";
     public static final String CF_API_V3 = "/v3";
     public static final String HREF = "href";
     public static final String CLOUD_CONTROLLER_CF_ROOT_DOCUMENT_NAME = "cloud_controller_v3";

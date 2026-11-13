@@ -31,8 +31,11 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.Status;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Droplet;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Fields;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3GuidReference;
+import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ServiceInstance;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ServicePlan;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
@@ -40,7 +43,24 @@ import org.springframework.util.StringUtils;
 
 public class OperationsUtil {
 
+    private static final ParameterizedTypeReference<V3ListResponse<V3GuidReference>> GUID_REFERENCE_PAGE = new ParameterizedTypeReference<>() {
+    };
+
     private OperationsUtil() {
+    }
+
+    public static UUID getRequiredApplicationGuid(CloudControllerV3Client client, CloudSpace targetSpace, String applicationName) {
+        String applicationsQuery = OperationsQueryUtil.buildApplicationsQuery(applicationName, targetSpace);
+        List<V3GuidReference> apps = client.list(applicationsQuery, GUID_REFERENCE_PAGE);
+
+        if (apps.isEmpty() || apps.getFirst()
+                                  .guid() == null) {
+            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
+                                              MessageFormat.format(Messages.APPLICATION_0_NOT_FOUND, applicationName));
+        }
+
+        return UUID.fromString(apps.getFirst()
+                                   .guid());
     }
 
     public static Map<String, Object> buildApplicationBody(ApplicationToCreateDto dto, String targetSpaceGuid) {
@@ -59,7 +79,7 @@ public class OperationsUtil {
         return body;
     }
 
-    private static Map<String, Object> buildLifecycle(Staging staging) {
+    public static Map<String, Object> buildLifecycle(Staging staging) {
         if (staging == null) {
             return Map.of(V3Fields.TYPE, V3Fields.BUILDPACK, V3Fields.DATA, Map.of());
         }
@@ -72,6 +92,11 @@ public class OperationsUtil {
                                                                   .name()
                                                                   .toLowerCase()
             : V3Fields.BUILDPACK;
+
+        if (Constants.CLOUD_NATIVE_BUILDPACK.equals(type) && (staging.getBuildpacks() == null || staging.getBuildpacks()
+                                                                                                        .isEmpty())) {
+            throw new IllegalArgumentException(Messages.BUILDPACKS_ARE_REQUIRED_FOR_THE_BUILDPACK_LIFECYCLE_TYPE);
+        }
 
         Map<String, Object> data = new HashMap<>();
         if (staging.getBuildpacks() != null) {
@@ -99,33 +124,6 @@ public class OperationsUtil {
                                    .guid(UUID.fromString(droplet.guid()))
                                    .packageGuid(UUID.fromString(packageGuid))
                                    .build();
-    }
-
-    public static Map<String, Object> buildApplicationLifecycle(Staging staging) {
-        if (staging.getDockerInfo() != null) {
-            return Map.of(V3Fields.TYPE, V3Fields.DOCKER, V3Fields.DATA, Map.of());
-        }
-
-        String lifecycleType = staging.getLifecycleType() != null ? staging.getLifecycleType()
-                                                                           .name()
-                                                                           .toLowerCase()
-            : V3Fields.BUILDPACK;
-
-        if (Constants.CLOUD_NATIVE_BUILDPACK.equals(lifecycleType) && (staging.getBuildpacks() == null || staging.getBuildpacks()
-                                                                                                                 .isEmpty())) {
-            throw new IllegalArgumentException(Messages.BUILDPACKS_ARE_REQUIRED_FOR_THE_BUILDPACK_LIFECYCLE_TYPE);
-        }
-
-        Map<String, Object> data = new HashMap<>();
-        if (staging.getStackName() != null) {
-            data.put(V3Fields.STACK, staging.getStackName());
-        }
-
-        if (staging.getBuildpacks() != null) {
-            data.put(V3Fields.BUILDPACKS, staging.getBuildpacks());
-        }
-
-        return Map.of(V3Fields.TYPE, lifecycleType, V3Fields.DATA, data);
     }
 
     private static Map<String, Object> buildHealthCheck(Staging staging) {

@@ -15,7 +15,6 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.RouteDestination;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Domain;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Fields;
-import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3GuidReference;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3ListResponse;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3QueryParameters;
 import org.cloudfoundry.multiapps.controller.client.facade.rest.resources.V3Route;
@@ -32,9 +31,6 @@ public class RoutesV3Operations {
     };
 
     private static final ParameterizedTypeReference<V3ListResponse<V3Domain>> DOMAIN_PAGE = new ParameterizedTypeReference<>() {
-    };
-
-    private static final ParameterizedTypeReference<V3ListResponse<V3GuidReference>> APP_PAGE = new ParameterizedTypeReference<>() {
     };
 
     private final CloudControllerV3Client client;
@@ -87,7 +83,7 @@ public class RoutesV3Operations {
     }
 
     public void updateApplicationRoutes(String applicationName, Set<CloudRoute> updatedRoutes) {
-        UUID applicationGuid = getRequiredApplicationGuid(applicationName);
+        UUID applicationGuid = OperationsUtil.getRequiredApplicationGuid(client, targetSpace, applicationName);
 
         List<CloudRoute> appRoutes = listRoutes(
             V3Uri.path(CloudControllerV3Endpoints.APP_ROUTES, applicationGuid)
@@ -238,20 +234,6 @@ public class RoutesV3Operations {
                                 .build(), DOMAIN_PAGE)
                      .stream()
                      .collect(Collectors.toMap(V3Domain::name, domain -> UUID.fromString(domain.guid())));
-    }
-
-    private UUID getRequiredApplicationGuid(String applicationName) {
-        String applicationsQuery = OperationsQueryUtil.buildApplicationsQuery(applicationName, targetSpace);
-        List<V3GuidReference> apps = client.list(applicationsQuery,
-                                                 APP_PAGE);
-
-        if (CollectionUtils.isEmpty(apps)) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
-                                              MessageFormat.format(Messages.APPLICATION_0_NOT_FOUND, applicationName));
-        }
-
-        return UUID.fromString(apps.getFirst()
-                                   .guid());
     }
 
     private UUID getTargetSpaceGuid() {

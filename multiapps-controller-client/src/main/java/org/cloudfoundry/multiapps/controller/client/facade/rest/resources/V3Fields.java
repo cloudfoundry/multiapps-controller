@@ -79,7 +79,6 @@ public class V3Fields {
     public static final String VALUE = "value";
     public static final String INDEX = "index";
     public static final String ROUTABLE = "routable";
-    public static final String REASON = "reason";
     public static final String INTERNAL = "internal";
     public static final String EXECUTION_METADATA = "execution_metadata";
     public static final String PROCESS_TYPES = "process_types";
@@ -110,6 +109,17 @@ public class V3Fields {
     public static final String MANAGED = "managed";
     public static final String USER_PROVIDED = "user-provided";
     public static final String KEY = "key";
+    public static final String SHAREABLE = "shareable";
+    public static final String DOCUMENTATION_URL = "documentation_url";
+    public static final String FEATURES = "features";
+    public static final String BINDABLE = "bindable";
+    public static final String ALLOW_CONTEXT_UPDATES = "allow_context_updates";
+    public static final String BINDINGS_RETRIEVABLE = "bindings_retrievable";
+    public static final String INSTANCES_RETRIEVABLE = "instances_retrievable";
+    public static final String PLAN_UPDATABLE = "plan_updatable";
+    public static final String SERVICE_BROKER = "service_broker";
+    public static final String RESULT = "result";
+    public static final String FAILURE_REASON = "failure_reason";
 
     private V3Fields() {
     }

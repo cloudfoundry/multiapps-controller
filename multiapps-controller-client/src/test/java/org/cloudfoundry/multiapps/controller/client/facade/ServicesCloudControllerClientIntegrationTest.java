@@ -47,6 +47,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -54,6 +56,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.APPLICATION_HOST;
+import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.SERVICE_BROKER_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -62,6 +65,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class ServicesCloudControllerClientIntegrationTest extends CloudControllerClientIntegrationTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServicesCloudControllerClientIntegrationTest.class);
 
     private static final String SYSLOG_DRAIN_URL = "https://syslogDrain.com";
     private static final Map<String, Object> USER_SERVICE_CREDENTIALS = Map.of("testCredentialsKey", "testCredentialsValue");
@@ -87,6 +92,8 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
         } catch (CloudOperationException e) {
             if (e.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
                 //Ignore because service broker with this name exists
+                LOGGER.warn(MessageFormat.format("Service broker \"{0}\" already exists. Skipping creation. \"{1}\"", SERVICE_BROKER_NAME,
+                                                 e.getMessage()));
             } else {
                 fail("Service broker creation failed!", e);
             }
@@ -117,8 +124,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
             assertEquals(USER_SERVICE_CREDENTIALS, serviceCredentials);
             assertEquals(SERVICE_TAGS, service.getTags());
             assertTrue(service.isUserProvided());
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteServiceInstance(serviceName);
         }
@@ -148,8 +153,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
             assertTrue(service.getTags()
                               .containsAll(updatedTags),
                        MessageFormat.format("Expected tags \"{0}\" but was \"{1}\"", updatedTags, service.getTags()));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteServiceInstance(serviceName);
         }
@@ -182,8 +185,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
             assertEquals(serviceName, service.getName());
             assertEquals(IntegrationTestConstants.SERVICE_OFFERING, service.getLabel());
             assertEquals(IntegrationTestConstants.SERVICE_PLAN, service.getPlan());
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteServiceInstance(serviceName);
             verifyServiceIsOrBeingDeleted(serviceName);
@@ -227,8 +228,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
             assertTrue(service.getTags()
                               .containsAll(serviceTags),
                        MessageFormat.format("Expected tags \"{0}\" but was \"{1}\"", serviceTags, service.getTags()));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteServiceInstance(serviceName);
             verifyServiceIsOrBeingDeleted(serviceName);
@@ -246,12 +245,14 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                                   .getLastOperation();
             if (lastOperation.getState()
                              .equals(ServiceOperation.State.FAILED)) {
-                System.err.println(JsonUtil.convertToJson(lastOperation));
-                throw new IllegalStateException(String.format("Service operation failed for service: %s", serviceInstanceName));
+                throw new IllegalStateException(
+                    MessageFormat.format("Service operation failed for service: \"{0}\", \"{1}\"", serviceInstanceName,
+                                         JsonUtil.convertToJson(lastOperation)));
             }
             if (times++ > 60) {
-                System.err.println(JsonUtil.convertToJson(lastOperation));
-                throw new IllegalStateException(String.format("Service operation timeout exceeded for service: %s", serviceInstanceName));
+                throw new IllegalStateException(
+                    MessageFormat.format("Service operation timeout exceeded for service: \"{0}\", \"{1}\"", serviceInstanceName,
+                                         JsonUtil.convertToJson(lastOperation)));
             }
         }
     }
@@ -288,8 +289,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                 return;
             }
             assertNull(service);
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteServiceInstance(serviceNameToCreate);
             verifyServiceIsOrBeingDeleted(serviceNameToCreate);
@@ -313,8 +312,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
             pollLastOperationServiceInstanceState(serviceName);
             client.deleteServiceInstance(serviceName);
             verifyServiceIsOrBeingDeleted(serviceName);
-        } catch (Exception e) {
-            fail(e);
         } finally {
             CloudServiceInstance service = client.getServiceInstance(serviceName, false);
             if (service != null) {
@@ -358,8 +355,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                                .toString(),
                          broker.getSpaceGuid());
             assertEquals(expectedServiceBrokerUrl, broker.getUrl());
-        } catch (Exception e) {
-            fail(e);
         } finally {
             String jobId = client.deleteServiceBroker(serviceBrokerName);
             pollServiceBrokerOperation(jobId, serviceBrokerName);
@@ -403,8 +398,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                                .toString(),
                          broker.getSpaceGuid());
             assertEquals(expectedServiceBrokerUrl, broker.getUrl());
-        } catch (Exception e) {
-            fail(e);
         } finally {
             String jobId = client.deleteServiceBroker(serviceBrokerName);
             pollServiceBrokerOperation(jobId, serviceBrokerName);
@@ -426,8 +419,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
             pollServiceBrokerOperation(jobId, serviceBrokerName);
 
             assertThrows(CloudOperationException.class, () -> client.getServiceBroker(serviceBrokerName));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             CloudServiceBroker broker = client.getServiceBroker(serviceBrokerName, false);
             if (broker != null) {
@@ -459,7 +450,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
         assertTrue(finchServiceOffering.getServicePlans()
                                        .stream()
                                        .anyMatch(plan -> IntegrationTestConstants.SERVICE_PLAN.equals(plan.getName())),
-                   MessageFormat.format("Expected plan \"{0}\" in the offering's plans", IntegrationTestConstants.SERVICE_PLAN));
+                   MessageFormat.format("Expected plan \"{0}\" in the offering''s plans", IntegrationTestConstants.SERVICE_PLAN));
     }
 
     @Test
@@ -534,8 +525,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                                                         .noneMatch(service -> serviceName.equals(service.getName())),
                        MessageFormat.format("Expected service \"{0}\" to no longer match the selector after the label was unset",
                                             serviceName));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteServiceInstance(serviceName);
         }
@@ -568,8 +557,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
             assertEquals(2, serviceKeys.size());
             assertEquals(Map.of("test-key", "test-value"), findServiceKeyByName("successful-key", serviceKeys).getCredentials());
             assertEquals(Collections.emptyMap(), findServiceKeyByName("failed-key", serviceKeys).getCredentials());
-        } catch (Exception e) {
-            fail(e);
         } finally {
             List<CloudServiceKey> serviceKeys = client.getServiceKeys(testServiceInstanceName);
             deleteServiceKeys(serviceKeys);
@@ -630,6 +617,8 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
             createServiceKeySync(serviceInstanceName, serviceKeyName, serviceKeyCredentials);
         } catch (Exception e) {
             // Do nothing
+            LOGGER.warn(MessageFormat.format("Failed to create service key \"{0}\" for service instance \"{1}\"", serviceKeyName,
+                                             serviceInstanceName), e);
         }
     }
 

@@ -114,7 +114,7 @@ public class CloudControllerRestClientV3Impl implements CloudControllerRestClien
         applicationsOperations.createApplication(dto);
 
         if (dto.getStaging() != null) {
-            updateApplicationStaging(dto.getName(), dto.getStaging());
+            processesOperations.updateApplicationProcessAndFeatures(dto.getName(), dto.getStaging());
         }
 
         if (dto.getRoutes() != null && !dto.getRoutes()

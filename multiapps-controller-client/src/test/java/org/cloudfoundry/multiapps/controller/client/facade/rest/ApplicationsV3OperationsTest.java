@@ -9,6 +9,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplicati
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.LifecycleType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ImmutableApplicationToCreateDto;
@@ -67,6 +68,21 @@ class ApplicationsV3OperationsTest {
     }
 
     @Test
+    void testCreateApplicationWithCloudNativeBuildpackLifecycleAndNoBuildpacksThrows() {
+        when(target.getGuid())
+            .thenReturn(UUID.fromString(SPACE_GUID));
+
+        ApplicationToCreateDto dto = ImmutableApplicationToCreateDto.builder()
+                                                                    .name("my-app")
+                                                                    .staging(ImmutableStaging.builder()
+                                                                                             .lifecycleType(LifecycleType.CNB)
+                                                                                             .build())
+                                                                    .build();
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> operations.createApplication(dto));
+    }
+
+    @Test
     void testCreateApplicationWithScaleAlsoScalesWebProcess() {
         when(target.getGuid())
             .thenReturn(UUID.fromString(SPACE_GUID));
@@ -77,7 +93,7 @@ class ApplicationsV3OperationsTest {
                .andRespond(MockRestResponseCreators.withSuccess(appJson(APP_GUID, "my-app", "STOPPED"), MediaType.APPLICATION_JSON));
 
         factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/processes/web/actions/scale", HttpMethod.POST);
+                               + "/processes/web/actions/scale", HttpMethod.POST);
 
         ApplicationToCreateDto dto = ImmutableApplicationToCreateDto.builder()
                                                                     .name("my-app")
@@ -89,8 +105,8 @@ class ApplicationsV3OperationsTest {
                                                                                              .build())
                                                                     .env(Map.of("FOO", "bar"))
                                                                     .metadata(ImmutableMetadata.builder()
-                                                                                      .putLabel("k", "v")
-                                                                                      .build())
+                                                                                               .putLabel("specialAppForProd", "true")
+                                                                                               .build())
                                                                     .build();
 
         UUID result = operations.createApplication(dto);
@@ -211,7 +227,7 @@ class ApplicationsV3OperationsTest {
     @Test
     void testGetApplicationEnvironmentByGuidReturnsVariables() {
         factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/environment_variables", "{\"var\":{\"FOO\":\"bar\"}}");
+                            + "/environment_variables", "{\"var\":{\"FOO\":\"bar\"}}");
 
         Map<String, String> result = operations.getApplicationEnvironment(UUID.fromString(APP_GUID));
 
@@ -222,7 +238,7 @@ class ApplicationsV3OperationsTest {
     @Test
     void testGetApplicationEnvironmentByGuidReturnsEmptyWhenNoVars() {
         factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/environment_variables", "{}");
+                            + "/environment_variables", "{}");
 
         Map<String, String> result = operations.getApplicationEnvironment(UUID.fromString(APP_GUID));
 
@@ -238,7 +254,7 @@ class ApplicationsV3OperationsTest {
         stubAppLookupByName("my-app", APP_GUID);
 
         factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/environment_variables", "{\"var\":{\"A\":\"B\"}}");
+                            + "/environment_variables", "{\"var\":{\"A\":\"B\"}}");
 
         Map<String, String> result = operations.getApplicationEnvironment("my-app");
 
@@ -308,7 +324,7 @@ class ApplicationsV3OperationsTest {
         stubAppLookupByName("my-app", APP_GUID);
 
         factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/actions/start", HttpMethod.POST);
+                               + "/actions/start", HttpMethod.POST);
 
         operations.startApplication("my-app");
 
@@ -323,7 +339,7 @@ class ApplicationsV3OperationsTest {
         stubAppLookupByName("my-app", APP_GUID);
 
         factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/actions/stop", HttpMethod.POST);
+                               + "/actions/stop", HttpMethod.POST);
 
         operations.stopApplication("my-app");
 
@@ -415,7 +431,7 @@ class ApplicationsV3OperationsTest {
         stubAppLookupByName("my-app", APP_GUID);
 
         factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/environment_variables", HttpMethod.PATCH);
+                               + "/environment_variables", HttpMethod.PATCH);
 
         operations.updateApplicationEnv("my-app", Map.of("FOO", "bar"));
 
@@ -427,7 +443,7 @@ class ApplicationsV3OperationsTest {
         UUID dropletGuid = UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
 
         factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/relationships/current_droplet", HttpMethod.PATCH);
+                               + "/relationships/current_droplet", HttpMethod.PATCH);
 
         operations.bindDropletToApp(dropletGuid, UUID.fromString(APP_GUID));
 
@@ -439,9 +455,9 @@ class ApplicationsV3OperationsTest {
         factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID, HttpMethod.PATCH);
 
         Metadata metadata = ImmutableMetadata.builder()
-                                    .putLabel("k", "v")
-                                    .putAnnotation("a", "b")
-                                    .build();
+                                             .putLabel("specialAppForDev", "true")
+                                             .putAnnotation("someInternalUrl", "https://internal.example.com")
+                                             .build();
 
         operations.updateApplicationMetadata(UUID.fromString(APP_GUID), metadata);
 
@@ -473,7 +489,7 @@ class ApplicationsV3OperationsTest {
         stubAppLookupByName("my-app", APP_GUID);
 
         factory.stubMethod(MockControllerClientFactory.BASE_URL + "/v3/apps/" + APP_GUID
-                                                             + "/processes/web/actions/scale", HttpMethod.POST);
+                               + "/processes/web/actions/scale", HttpMethod.POST);
     }
 
     private void stubAppLookupByName(String name, String guid) {

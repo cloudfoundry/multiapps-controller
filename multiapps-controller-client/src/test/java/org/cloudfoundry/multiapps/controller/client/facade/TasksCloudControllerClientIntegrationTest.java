@@ -74,7 +74,7 @@ class TasksCloudControllerClientIntegrationTest extends CloudControllerClientInt
         assertTrue(tasks.stream()
                         .anyMatch(currentTask -> currentTask.getGuid()
                                                             .equals(task.getGuid())),
-                   MessageFormat.format("Expected the created task \"{0}\" to be in the application's task list", task.getName()));
+                   MessageFormat.format("Expected the created task \"{0}\" to be in the application''s task list", task.getName()));
     }
 
     @Test

@@ -54,14 +54,24 @@ class EventsAndRolesCloudControllerClientIntegrationTest extends CloudController
         List<CloudEvent> events = client.getEventsByActee(appGuid);
         assertNotNull(events);
         assertAllEventsAreMapped(events);
+        assertTrue(events.stream()
+                         .anyMatch(event -> appGuid.equals(event.getTarget()
+                                                                .getGuid())),
+                   "Expected at least one event whose target is the application under test, guid " + appGuid);
     }
 
     @Test
     @DisplayName("Get application events returns the application's audit events")
     void getApplicationEvents() {
+        UUID appGuid = client.getApplicationGuid(APP_NAME);
+
         List<CloudEvent> events = client.getApplicationEvents(APP_NAME);
         assertNotNull(events);
         assertAllEventsAreMapped(events);
+        assertTrue(events.stream()
+                         .anyMatch(event -> appGuid.equals(event.getTarget()
+                                                                .getGuid())),
+                   "Expected at least one event whose target is the application under test, guid " + appGuid);
     }
 
     @Test

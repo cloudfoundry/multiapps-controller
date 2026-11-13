@@ -24,14 +24,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record V3Task(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty(V3Fields.NAME) String name,
                      @JsonProperty(V3Fields.COMMAND) String command,
-                     @JsonProperty(V3Fields.STATE) String state, @JsonProperty("memory_in_mb") Integer memoryInMb,
-                     @JsonProperty("disk_in_mb") Integer diskInMb, @JsonProperty("result") V3Result result,
+                     @JsonProperty(V3Fields.STATE) String state, @JsonProperty(V3Fields.MEMORY_IN_MB) Integer memoryInMb,
+                     @JsonProperty(V3Fields.DISK_IN_MB) Integer diskInMb, @JsonProperty(V3Fields.RESULT) V3Result result,
                      @JsonProperty(V3Fields.CREATED_AT) String createdAt, @JsonProperty(V3Fields.UPDATED_AT) String updatedAt,
                      @JsonProperty(V3Fields.RELATIONSHIPS) V3TaskRelationships relationships,
                      @JsonProperty(V3Fields.METADATA) V3Metadata metadata) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3Result(@JsonProperty("failure_reason") String failureReason) {
+    public record V3Result(@JsonProperty(V3Fields.FAILURE_REASON) String failureReason) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

@@ -19,29 +19,29 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record V3ServiceOffering(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty(V3Fields.NAME) String name,
-                                @JsonProperty(V3Fields.DESCRIPTION) String description, @JsonProperty("available") Boolean available,
-                                @JsonProperty("shareable") Boolean shareable,
-                                @JsonProperty("documentation_url") String documentationUrl,
+                                @JsonProperty(V3Fields.DESCRIPTION) String description, @JsonProperty(V3Fields.AVAILABLE) Boolean available,
+                                @JsonProperty(V3Fields.SHAREABLE) Boolean shareable,
+                                @JsonProperty(V3Fields.DOCUMENTATION_URL) String documentationUrl,
                                 @JsonProperty(V3Fields.CREATED_AT) String createdAt, @JsonProperty(V3Fields.UPDATED_AT) String updatedAt,
-                                @JsonProperty("broker_catalog") V3BrokerCatalog brokerCatalog,
+                                @JsonProperty(V3Fields.BROKER_CATALOG) V3BrokerCatalog brokerCatalog,
                                 @JsonProperty(V3Fields.RELATIONSHIPS) V3Relationships relationships,
                                 @JsonProperty(V3Fields.METADATA) V3Metadata metadata, @JsonProperty(V3Fields.TAGS) List<String> tags) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3BrokerCatalog(@JsonProperty("id") String id, @JsonProperty(V3Fields.METADATA) Map<String, Object> metadata,
-                                  @JsonProperty("features") V3Features features) {
+    public record V3BrokerCatalog(@JsonProperty(V3Fields.ID) String id, @JsonProperty(V3Fields.METADATA) Map<String, Object> metadata,
+                                  @JsonProperty(V3Fields.FEATURES) V3Features features) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3Features(@JsonProperty("bindable") Boolean bindable,
-                             @JsonProperty("allow_context_updates") Boolean allowContextUpdates,
-                             @JsonProperty("bindings_retrievable") Boolean bindingsRetrievable,
-                             @JsonProperty("instances_retrievable") Boolean instancesRetrievable,
-                             @JsonProperty("plan_updatable") Boolean planUpdatable) {
+    public record V3Features(@JsonProperty(V3Fields.BINDABLE) Boolean bindable,
+                             @JsonProperty(V3Fields.ALLOW_CONTEXT_UPDATES) Boolean allowContextUpdates,
+                             @JsonProperty(V3Fields.BINDINGS_RETRIEVABLE) Boolean bindingsRetrievable,
+                             @JsonProperty(V3Fields.INSTANCES_RETRIEVABLE) Boolean instancesRetrievable,
+                             @JsonProperty(V3Fields.PLAN_UPDATABLE) Boolean planUpdatable) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3Relationships(@JsonProperty("service_broker") V3ToOneRelationship serviceBroker) {
+    public record V3Relationships(@JsonProperty(V3Fields.SERVICE_BROKER) V3ToOneRelationship serviceBroker) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

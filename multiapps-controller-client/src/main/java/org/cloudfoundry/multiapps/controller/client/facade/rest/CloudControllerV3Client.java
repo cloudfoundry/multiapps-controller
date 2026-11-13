@@ -184,10 +184,12 @@ public class CloudControllerV3Client {
     public V3Job waitForAsyncJob(String jobGuid, Duration timeout) {
         long startTimeNanos = System.nanoTime();
         long timeoutNanos = timeout.toNanos();
+        long remainingNanos = timeoutNanos;
         Duration interval = Constants.JOB_POLL_MIN_INTERVAL;
 
-        while (true) {
-            V3Job asyncJob = get(CloudControllerV3Endpoints.JOBS + jobGuid, V3Job.class);
+        while (remainingNanos > 0) {
+            V3Job asyncJob = get(V3Uri.path(CloudControllerV3Endpoints.JOB_BY_GUID, jobGuid)
+                                      .build(), V3Job.class);
 
             if (asyncJob != null && asyncJob.isTerminal()) {
 
@@ -198,14 +200,19 @@ public class CloudControllerV3Client {
                 return asyncJob;
             }
 
-            long elapsedNanos = determineElapsedTime(startTimeNanos, timeout, jobGuid);
-            long remainingNanos = timeoutNanos - elapsedNanos;
+            long elapsedTimeUntilNowNanos = System.nanoTime() - startTimeNanos;
+            remainingNanos = timeoutNanos - elapsedTimeUntilNowNanos;
 
-            Duration sleepDuration = interval.toNanos() > remainingNanos ? Duration.ofNanos(remainingNanos) : interval;
-            sleep(sleepDuration);
+            if (remainingNanos > 0) {
+                Duration sleepDuration = interval.toNanos() > remainingNanos ? Duration.ofNanos(remainingNanos) : interval;
+                sleep(sleepDuration);
 
-            interval = nextInterval(interval);
+                interval = nextInterval(interval);
+            }
         }
+
+        throw new CloudOperationException(HttpStatus.GATEWAY_TIMEOUT, Messages.JOB_TIMEOUT,
+                                          MessageFormat.format(Messages.JOB_0_DID_NOT_COMPLETE_WITHIN_1, jobGuid, timeout));
     }
 
     private static Duration nextInterval(Duration current) {
@@ -251,13 +258,7 @@ public class CloudControllerV3Client {
     }
 
     private static String extractJobGuid(String location) {
-        int index = location.lastIndexOf(CloudControllerV3Endpoints.JOBS);
-
-        if (index < 0) {
-            return location.substring(location.lastIndexOf('/') + 1);
-        }
-
-        return location.substring(index + CloudControllerV3Endpoints.JOBS.length());
+        return location.substring(location.lastIndexOf('/') + 1);
     }
 
     private String toRelativeIfAbsolute(String href) {
@@ -280,17 +281,17 @@ public class CloudControllerV3Client {
         return href;
     }
 
-    private long determineElapsedTime(long startTimeNanos, Duration timeout, String jobGuid) {
-        long elapsedNanos = System.nanoTime() - startTimeNanos;
-        long timeoutNanos = timeout.toNanos();
-
-        if (elapsedNanos >= timeoutNanos) {
-            throw new CloudOperationException(HttpStatus.GATEWAY_TIMEOUT, Messages.JOB_TIMEOUT,
-                                              MessageFormat.format(Messages.JOB_0_DID_NOT_COMPLETE_WITHIN_1, jobGuid, timeout));
-        }
-
-        return elapsedNanos;
-    }
+    //    private long determineElapsedTime(long startTimeNanos, Duration timeout, String jobGuid) {
+    //        long elapsedNanos = System.nanoTime() - startTimeNanos;
+    //        long timeoutNanos = timeout.toNanos();
+    //
+    //        if (elapsedNanos >= timeoutNanos) {
+    //            throw new CloudOperationException(HttpStatus.GATEWAY_TIMEOUT, Messages.JOB_TIMEOUT,
+    //                                              MessageFormat.format(Messages.JOB_0_DID_NOT_COMPLETE_WITHIN_1, jobGuid, timeout));
+    //        }
+    //
+    //        return elapsedNanos;
+    //    }
 
     public RestClient getRestClient() {
         return restClient;

@@ -50,8 +50,7 @@ public final class V3PackageMapper {
                                 .build();
     }
 
-    private static BitsData.Checksum
-    parseBitsChecksum(V3Package.V3Checksum checksum) {
+    private static BitsData.Checksum parseBitsChecksum(V3Package.V3Checksum checksum) {
         if (checksum == null) {
             return null;
         }

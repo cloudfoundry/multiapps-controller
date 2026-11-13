@@ -46,7 +46,7 @@ public class ServiceBindingsV3Operations {
 
     public Optional<String> bindServiceInstance(String bindingName, String applicationName, String serviceInstanceName,
                                                 Map<String, Object> parameters) {
-        UUID applicationGuid = getRequiredApplicationGuid(applicationName);
+        UUID applicationGuid = OperationsUtil.getRequiredApplicationGuid(client, targetSpace, applicationName);
         UUID serviceInstanceGuid = getRequiredServiceInstanceGuid(serviceInstanceName);
         Map<String, Object> serviceInstanceBody = OperationsUtil.buildServiceInstanceBody(bindingName, applicationGuid, serviceInstanceGuid,
                                                                                           parameters);
@@ -57,7 +57,7 @@ public class ServiceBindingsV3Operations {
     }
 
     public List<String> unbindServiceInstance(String applicationName, String serviceInstanceName) {
-        UUID applicationGuid = getRequiredApplicationGuid(applicationName);
+        UUID applicationGuid = OperationsUtil.getRequiredApplicationGuid(client, targetSpace, applicationName);
         UUID serviceInstanceGuid = getRequiredServiceInstanceGuid(serviceInstanceName);
 
         return unbindServiceInstance(applicationGuid, serviceInstanceGuid);
@@ -178,20 +178,6 @@ public class ServiceBindingsV3Operations {
         ResponseEntity<Void> response = client.delete(CloudControllerV3Endpoints.SERVICE_CREDENTIAL_BINDING_BY_GUID, guid);
 
         return OperationsUtil.extractJobGuid(response);
-    }
-
-    private UUID getRequiredApplicationGuid(String applicationName) {
-        String applicationsQuery = OperationsQueryUtil.buildApplicationsQuery(applicationName, targetSpace);
-
-        List<V3GuidReference> apps = client.list(applicationsQuery, GUID_REFERENCE_PAGE);
-
-        if (apps.isEmpty()) {
-            throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
-                                              MessageFormat.format(Messages.APPLICATION_0_NOT_FOUND, applicationName));
-        }
-
-        return UUID.fromString(apps.getFirst()
-                                   .guid());
     }
 
     private UUID getRequiredServiceInstanceGuid(String name) {

@@ -43,7 +43,6 @@ import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTes
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.MEMORY_IN_MB;
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.NODEJS_BUILDPACK;
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.NODEJS_BUILDPACK_URL;
-import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.STATICFILE_APPLICATION_CONTENT;
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.STATICFILE_BUILDPACK;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -90,8 +89,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
         CloudRoute route = getImmutableCloudRoute();
         try {
             verifyApplicationWillBeCreated(applicationName, staging, Set.of(route));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -108,8 +105,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
             Exception exception = assertThrows(CloudOperationException.class, () -> client.getApplication(applicationName));
             assertTrue(exception.getMessage()
                                 .contains(HttpStatus.NOT_FOUND.getReasonPhrase()));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             CloudApplication app = client.getApplication(applicationName, false);
             if (app != null) {
@@ -125,8 +120,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
         try {
             createAndVerifyDefaultApplication(applicationName);
             assertNotNull(client.getApplicationGuid(applicationName));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -142,8 +135,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
             UUID applicationGuid = client.getApplicationGuid(applicationName);
             Map<String, String> applicationEnvironment = client.getApplicationEnvironment(applicationGuid);
             assertEquals("bar", applicationEnvironment.get("foo"));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -161,8 +152,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
             UUID applicationGuid = client.getApplicationGuid(applicationName);
             CloudProcess cloudProcess = client.getApplicationProcess(applicationGuid);
             assertEquals(HealthCheckType.PROCESS, cloudProcess.getHealthCheckType());
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -239,8 +228,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
             client.rename(applicationName, newApplicationName);
             assertEquals(applicationGuid, client.getApplication(newApplicationName)
                                                 .getGuid());
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(newApplicationName);
         }
@@ -256,8 +243,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
             CloudApplication application = client.getApplication(applicationName);
             var process = client.getApplicationProcess(application.getGuid());
             assertEquals(256, process.getMemoryInMb());
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -275,8 +260,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
             CloudApplication application = client.getApplication(applicationName);
             var process = client.getApplicationProcess(application.getGuid());
             assertEquals("echo 1", process.getCommand());
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -296,8 +279,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
             UUID applicationGuid = client.getApplicationGuid(applicationName);
             CloudPackage dockerPackage = client.createDockerPackage(applicationGuid, dockerInfo);
             assertEquals(CloudPackage.Type.DOCKER, dockerPackage.getType());
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -320,8 +301,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
             CloudApplication application = client.getApplication(applicationName);
             var routes = client.getApplicationRoutes(application.getGuid());
             assertEquals(List.copyOf(newRoutes), routes);
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -344,8 +323,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
             assertTrue(packagesForApplication.stream()
                                              .map(CloudPackage::getGuid)
                                              .anyMatch(packageGuid -> packageGuid.equals(dockerPackage.getGuid())));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -381,18 +358,47 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
     void updateApplicationMetadata() {
         String applicationName = "test-application-15";
         Metadata metadata = ImmutableMetadata.builder()
-                                    .putLabel("test-app", "test-app")
-                                    .build();
+                                             .putLabel("test-app", "test-app")
+                                             .build();
         try {
             createAndVerifyDefaultApplication(applicationName);
             UUID applicationGuid = client.getApplicationGuid(applicationName);
             client.updateApplicationMetadata(applicationGuid, metadata);
             List<CloudApplication> applicationsByMetadataLabelSelector = client.getApplicationsByMetadataLabelSelector("test-app");
             assertEquals(1, applicationsByMetadataLabelSelector.size());
-            assertEquals(applicationName, applicationsByMetadataLabelSelector.get(0)
+            assertEquals(applicationName, applicationsByMetadataLabelSelector.getFirst()
                                                                              .getName());
-        } catch (Exception e) {
-            fail(e);
+        } finally {
+            client.deleteApplication(applicationName);
+        }
+    }
+
+    @Test
+    @DisplayName("Create application and remove a metadata label by updating it with a null value")
+    void updateApplicationMetadataRemovesLabelWhenValueIsNull() {
+        String applicationName = "test-application-15-unset";
+        String labelKey = "test-app-unset";
+        try {
+            createAndVerifyDefaultApplication(applicationName);
+            UUID applicationGuid = client.getApplicationGuid(applicationName);
+
+            client.updateApplicationMetadata(applicationGuid, ImmutableMetadata.builder()
+                                                                               .putLabel(labelKey, labelKey)
+                                                                               .build());
+            List<CloudApplication> applicationsWithLabel = client.getApplicationsByMetadataLabelSelector(labelKey);
+
+            assertTrue(applicationsWithLabel.stream()
+                                            .anyMatch(application -> applicationName.equals(application.getName())),
+                       "Expected application \"" + applicationName + "\" to be found by label selector \"" + labelKey + "\"");
+
+            client.updateApplicationMetadata(applicationGuid, ImmutableMetadata.builder()
+                                                                               .putLabel(labelKey, null)
+                                                                               .build());
+            List<CloudApplication> applicationsAfterUnset = client.getApplicationsByMetadataLabelSelector(labelKey);
+
+            assertTrue(applicationsAfterUnset.stream()
+                                             .noneMatch(application -> applicationName.equals(application.getName())),
+                       "Expected application \"" + applicationName + "\" to no longer match the selector after the label was unset");
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -408,8 +414,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
                                           .build();
         try {
             verifyApplicationWillBeCreated(applicationName, staging, Set.of(getImmutableCloudRoute()));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -428,8 +432,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
         CloudRoute route = getImmutableCloudRoute();
         try {
             verifyApplicationWillBeCreated(applicationName, staging, Set.of(route));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -444,8 +446,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
                                           .build();
         try {
             verifyApplicationWillBeCreated(applicationName, staging, Set.of(getImmutableCloudRoute()));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }

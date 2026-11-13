@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record V3Application(@JsonProperty(V3Fields.GUID) String guid, @JsonProperty(V3Fields.NAME) String name,
                             @JsonProperty(V3Fields.STATE) String state,
                             @JsonProperty(V3Fields.CREATED_AT) String createdAt, @JsonProperty(V3Fields.UPDATED_AT) String updatedAt,
-                            @JsonProperty("lifecycle") V3Lifecycle lifecycle, @JsonProperty(V3Fields.METADATA) V3Metadata metadata,
+                            @JsonProperty(V3Fields.LIFECYCLE) V3Lifecycle lifecycle, @JsonProperty(V3Fields.METADATA) V3Metadata metadata,
                             @JsonProperty(V3Fields.RELATIONSHIPS) V3Relationships relationships) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -44,7 +44,7 @@ public record V3Application(@JsonProperty(V3Fields.GUID) String guid, @JsonPrope
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record V3EnvironmentVariables(@JsonProperty("var") Map<String, String> environmentVariables) {
+    public record V3EnvironmentVariables(@JsonProperty(V3Fields.VAR) Map<String, String> environmentVariables) {
     }
 
 }
