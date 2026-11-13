@@ -255,7 +255,6 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
                                                                   .name(SERVICE_NAME)
                                                                   .label(IntegrationTestConstants.SERVICE_OFFERING)
                                                                   .plan(IntegrationTestConstants.SERVICE_PLAN)
-                                                                  .broker(IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME)
                                                                   .build());
         pollLastOperationServiceInstanceState(SERVICE_NAME);
     }
