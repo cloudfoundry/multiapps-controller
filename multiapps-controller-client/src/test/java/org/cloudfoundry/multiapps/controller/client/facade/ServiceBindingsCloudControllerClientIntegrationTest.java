@@ -59,7 +59,9 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
     @BeforeAll
     static void setUp() throws InterruptedException {
         String brokerPathString = ITVariable.PATH_TO_SERVICE_BROKER_APPLICATION.getValue();
+        System.out.printf("[SETUP] PATH_TO_SERVICE_BROKER_APPLICATION = \"%s\"%n", brokerPathString);
         if (brokerPathString == null) {
+            System.out.println("[SETUP] broker path is null -> skipping broker setup, all tests will no-op");
             return;
         }
 
@@ -67,22 +69,35 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
         if (Files.notExists(brokerPath)) {
             fail(MessageFormat.format("Specified service broker path \"{0}\" does not exists", brokerPathString));
         }
+        System.out.printf("[SETUP] target space guid = \"%s\", default domain = \"%s\"%n", target.getMetadata()
+                                                                                                 .getGuid(),
+                          client.getDefaultDomain()
+                                .getName());
+        System.out.println("[SETUP] pushing service broker application ...");
         pushServiceBrokerApplication(brokerPath);
+        System.out.println("[SETUP] service broker application pushed");
 
         try {
+            System.out.println("[SETUP] registering service broker with CF ...");
             createServiceBroker();
             pushedServiceBroker = true;
+            System.out.println("[SETUP] service broker registered successfully");
         } catch (CloudOperationException e) {
+            System.out.printf("[SETUP] createServiceBroker threw CloudOperationException status=%s message=\"%s\"%n", e.getStatusCode(),
+                              e.getMessage());
             if (e.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
                 // Ignore because a service broker with this name already exists
                 pushedServiceBroker = true;
+                System.out.println("[SETUP] 422 -> assuming broker already exists, proceeding (pushedServiceBroker=true)");
             } else {
                 fail("Service broker creation failed!", e);
             }
         }
 
         if (pushedServiceBroker) {
+            System.out.println("[SETUP] pushing the binding test application ...");
             pushApplication();
+            System.out.println("[SETUP] setUp complete");
         }
     }
 
@@ -277,6 +292,10 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
     }
 
     private void createManagedService() {
+        System.out.printf("[TEST] createManagedService: creating service \"%s\" with offering=\"%s\" plan=\"%s\" in space guid=\"%s\"%n",
+                          SERVICE_NAME, IntegrationTestConstants.SERVICE_OFFERING, IntegrationTestConstants.SERVICE_PLAN,
+                          target.getMetadata()
+                                .getGuid());
         client.createServiceInstance(ImmutableCloudServiceInstance.builder()
                                                                   .name(SERVICE_NAME)
                                                                   .label(IntegrationTestConstants.SERVICE_OFFERING)
@@ -437,6 +456,8 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
 
         String brokerUrl = MessageFormat.format("https://{0}.{1}/{2}", IntegrationTestConstants.SERVICE_BROKER_BINDINGS_HOST, defaultDomain,
                                                 SERVICE_BROKER_ENDPOINT);
+        System.out.printf("[SETUP] createServiceBroker: name=\"%s\" url=\"%s\" spaceGuid=\"%s\"%n",
+                          IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME, brokerUrl, targetSpaceGuid);
 
         String jobId = client.createServiceBroker(ImmutableCloudServiceBroker.builder()
                                                                              .name(IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME)
@@ -445,7 +466,9 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
                                                                              .url(brokerUrl)
                                                                              .spaceGuid(targetSpaceGuid)
                                                                              .build());
+        System.out.printf("[SETUP] createServiceBroker submitted, jobId=\"%s\"%n", jobId);
         pollServiceBrokerOperation(jobId);
+        System.out.println("[SETUP] createServiceBroker job completed");
     }
 
     private static void pollServiceBrokerOperation(String jobId) {
