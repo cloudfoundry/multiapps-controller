@@ -12,6 +12,8 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
+import org.cloudfoundry.multiapps.controller.client.facade.broker.ImmutableServiceBrokerConfiguration;
+import org.cloudfoundry.multiapps.controller.client.facade.broker.ServiceBrokerConfiguration;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
@@ -36,7 +38,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.SERVICE_BROKER_NAME;
@@ -429,9 +434,9 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
                                        .getGuid()
                                        .toString();
 
-        String brokerUrl = MessageFormat.format("https://{0}.{1}/{2}", IntegrationTestConstants.SERVICE_BROKER_BINDINGS_HOST, defaultDomain,
-                                                SERVICE_BROKER_ENDPOINT);
+        String brokerUrl = getServiceBrokerUrl(SERVICE_BROKER_ENDPOINT, defaultDomain);
 
+        configureServiceBroker();
         waitForBrokerCatalogToBeReachable(brokerUrl);
 
         String jobId = client.createServiceBroker(ImmutableCloudServiceBroker.builder()
@@ -442,6 +447,28 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
                                                                              .spaceGuid(targetSpaceGuid)
                                                                              .build());
         pollServiceBrokerOperation(jobId);
+    }
+
+    private static String getServiceBrokerUrl(String serviceBrokerEndpoint, String domain) {
+        return MessageFormat.format("https://{0}.{1}/{2}", IntegrationTestConstants.SERVICE_BROKER_BINDINGS_HOST, domain,
+                                    serviceBrokerEndpoint);
+    }
+
+    private static void configureServiceBroker() {
+        ServiceBrokerConfiguration serviceBrokerConfiguration = ImmutableServiceBrokerConfiguration.builder()
+                                                                                                   .asyncDurationForServiceCredentialBindingsInMillis(
+                                                                                                       100)
+                                                                                                   .build();
+        String serviceBrokerUrl = getServiceBrokerUrl(SERVICE_BROKER_ENDPOINT, client.getDefaultDomain()
+                                                                                     .getName());
+        WebClient.create()
+                 .put()
+                 .uri(serviceBrokerUrl)
+                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                 .body(BodyInserters.fromValue(serviceBrokerConfiguration))
+                 .retrieve()
+                 .toBodilessEntity()
+                 .block();
     }
 
     private static void waitForBrokerCatalogToBeReachable(String brokerUrl) {
