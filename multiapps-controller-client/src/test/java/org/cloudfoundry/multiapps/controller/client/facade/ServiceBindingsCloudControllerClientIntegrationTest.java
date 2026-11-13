@@ -37,6 +37,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.SERVICE_BROKER_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -431,6 +432,8 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
         String brokerUrl = MessageFormat.format("https://{0}.{1}/{2}", IntegrationTestConstants.SERVICE_BROKER_BINDINGS_HOST, defaultDomain,
                                                 SERVICE_BROKER_ENDPOINT);
 
+        waitForBrokerCatalogToBeReachable(brokerUrl);
+
         String jobId = client.createServiceBroker(ImmutableCloudServiceBroker.builder()
                                                                              .name(IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME)
                                                                              .username(IntegrationTestConstants.SERVICE_BROKER_USERNAME)
@@ -439,6 +442,32 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
                                                                              .spaceGuid(targetSpaceGuid)
                                                                              .build());
         pollServiceBrokerOperation(jobId);
+    }
+
+    private static void waitForBrokerCatalogToBeReachable(String brokerUrl) {
+        String catalogUrl = brokerUrl + "/v2/catalog";
+        WebClient webClient = WebClient.create();
+
+        for (int attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
+            try {
+                webClient.get()
+                         .uri(catalogUrl)
+                         .headers(headers -> headers.setBasicAuth(IntegrationTestConstants.SERVICE_BROKER_USERNAME,
+                                                                  IntegrationTestConstants.SERVICE_BROKER_PASSWORD))
+                         .retrieve()
+                         .toBodilessEntity()
+                         .block();
+
+                return;
+            } catch (RuntimeException e) {
+                LOGGER.warn(MessageFormat.format("Service broker catalog \"{0}\" not reachable yet (attempt \"{1}\"): \"{2}\"", catalogUrl,
+                                                 attempt + 1, e.getMessage()));
+                MiscUtil.sleep(TimeUnit.SECONDS.toMillis(1));
+            }
+        }
+
+        fail(MessageFormat.format("Service broker catalog \"{0}\" did not become reachable after \"{1}\" attempts", catalogUrl,
+                                  MAX_POLL_ATTEMPTS));
     }
 
     private static void pollServiceBrokerOperation(String jobId) {
