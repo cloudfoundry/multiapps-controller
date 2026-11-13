@@ -496,12 +496,14 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
 
         Staging staging = ImmutableStaging.builder()
                                           .addBuildpack(IntegrationTestConstants.JAVA_BUILDPACK)
-                                          // Gate readiness on the catalog endpoint CF itself fetches at broker registration.
-                                          // A port health check reports RUNNING as soon as Tomcat opens its port, before
-                                          // budgie's webapp context has mounted and parsed the CATALOG env, so a fresh
-                                          // createServiceBroker races ahead and CF's catalog fetch returns a Tomcat 404.
-                                          .healthCheckType(HealthCheckType.HTTP.toString())
-                                          .healthCheckHttpEndpoint("/" + SERVICE_BROKER_ENDPOINT + "/v2/catalog")
+                                          // Mirror the proven pattern from ApplicationsCloudControllerClientIntegrationTest:
+                                          // a "process" health check (crash detection) with an explicit timeout. Do NOT use an
+                                          // http check on the OSB catalog path - CF's http health probe is UNAUTHENTICATED, and
+                                          // /v2/catalog requires Basic auth, so it would never return 2xx and the app would be
+                                          // reported as failed-to-start. The real catalog-readiness gate is CF's own server-side
+                                          // catalog fetch during createServiceBroker, which is already polled below.
+                                          .healthCheckType(HealthCheckType.PROCESS.toString())
+                                          .healthCheckTimeout(IntegrationTestConstants.HEALTH_CHECK_TIMEMOUT)
                                           .build();
 
         Set<CloudRoute> routes = Set.of(ImmutableCloudRoute.builder()
