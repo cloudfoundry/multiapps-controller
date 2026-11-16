@@ -63,7 +63,6 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.APPLICATION_HOST;
-import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.SERVICE_BROKER_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -100,7 +99,8 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
         } catch (CloudOperationException e) {
             if (e.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
                 //Ignore because service broker with this name exists
-                LOGGER.warn(MessageFormat.format("Service broker \"{0}\" already exists. Skipping creation. \"{1}\"", SERVICE_BROKER_NAME,
+                LOGGER.info(MessageFormat.format("Service broker \"{0}\" already exists. Skipping creation. \"{1}\"",
+                                                 IntegrationTestConstants.SERVICE_BROKER_NAME,
                                                  e.getMessage()));
             } else {
                 fail("Service broker creation failed!", e);
@@ -640,6 +640,9 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
         ApplicationUtil.startApplication(client, IntegrationTestConstants.SERVICE_BROKER_APP_NAME);
         waitForBrokerCatalog(getServiceBrokerUrl(SERVICE_BROKER_ENDPOINT, client.getDefaultDomain()
                                                                                 .getName()));
+        LOGGER.info(MessageFormat.format(
+            "Service broker application \"{0}\" has been successfully pushed. All that is left now is to create the service broker (register it to CF).",
+            IntegrationTestConstants.SERVICE_BROKER_NAME));
     }
 
     private static void waitForBrokerCatalog(String brokerUrl) {

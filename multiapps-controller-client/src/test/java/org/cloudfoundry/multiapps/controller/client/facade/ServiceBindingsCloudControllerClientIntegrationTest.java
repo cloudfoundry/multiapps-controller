@@ -44,7 +44,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
-import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.SERVICE_BROKER_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -87,7 +86,8 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
         } catch (CloudOperationException e) {
             if (e.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
                 // Ignore because a service broker with this name already exists
-                LOGGER.warn(MessageFormat.format("Service broker \"{0}\" already exists. Skipping creation. \"{1}\"", SERVICE_BROKER_NAME,
+                LOGGER.info(MessageFormat.format("Service broker \"{0}\" already exists. Skipping creation. \"{1}\"",
+                                                 IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME,
                                                  e.getMessage()));
             } else {
                 fail("Service broker creation failed!", e);
@@ -398,6 +398,9 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
         ApplicationUtil.startApplication(client, IntegrationTestConstants.SERVICE_BROKER_BINDINGS_APP_NAME);
         waitForBrokerCatalog(getServiceBrokerUrl(client.getDefaultDomain()
                                                        .getName()));
+        LOGGER.info(MessageFormat.format(
+            "Service broker application \"{0}\" has been successfully pushed. All that is left now is to create the service broker (register it to CF).",
+            IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME));
     }
 
     private static void waitForBrokerCatalog(String brokerUrl) {
