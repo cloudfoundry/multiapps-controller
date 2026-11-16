@@ -105,6 +105,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                 System.out.println(MessageFormat.format("Service broker \"{0}\" already exists. Skipping creation. \"{1}\"",
                                                         IntegrationTestConstants.SERVICE_BROKER_NAME,
                                                         e.getMessage()));
+                pushedServiceBroker = true;
             } else {
                 fail("Service broker creation failed!", e);
             }
@@ -722,6 +723,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                                                                              .spaceGuid(targetSpaceGuid)
                                                                              .build());
         pollServiceBrokerOperation(jobId, serviceBrokerName);
+        System.out.println(MessageFormat.format("Service broker \"{0}\" has been successfully created/registered.", serviceBrokerName));
     }
 
     private static String getServiceBrokerUrl(String serviceBrokerEndpoint, String domain) {
