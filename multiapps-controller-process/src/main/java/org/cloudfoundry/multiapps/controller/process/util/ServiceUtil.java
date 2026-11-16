@@ -22,10 +22,6 @@ public final class ServiceUtil {
 
     }
 
-    /**
-     * Builds the {@code relationship name -> CF service instance name} map used to turn the resource name in a {@code {ds/<resource>/...}}
-     * reference into the actual service instance name to query.
-     */
     public static Map<String, String> buildServiceInstanceNamesByRelationship(DeploymentDescriptor descriptor) {
         Map<String, String> serviceInstanceNames = new HashMap<>();
         if (descriptor == null) {
