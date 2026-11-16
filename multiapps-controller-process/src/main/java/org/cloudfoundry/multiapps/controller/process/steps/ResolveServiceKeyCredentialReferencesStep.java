@@ -7,8 +7,8 @@ import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.process.Messages;
-import org.cloudfoundry.multiapps.controller.process.util.ServiceInstanceNamesByRelationship;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceKeyCredentialResolver;
+import org.cloudfoundry.multiapps.controller.process.util.ServiceUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -24,7 +24,7 @@ public class ResolveServiceKeyCredentialReferencesStep extends SyncFlowableStep 
         CloudControllerClient client = context.getControllerClient();
 
         DeploymentDescriptor descriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
-        Map<String, String> serviceInstanceNamesByRelationship = ServiceInstanceNamesByRelationship.fromDescriptor(descriptor);
+        Map<String, String> serviceInstanceNamesByRelationship = ServiceUtil.buildServiceInstanceNamesByRelationship(descriptor);
         ServiceKeyCredentialResolver resolver = new ServiceKeyCredentialResolver(client, serviceInstanceNamesByRelationship);
         CloudServiceKey resolvedServiceKey = resolver.resolve(serviceKeyToProcess);
 
