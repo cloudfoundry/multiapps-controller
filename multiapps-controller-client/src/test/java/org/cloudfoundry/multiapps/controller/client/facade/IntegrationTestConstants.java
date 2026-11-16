@@ -7,6 +7,7 @@ public class IntegrationTestConstants {
 
     public static final String HEALTH_CHECK_ENDPOINT = "/public/ping";
     public static final String JAVA_BUILDPACK = "java_buildpack";
+    public static final String SAP_JAVA_BUILDPACK = "sap_java_buildpack";
     public static final String NODEJS_BUILDPACK = "nodejs_buildpack";
     public static final String STATICFILE_BUILDPACK = "staticfile_buildpack";
     public static final int HEALTH_CHECK_TIMEMOUT = 100;

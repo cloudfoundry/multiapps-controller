@@ -109,7 +109,8 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
 
         if (pushedServiceBroker) {
             System.out.println("[SETUP] making the broker's service plans public ...");
-            client.updateServicePlanVisibilityForBroker(IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME, ServicePlanVisibility.PUBLIC);
+            client.updateServicePlanVisibilityForBroker(IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME,
+                                                        ServicePlanVisibility.PUBLIC);
             System.out.println("[SETUP] service plans made public");
 
             System.out.println("[SETUP] pushing the binding test application ...");
@@ -176,7 +177,7 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
                               snippet.replaceAll("%n", " "));
         } catch (Exception e) {
             System.out.printf("[DIAG] probe %s -> FAILED %s: %s%n", url, e.getClass()
-                                                                         .getSimpleName(),
+                                                                          .getSimpleName(),
                               e.getMessage());
         }
     }
@@ -495,7 +496,7 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
                                      .getName();
 
         Staging staging = ImmutableStaging.builder()
-                                          .addBuildpack(IntegrationTestConstants.JAVA_BUILDPACK)
+                                          .addBuildpack(IntegrationTestConstants.SAP_JAVA_BUILDPACK)
                                           // Mirror the proven pattern from ApplicationsCloudControllerClientIntegrationTest:
                                           // a "process" health check (crash detection) with an explicit timeout. Do NOT use an
                                           // http check on the OSB catalog path - CF's http health probe is UNAUTHENTICATED, and

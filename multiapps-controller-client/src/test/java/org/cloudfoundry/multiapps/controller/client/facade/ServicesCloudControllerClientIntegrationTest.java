@@ -182,7 +182,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                               snippet.replaceAll("%n", " "));
         } catch (Exception e) {
             System.out.printf("[DIAG] probe %s -> FAILED %s: %s%n", url, e.getClass()
-                                                                         .getSimpleName(),
+                                                                          .getSimpleName(),
                               e.getMessage());
         }
     }
@@ -713,7 +713,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
         String defaultDomain = client.getDefaultDomain()
                                      .getName();
         Staging staging = ImmutableStaging.builder()
-                                          .addBuildpack(IntegrationTestConstants.JAVA_BUILDPACK)
+                                          .addBuildpack(IntegrationTestConstants.SAP_JAVA_BUILDPACK)
                                           // Mirror the proven pattern from ApplicationsCloudControllerClientIntegrationTest:
                                           // a "process" health check (crash detection) with an explicit timeout. Do NOT use an
                                           // http check on the OSB catalog path - CF's http health probe is UNAUTHENTICATED, and
