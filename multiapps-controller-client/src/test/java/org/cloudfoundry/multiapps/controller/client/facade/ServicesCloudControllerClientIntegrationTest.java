@@ -96,16 +96,16 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
         }
         pushServiceBrokerApplication(brokerPath);
         try {
-            createServiceBroker(IntegrationTestConstants.SERVICE_BROKER_NAME, SERVICE_BROKER_ENDPOINT);
+            createServiceBroker(IntegrationTestConstants.SERVICE_BROKER_SERVICES_NAME, SERVICE_BROKER_ENDPOINT);
             pushedServiceBroker = true;
         } catch (CloudOperationException e) {
             if (e.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
                 //Ignore because service broker with this name exists
                 LOGGER.info(MessageFormat.format("Service broker \"{0}\" already exists. Skipping creation. \"{1}\"",
-                                                 IntegrationTestConstants.SERVICE_BROKER_NAME,
+                                                 IntegrationTestConstants.SERVICE_BROKER_SERVICES_NAME,
                                                  e.getMessage()));
                 System.out.println(MessageFormat.format("Service broker \"{0}\" already exists. Skipping creation. \"{1}\"",
-                                                        IntegrationTestConstants.SERVICE_BROKER_NAME,
+                                                        IntegrationTestConstants.SERVICE_BROKER_SERVICES_NAME,
                                                         e.getMessage()));
                 pushedServiceBroker = true;
             } else {
@@ -117,8 +117,8 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     @AfterAll
     static void tearDown() {
         try {
-            String jobId = client.deleteServiceBroker(IntegrationTestConstants.SERVICE_BROKER_NAME);
-            pollServiceBrokerOperation(jobId, IntegrationTestConstants.SERVICE_BROKER_NAME);
+            String jobId = client.deleteServiceBroker(IntegrationTestConstants.SERVICE_BROKER_SERVICES_NAME);
+            pollServiceBrokerOperation(jobId, IntegrationTestConstants.SERVICE_BROKER_SERVICES_NAME);
         } catch (CloudOperationException e) {
             if (e.getStatusCode() != HttpStatus.NOT_FOUND && e.getStatusCode() != HttpStatus.INTERNAL_SERVER_ERROR) {
                 throw e;
@@ -469,7 +469,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     void updateServicePlanVisibilityForBroker() {
         Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
 
-        client.updateServicePlanVisibilityForBroker(IntegrationTestConstants.SERVICE_BROKER_NAME, ServicePlanVisibility.PUBLIC);
+        client.updateServicePlanVisibilityForBroker(IntegrationTestConstants.SERVICE_BROKER_SERVICES_NAME, ServicePlanVisibility.PUBLIC);
 
         CloudServiceOffering finchServiceOffering = client.getServiceOfferings()
                                                           .stream()
@@ -651,10 +651,10 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                                                                                 .getName()));
         LOGGER.info(MessageFormat.format(
             "Service broker application \"{0}\" has been successfully pushed. All that is left now is to create the service broker (register it to CF).",
-            IntegrationTestConstants.SERVICE_BROKER_NAME));
+            IntegrationTestConstants.SERVICE_BROKER_SERVICES_NAME));
         System.out.println(MessageFormat.format(
             "Service broker application \"{0}\" has been successfully pushed. All that is left now is to create the service broker (register it to CF).",
-            IntegrationTestConstants.SERVICE_BROKER_NAME));
+            IntegrationTestConstants.SERVICE_BROKER_SERVICES_NAME));
     }
 
     private static void waitForBrokerCatalog(String brokerUrl) {
