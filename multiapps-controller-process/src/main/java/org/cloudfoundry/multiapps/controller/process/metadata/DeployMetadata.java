@@ -125,6 +125,24 @@ public class DeployMetadata {
                                                                                      Variables.APPS_UPLOAD_TIMEOUT_PROCESS_VARIABLE))
                                                                                  .build())
                                          .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.CREATE_SERVICE_TIMEOUT_PROCESS_VARIABLE.getName())
+                                                                                 .type(ParameterType.INTEGER)
+                                                                                 .customConverter(new TimeoutParameterConverter(
+                                                                                     Variables.CREATE_SERVICE_TIMEOUT_PROCESS_VARIABLE))
+                                                                                 .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.BIND_SERVICE_TIMEOUT_PROCESS_VARIABLE.getName())
+                                                                                 .type(ParameterType.INTEGER)
+                                                                                 .customConverter(new TimeoutParameterConverter(
+                                                                                     Variables.BIND_SERVICE_TIMEOUT_PROCESS_VARIABLE))
+                                                                                 .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.CREATE_SERVICE_KEY_TIMEOUT_PROCESS_VARIABLE.getName())
+                                                                                 .type(ParameterType.INTEGER)
+                                                                                 .customConverter(new TimeoutParameterConverter(
+                                                                                     Variables.CREATE_SERVICE_KEY_TIMEOUT_PROCESS_VARIABLE))
+                                                                                 .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
                                                                                  .id(Variables.APPS_TASK_EXECUTION_TIMEOUT_PROCESS_VARIABLE.getName())
                                                                                  .type(ParameterType.INTEGER)
                                                                                  .customConverter(new TimeoutParameterConverter(

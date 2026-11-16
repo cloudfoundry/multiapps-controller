@@ -41,6 +41,9 @@
         <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
         <flowable:in source="externalLoggingServiceConfigurations" target="externalLoggingServiceConfigurations"></flowable:in>
+        <flowable:in source="servicesCreateServiceTimeout" target="servicesCreateServiceTimeout"></flowable:in>
+        <flowable:in source="servicesBindServiceTimeout" target="servicesBindServiceTimeout"></flowable:in>
+        <flowable:in source="servicesCreateServiceKeyTimeout" target="servicesCreateServiceKeyTimeout"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToCreate" flowable:elementVariable="serviceToProcess">
         <extensionElements></extensionElements>

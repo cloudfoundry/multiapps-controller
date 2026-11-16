@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -12,6 +13,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.ServiceBindingOperati
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceCredentialBindingOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
+import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.DeletingServiceBindingOperationCallback;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceBindingPollingFactory;
@@ -22,7 +24,7 @@ import org.springframework.context.annotation.Scope;
 
 @Named("unbindServiceFromApplicationStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class UnbindServiceFromApplicationStep extends AsyncFlowableStep {
+public class UnbindServiceFromApplicationStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) throws Exception {
@@ -104,4 +106,8 @@ public class UnbindServiceFromApplicationStep extends AsyncFlowableStep {
         return new DeletingServiceBindingOperationCallback(context, controllerClient);
     }
 
+    @Override
+    public Duration getTimeout(ProcessContext context) {
+        return Constants.DEFAULT_UNBIND_SERVICE_TIMEOUT;
+    }
 }

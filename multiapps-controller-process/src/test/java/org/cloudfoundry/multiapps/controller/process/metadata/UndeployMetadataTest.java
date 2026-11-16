@@ -32,7 +32,7 @@ public class UndeployMetadataTest extends MetadataBaseTest {
                 Variables.MTA_NAMESPACE.getName(),
                 Variables.NO_RESTART_SUBSCRIBED_APPS.getName(),
                 Variables.NO_FAIL_ON_MISSING_PERMISSIONS.getName(),
-                Variables.ABORT_ON_ERROR.getName(),
+                Variables.ABORT_ON_ERROR.getName()
             // @formatter:on
         };
     }
