@@ -1,9 +1,5 @@
 package org.cloudfoundry.multiapps.controller.client.facade;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,10 +18,8 @@ import org.cloudfoundry.multiapps.controller.client.facade.broker.FailConfigurat
 import org.cloudfoundry.multiapps.controller.client.facade.broker.ImmutableFailConfiguration;
 import org.cloudfoundry.multiapps.controller.client.facade.broker.ImmutableServiceBrokerConfiguration;
 import org.cloudfoundry.multiapps.controller.client.facade.broker.ServiceBrokerConfiguration;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudProcess;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBroker;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
@@ -39,8 +33,6 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloud
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.InstanceInfo;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.InstancesInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.JobState;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceInstanceType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
@@ -88,34 +80,20 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     @BeforeAll
     static void setUp() throws InterruptedException {
         String brokerPathString = ITVariable.PATH_TO_SERVICE_BROKER_APPLICATION.getValue();
-        System.out.printf("[SETUP] PATH_TO_SERVICE_BROKER_APPLICATION = \"%s\"%n", brokerPathString);
         if (brokerPathString == null) {
-            System.out.println("[SETUP] broker path is null -> skipping broker setup, all tests will no-op");
             return;
         }
         Path brokerPath = Paths.get(brokerPathString);
         if (Files.notExists(brokerPath)) {
             fail(MessageFormat.format("Specified service broker path \"{0}\" does not exists", brokerPathString));
         }
-        System.out.printf("[SETUP] target space guid = \"%s\", default domain = \"%s\"%n", target.getMetadata()
-                                                                                                 .getGuid(),
-                          client.getDefaultDomain()
-                                .getName());
-        System.out.println("[SETUP] pushing service broker application ...");
         pushServiceBrokerApplication(brokerPath);
-        System.out.println("[SETUP] service broker application pushed");
-        dumpBrokerAppDiagnostics();
         try {
-            System.out.println("[SETUP] registering service broker with CF ...");
             createServiceBroker(IntegrationTestConstants.SERVICE_BROKER_NAME, SERVICE_BROKER_ENDPOINT);
             pushedServiceBroker = true;
-            System.out.println("[SETUP] service broker registered successfully");
         } catch (CloudOperationException e) {
-            System.out.printf("[SETUP] createServiceBroker threw CloudOperationException status=%s message=\"%s\"%n", e.getStatusCode(),
-                              e.getMessage());
             if (e.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
                 //Ignore because service broker with this name exists
-                System.out.println("[SETUP] 422 -> assuming broker already exists, proceeding");
                 LOGGER.warn(MessageFormat.format("Service broker \"{0}\" already exists. Skipping creation. \"{1}\"", SERVICE_BROKER_NAME,
                                                  e.getMessage()));
             } else {
@@ -124,79 +102,15 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
         }
     }
 
-    private static void dumpBrokerAppDiagnostics() {
-        try {
-            String appName = IntegrationTestConstants.SERVICE_BROKER_APP_NAME;
-            CloudApplication app = client.getApplication(appName, false);
-            if (app == null) {
-                System.out.printf("[DIAG] broker app \"%s\" NOT FOUND%n", appName);
-                return;
-            }
-            System.out.printf("[DIAG] broker app \"%s\" guid=%s state=%s%n", appName, app.getGuid(), app.getState());
-
-            InstancesInfo instancesInfo = client.getApplicationInstances(app);
-            for (InstanceInfo instance : instancesInfo.getInstances()) {
-                System.out.printf("[DIAG]   instance #%d state=%s%n", instance.getIndex(), instance.getState());
-            }
-
-            CloudProcess process = client.getApplicationProcess(app.getGuid());
-            System.out.printf("[DIAG]   web process: healthCheckType=%s healthCheckEndpoint=%s instances=%s memoryMb=%s%n",
-                              process.getHealthCheckType(), process.getHealthCheckHttpEndpoint(), process.getInstances(),
-                              process.getMemoryInMb());
-
-            for (CloudRoute route : client.getApplicationRoutes(app.getGuid())) {
-                System.out.printf("[DIAG]   route url=%s%n", route.getUrl());
-            }
-
-            String defaultDomain = client.getDefaultDomain()
-                                         .getName();
-            String base = MessageFormat.format("https://{0}.{1}", IntegrationTestConstants.SERVICE_BROKER_HOST, defaultDomain);
-            probeBrokerEndpoint(base + "/");
-            probeBrokerEndpoint(base + "/" + SERVICE_BROKER_ENDPOINT);
-            probeBrokerEndpoint(base + "/" + SERVICE_BROKER_ENDPOINT + "/v2/catalog");
-        } catch (Exception e) {
-            System.out.printf("[DIAG] diagnostics failed: %s: %s%n", e.getClass()
-                                                                      .getSimpleName(),
-                              e.getMessage());
-        }
-    }
-
-    private static void probeBrokerEndpoint(String url) {
-        try {
-            String auth = IntegrationTestConstants.SERVICE_BROKER_USERNAME + ":" + IntegrationTestConstants.SERVICE_BROKER_PASSWORD;
-            String basic = java.util.Base64.getEncoder()
-                                           .encodeToString(auth.getBytes());
-            HttpResponse<String> response = HttpClient.newHttpClient()
-                                                      .send(HttpRequest.newBuilder()
-                                                                       .uri(URI.create(url))
-                                                                       .header("Authorization", "Basic " + basic)
-                                                                       .GET()
-                                                                       .build(),
-                                                            HttpResponse.BodyHandlers.ofString());
-            String body = response.body();
-            String snippet = body == null ? "" : body.substring(0, Math.min(200, body.length()));
-            System.out.printf("[DIAG] probe %s -> HTTP %d, server=%s, body[0..200]=%s%n", url, response.statusCode(),
-                              response.headers()
-                                      .firstValue("server")
-                                      .orElse("?"),
-                              snippet.replaceAll("%n", " "));
-        } catch (Exception e) {
-            System.out.printf("[DIAG] probe %s -> FAILED %s: %s%n", url, e.getClass()
-                                                                          .getSimpleName(),
-                              e.getMessage());
-        }
-    }
-
     @AfterAll
     static void tearDown() {
-        if (pushedServiceBroker) {
-            String jobId = client.deleteServiceBroker(IntegrationTestConstants.SERVICE_BROKER_NAME);
-            pollServiceBrokerOperation(jobId, IntegrationTestConstants.SERVICE_BROKER_NAME);
-            client.deleteApplication(IntegrationTestConstants.SERVICE_BROKER_APP_NAME);
-            client.deleteRoute(IntegrationTestConstants.SERVICE_BROKER_HOST, client.getDefaultDomain()
-                                                                                   .getName(),
-                               null);
-        }
+        String jobId = client.deleteServiceBroker(IntegrationTestConstants.SERVICE_BROKER_NAME);
+        pollServiceBrokerOperation(jobId, IntegrationTestConstants.SERVICE_BROKER_NAME);
+
+        client.deleteApplication(IntegrationTestConstants.SERVICE_BROKER_APP_NAME);
+        client.deleteRoute(IntegrationTestConstants.SERVICE_BROKER_HOST, client.getDefaultDomain()
+                                                                               .getName(),
+                           null);
     }
 
     @Test
@@ -713,13 +627,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
         String defaultDomain = client.getDefaultDomain()
                                      .getName();
         Staging staging = ImmutableStaging.builder()
-                                          .addBuildpack(IntegrationTestConstants.SAP_JAVA_BUILDPACK)
-                                          // Mirror the proven pattern from ApplicationsCloudControllerClientIntegrationTest:
-                                          // a "process" health check (crash detection) with an explicit timeout. Do NOT use an
-                                          // http check on the OSB catalog path - CF's http health probe is UNAUTHENTICATED, and
-                                          // /v2/catalog requires Basic auth, so it would never return 2xx and the app would be
-                                          // reported as failed-to-start. The real catalog-readiness gate is CF's own server-side
-                                          // catalog fetch during createServiceBroker, which is already polled below.
+                                          .addBuildpack(IntegrationTestConstants.JAVA_BUILDPACK)
                                           .healthCheckType(HealthCheckType.PROCESS.toString())
                                           .healthCheckTimeout(IntegrationTestConstants.HEALTH_CHECK_TIMEMOUT)
                                           .build();
@@ -748,8 +656,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                                        .getGuid()
                                        .toString();
         String brokerUrl = getServiceBrokerUrl(serviceBrokerEndpoint, defaultDomain);
-        System.out.printf("[SETUP] createServiceBroker: name=\"%s\" url=\"%s\" spaceGuid=\"%s\"%n", serviceBrokerName, brokerUrl,
-                          targetSpaceGuid);
         String jobId = client.createServiceBroker(ImmutableCloudServiceBroker.builder()
                                                                              .name(serviceBrokerName)
                                                                              .username(IntegrationTestConstants.SERVICE_BROKER_USERNAME)
@@ -757,9 +663,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                                                                              .url(brokerUrl)
                                                                              .spaceGuid(targetSpaceGuid)
                                                                              .build());
-        System.out.printf("[SETUP] createServiceBroker submitted, jobId=\"%s\"%n", jobId);
         pollServiceBrokerOperation(jobId, serviceBrokerName);
-        System.out.println("[SETUP] createServiceBroker job completed");
     }
 
     private static String getServiceBrokerUrl(String serviceBrokerEndpoint, String domain) {

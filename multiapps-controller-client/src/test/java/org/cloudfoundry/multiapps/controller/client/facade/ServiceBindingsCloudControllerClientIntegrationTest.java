@@ -1,9 +1,5 @@
 package org.cloudfoundry.multiapps.controller.client.facade;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,10 +12,8 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudAsyncJob;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudProcess;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBinding;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
@@ -30,11 +24,8 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloud
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.InstanceInfo;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.InstancesInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.JobState;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.ServicePlanVisibility;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ImmutableApplicationToCreateDto;
@@ -44,8 +35,11 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
+import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.SERVICE_BROKER_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -53,6 +47,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControllerClientIntegrationTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceBindingsCloudControllerClientIntegrationTest.class);
 
     private static final String APP_NAME = "binding-app-test";
     private static final String SERVICE_NAME = "binding-service-test";
@@ -70,9 +66,7 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
     @BeforeAll
     static void setUp() throws InterruptedException {
         String brokerPathString = ITVariable.PATH_TO_SERVICE_BROKER_APPLICATION.getValue();
-        System.out.printf("[SETUP] PATH_TO_SERVICE_BROKER_APPLICATION = \"%s\"%n", brokerPathString);
         if (brokerPathString == null) {
-            System.out.println("[SETUP] broker path is null -> skipping broker setup, all tests will no-op");
             return;
         }
 
@@ -80,122 +74,34 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
         if (Files.notExists(brokerPath)) {
             fail(MessageFormat.format("Specified service broker path \"{0}\" does not exists", brokerPathString));
         }
-        System.out.printf("[SETUP] target space guid = \"%s\", default domain = \"%s\"%n", target.getMetadata()
-                                                                                                 .getGuid(),
-                          client.getDefaultDomain()
-                                .getName());
-        System.out.println("[SETUP] pushing service broker application ...");
         pushServiceBrokerApplication(brokerPath);
-        System.out.println("[SETUP] service broker application pushed");
-
-        dumpBrokerAppDiagnostics();
 
         try {
-            System.out.println("[SETUP] registering service broker with CF ...");
             createServiceBroker();
             pushedServiceBroker = true;
-            System.out.println("[SETUP] service broker registered successfully");
         } catch (CloudOperationException e) {
-            System.out.printf("[SETUP] createServiceBroker threw CloudOperationException status=%s message=\"%s\"%n", e.getStatusCode(),
-                              e.getMessage());
             if (e.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
                 // Ignore because a service broker with this name already exists
-                pushedServiceBroker = true;
-                System.out.println("[SETUP] 422 -> assuming broker already exists, proceeding (pushedServiceBroker=true)");
+                LOGGER.warn(MessageFormat.format("Service broker \"{0}\" already exists. Skipping creation. \"{1}\"", SERVICE_BROKER_NAME,
+                                                 e.getMessage()));
             } else {
                 fail("Service broker creation failed!", e);
             }
         }
 
         if (pushedServiceBroker) {
-            System.out.println("[SETUP] making the broker's service plans public ...");
-            client.updateServicePlanVisibilityForBroker(IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME,
-                                                        ServicePlanVisibility.PUBLIC);
-            System.out.println("[SETUP] service plans made public");
-
-            System.out.println("[SETUP] pushing the binding test application ...");
             pushApplication();
-            System.out.println("[SETUP] setUp complete");
-        }
-    }
-
-    private static void dumpBrokerAppDiagnostics() {
-        try {
-            String appName = IntegrationTestConstants.SERVICE_BROKER_BINDINGS_APP_NAME;
-            CloudApplication app = client.getApplication(appName, false);
-            if (app == null) {
-                System.out.printf("[DIAG] broker app \"%s\" NOT FOUND%n", appName);
-                return;
-            }
-            System.out.printf("[DIAG] broker app \"%s\" guid=%s state=%s%n", appName, app.getGuid(), app.getState());
-
-            InstancesInfo instancesInfo = client.getApplicationInstances(app);
-            for (InstanceInfo instance : instancesInfo.getInstances()) {
-                System.out.printf("[DIAG]   instance #%d state=%s%n", instance.getIndex(), instance.getState());
-            }
-
-            CloudProcess process = client.getApplicationProcess(app.getGuid());
-            System.out.printf("[DIAG]   web process: healthCheckType=%s healthCheckEndpoint=%s instances=%s memoryMb=%s%n",
-                              process.getHealthCheckType(), process.getHealthCheckHttpEndpoint(), process.getInstances(),
-                              process.getMemoryInMb());
-
-            for (CloudRoute route : client.getApplicationRoutes(app.getGuid())) {
-                System.out.printf("[DIAG]   route url=%s%n", route.getUrl());
-            }
-
-            String defaultDomain = client.getDefaultDomain()
-                                         .getName();
-            String base = MessageFormat.format("https://{0}.{1}", IntegrationTestConstants.SERVICE_BROKER_BINDINGS_HOST, defaultDomain);
-            probeBrokerEndpoint(base + "/");
-            probeBrokerEndpoint(base + "/" + SERVICE_BROKER_ENDPOINT);
-            probeBrokerEndpoint(base + "/" + SERVICE_BROKER_ENDPOINT + "/v2/catalog");
-        } catch (Exception e) {
-            System.out.printf("[DIAG] diagnostics failed: %s: %s%n", e.getClass()
-                                                                      .getSimpleName(),
-                              e.getMessage());
-        }
-    }
-
-    private static void probeBrokerEndpoint(String url) {
-        try {
-            String auth = IntegrationTestConstants.SERVICE_BROKER_USERNAME + ":" + IntegrationTestConstants.SERVICE_BROKER_PASSWORD;
-            String basic = java.util.Base64.getEncoder()
-                                           .encodeToString(auth.getBytes());
-            HttpResponse<String> response = HttpClient.newHttpClient()
-                                                      .send(HttpRequest.newBuilder()
-                                                                       .uri(URI.create(url))
-                                                                       .header("Authorization", "Basic " + basic)
-                                                                       .GET()
-                                                                       .build(),
-                                                            HttpResponse.BodyHandlers.ofString());
-            String body = response.body();
-            String snippet = body == null ? "" : body.substring(0, Math.min(200, body.length()));
-            System.out.printf("[DIAG] probe %s -> HTTP %d, server=%s, body[0..200]=%s%n", url, response.statusCode(),
-                              response.headers()
-                                      .firstValue("server")
-                                      .orElse("?"),
-                              snippet.replaceAll("%n", " "));
-        } catch (Exception e) {
-            System.out.printf("[DIAG] probe %s -> FAILED %s: %s%n", url, e.getClass()
-                                                                          .getSimpleName(),
-                              e.getMessage());
         }
     }
 
     @AfterAll
     static void tearDown() {
-        if (!pushedServiceBroker) {
-            return; // cleanup no-op: nothing was provisioned
-        }
-
         deleteApplication(APP_NAME);
 
         try {
             String jobId = client.deleteServiceBroker(IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME);
             pollServiceBrokerOperation(jobId);
         } catch (CloudOperationException e) {
-            // Best-effort cleanup: a NOT_FOUND broker is already gone, and a failed delete job must not mask
-            // the test outcome by crashing @AfterAll. Swallow both.
             if (e.getStatusCode() != HttpStatus.NOT_FOUND && e.getStatusCode() != HttpStatus.INTERNAL_SERVER_ERROR) {
                 throw e;
             }
@@ -363,10 +269,6 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
     }
 
     private void createManagedService() {
-        System.out.printf("[TEST] createManagedService: creating service \"%s\" with offering=\"%s\" plan=\"%s\" in space guid=\"%s\"%n",
-                          SERVICE_NAME, IntegrationTestConstants.SERVICE_OFFERING, IntegrationTestConstants.SERVICE_PLAN,
-                          target.getMetadata()
-                                .getGuid());
         client.createServiceInstance(ImmutableCloudServiceInstance.builder()
                                                                   .name(SERVICE_NAME)
                                                                   .label(IntegrationTestConstants.SERVICE_OFFERING)
@@ -496,13 +398,7 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
                                      .getName();
 
         Staging staging = ImmutableStaging.builder()
-                                          .addBuildpack(IntegrationTestConstants.SAP_JAVA_BUILDPACK)
-                                          // Mirror the proven pattern from ApplicationsCloudControllerClientIntegrationTest:
-                                          // a "process" health check (crash detection) with an explicit timeout. Do NOT use an
-                                          // http check on the OSB catalog path - CF's http health probe is UNAUTHENTICATED, and
-                                          // /v2/catalog requires Basic auth, so it would never return 2xx and the app would be
-                                          // reported as failed-to-start. The real catalog-readiness gate is CF's own server-side
-                                          // catalog fetch during createServiceBroker, which is already polled below.
+                                          .addBuildpack(IntegrationTestConstants.JAVA_BUILDPACK)
                                           .healthCheckType(HealthCheckType.PROCESS.toString())
                                           .healthCheckTimeout(IntegrationTestConstants.HEALTH_CHECK_TIMEMOUT)
                                           .build();
@@ -533,10 +429,7 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
                                        .getGuid()
                                        .toString();
 
-        String brokerUrl = MessageFormat.format("https://{0}.{1}/{2}", IntegrationTestConstants.SERVICE_BROKER_BINDINGS_HOST, defaultDomain,
-                                                SERVICE_BROKER_ENDPOINT);
-        System.out.printf("[SETUP] createServiceBroker: name=\"%s\" url=\"%s\" spaceGuid=\"%s\"%n",
-                          IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME, brokerUrl, targetSpaceGuid);
+        String brokerUrl = getServiceBrokerUrl(defaultDomain);
 
         String jobId = client.createServiceBroker(ImmutableCloudServiceBroker.builder()
                                                                              .name(IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME)
@@ -545,9 +438,12 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
                                                                              .url(brokerUrl)
                                                                              .spaceGuid(targetSpaceGuid)
                                                                              .build());
-        System.out.printf("[SETUP] createServiceBroker submitted, jobId=\"%s\"%n", jobId);
         pollServiceBrokerOperation(jobId);
-        System.out.println("[SETUP] createServiceBroker job completed");
+    }
+
+    private static String getServiceBrokerUrl(String domain) {
+        return MessageFormat.format("https://{0}.{1}/{2}", IntegrationTestConstants.SERVICE_BROKER_BINDINGS_HOST, domain,
+                                    SERVICE_BROKER_ENDPOINT);
     }
 
     private static void pollServiceBrokerOperation(String jobId) {
@@ -555,10 +451,6 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
             CloudAsyncJob job = client.getAsyncJob(jobId);
 
             if (job.getState() == JobState.FAILED) {
-                // Throw a CloudOperationException (not a JUnit fail()/AssertionFailedError) so the async-job
-                // failure flows through setUp's catch (CloudOperationException) and is reported as an
-                // attributed "Service broker creation failed!" instead of a bare assertion error buried in a
-                // polling helper. Carrying a non-422 status guarantees it is NOT silently swallowed.
                 throw new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR, "Service broker async operation failed",
                                                   MessageFormat.format("Polling async operation of service broker failed with \"{0}\"",
                                                                        job.getErrors()));
