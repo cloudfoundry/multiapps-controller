@@ -89,6 +89,9 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
                 LOGGER.info(MessageFormat.format("Service broker \"{0}\" already exists. Skipping creation. \"{1}\"",
                                                  IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME,
                                                  e.getMessage()));
+                System.out.println(MessageFormat.format("Service broker \"{0}\" already exists. Skipping creation. \"{1}\"",
+                                                        IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME,
+                                                        e.getMessage()));
             } else {
                 fail("Service broker creation failed!", e);
             }
@@ -399,6 +402,9 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
         waitForBrokerCatalog(getServiceBrokerUrl(client.getDefaultDomain()
                                                        .getName()));
         LOGGER.info(MessageFormat.format(
+            "Service broker application \"{0}\" has been successfully pushed. All that is left now is to create the service broker (register it to CF).",
+            IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME));
+        System.out.println(MessageFormat.format(
             "Service broker application \"{0}\" has been successfully pushed. All that is left now is to create the service broker (register it to CF).",
             IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME));
     }

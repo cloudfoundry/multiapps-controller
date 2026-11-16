@@ -102,6 +102,9 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                 LOGGER.info(MessageFormat.format("Service broker \"{0}\" already exists. Skipping creation. \"{1}\"",
                                                  IntegrationTestConstants.SERVICE_BROKER_NAME,
                                                  e.getMessage()));
+                System.out.println(MessageFormat.format("Service broker \"{0}\" already exists. Skipping creation. \"{1}\"",
+                                                        IntegrationTestConstants.SERVICE_BROKER_NAME,
+                                                        e.getMessage()));
             } else {
                 fail("Service broker creation failed!", e);
             }
@@ -641,6 +644,9 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
         waitForBrokerCatalog(getServiceBrokerUrl(SERVICE_BROKER_ENDPOINT, client.getDefaultDomain()
                                                                                 .getName()));
         LOGGER.info(MessageFormat.format(
+            "Service broker application \"{0}\" has been successfully pushed. All that is left now is to create the service broker (register it to CF).",
+            IntegrationTestConstants.SERVICE_BROKER_NAME));
+        System.out.println(MessageFormat.format(
             "Service broker application \"{0}\" has been successfully pushed. All that is left now is to create the service broker (register it to CF).",
             IntegrationTestConstants.SERVICE_BROKER_NAME));
     }
