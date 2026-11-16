@@ -27,10 +27,16 @@ public class ConfigurationReferencesResolverTest extends AbstractConfigurationRe
                 // (2) Use new syntax:
                 Arguments.of("mtad-05.yaml", "configuration-entries-01.json",
                         new Expectation(Expectation.Type.JSON, "result-01.json")),
-                // (3) Use new syntax when more than one configuration entries are available:
+                // (3) Multiple configuration entries with identical content collapse to one:
                 Arguments.of("mtad-05.yaml", "configuration-entries-05.json",
+                        new Expectation(Expectation.Type.JSON, "result-01.json")),
+                // (3a) Multiple configuration entries with differing content for different targets still fail:
+                Arguments.of("mtad-05.yaml", "configuration-entries-08.json",
                         new Expectation(Expectation.Type.EXCEPTION,
                                 "Multiple configuration entries were found matching the filter specified in resource \"resource-2\"")),
+                // (3b) Multiple versions of the same provider (differing content, same target) resolve to the newest:
+                Arguments.of("mtad-05.yaml", "configuration-entries-09.json",
+                        new Expectation(Expectation.Type.JSON, "result-01.json")),
                 // (4) Use new syntax when more than one configuration entries are available:
                 Arguments.of("mtad-07.yaml", "configuration-entries-06.json",
                         new Expectation(Expectation.Type.JSON, "result-02.json")),
