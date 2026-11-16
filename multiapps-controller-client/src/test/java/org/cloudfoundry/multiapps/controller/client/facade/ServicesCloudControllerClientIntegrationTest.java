@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.client.facade.broker.FailConfiguration;
 import org.cloudfoundry.multiapps.controller.client.facade.broker.ImmutableFailConfiguration;
 import org.cloudfoundry.multiapps.controller.client.facade.broker.ImmutableServiceBrokerConfiguration;
@@ -79,6 +80,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     private static final String SERVICE_BROKER_ENDPOINT = "configurations/1";
     private static final List<String> SERVICE_TAGS = List.of("custom-tag-1", "custom-tag-2");
     private static final int MAX_BROKER_CATALOG_POLL_ATTEMPTS = 60;
+    private static final int MAX_POLL_ATTEMPTS = 60;
 
     private static boolean pushedServiceBroker = false;
 
@@ -114,10 +116,13 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
 
     @AfterAll
     static void tearDown() {
-        CloudServiceBroker broker = client.getServiceBroker(IntegrationTestConstants.SERVICE_BROKER_NAME, false);
-        if (broker != null) {
+        try {
             String jobId = client.deleteServiceBroker(IntegrationTestConstants.SERVICE_BROKER_NAME);
             pollServiceBrokerOperation(jobId, IntegrationTestConstants.SERVICE_BROKER_NAME);
+        } catch (CloudOperationException e) {
+            if (e.getStatusCode() != HttpStatus.NOT_FOUND && e.getStatusCode() != HttpStatus.INTERNAL_SERVER_ERROR) {
+                throw e;
+            }
         }
 
         try {
@@ -731,19 +736,27 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     }
 
     private static void pollServiceBrokerOperation(String jobId, String serviceBrokerName) {
-        CloudAsyncJob job = client.getAsyncJob(jobId);
-        while (job.getState() != JobState.COMPLETE && !hasAsyncJobFailed(job)) {
-            sleep(TimeUnit.SECONDS, 1);
-            job = client.getAsyncJob(jobId);
-        }
-        if (hasAsyncJobFailed(job)) {
-            fail(MessageFormat.format("Polling async operation of service broker \"{0}\" failed with \"{1}\"", serviceBrokerName,
-                                      job.getErrors()));
-        }
-    }
+        for (int attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
+            CloudAsyncJob job = client.getAsyncJob(jobId);
 
-    private static boolean hasAsyncJobFailed(CloudAsyncJob job) {
-        return job.getState() == JobState.FAILED;
+            if (job.getState() == JobState.FAILED) {
+                throw new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR, "Service broker async operation failed",
+                                                  MessageFormat.format(
+                                                      "Polling async operation of service broker \"{0}\" failed with \"{1}\"",
+                                                      serviceBrokerName,
+                                                      job.getErrors()));
+            }
+
+            if (job.getState() == JobState.COMPLETE) {
+                return;
+            }
+
+            MiscUtil.sleep(TimeUnit.SECONDS.toMillis(1));
+        }
+
+        throw new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR, "Service broker async operation timed out",
+                                          MessageFormat.format("Timeout polling the service broker job \"{0}\" for service broker \"{1}\"",
+                                                               jobId, serviceBrokerName));
     }
 
     private CloudServiceInstance buildUserProvidedService(String serviceName) {
