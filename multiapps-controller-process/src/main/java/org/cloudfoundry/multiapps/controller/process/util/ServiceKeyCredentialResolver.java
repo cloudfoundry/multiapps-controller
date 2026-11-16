@@ -1,20 +1,14 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.text.MessageFormat;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceKey;
-import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.process.Messages;
-import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
-import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.cloudfoundry.multiapps.mta.util.DynamicParameterUtil;
 
 /**
@@ -29,31 +23,6 @@ public class ServiceKeyCredentialResolver {
     public ServiceKeyCredentialResolver(CloudControllerClient client, Map<String, String> serviceInstanceNamesByRelationship) {
         this.client = client;
         this.serviceInstanceNamesByRelationship = serviceInstanceNamesByRelationship;
-    }
-
-    public static Map<String, String> buildServiceInstanceNamesFromDescriptor(DeploymentDescriptor descriptor) {
-        Map<String, String> serviceInstanceNames = new HashMap<>();
-        if (descriptor == null) {
-            return serviceInstanceNames;
-        }
-        for (Resource resource : descriptor.getResources()) {
-            Object serviceName = resource.getParameters()
-                                         .get(SupportedParameters.SERVICE_NAME);
-            serviceInstanceNames.put(resource.getName(),
-                                     serviceName instanceof String ? (String) serviceName : resource.getName());
-        }
-        return serviceInstanceNames;
-    }
-
-    public static Map<String, String> buildServiceInstanceNamesFromServicesToBind(List<CloudServiceInstanceExtended> servicesToBind) {
-        Map<String, String> serviceInstanceNames = new HashMap<>();
-        if (servicesToBind == null) {
-            return serviceInstanceNames;
-        }
-        for (CloudServiceInstanceExtended service : servicesToBind) {
-            serviceInstanceNames.put(service.getResourceName(), service.getName());
-        }
-        return serviceInstanceNames;
     }
 
     public CloudServiceKey resolve(CloudServiceKey serviceKey) {
