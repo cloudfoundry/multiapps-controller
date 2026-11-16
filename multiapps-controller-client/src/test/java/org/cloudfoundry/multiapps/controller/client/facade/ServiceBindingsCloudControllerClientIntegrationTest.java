@@ -1,9 +1,14 @@
 package org.cloudfoundry.multiapps.controller.client.facade;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -391,6 +396,38 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
                                                                       brokerPath);
         ApplicationUtil.stageApplication(client, IntegrationTestConstants.SERVICE_BROKER_BINDINGS_APP_NAME, cloudPackage);
         ApplicationUtil.startApplication(client, IntegrationTestConstants.SERVICE_BROKER_BINDINGS_APP_NAME);
+        waitForBrokerCatalog(getServiceBrokerUrl(client.getDefaultDomain()
+                                                       .getName()));
+    }
+
+    private static void waitForBrokerCatalog(String brokerUrl) {
+        String catalogUrl = brokerUrl + "/v2/catalog";
+        String basicAuth = Base64.getEncoder()
+                                 .encodeToString((IntegrationTestConstants.SERVICE_BROKER_USERNAME + ":"
+                                     + IntegrationTestConstants.SERVICE_BROKER_PASSWORD).getBytes());
+        HttpClient httpClient = HttpClient.newBuilder()
+                                          .followRedirects(HttpClient.Redirect.NORMAL)
+                                          .build();
+        HttpRequest request = HttpRequest.newBuilder()
+                                         .uri(URI.create(catalogUrl))
+                                         .header("Authorization", "Basic " + basicAuth)
+                                         .header("X-Broker-API-Version", "2.13")
+                                         .GET()
+                                         .build();
+        for (int attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
+            try {
+                HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+                if (response.statusCode() == HttpStatus.OK.value()) {
+                    return;
+                }
+            } catch (Exception e) {
+                // not serving yet - retry
+            }
+            MiscUtil.sleep(TimeUnit.SECONDS.toMillis(2));
+        }
+        fail(MessageFormat.format("Service broker application did not serve its catalog at \"{0}\" within the timeout; "
+                                      + "the broker app likely failed to start (check buildpack / Tomcat version / JBP_CONFIG_TOMCAT).",
+                                  catalogUrl));
     }
 
     private static ApplicationToCreateDto getServiceBrokerApplicationToCreate() {

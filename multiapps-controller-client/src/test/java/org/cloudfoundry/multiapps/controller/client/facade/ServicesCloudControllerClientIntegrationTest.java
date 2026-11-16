@@ -1,9 +1,14 @@
 package org.cloudfoundry.multiapps.controller.client.facade;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +79,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     private static final Map<String, Object> USER_SERVICE_CREDENTIALS = Map.of("testCredentialsKey", "testCredentialsValue");
     private static final String SERVICE_BROKER_ENDPOINT = "configurations/1";
     private static final List<String> SERVICE_TAGS = List.of("custom-tag-1", "custom-tag-2");
+    private static final int MAX_BROKER_CATALOG_POLL_ATTEMPTS = 60;
 
     private static boolean pushedServiceBroker = false;
 
@@ -104,13 +110,24 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
 
     @AfterAll
     static void tearDown() {
-        String jobId = client.deleteServiceBroker(IntegrationTestConstants.SERVICE_BROKER_NAME);
-        pollServiceBrokerOperation(jobId, IntegrationTestConstants.SERVICE_BROKER_NAME);
+        CloudServiceBroker broker = client.getServiceBroker(IntegrationTestConstants.SERVICE_BROKER_NAME, false);
+        if (broker != null) {
+            String jobId = client.deleteServiceBroker(IntegrationTestConstants.SERVICE_BROKER_NAME);
+            pollServiceBrokerOperation(jobId, IntegrationTestConstants.SERVICE_BROKER_NAME);
+        }
 
-        client.deleteApplication(IntegrationTestConstants.SERVICE_BROKER_APP_NAME);
-        client.deleteRoute(IntegrationTestConstants.SERVICE_BROKER_HOST, client.getDefaultDomain()
-                                                                               .getName(),
-                           null);
+        try {
+            client.deleteApplication(IntegrationTestConstants.SERVICE_BROKER_APP_NAME);
+        } catch (CloudOperationException e) {
+            // empty on purpose - the broker application may not exist
+        }
+        try {
+            client.deleteRoute(IntegrationTestConstants.SERVICE_BROKER_HOST, client.getDefaultDomain()
+                                                                                   .getName(),
+                               null);
+        } catch (CloudOperationException e) {
+            // empty on purpose - the route may not exist
+        }
     }
 
     @Test
@@ -621,6 +638,38 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
         CloudPackage cloudPackage = ApplicationUtil.uploadApplication(client, IntegrationTestConstants.SERVICE_BROKER_APP_NAME, brokerPath);
         ApplicationUtil.stageApplication(client, IntegrationTestConstants.SERVICE_BROKER_APP_NAME, cloudPackage);
         ApplicationUtil.startApplication(client, IntegrationTestConstants.SERVICE_BROKER_APP_NAME);
+        waitForBrokerCatalog(getServiceBrokerUrl(SERVICE_BROKER_ENDPOINT, client.getDefaultDomain()
+                                                                                .getName()));
+    }
+
+    private static void waitForBrokerCatalog(String brokerUrl) {
+        String catalogUrl = brokerUrl + "/v2/catalog";
+        String basicAuth = Base64.getEncoder()
+                                 .encodeToString((IntegrationTestConstants.SERVICE_BROKER_USERNAME + ":"
+                                     + IntegrationTestConstants.SERVICE_BROKER_PASSWORD).getBytes());
+        HttpClient httpClient = HttpClient.newBuilder()
+                                          .followRedirects(HttpClient.Redirect.NORMAL)
+                                          .build();
+        HttpRequest request = HttpRequest.newBuilder()
+                                         .uri(URI.create(catalogUrl))
+                                         .header("Authorization", "Basic " + basicAuth)
+                                         .header("X-Broker-API-Version", "2.13")
+                                         .GET()
+                                         .build();
+        for (int attempt = 0; attempt < MAX_BROKER_CATALOG_POLL_ATTEMPTS; attempt++) {
+            try {
+                HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+                if (response.statusCode() == HttpStatus.OK.value()) {
+                    return;
+                }
+            } catch (Exception e) {
+                // not serving yet - retry
+            }
+            sleep(TimeUnit.SECONDS, 2);
+        }
+        fail(MessageFormat.format("Service broker application did not serve its catalog at \"{0}\" within the timeout; "
+                                      + "the broker app likely failed to start (check buildpack / Tomcat version / JBP_CONFIG_TOMCAT).",
+                                  catalogUrl));
     }
 
     private static ApplicationToCreateDto getServiceBrokerApplicationToCreate() {
