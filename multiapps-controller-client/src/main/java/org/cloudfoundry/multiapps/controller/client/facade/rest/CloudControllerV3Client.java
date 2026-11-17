@@ -281,18 +281,6 @@ public class CloudControllerV3Client {
         return href;
     }
 
-    //    private long determineElapsedTime(long startTimeNanos, Duration timeout, String jobGuid) {
-    //        long elapsedNanos = System.nanoTime() - startTimeNanos;
-    //        long timeoutNanos = timeout.toNanos();
-    //
-    //        if (elapsedNanos >= timeoutNanos) {
-    //            throw new CloudOperationException(HttpStatus.GATEWAY_TIMEOUT, Messages.JOB_TIMEOUT,
-    //                                              MessageFormat.format(Messages.JOB_0_DID_NOT_COMPLETE_WITHIN_1, jobGuid, timeout));
-    //        }
-    //
-    //        return elapsedNanos;
-    //    }
-
     public RestClient getRestClient() {
         return restClient;
     }
