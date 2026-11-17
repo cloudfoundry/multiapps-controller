@@ -16,7 +16,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
@@ -31,7 +30,6 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBr
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceOffering;
-import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServicePlan;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.HealthCheckType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudDomain;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudRoute;
@@ -190,7 +188,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
             // (1) Without specified broker name
             Arguments.of("test-managed-service", null),
             // (2) With specified broker name
-            Arguments.of("test-managed-service-with-broker", "test-service-broker"));
+            Arguments.of("test-managed-service-with-broker", IntegrationTestConstants.SERVICE_BROKER_SERVICES_NAME));
     }
 
     @ParameterizedTest
@@ -465,29 +463,15 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     }
 
     @Test
-    @DisplayName("Update service plan visibility for broker makes the broker's plans public")
+    @DisplayName("Updating plan visibility to PUBLIC is rejected for a space-scoped broker's plans")
     void updateServicePlanVisibilityForBroker() {
         Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
 
-        client.updateServicePlanVisibilityForBroker(IntegrationTestConstants.SERVICE_BROKER_SERVICES_NAME, ServicePlanVisibility.PUBLIC);
-
-        CloudServiceOffering finchServiceOffering = client.getServiceOfferings()
-                                                          .stream()
-                                                          .filter(o -> IntegrationTestConstants.SERVICE_OFFERING.equals(o.getName()))
-                                                          .findFirst()
-                                                          .orElseThrow(() -> new IllegalStateException(MessageFormat.format(
-                                                              "Service offering \"{0}\" not found after updating plan visibility",
-                                                              IntegrationTestConstants.SERVICE_OFFERING)));
-
-        List<CloudServicePlan> plans = finchServiceOffering.getServicePlans();
-        assertFalse(plans.isEmpty(),
-                    "Expected the broker's offering to expose plans");
-        assertTrue(plans.stream()
-                        .allMatch(plan -> Boolean.TRUE.equals(plan.isPublic())),
-                   MessageFormat.format("Expected all plans of \"{0}\" to be public after the visibility update, but was \"{1}\"",
-                                        IntegrationTestConstants.SERVICE_OFFERING,
-                                        plans.stream()
-                                             .collect(Collectors.toMap(CloudServicePlan::getName, CloudServicePlan::isPublic))));
+        CloudOperationException exception = assertThrows(CloudOperationException.class,
+                                                         () -> client.updateServicePlanVisibilityForBroker(
+                                                             IntegrationTestConstants.SERVICE_BROKER_SERVICES_NAME,
+                                                             ServicePlanVisibility.PUBLIC));
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, exception.getStatusCode());
     }
 
     @Test
