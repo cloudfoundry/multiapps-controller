@@ -1,9 +1,12 @@
 package org.cloudfoundry.multiapps.controller.client.facade.rest;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
 import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationException;
+import org.cloudfoundry.multiapps.controller.client.facade.UploadStatusCallback;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudSpace;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.DockerInfo;
@@ -161,6 +164,18 @@ class PackagesV3OperationsTest {
 
         Assertions.assertEquals(Status.READY, result.getStatus());
         Assertions.assertNull(result.getErrorDetails());
+        factory.verify();
+    }
+
+    @Test
+    void testAsyncUploadApplicationThrowsWhenApplicationNotFound() {
+        factory.stubGet(MockControllerClientFactory.BASE_URL + "/v3/apps?per_page=50&names=missing-app", "{\"resources\":[]}");
+
+        Path file = Paths.get("unused");
+        UploadStatusCallback callback = UploadStatusCallback.NONE;
+
+        Assertions.assertThrows(CloudOperationException.class,
+                                () -> operations.asyncUploadApplication("missing-app", file, callback, null));
         factory.verify();
     }
 
