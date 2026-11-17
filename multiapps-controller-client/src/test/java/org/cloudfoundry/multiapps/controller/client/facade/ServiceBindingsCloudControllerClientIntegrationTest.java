@@ -169,25 +169,19 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
     @DisplayName("Unbind a service instance and verify the binding is removed")
     void unbindServiceInstance() {
         Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
-        try {
-            createManagedService();
-            UUID appGuid = client.getApplicationGuid(APP_NAME);
+        createManagedService();
+        UUID appGuid = client.getApplicationGuid(APP_NAME);
 
-            Optional<String> bindingJob = client.bindServiceInstance(BINDING_NAME, APP_NAME, SERVICE_NAME);
-            bindingJob.ifPresent(this::waitAsyncJobToComplete);
-            List<CloudServiceBinding> appBindings = client.getAppBindings(appGuid);
-            assertEquals(1, appBindings.size());
+        Optional<String> bindingJob = client.bindServiceInstance(BINDING_NAME, APP_NAME, SERVICE_NAME);
+        bindingJob.ifPresent(this::waitAsyncJobToComplete);
+        List<CloudServiceBinding> appBindings = client.getAppBindings(appGuid);
+        assertEquals(1, appBindings.size());
 
-            List<String> unbindJobs = client.unbindServiceInstance(APP_NAME, SERVICE_NAME);
-            unbindJobs.forEach(this::waitAsyncJobToComplete);
+        List<String> unbindJobs = client.unbindServiceInstance(APP_NAME, SERVICE_NAME);
+        unbindJobs.forEach(this::waitAsyncJobToComplete);
 
-            assertTrue(client.getAppBindings(appGuid)
-                             .isEmpty());
-        } catch (Exception e) {
-            fail(e);
-        } finally {
-            deleteService();
-        }
+        assertTrue(client.getAppBindings(appGuid)
+                         .isEmpty());
     }
 
     @Test

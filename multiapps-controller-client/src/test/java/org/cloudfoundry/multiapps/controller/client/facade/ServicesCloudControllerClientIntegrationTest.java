@@ -102,9 +102,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                 LOGGER.info(MessageFormat.format("Service broker \"{0}\" already exists. Skipping creation. \"{1}\"",
                                                  IntegrationTestConstants.SERVICE_BROKER_SERVICES_NAME,
                                                  e.getMessage()));
-                System.out.println(MessageFormat.format("Service broker \"{0}\" already exists. Skipping creation. \"{1}\"",
-                                                        IntegrationTestConstants.SERVICE_BROKER_SERVICES_NAME,
-                                                        e.getMessage()));
                 pushedServiceBroker = true;
             } else {
                 fail("Service broker creation failed!", e);
@@ -126,14 +123,17 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
         try {
             client.deleteApplication(IntegrationTestConstants.SERVICE_BROKER_APP_NAME);
         } catch (CloudOperationException e) {
-            // empty on purpose - the broker application may not exist
+            LOGGER.warn(MessageFormat.format("Deletion of application \"{0}\" failed during teardown: \"{1}\"",
+                                             IntegrationTestConstants.SERVICE_BROKER_APP_NAME, e.getMessage()));
         }
+
         try {
             client.deleteRoute(IntegrationTestConstants.SERVICE_BROKER_HOST, client.getDefaultDomain()
                                                                                    .getName(),
                                null);
         } catch (CloudOperationException e) {
-            // empty on purpose - the route may not exist
+            LOGGER.warn(MessageFormat.format("Deletion of route \"{0}\" failed during teardown: \"{1}\"",
+                                             IntegrationTestConstants.SERVICE_BROKER_HOST, e.getMessage()));
         }
     }
 
@@ -655,6 +655,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                                          .header("X-Broker-API-Version", "2.13")
                                          .GET()
                                          .build();
+
         for (int attempt = 0; attempt < MAX_BROKER_CATALOG_POLL_ATTEMPTS; attempt++) {
             try {
                 HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
@@ -666,9 +667,9 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
             }
             sleep(TimeUnit.SECONDS, 2);
         }
-        fail(MessageFormat.format("Service broker application did not serve its catalog at \"{0}\" within the timeout; "
-                                      + "the broker app likely failed to start (check buildpack / Tomcat version / JBP_CONFIG_TOMCAT).",
-                                  catalogUrl));
+        fail(MessageFormat.format(
+            "Service broker application did not serve its catalog at \"{0}\" within the timeout - the broker app likely failed to start.",
+            catalogUrl));
     }
 
     private static ApplicationToCreateDto getServiceBrokerApplicationToCreate() {
