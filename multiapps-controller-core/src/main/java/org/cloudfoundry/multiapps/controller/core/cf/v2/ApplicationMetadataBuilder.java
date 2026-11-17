@@ -5,7 +5,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.Constants;
@@ -21,11 +22,11 @@ public class ApplicationMetadataBuilder {
         String mtaModuleProvidedDependenciesAnnotation = buildMtaModuleProvidedDependenciesAnnotation(module);
         String mtaServicesAnnotation = buildBoundMtaServicesAnnotation(services);
 
-        Metadata.Builder builder = MtaMetadataBuilder.init(deploymentDescriptor, namespace)
-                                                     .annotation(MtaMetadataAnnotations.MTA_MODULE, mtaModuleAnnotation)
-                                                     .annotation(MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES,
+        ImmutableMetadata.Builder builder = MtaMetadataBuilder.init(deploymentDescriptor, namespace)
+                                                     .putAnnotation(MtaMetadataAnnotations.MTA_MODULE, mtaModuleAnnotation)
+                                                     .putAnnotation(MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES,
                                                                  mtaModuleProvidedDependenciesAnnotation)
-                                                     .annotation(MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES, mtaServicesAnnotation);
+                                                     .putAnnotation(MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES, mtaServicesAnnotation);
 
         return builder.build();
     }

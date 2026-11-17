@@ -1,7 +1,11 @@
 package org.cloudfoundry.multiapps.controller.client.facade;
 
-import org.cloudfoundry.client.v3.Metadata;
-import org.cloudfoundry.client.v3.processes.HealthCheckType;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudBuild;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
@@ -9,13 +13,16 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudPackage;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudProcess;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.DockerInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.HealthCheckType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudApplication;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudDomain;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableDockerInfo;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.InstancesInfo;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.LifecycleType;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Status;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
@@ -25,15 +32,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
-
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.APPLICATION_HOST;
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.DEFAULT_DOMAIN;
@@ -45,7 +43,6 @@ import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTes
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.MEMORY_IN_MB;
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.NODEJS_BUILDPACK;
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.NODEJS_BUILDPACK_URL;
-import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.STATICFILE_APPLICATION_CONTENT;
 import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.STATICFILE_BUILDPACK;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -85,15 +82,13 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
         String applicationName = "test-app-1";
         Staging staging = ImmutableStaging.builder()
                                           .addBuildpack(JAVA_BUILDPACK)
-                                          .healthCheckType(HealthCheckType.PROCESS.getValue())
+                                          .healthCheckType(HealthCheckType.PROCESS.toString())
                                           .healthCheckHttpEndpoint(HEALTH_CHECK_ENDPOINT)
                                           .healthCheckTimeout(HEALTH_CHECK_TIMEMOUT)
                                           .build();
         CloudRoute route = getImmutableCloudRoute();
         try {
             verifyApplicationWillBeCreated(applicationName, staging, Set.of(route));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -110,8 +105,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
             Exception exception = assertThrows(CloudOperationException.class, () -> client.getApplication(applicationName));
             assertTrue(exception.getMessage()
                                 .contains(HttpStatus.NOT_FOUND.getReasonPhrase()));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             CloudApplication app = client.getApplication(applicationName, false);
             if (app != null) {
@@ -127,8 +120,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
         try {
             createAndVerifyDefaultApplication(applicationName);
             assertNotNull(client.getApplicationGuid(applicationName));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -144,8 +135,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
             UUID applicationGuid = client.getApplicationGuid(applicationName);
             Map<String, String> applicationEnvironment = client.getApplicationEnvironment(applicationGuid);
             assertEquals("bar", applicationEnvironment.get("foo"));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -157,29 +146,12 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
         String applicationName = "test-application-16";
         try {
             createAndVerifyDefaultApplication(applicationName);
+            client.updateApplicationStaging(applicationName, ImmutableStaging.builder()
+                                                                             .healthCheckType(HealthCheckType.PROCESS.toString())
+                                                                             .build());
             UUID applicationGuid = client.getApplicationGuid(applicationName);
-            var processResponse = delegate.applicationsV3()
-                                          .getProcess(org.cloudfoundry.client.v3.applications.GetApplicationProcessRequest.builder()
-                                                                                                                          .applicationId(
-                                                                                                                              applicationGuid.toString())
-                                                                                                                          .type("web")
-                                                                                                                          .build())
-                                          .block();
-            delegate.processes()
-                    .update(org.cloudfoundry.client.v3.processes.UpdateProcessRequest.builder()
-                                                                                     .processId(processResponse.getId())
-                                                                                     .healthCheck(
-                                                                                         org.cloudfoundry.client.v3.processes.HealthCheck.builder()
-                                                                                                                                         .type(
-                                                                                                                                             HealthCheckType.PROCESS)
-                                                                                                                                         .build())
-                                                                                     .build())
-                    .block();
             CloudProcess cloudProcess = client.getApplicationProcess(applicationGuid);
-            assertEquals(org.cloudfoundry.multiapps.controller.client.facade.domain.HealthCheckType.PROCESS,
-                         cloudProcess.getHealthCheckType());
-        } catch (Exception e) {
-            fail(e);
+            assertEquals(HealthCheckType.PROCESS, cloudProcess.getHealthCheckType());
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -256,8 +228,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
             client.rename(applicationName, newApplicationName);
             assertEquals(applicationGuid, client.getApplication(newApplicationName)
                                                 .getGuid());
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(newApplicationName);
         }
@@ -273,8 +243,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
             CloudApplication application = client.getApplication(applicationName);
             var process = client.getApplicationProcess(application.getGuid());
             assertEquals(256, process.getMemoryInMb());
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -292,8 +260,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
             CloudApplication application = client.getApplication(applicationName);
             var process = client.getApplicationProcess(application.getGuid());
             assertEquals("echo 1", process.getCommand());
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -313,8 +279,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
             UUID applicationGuid = client.getApplicationGuid(applicationName);
             CloudPackage dockerPackage = client.createDockerPackage(applicationGuid, dockerInfo);
             assertEquals(CloudPackage.Type.DOCKER, dockerPackage.getType());
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -337,8 +301,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
             CloudApplication application = client.getApplication(applicationName);
             var routes = client.getApplicationRoutes(application.getGuid());
             assertEquals(List.copyOf(newRoutes), routes);
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -361,8 +323,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
             assertTrue(packagesForApplication.stream()
                                              .map(CloudPackage::getGuid)
                                              .anyMatch(packageGuid -> packageGuid.equals(dockerPackage.getGuid())));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -397,19 +357,48 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
     @DisplayName("Create application and update its metadata")
     void updateApplicationMetadata() {
         String applicationName = "test-application-15";
-        Metadata metadata = Metadata.builder()
-                                    .label("test-app", "test-app")
-                                    .build();
+        Metadata metadata = ImmutableMetadata.builder()
+                                             .putLabel("test-app", "test-app")
+                                             .build();
         try {
             createAndVerifyDefaultApplication(applicationName);
             UUID applicationGuid = client.getApplicationGuid(applicationName);
             client.updateApplicationMetadata(applicationGuid, metadata);
             List<CloudApplication> applicationsByMetadataLabelSelector = client.getApplicationsByMetadataLabelSelector("test-app");
             assertEquals(1, applicationsByMetadataLabelSelector.size());
-            assertEquals(applicationName, applicationsByMetadataLabelSelector.get(0)
+            assertEquals(applicationName, applicationsByMetadataLabelSelector.getFirst()
                                                                              .getName());
-        } catch (Exception e) {
-            fail(e);
+        } finally {
+            client.deleteApplication(applicationName);
+        }
+    }
+
+    @Test
+    @DisplayName("Create application and remove a metadata label by updating it with a null value")
+    void updateApplicationMetadataRemovesLabelWhenValueIsNull() {
+        String applicationName = "test-application-15-unset";
+        String labelKey = "test-app-unset";
+        try {
+            createAndVerifyDefaultApplication(applicationName);
+            UUID applicationGuid = client.getApplicationGuid(applicationName);
+
+            client.updateApplicationMetadata(applicationGuid, ImmutableMetadata.builder()
+                                                                               .putLabel(labelKey, labelKey)
+                                                                               .build());
+            List<CloudApplication> applicationsWithLabel = client.getApplicationsByMetadataLabelSelector(labelKey);
+
+            assertTrue(applicationsWithLabel.stream()
+                                            .anyMatch(application -> applicationName.equals(application.getName())),
+                       "Expected application \"" + applicationName + "\" to be found by label selector \"" + labelKey + "\"");
+
+            client.updateApplicationMetadata(applicationGuid, ImmutableMetadata.builder()
+                                                                               .putLabel(labelKey, null)
+                                                                               .build());
+            List<CloudApplication> applicationsAfterUnset = client.getApplicationsByMetadataLabelSelector(labelKey);
+
+            assertTrue(applicationsAfterUnset.stream()
+                                             .noneMatch(application -> applicationName.equals(application.getName())),
+                       "Expected application \"" + applicationName + "\" to no longer match the selector after the label was unset");
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -425,8 +414,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
                                           .build();
         try {
             verifyApplicationWillBeCreated(applicationName, staging, Set.of(getImmutableCloudRoute()));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -445,8 +432,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
         CloudRoute route = getImmutableCloudRoute();
         try {
             verifyApplicationWillBeCreated(applicationName, staging, Set.of(route));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -461,8 +446,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
                                           .build();
         try {
             verifyApplicationWillBeCreated(applicationName, staging, Set.of(getImmutableCloudRoute()));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteApplication(applicationName);
         }
@@ -523,15 +506,6 @@ class ApplicationsCloudControllerClientIntegrationTest extends CloudControllerCl
                                                               .build())
                                   .url(APPLICATION_HOST + "." + DEFAULT_DOMAIN)
                                   .build();
-    }
-
-    private static Path getStaticfileApplicationContentPath() {
-        URL url = ApplicationsCloudControllerClientIntegrationTest.class.getResource(STATICFILE_APPLICATION_CONTENT);
-        try {
-            return Paths.get(url.toURI());
-        } catch (URISyntaxException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
 }

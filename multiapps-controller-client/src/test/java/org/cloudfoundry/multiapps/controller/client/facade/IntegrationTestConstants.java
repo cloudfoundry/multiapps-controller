@@ -23,11 +23,16 @@ public class IntegrationTestConstants {
     public static final int SERVICE_BROKER_MEMORY_IN_MB = 1024;
     public static final String SERVICE_BROKER_HOST = "test-service-foo-broker";
     public static final String SERVICE_BROKER_APP_NAME = "test-service-broker-app";
-    public static final String SERVICE_BROKER_NAME = "test-service-broker";
+    public static final String SERVICE_BROKER_SERVICES_NAME = "services-test-service-broker";
     public static final String SERVICE_BROKER_ENV_CONTENT = "service-broker-env.json";
     public static final String SERVICE_BROKER_USERNAME = "test-user";
     public static final String SERVICE_BROKER_PASSWORD = "test-password";
     public static final String SERVICE_OFFERING = "finch";
     public static final String SERVICE_PLAN = "grey";
     public static final String SERVICE_PLAN_2 = "white";
+
+    // Second service broker constants
+    public static final String SERVICE_BROKER_BINDINGS_APP_NAME = "binding-test-service-broker-app";
+    public static final String SERVICE_BROKER_BINDINGS_NAME = "binding-test-service-broker";
+    public static final String SERVICE_BROKER_BINDINGS_HOST = "binding-test-service-foo-broker";
 }

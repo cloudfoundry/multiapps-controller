@@ -10,6 +10,7 @@ import org.immutables.value.Value;
 @JsonDeserialize(as = ImmutableCloudProcess.class)
 public abstract class CloudProcess extends CloudEntity implements Derivable<CloudProcess> {
 
+    @Nullable
     public abstract String getCommand();
 
     public abstract Integer getDiskInMb();

@@ -68,8 +68,7 @@ public class CloudControllerClientFactory {
         CloudCredentials credentials = createCredentials(token);
         oAuthClient.init(credentials);
 
-        var spaceClient = clientFactory.getCloudFoundryClientFactory()
-                                       .createSpaceClient(configuration.getControllerUrl(), oAuthClient, requestTags);
+        var spaceClient = clientFactory.createSpaceClient(configuration.getControllerUrl(), oAuthClient, requestTags);
         CloudSpace target = spaceClient.getSpace(UUID.fromString(spaceId));
 
         CloudControllerRestClient controllerClient = clientFactory.createClient(configuration.getControllerUrl(), credentials, target,
@@ -82,8 +81,7 @@ public class CloudControllerClientFactory {
         CloudCredentials credentials = createCredentials(token);
         oAuthClient.init(credentials);
         var requestTags = buildRequestTags(StringUtils.EMPTY);
-        return clientFactory.getCloudFoundryClientFactory()
-                            .createSpaceClient(configuration.getControllerUrl(), oAuthClient, requestTags);
+        return clientFactory.createSpaceClient(configuration.getControllerUrl(), oAuthClient, requestTags);
     }
 
     public LogCacheClient createLogCacheClient(OAuth2AccessTokenWithAdditionalInfo token, String correlationId) {
@@ -91,8 +89,7 @@ public class CloudControllerClientFactory {
         CloudCredentials credentials = createCredentials(token);
         oAuthClient.init(credentials);
         var requestTags = buildRequestTags(correlationId);
-        return clientFactory.getCloudFoundryClientFactory()
-                            .createLogCacheClient(configuration.getControllerUrl(), oAuthClient, requestTags);
+        return clientFactory.createLogCacheClient(configuration.getControllerUrl(), oAuthClient, requestTags);
     }
 
     private CloudCredentials createCredentials(OAuth2AccessTokenWithAdditionalInfo token) {

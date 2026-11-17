@@ -3,7 +3,8 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
@@ -97,7 +98,7 @@ class ModuleDeterminerTest {
     }
 
     private Metadata createV3Metadata(Map<String, String> labels, Map<String, String> annotations) {
-        return Metadata.builder()
+        return ImmutableMetadata.builder()
                        .labels(labels)
                        .annotations(annotations)
                        .build();

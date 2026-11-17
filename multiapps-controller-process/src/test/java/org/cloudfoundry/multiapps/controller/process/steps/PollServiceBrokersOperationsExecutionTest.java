@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.cloudfoundry.client.v3.jobs.JobState;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudAsyncJob;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.JobState;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;

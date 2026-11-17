@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.client.facade.domain;
 
-import org.cloudfoundry.client.v3.jobs.JobState;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

@@ -3,7 +3,8 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.util.List;
 import java.util.UUID;
 
-import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudApplication;
@@ -34,8 +35,8 @@ public class StepsTestUtil {
     }
 
     public static void testIfEnabledOrDisabledAutoscaler(CloudControllerClient client, String labelValue, UUID uid) {
-        Metadata metadata = Metadata.builder()
-                                    .label(MtaMetadataLabels.AUTOSCALER_LABEL, labelValue)
+        Metadata metadata = ImmutableMetadata.builder()
+                                    .putLabel(MtaMetadataLabels.AUTOSCALER_LABEL, labelValue)
                                     .build();
         verify(client).updateApplicationMetadata(uid, metadata);
     }

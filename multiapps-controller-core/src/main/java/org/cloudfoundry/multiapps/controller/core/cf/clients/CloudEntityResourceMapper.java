@@ -11,12 +11,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.cloudfoundry.client.v3.Metadata;
-import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceType;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.Metadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceInstanceType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceInstance;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaService;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaServiceKey;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaServiceKey;
@@ -78,7 +79,7 @@ public class CloudEntityResourceMapper {
     @SuppressWarnings("unchecked")
     public static Metadata getMetadataV3(Map<String, Object> resource) {
         Map<String, Object> metadata = (Map<String, Object>) resource.getOrDefault("metadata", Collections.emptyMap());
-        return Metadata.builder()
+        return ImmutableMetadata.builder()
                        .labels((Map<String, String>) metadata.getOrDefault("labels", Collections.emptyMap()))
                        .annotations((Map<String, String>) metadata.getOrDefault("annotations", Collections.emptyMap()))
                        .build();

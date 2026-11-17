@@ -5,6 +5,7 @@ public enum HealthCheckType {
 
     @Override
     public String toString() {
-        return this.name().toLowerCase();
+        return this.name()
+                   .toLowerCase();
     }
 }

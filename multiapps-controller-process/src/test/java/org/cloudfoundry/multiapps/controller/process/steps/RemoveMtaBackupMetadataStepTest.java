@@ -2,8 +2,8 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.UUID;
 
-import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.ImmutableMtaMetadata;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
@@ -34,9 +34,9 @@ class RemoveMtaBackupMetadataStepTest extends SyncFlowableStepTest<RemoveMtaBack
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
-        verify(client).updateApplicationMetadata(APP_GUID, Metadata.builder()
-                                                                   .label(MtaMetadataLabels.MTA_NAMESPACE, null)
-                                                                   .annotation(MtaMetadataAnnotations.MTA_NAMESPACE, null)
+        verify(client).updateApplicationMetadata(APP_GUID, ImmutableMetadata.builder()
+                                                                   .putLabel(MtaMetadataLabels.MTA_NAMESPACE, null)
+                                                                   .putAnnotation(MtaMetadataAnnotations.MTA_NAMESPACE, null)
                                                                    .build());
     }
 
@@ -50,10 +50,10 @@ class RemoveMtaBackupMetadataStepTest extends SyncFlowableStepTest<RemoveMtaBack
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
-        verify(client).updateApplicationMetadata(APP_GUID, Metadata.builder()
-                                                                   .label(MtaMetadataLabels.MTA_NAMESPACE,
+        verify(client).updateApplicationMetadata(APP_GUID, ImmutableMetadata.builder()
+                                                                   .putLabel(MtaMetadataLabels.MTA_NAMESPACE,
                                                                           MtaMetadataUtil.getHashedLabel(userNamespace))
-                                                                   .annotation(MtaMetadataAnnotations.MTA_NAMESPACE, userNamespace)
+                                                                   .putAnnotation(MtaMetadataAnnotations.MTA_NAMESPACE, userNamespace)
                                                                    .build());
     }
 
@@ -62,11 +62,11 @@ class RemoveMtaBackupMetadataStepTest extends SyncFlowableStepTest<RemoveMtaBack
                                    .addApplication(ImmutableDeployedMtaApplication.builder()
                                                                                   .moduleName(MODULE_NAME)
                                                                                   .name(BACKUP_APP_NAME)
-                                                                                  .v3Metadata(Metadata.builder()
-                                                                                                      .label(
+                                                                                  .v3Metadata(ImmutableMetadata.builder()
+                                                                                                      .putLabel(
                                                                                                           MtaMetadataLabels.MTA_NAMESPACE,
                                                                                                           namespace)
-                                                                                                      .annotation(
+                                                                                                      .putAnnotation(
                                                                                                           MtaMetadataAnnotations.MTA_NAMESPACE,
                                                                                                           namespace)
                                                                                                       .build())

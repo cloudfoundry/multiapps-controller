@@ -1,43 +1,24 @@
 package org.cloudfoundry.multiapps.controller.client.facade;
 
-import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.APPLICATION_HOST;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.cloudfoundry.client.v3.jobs.JobState;
-import org.cloudfoundry.client.v3.serviceinstances.ServiceInstanceType;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-
+import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.client.facade.broker.FailConfiguration;
 import org.cloudfoundry.multiapps.controller.client.facade.broker.ImmutableFailConfiguration;
 import org.cloudfoundry.multiapps.controller.client.facade.broker.ImmutableServiceBrokerConfiguration;
@@ -48,23 +29,56 @@ import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceBroker;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceOffering;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.HealthCheckType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudDomain;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudRoute;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceBroker;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableCloudServiceInstance;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableMetadata;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ImmutableStaging;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.JobState;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceInstanceType;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.ServiceOperation;
+import org.cloudfoundry.multiapps.controller.client.facade.domain.ServicePlanVisibility;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.Staging;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCreateDto;
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ImmutableApplicationToCreateDto;
 import org.cloudfoundry.multiapps.controller.client.facade.util.JsonUtil;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import static org.cloudfoundry.multiapps.controller.client.facade.IntegrationTestConstants.APPLICATION_HOST;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class ServicesCloudControllerClientIntegrationTest extends CloudControllerClientIntegrationTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServicesCloudControllerClientIntegrationTest.class);
 
     private static final String SYSLOG_DRAIN_URL = "https://syslogDrain.com";
     private static final Map<String, Object> USER_SERVICE_CREDENTIALS = Map.of("testCredentialsKey", "testCredentialsValue");
     private static final String SERVICE_BROKER_ENDPOINT = "configurations/1";
     private static final List<String> SERVICE_TAGS = List.of("custom-tag-1", "custom-tag-2");
+    private static final int MAX_BROKER_CATALOG_POLL_ATTEMPTS = 60;
+    private static final int MAX_POLL_ATTEMPTS = 60;
 
     private static boolean pushedServiceBroker = false;
 
@@ -76,15 +90,19 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
         }
         Path brokerPath = Paths.get(brokerPathString);
         if (Files.notExists(brokerPath)) {
-            fail(MessageFormat.format("Specified service broker path \"{0}\" not exists", brokerPathString));
+            fail(MessageFormat.format("Specified service broker path \"{0}\" does not exists", brokerPathString));
         }
         pushServiceBrokerApplication(brokerPath);
         try {
-            createServiceBroker(IntegrationTestConstants.SERVICE_BROKER_NAME, SERVICE_BROKER_ENDPOINT);
+            createServiceBroker(IntegrationTestConstants.SERVICE_BROKER_SERVICES_NAME, SERVICE_BROKER_ENDPOINT);
             pushedServiceBroker = true;
         } catch (CloudOperationException e) {
             if (e.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
                 //Ignore because service broker with this name exists
+                LOGGER.info(MessageFormat.format("Service broker \"{0}\" already exists. Skipping creation. \"{1}\"",
+                                                 IntegrationTestConstants.SERVICE_BROKER_SERVICES_NAME,
+                                                 e.getMessage()));
+                pushedServiceBroker = true;
             } else {
                 fail("Service broker creation failed!", e);
             }
@@ -93,13 +111,29 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
 
     @AfterAll
     static void tearDown() {
-        if (pushedServiceBroker) {
-            String jobId = client.deleteServiceBroker(IntegrationTestConstants.SERVICE_BROKER_NAME);
-            pollServiceBrokerOperation(jobId, IntegrationTestConstants.SERVICE_BROKER_NAME);
+        try {
+            String jobId = client.deleteServiceBroker(IntegrationTestConstants.SERVICE_BROKER_SERVICES_NAME);
+            pollServiceBrokerOperation(jobId, IntegrationTestConstants.SERVICE_BROKER_SERVICES_NAME);
+        } catch (CloudOperationException e) {
+            if (e.getStatusCode() != HttpStatus.NOT_FOUND && e.getStatusCode() != HttpStatus.INTERNAL_SERVER_ERROR) {
+                throw e;
+            }
+        }
+
+        try {
             client.deleteApplication(IntegrationTestConstants.SERVICE_BROKER_APP_NAME);
+        } catch (CloudOperationException e) {
+            LOGGER.warn(MessageFormat.format("Deletion of application \"{0}\" failed during teardown: \"{1}\"",
+                                             IntegrationTestConstants.SERVICE_BROKER_APP_NAME, e.getMessage()));
+        }
+
+        try {
             client.deleteRoute(IntegrationTestConstants.SERVICE_BROKER_HOST, client.getDefaultDomain()
                                                                                    .getName(),
                                null);
+        } catch (CloudOperationException e) {
+            LOGGER.warn(MessageFormat.format("Deletion of route \"{0}\" failed during teardown: \"{1}\"",
+                                             IntegrationTestConstants.SERVICE_BROKER_HOST, e.getMessage()));
         }
     }
 
@@ -115,8 +149,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
             assertEquals(USER_SERVICE_CREDENTIALS, serviceCredentials);
             assertEquals(SERVICE_TAGS, service.getTags());
             assertTrue(service.isUserProvided());
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteServiceInstance(serviceName);
         }
@@ -146,8 +178,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
             assertTrue(service.getTags()
                               .containsAll(updatedTags),
                        MessageFormat.format("Expected tags \"{0}\" but was \"{1}\"", updatedTags, service.getTags()));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteServiceInstance(serviceName);
         }
@@ -155,19 +185,17 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
 
     static Stream<Arguments> createManagedService() {
         return Stream.of(
-                         // (1) Without specified broker name
-                         Arguments.of("test-managed-service", null),
-                         // (2) With specified broker name
-                         Arguments.of("test-managed-service-with-broker", "test-service-broker"));
+            // (1) Without specified broker name
+            Arguments.of("test-managed-service", null),
+            // (2) With specified broker name
+            Arguments.of("test-managed-service-with-broker", IntegrationTestConstants.SERVICE_BROKER_SERVICES_NAME));
     }
 
     @ParameterizedTest
     @MethodSource
     @DisplayName("Create a managed service")
     void createManagedService(String serviceName, String brokerName) {
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
         try {
             client.createServiceInstance(ImmutableCloudServiceInstance.builder()
                                                                       .name(serviceName)
@@ -180,8 +208,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
             assertEquals(serviceName, service.getName());
             assertEquals(IntegrationTestConstants.SERVICE_OFFERING, service.getLabel());
             assertEquals(IntegrationTestConstants.SERVICE_PLAN, service.getPlan());
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteServiceInstance(serviceName);
             verifyServiceIsOrBeingDeleted(serviceName);
@@ -191,9 +217,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     @Test
     @DisplayName("Update managed service")
     void updateManagedService() {
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
         String serviceName = "test-service";
         Map<String, Object> parameters = Map.of("test-key", "test-value", "test-key-2", "test-value-2");
         List<String> serviceTags = List.of("test", "prod");
@@ -225,8 +249,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
             assertTrue(service.getTags()
                               .containsAll(serviceTags),
                        MessageFormat.format("Expected tags \"{0}\" but was \"{1}\"", serviceTags, service.getTags()));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteServiceInstance(serviceName);
             verifyServiceIsOrBeingDeleted(serviceName);
@@ -244,12 +266,14 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                                   .getLastOperation();
             if (lastOperation.getState()
                              .equals(ServiceOperation.State.FAILED)) {
-                System.err.println(JsonUtil.convertToJson(lastOperation));
-                throw new IllegalStateException(String.format("Service operation failed for service: %s", serviceInstanceName));
+                throw new IllegalStateException(
+                    MessageFormat.format("Service operation failed for service: \"{0}\", \"{1}\"", serviceInstanceName,
+                                         JsonUtil.convertToJson(lastOperation)));
             }
             if (times++ > 60) {
-                System.err.println(JsonUtil.convertToJson(lastOperation));
-                throw new IllegalStateException(String.format("Service operation timeout exceeded for service: %s", serviceInstanceName));
+                throw new IllegalStateException(
+                    MessageFormat.format("Service operation timeout exceeded for service: \"{0}\", \"{1}\"", serviceInstanceName,
+                                         JsonUtil.convertToJson(lastOperation)));
             }
         }
     }
@@ -264,9 +288,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     @MethodSource
     @DisplayName("Get service instance")
     void getServiceInstance(String serviceName, boolean required, Class<? extends Exception> expectedException, boolean expectedService) {
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
         String serviceNameToCreate = "test-service";
 
         try {
@@ -286,8 +308,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                 return;
             }
             assertNull(service);
-        } catch (Exception e) {
-            fail(e);
         } finally {
             client.deleteServiceInstance(serviceNameToCreate);
             verifyServiceIsOrBeingDeleted(serviceNameToCreate);
@@ -297,9 +317,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     @Test
     @DisplayName("Delete service instance")
     void deleteServiceInstance() {
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
         String serviceName = "test-service";
 
         try {
@@ -311,8 +329,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
             pollLastOperationServiceInstanceState(serviceName);
             client.deleteServiceInstance(serviceName);
             verifyServiceIsOrBeingDeleted(serviceName);
-        } catch (Exception e) {
-            fail(e);
         } finally {
             CloudServiceInstance service = client.getServiceInstance(serviceName, false);
             if (service != null) {
@@ -337,9 +353,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     @Test
     @DisplayName("Create space scoped service broker")
     void createSpaceScopedServiceBroker() {
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
         String serviceBrokerName = "test-space-scoped-service-broker";
         String defaultDomain = client.getDefaultDomain()
                                      .getName();
@@ -356,8 +370,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                                .toString(),
                          broker.getSpaceGuid());
             assertEquals(expectedServiceBrokerUrl, broker.getUrl());
-        } catch (Exception e) {
-            fail(e);
         } finally {
             String jobId = client.deleteServiceBroker(serviceBrokerName);
             pollServiceBrokerOperation(jobId, serviceBrokerName);
@@ -367,9 +379,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     @Test
     @DisplayName("Update space scoped service broker")
     void updateSpaceScopedServiceBroker() {
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
         String serviceBrokerName = "test-space-scoped-service-broker";
         String targetSpaceGuid = target.getMetadata()
                                        .getGuid()
@@ -401,8 +411,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                                .toString(),
                          broker.getSpaceGuid());
             assertEquals(expectedServiceBrokerUrl, broker.getUrl());
-        } catch (Exception e) {
-            fail(e);
         } finally {
             String jobId = client.deleteServiceBroker(serviceBrokerName);
             pollServiceBrokerOperation(jobId, serviceBrokerName);
@@ -412,9 +420,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     @Test
     @DisplayName("Delete space scoped service broker")
     void deleteSpaceScopedServiceBroker() {
-        if (!pushedServiceBroker) {
-            return;
-        }
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
         String serviceBrokerName = "test-space-scoped-service-broker";
 
         try {
@@ -424,8 +430,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
             pollServiceBrokerOperation(jobId, serviceBrokerName);
 
             assertThrows(CloudOperationException.class, () -> client.getServiceBroker(serviceBrokerName));
-        } catch (Exception e) {
-            fail(e);
         } finally {
             CloudServiceBroker broker = client.getServiceBroker(serviceBrokerName, false);
             if (broker != null) {
@@ -436,10 +440,92 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     }
 
     @Test
-    void testFetchingOfFailedServiceKey() {
-        if (!pushedServiceBroker) {
-            return;
+    @DisplayName("Get service offerings includes the broker's offering with its plans")
+    void getServiceOfferings() {
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
+
+        List<CloudServiceOffering> offerings = client.getServiceOfferings();
+
+        CloudServiceOffering finchServiceOffering = offerings.stream()
+                                                             .filter(offering -> IntegrationTestConstants.SERVICE_OFFERING.equals(
+                                                                 offering.getName()))
+                                                             .findFirst()
+                                                             .orElseThrow(() -> new IllegalStateException(MessageFormat.format(
+                                                                 "Service offering \"{0}\" not found in \"{1}\" offerings",
+                                                                 IntegrationTestConstants.SERVICE_OFFERING, offerings.size())));
+
+        assertFalse(finchServiceOffering.getServicePlans()
+                                        .isEmpty(), "Expected the offering to expose at least one service plan");
+        assertTrue(finchServiceOffering.getServicePlans()
+                                       .stream()
+                                       .anyMatch(plan -> IntegrationTestConstants.SERVICE_PLAN.equals(plan.getName())),
+                   MessageFormat.format("Expected plan \"{0}\" in the offering''s plans", IntegrationTestConstants.SERVICE_PLAN));
+    }
+
+    @Test
+    @DisplayName("Updating plan visibility to PUBLIC is rejected for a space-scoped broker's plans")
+    void updateServicePlanVisibilityForBroker() {
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
+
+        CloudOperationException exception = assertThrows(CloudOperationException.class,
+                                                         () -> client.updateServicePlanVisibilityForBroker(
+                                                             IntegrationTestConstants.SERVICE_BROKER_SERVICES_NAME,
+                                                             ServicePlanVisibility.PUBLIC));
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, exception.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("Set service instance metadata, find it by label selector (with auxiliary content and without it), then unset the label")
+    void findServiceInstanceByMetadataLabelSelectorDifferentOptionsAndUnset() {
+        String serviceName = "service-test-label-selector";
+        String labelKey = "integration-test-label";
+        String labelValue = "bindings-coverage";
+
+        try {
+            client.createUserProvidedServiceInstance(buildUserProvidedService(serviceName));
+            UUID serviceGuid = client.getServiceInstance(serviceName)
+                                     .getGuid();
+
+            client.updateServiceInstanceMetadata(serviceGuid, ImmutableMetadata.builder()
+                                                                               .putLabel(labelKey, labelValue)
+                                                                               .build());
+
+            String selector = labelKey + "=" + labelValue;
+
+            List<CloudServiceInstance> foundServices = client.getServiceInstancesByMetadataLabelSelector(selector);
+            assertTrue(foundServices.stream()
+                                    .anyMatch(service -> serviceName.equals(service.getName())),
+                       MessageFormat.format("Expected service \"{0}\" to be found by label selector \"{1}\"", serviceName, selector));
+
+            List<CloudServiceInstance> foundServicesWithoutAuxiliaryContent = client.getServiceInstancesWithoutAuxiliaryContentByMetadataLabelSelector(
+                selector);
+            assertTrue(foundServicesWithoutAuxiliaryContent.stream()
+                                                           .anyMatch(service -> serviceName.equals(service.getName())),
+                       MessageFormat.format("Expected service \"{0}\" to be found by the without auxiliary content label selector \"{1}\"",
+                                            serviceName, selector));
+
+            List<CloudServiceInstance> foundServicesByNames = client.getServiceInstancesWithoutAuxiliaryContentByNames(
+                List.of(serviceName));
+            assertEquals(1, foundServicesByNames.size());
+            assertEquals(serviceName, foundServicesByNames.getFirst()
+                                                          .getName());
+
+            client.updateServiceInstanceMetadata(serviceGuid, ImmutableMetadata.builder()
+                                                                               .putLabel(labelKey, null)
+                                                                               .build());
+            List<CloudServiceInstance> servicesAfterUnsettingTheSelector = client.getServiceInstancesByMetadataLabelSelector(selector);
+            assertTrue(servicesAfterUnsettingTheSelector.stream()
+                                                        .noneMatch(service -> serviceName.equals(service.getName())),
+                       MessageFormat.format("Expected service \"{0}\" to no longer match the selector after the label was unset",
+                                            serviceName));
+        } finally {
+            client.deleteServiceInstance(serviceName);
         }
+    }
+
+    @Test
+    void testFetchingOfFailedServiceKey() {
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
         String testServiceInstanceName = "service-instance-with-failed-service-keys";
         try {
             client.createServiceInstance(ImmutableCloudServiceInstance.builder()
@@ -451,7 +537,8 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
             CloudServiceInstance serviceInstance = client.getServiceInstance(testServiceInstanceName);
             createServiceKeySync(testServiceInstanceName, "successful-key", Map.of("test-key", "test-value"));
             FailConfiguration failConfiguration = ImmutableFailConfiguration.builder()
-                                                                            .operationType(FailConfiguration.OperationType.CREATE_SERVICE_KEY.toString())
+                                                                            .operationType(
+                                                                                FailConfiguration.OperationType.CREATE_SERVICE_KEY.toString())
                                                                             .addInstanceId(serviceInstance.getGuid())
                                                                             .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                                                                             .build();
@@ -461,8 +548,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
             assertEquals(2, serviceKeys.size());
             assertEquals(Map.of("test-key", "test-value"), findServiceKeyByName("successful-key", serviceKeys).getCredentials());
             assertEquals(Collections.emptyMap(), findServiceKeyByName("failed-key", serviceKeys).getCredentials());
-        } catch (Exception e) {
-            fail(e);
         } finally {
             List<CloudServiceKey> serviceKeys = client.getServiceKeys(testServiceInstanceName);
             deleteServiceKeys(serviceKeys);
@@ -502,7 +587,8 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
 
     private void configureServiceBroker(List<FailConfiguration> failConfigurations) {
         ServiceBrokerConfiguration serviceBrokerConfiguration = ImmutableServiceBrokerConfiguration.builder()
-                                                                                                   .asyncDurationForServiceCredentialBindingsInMillis(100)
+                                                                                                   .asyncDurationForServiceCredentialBindingsInMillis(
+                                                                                                       100)
                                                                                                    .failConfigurations(failConfigurations)
                                                                                                    .build();
         String serviceBrokerUrl = getServiceBrokerUrl(SERVICE_BROKER_ENDPOINT, client.getDefaultDomain()
@@ -522,6 +608,8 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
             createServiceKeySync(serviceInstanceName, serviceKeyName, serviceKeyCredentials);
         } catch (Exception e) {
             // Do nothing
+            LOGGER.warn(MessageFormat.format("Failed to create service key \"{0}\" for service instance \"{1}\"", serviceKeyName,
+                                             serviceInstanceName), e);
         }
     }
 
@@ -543,6 +631,42 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
         CloudPackage cloudPackage = ApplicationUtil.uploadApplication(client, IntegrationTestConstants.SERVICE_BROKER_APP_NAME, brokerPath);
         ApplicationUtil.stageApplication(client, IntegrationTestConstants.SERVICE_BROKER_APP_NAME, cloudPackage);
         ApplicationUtil.startApplication(client, IntegrationTestConstants.SERVICE_BROKER_APP_NAME);
+        waitForBrokerCatalog(getServiceBrokerUrl(SERVICE_BROKER_ENDPOINT, client.getDefaultDomain()
+                                                                                .getName()));
+        LOGGER.info(MessageFormat.format(
+            "Service broker application \"{0}\" has been successfully pushed. All that is left now is to create the service broker (register it to CF).",
+            IntegrationTestConstants.SERVICE_BROKER_SERVICES_NAME));
+    }
+
+    private static void waitForBrokerCatalog(String brokerUrl) {
+        String catalogUrl = brokerUrl + "/v2/catalog";
+        String basicAuth = Base64.getEncoder()
+                                 .encodeToString((IntegrationTestConstants.SERVICE_BROKER_USERNAME + ":"
+                                     + IntegrationTestConstants.SERVICE_BROKER_PASSWORD).getBytes());
+        HttpClient httpClient = HttpClient.newBuilder()
+                                          .followRedirects(HttpClient.Redirect.NORMAL)
+                                          .build();
+        HttpRequest request = HttpRequest.newBuilder()
+                                         .uri(URI.create(catalogUrl))
+                                         .header("Authorization", "Basic " + basicAuth)
+                                         .header("X-Broker-API-Version", "2.13")
+                                         .GET()
+                                         .build();
+
+        for (int attempt = 0; attempt < MAX_BROKER_CATALOG_POLL_ATTEMPTS; attempt++) {
+            try {
+                HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+                if (response.statusCode() == HttpStatus.OK.value()) {
+                    return;
+                }
+            } catch (Exception e) {
+                // not serving yet - retry
+            }
+            sleep(TimeUnit.SECONDS, 2);
+        }
+        fail(MessageFormat.format(
+            "Service broker application did not serve its catalog at \"{0}\" within the timeout - the broker app likely failed to start.",
+            catalogUrl));
     }
 
     private static ApplicationToCreateDto getServiceBrokerApplicationToCreate() {
@@ -550,6 +674,8 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                                      .getName();
         Staging staging = ImmutableStaging.builder()
                                           .addBuildpack(IntegrationTestConstants.JAVA_BUILDPACK)
+                                          .healthCheckType(HealthCheckType.PROCESS.toString())
+                                          .healthCheckTimeout(IntegrationTestConstants.HEALTH_CHECK_TIMEMOUT)
                                           .build();
         Set<CloudRoute> routes = Set.of(ImmutableCloudRoute.builder()
                                                            .host(IntegrationTestConstants.SERVICE_BROKER_HOST)
@@ -569,43 +695,22 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                                               .build();
     }
 
-    private static Map<String, String> getServiceBrokerEnvConfiguration() {
-        URL url = ServicesCloudControllerClientIntegrationTest.class.getResource(IntegrationTestConstants.SERVICE_BROKER_ENV_CONTENT);
-        String configuration;
-        try {
-            configuration = Files.readString(Paths.get(url.toURI()));
-        } catch (URISyntaxException | IOException e) {
-            throw new IllegalStateException(e);
-        }
-        return JsonUtil.convertJsonToMap(configuration)
-                       .entrySet()
-                       .stream()
-                       .collect(Collectors.toMap(Map.Entry::getKey,
-                                                 ServicesCloudControllerClientIntegrationTest::convertMapEntryValueToString));
-
-    }
-
-    private static String convertMapEntryValueToString(Map.Entry<String, Object> entry) {
-        if (entry.getValue() instanceof String) {
-            return (String) entry.getValue();
-        }
-        return JsonUtil.convertToJson(entry.getValue(), true);
-    }
-
     private static void createServiceBroker(String serviceBrokerName, String serviceBrokerEndpoint) {
         String defaultDomain = client.getDefaultDomain()
                                      .getName();
         String targetSpaceGuid = target.getMetadata()
                                        .getGuid()
                                        .toString();
+        String brokerUrl = getServiceBrokerUrl(serviceBrokerEndpoint, defaultDomain);
         String jobId = client.createServiceBroker(ImmutableCloudServiceBroker.builder()
                                                                              .name(serviceBrokerName)
                                                                              .username(IntegrationTestConstants.SERVICE_BROKER_USERNAME)
                                                                              .password(IntegrationTestConstants.SERVICE_BROKER_PASSWORD)
-                                                                             .url(getServiceBrokerUrl(serviceBrokerEndpoint, defaultDomain))
+                                                                             .url(brokerUrl)
                                                                              .spaceGuid(targetSpaceGuid)
                                                                              .build());
         pollServiceBrokerOperation(jobId, serviceBrokerName);
+        LOGGER.info(MessageFormat.format("Service broker \"{0}\" has been successfully created/registered.", serviceBrokerName));
     }
 
     private static String getServiceBrokerUrl(String serviceBrokerEndpoint, String domain) {
@@ -613,19 +718,27 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
     }
 
     private static void pollServiceBrokerOperation(String jobId, String serviceBrokerName) {
-        CloudAsyncJob job = client.getAsyncJob(jobId);
-        while (job.getState() != JobState.COMPLETE && !hasAsyncJobFailed(job)) {
-            sleep(TimeUnit.SECONDS, 1);
-            job = client.getAsyncJob(jobId);
-        }
-        if (hasAsyncJobFailed(job)) {
-            fail(MessageFormat.format("Polling async operation of service broker \"{0}\" failed with \"{1}\"", serviceBrokerName,
-                                      job.getErrors()));
-        }
-    }
+        for (int attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
+            CloudAsyncJob job = client.getAsyncJob(jobId);
 
-    private static boolean hasAsyncJobFailed(CloudAsyncJob job) {
-        return job.getState() == JobState.FAILED;
+            if (job.getState() == JobState.FAILED) {
+                throw new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR, "Service broker async operation failed",
+                                                  MessageFormat.format(
+                                                      "Polling async operation of service broker \"{0}\" failed with \"{1}\"",
+                                                      serviceBrokerName,
+                                                      job.getErrors()));
+            }
+
+            if (job.getState() == JobState.COMPLETE) {
+                return;
+            }
+
+            MiscUtil.sleep(TimeUnit.SECONDS.toMillis(1));
+        }
+
+        throw new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR, "Service broker async operation timed out",
+                                          MessageFormat.format("Timeout polling the service broker job \"{0}\" for service broker \"{1}\"",
+                                                               jobId, serviceBrokerName));
     }
 
     private CloudServiceInstance buildUserProvidedService(String serviceName) {
