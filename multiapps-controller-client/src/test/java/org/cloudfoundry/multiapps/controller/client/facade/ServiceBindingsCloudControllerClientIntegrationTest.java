@@ -36,6 +36,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.dto.ApplicationToCrea
 import org.cloudfoundry.multiapps.controller.client.facade.dto.ImmutableApplicationToCreateDto;
 import org.cloudfoundry.multiapps.controller.client.facade.util.JsonUtil;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -89,18 +90,12 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
                 LOGGER.info(MessageFormat.format("Service broker \"{0}\" already exists. Skipping creation. \"{1}\"",
                                                  IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME,
                                                  e.getMessage()));
-                System.out.println(MessageFormat.format("Service broker \"{0}\" already exists. Skipping creation. \"{1}\"",
-                                                        IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME,
-                                                        e.getMessage()));
                 pushedServiceBroker = true;
             } else {
                 fail("Service broker creation failed!", e);
             }
         }
 
-        //        if (pushedServiceBroker) {
-        //            pushApplication();
-        //        }
         pushApplication();
     }
 
@@ -124,48 +119,50 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
                                                                                             .getName(),
                                null);
         } catch (CloudOperationException e) {
-            // empty on purpose
+            LOGGER.warn(MessageFormat.format("Deletion of route \"{0}\" failed during teardown: \"{1}\"",
+                                             IntegrationTestConstants.SERVICE_BROKER_BINDINGS_HOST, e.getMessage()));
         }
+    }
+
+    @AfterEach
+    void cleanUpServiceInstance() {
+        Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
+
+        unbindServiceInstances();
+        deleteService();
     }
 
     @Test
     @DisplayName("Bind a service instance to an application and list the binding using all the different ways")
     void bindServiceInstanceAndListBindings() {
         Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
-        try {
-            createManagedService();
-            UUID appGuid = client.getApplicationGuid(APP_NAME);
-            UUID serviceInstanceGuid = client.getServiceInstance(SERVICE_NAME)
-                                             .getGuid();
+        createManagedService();
+        UUID appGuid = client.getApplicationGuid(APP_NAME);
+        UUID serviceInstanceGuid = client.getServiceInstance(SERVICE_NAME)
+                                         .getGuid();
 
-            Optional<String> bindingJob = client.bindServiceInstance(BINDING_NAME, APP_NAME, SERVICE_NAME);
-            bindingJob.ifPresent(job -> waitAsyncJobToComplete(job));
+        Optional<String> bindingJob = client.bindServiceInstance(BINDING_NAME, APP_NAME, SERVICE_NAME);
+        bindingJob.ifPresent(job -> waitAsyncJobToComplete(job));
 
-            List<CloudServiceBinding> appBindings = client.getAppBindings(appGuid);
-            assertEquals(1, appBindings.size());
-            assertEquals(serviceInstanceGuid, appBindings.getFirst()
-                                                         .getServiceInstanceGuid());
+        List<CloudServiceBinding> appBindings = client.getAppBindings(appGuid);
+        assertEquals(1, appBindings.size());
+        assertEquals(serviceInstanceGuid, appBindings.getFirst()
+                                                     .getServiceInstanceGuid());
 
-            List<CloudServiceBinding> serviceAppBindings = client.getServiceAppBindings(serviceInstanceGuid);
-            assertEquals(1, serviceAppBindings.size());
-            assertEquals(appGuid, serviceAppBindings.getFirst()
-                                                    .getApplicationGuid());
+        List<CloudServiceBinding> serviceAppBindings = client.getServiceAppBindings(serviceInstanceGuid);
+        assertEquals(1, serviceAppBindings.size());
+        assertEquals(appGuid, serviceAppBindings.getFirst()
+                                                .getApplicationGuid());
 
-            List<CloudServiceBinding> bindingsForApp = client.getServiceBindingsForApplication(appGuid, serviceInstanceGuid);
-            assertEquals(1, bindingsForApp.size());
+        List<CloudServiceBinding> bindingsForApp = client.getServiceBindingsForApplication(appGuid, serviceInstanceGuid);
+        assertEquals(1, bindingsForApp.size());
 
-            UUID bindingGuid = appBindings.getFirst()
-                                          .getGuid();
-            CloudServiceBinding binding = client.getServiceBinding(bindingGuid);
-            assertNotNull(binding);
-            assertEquals(appGuid, binding.getApplicationGuid());
-            assertEquals(serviceInstanceGuid, binding.getServiceInstanceGuid());
-        } catch (Exception e) {
-            fail(e);
-        } finally {
-            unbindServiceInstances();
-            deleteService();
-        }
+        UUID bindingGuid = appBindings.getFirst()
+                                      .getGuid();
+        CloudServiceBinding binding = client.getServiceBinding(bindingGuid);
+        assertNotNull(binding);
+        assertEquals(appGuid, binding.getApplicationGuid());
+        assertEquals(serviceInstanceGuid, binding.getServiceInstanceGuid());
     }
 
     @Test
@@ -177,12 +174,12 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
             UUID appGuid = client.getApplicationGuid(APP_NAME);
 
             Optional<String> bindingJob = client.bindServiceInstance(BINDING_NAME, APP_NAME, SERVICE_NAME);
-            bindingJob.ifPresent(job -> waitAsyncJobToComplete(job));
+            bindingJob.ifPresent(this::waitAsyncJobToComplete);
             List<CloudServiceBinding> appBindings = client.getAppBindings(appGuid);
             assertEquals(1, appBindings.size());
 
             List<String> unbindJobs = client.unbindServiceInstance(APP_NAME, SERVICE_NAME);
-            unbindJobs.forEach(job -> waitAsyncJobToComplete(job));
+            unbindJobs.forEach(this::waitAsyncJobToComplete);
 
             assertTrue(client.getAppBindings(appGuid)
                              .isEmpty());
@@ -197,14 +194,9 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
     @DisplayName("Unbinding operation when no binding exists throws a CloudOperationException")
     void unbindWhenNoBindingExistsThrows() {
         Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
-        try {
-            createManagedService();
-            assertThrows(CloudOperationException.class, () -> client.unbindServiceInstance(APP_NAME, SERVICE_NAME));
-        } catch (Exception e) {
-            fail(e);
-        } finally {
-            deleteService();
-        }
+
+        createManagedService();
+        assertThrows(CloudOperationException.class, () -> client.unbindServiceInstance(APP_NAME, SERVICE_NAME));
     }
 
     @Test
@@ -222,29 +214,22 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
     void updateServiceBindingMetadata() {
         Assumptions.assumeTrue(pushedServiceBroker, "service broker not registered");
 
-        try {
-            createManagedService();
-            UUID appGuid = client.getApplicationGuid(APP_NAME);
+        createManagedService();
+        UUID appGuid = client.getApplicationGuid(APP_NAME);
 
-            Optional<String> bindingJob = client.bindServiceInstance(BINDING_NAME, APP_NAME, SERVICE_NAME);
-            bindingJob.ifPresent(job -> waitAsyncJobToComplete(job));
-            UUID bindingGuid = client.getAppBindings(appGuid)
-                                     .getFirst()
-                                     .getGuid();
+        Optional<String> bindingJob = client.bindServiceInstance(BINDING_NAME, APP_NAME, SERVICE_NAME);
+        bindingJob.ifPresent(job -> waitAsyncJobToComplete(job));
+        UUID bindingGuid = client.getAppBindings(appGuid)
+                                 .getFirst()
+                                 .getGuid();
 
-            client.updateServiceBindingMetadata(bindingGuid, ImmutableMetadata.builder()
-                                                                              .putLabel("integration-test-label", "bindings-coverage")
-                                                                              .build());
+        client.updateServiceBindingMetadata(bindingGuid, ImmutableMetadata.builder()
+                                                                          .putLabel("integration-test-label", "bindings-coverage")
+                                                                          .build());
 
-            client.updateServiceBindingMetadata(bindingGuid, ImmutableMetadata.builder()
-                                                                              .putLabel("integration-test-label", null)
-                                                                              .build());
-        } catch (Exception e) {
-            fail(e);
-        } finally {
-            unbindServiceInstances();
-            deleteService();
-        }
+        client.updateServiceBindingMetadata(bindingGuid, ImmutableMetadata.builder()
+                                                                          .putLabel("integration-test-label", null)
+                                                                          .build());
     }
 
     @Test
@@ -257,25 +242,18 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
 
         Map<String, Object> bindParameters = Map.of(bindingParameterKey, bindingParameterValue);
 
-        try {
-            createManagedService();
-            UUID appGuid = client.getApplicationGuid(APP_NAME);
+        createManagedService();
+        UUID appGuid = client.getApplicationGuid(APP_NAME);
 
-            Optional<String> bindingJob = client.bindServiceInstance(BINDING_NAME, APP_NAME, SERVICE_NAME, bindParameters, FAIL_ON_ERROR);
-            bindingJob.ifPresent(job -> waitAsyncJobToComplete(job));
-            UUID bindingGuid = client.getAppBindings(appGuid)
-                                     .getFirst()
-                                     .getGuid();
+        Optional<String> bindingJob = client.bindServiceInstance(BINDING_NAME, APP_NAME, SERVICE_NAME, bindParameters, FAIL_ON_ERROR);
+        bindingJob.ifPresent(this::waitAsyncJobToComplete);
+        UUID bindingGuid = client.getAppBindings(appGuid)
+                                 .getFirst()
+                                 .getGuid();
 
-            Map<String, Object> parameters = client.getServiceBindingParameters(bindingGuid);
-            assertEquals(bindingParameterValue, parameters.get(bindingParameterKey),
-                         MessageFormat.format("Expected the binding time parameter to be returned, but actually got \"{0}\"", parameters));
-        } catch (Exception e) {
-            fail(e);
-        } finally {
-            unbindServiceInstances();
-            deleteService();
-        }
+        Map<String, Object> parameters = client.getServiceBindingParameters(bindingGuid);
+        assertEquals(bindingParameterValue, parameters.get(bindingParameterKey),
+                     MessageFormat.format("Expected the binding time parameter to be returned, but actually got \"{0}\"", parameters));
     }
 
     private void createManagedService() {
@@ -290,9 +268,11 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
     private void unbindServiceInstances() {
         try {
             List<String> jobs = client.unbindServiceInstance(APP_NAME, SERVICE_NAME);
-            jobs.forEach(job -> waitAsyncJobToComplete(job));
+            jobs.forEach(this::waitAsyncJobToComplete);
         } catch (Exception e) {
-            // empty on purpose
+            LOGGER.warn(MessageFormat.format("Unbinding of service \"{0}\" from app \"{1}\" failed during teardown: \"{2}\"", SERVICE_NAME,
+                                             APP_NAME,
+                                             e.getMessage()));
         }
     }
 
@@ -305,7 +285,7 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
                 waitForServiceDeletion();
             }
         } catch (Exception e) {
-            // empty on purpose
+            LOGGER.warn(MessageFormat.format("Deletion of service \"{0}\" failed during teardown: \"{1}\"", SERVICE_NAME, e.getMessage()));
         }
     }
 
@@ -313,7 +293,7 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
         try {
             client.deleteApplication(appName);
         } catch (CloudOperationException e) {
-            // empty on purpose
+            LOGGER.warn(MessageFormat.format("Deletion of application \"{0}\" failed during teardown: \"{1}\"", appName, e.getMessage()));
         }
     }
 
@@ -336,9 +316,10 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
     }
 
     private void pollLastOperationServiceInstanceState(String serviceInstanceName) {
+        ServiceOperation lastOperation = null;
         for (int attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
-            ServiceOperation lastOperation = client.getServiceInstance(serviceInstanceName)
-                                                   .getLastOperation();
+            lastOperation = client.getServiceInstance(serviceInstanceName)
+                                  .getLastOperation();
 
             if (lastOperation.getState()
                              .equals(ServiceOperation.State.SUCCEEDED)) {
@@ -347,16 +328,14 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
 
             if (lastOperation.getState()
                              .equals(ServiceOperation.State.FAILED)) {
-                System.err.println(JsonUtil.convertToJson(lastOperation));
-                throw new IllegalStateException(MessageFormat.format("Service operation failed for service: \"{0}\"", serviceInstanceName));
+                throw new IllegalStateException(MessageFormat.format("Service operation failed for service \"{0}\": {1}",
+                                                                     serviceInstanceName, JsonUtil.convertToJson(lastOperation)));
             }
 
             MiscUtil.sleep(TimeUnit.SECONDS.toMillis(1));
         }
-        System.err.println(JsonUtil.convertToJson(client.getServiceInstance(serviceInstanceName)
-                                                        .getLastOperation()));
-        throw new IllegalStateException(
-            MessageFormat.format("Service operation timeout exceeded for service: \"{0}\"", serviceInstanceName));
+        throw new IllegalStateException(MessageFormat.format("Service operation timeout exceeded for service \"{0}\": {1}",
+                                                             serviceInstanceName, JsonUtil.convertToJson(lastOperation)));
     }
 
     private void waitAsyncJobToComplete(String jobId) {
@@ -406,9 +385,6 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
         LOGGER.info(MessageFormat.format(
             "Service broker application \"{0}\" has been successfully pushed. All that is left now is to create the service broker (register it to CF).",
             IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME));
-        System.out.println(MessageFormat.format(
-            "Service broker application \"{0}\" has been successfully pushed. All that is left now is to create the service broker (register it to CF).",
-            IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME));
     }
 
     private static void waitForBrokerCatalog(String brokerUrl) {
@@ -425,6 +401,7 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
                                          .header("X-Broker-API-Version", "2.13")
                                          .GET()
                                          .build();
+
         for (int attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
             try {
                 HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
@@ -436,9 +413,10 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
             }
             MiscUtil.sleep(TimeUnit.SECONDS.toMillis(2));
         }
-        fail(MessageFormat.format("Service broker application did not serve its catalog at \"{0}\" within the timeout; "
-                                      + "the broker app likely failed to start (check buildpack / Tomcat version / JBP_CONFIG_TOMCAT).",
-                                  catalogUrl));
+
+        fail(MessageFormat.format(
+            "Service broker application did not serve its catalog at \"{0}\" within the timeout - the broker app likely failed to start.",
+            catalogUrl));
     }
 
     private static ApplicationToCreateDto getServiceBrokerApplicationToCreate() {
@@ -487,8 +465,6 @@ class ServiceBindingsCloudControllerClientIntegrationTest extends CloudControlle
                                                                              .spaceGuid(targetSpaceGuid)
                                                                              .build());
         pollServiceBrokerOperation(jobId);
-        System.out.println(MessageFormat.format("Service broker \"{0}\" has been successfully created/registered.",
-                                                IntegrationTestConstants.SERVICE_BROKER_BINDINGS_NAME));
     }
 
     private static String getServiceBrokerUrl(String domain) {
