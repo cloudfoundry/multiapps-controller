@@ -636,9 +636,6 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
         LOGGER.info(MessageFormat.format(
             "Service broker application \"{0}\" has been successfully pushed. All that is left now is to create the service broker (register it to CF).",
             IntegrationTestConstants.SERVICE_BROKER_SERVICES_NAME));
-        System.out.println(MessageFormat.format(
-            "Service broker application \"{0}\" has been successfully pushed. All that is left now is to create the service broker (register it to CF).",
-            IntegrationTestConstants.SERVICE_BROKER_SERVICES_NAME));
     }
 
     private static void waitForBrokerCatalog(String brokerUrl) {
@@ -713,7 +710,7 @@ class ServicesCloudControllerClientIntegrationTest extends CloudControllerClient
                                                                              .spaceGuid(targetSpaceGuid)
                                                                              .build());
         pollServiceBrokerOperation(jobId, serviceBrokerName);
-        System.out.println(MessageFormat.format("Service broker \"{0}\" has been successfully created/registered.", serviceBrokerName));
+        LOGGER.info(MessageFormat.format("Service broker \"{0}\" has been successfully created/registered.", serviceBrokerName));
     }
 
     private static String getServiceBrokerUrl(String serviceBrokerEndpoint, String domain) {
