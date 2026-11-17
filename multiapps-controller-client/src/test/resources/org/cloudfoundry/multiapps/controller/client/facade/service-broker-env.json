@@ -1,4 +1,5 @@
 {
+  "JBP_CONFIG_TOMCAT": "{ tomcat: { version: 9.0.+ } }",
   "TARGET_RUNTIME": "tomcat",
   "CATALOG": {
     "services": [
