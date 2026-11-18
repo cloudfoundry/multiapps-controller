@@ -23,6 +23,8 @@ public class Constants {
 
     public static final String SSL_CLIENT_KEY_FILE_NAME = "ClientKey.der";
 
+    public static final int ZERO_DELETED_FILES_FROM_OBJECT_STORE = 0;
+
     protected Constants() {
     }
 

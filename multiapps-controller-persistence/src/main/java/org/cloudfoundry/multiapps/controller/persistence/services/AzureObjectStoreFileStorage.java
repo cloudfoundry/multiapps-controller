@@ -78,7 +78,8 @@ public class AzureObjectStoreFileStorage extends ObjectStoreFileStorage {
         } catch (BlobStorageException e) {
             uploadDurationTracker.recordObjectStoreUpload(getElapsedTimeInMillis(startTime),
                                                           UploadTimeoutMatcher.isUploadTimeoutException(e));
-            throw new FileStorageException(e);
+            throw new FileStorageException(
+                MessageFormat.format(Messages.UPLOAD_OF_FILE_WITH_NAMESPACE_FAILED, fileEntry.getName(), fileEntry.getNamespace()), e);
         }
         uploadDurationTracker.recordObjectStoreUpload(getElapsedTimeInMillis(startTime), false);
         LOGGER.info(MessageFormat.format(Messages.TIME_ELAPSED_FOR_AZURE_OS_UPLOAD_0_IN_MILLIS, getElapsedTimeInMillis(startTime)));

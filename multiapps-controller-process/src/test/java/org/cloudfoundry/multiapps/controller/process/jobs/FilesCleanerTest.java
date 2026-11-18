@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
+import org.cloudfoundry.multiapps.controller.persistence.model.FileDeletionResult;
 import org.cloudfoundry.multiapps.controller.persistence.query.AsyncUploadJobsQuery;
 import org.cloudfoundry.multiapps.controller.persistence.services.AsyncUploadJobService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
@@ -40,6 +41,7 @@ class FilesCleanerTest {
 
     @Test
     void testExecute() throws FileStorageException {
+        when(fileService.deleteModifiedBefore(EXPIRATION_TIME)).thenReturn(new FileDeletionResult(1, 1));
         when(uploadJobService.createQuery()).thenReturn(query);
         cleaner.execute(EXPIRATION_TIME);
         verify(fileService).deleteModifiedBefore(EXPIRATION_TIME);

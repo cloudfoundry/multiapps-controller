@@ -14,10 +14,12 @@ import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.persistence.services.AwsS3ObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.monitoring.UploadDurationTracker;
+import org.cloudfoundry.multiapps.controller.persistence.services.AliObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.AzureObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.GcpObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.JCloudsObjectStoreFileStorage;
+import org.cloudfoundry.multiapps.controller.persistence.services.resilience.AliCloudTransientErrorClassifier;
 import org.cloudfoundry.multiapps.controller.persistence.services.resilience.AwsTransientErrorClassifier;
 import org.cloudfoundry.multiapps.controller.persistence.services.resilience.AzureTransientErrorClassifier;
 import org.cloudfoundry.multiapps.controller.persistence.services.resilience.GcpTransientErrorClassifier;
@@ -152,6 +154,8 @@ public class ObjectStoreSelectorFactory {
                 new SelectedObjectStore(createAzureFileStorage(objectStoreServiceInfo), new AzureTransientErrorClassifier());
             case Constants.AWS_S_3 ->
                 new SelectedObjectStore(createAwsS3FileStorage(objectStoreServiceInfo), new AwsTransientErrorClassifier());
+            case Constants.ALIYUN_OSS ->
+                new SelectedObjectStore(createAliFileStorage(objectStoreServiceInfo), new AliCloudTransientErrorClassifier());
             default -> {
                 BlobStoreContext context = getBlobStoreContext(objectStoreServiceInfo);
                 yield new SelectedObjectStore(createFileStorage(objectStoreServiceInfo, context), new JCloudsTransientErrorClassifier());
@@ -169,6 +173,10 @@ public class ObjectStoreSelectorFactory {
 
     protected AwsS3ObjectStoreFileStorage createAwsS3FileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
         return new AwsS3ObjectStoreFileStorage(objectStoreServiceInfo.getCredentials(), uploadDurationTracker);
+    }
+
+    protected AliObjectStoreFileStorage createAliFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
+        return new AliObjectStoreFileStorage(objectStoreServiceInfo.getCredentials(), uploadDurationTracker);
     }
 
     private BlobStoreContext getBlobStoreContext(ObjectStoreServiceInfo serviceInfo) {

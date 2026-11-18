@@ -1,17 +1,24 @@
 package org.cloudfoundry.multiapps.controller.web.configuration.bean.factory;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
+
 import io.pivotal.cfenv.core.CfCredentials;
 import io.pivotal.cfenv.core.CfService;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-import org.cloudfoundry.multiapps.controller.persistence.services.AwsS3ObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.monitoring.UploadDurationTracker;
+import org.cloudfoundry.multiapps.controller.persistence.services.AliObjectStoreFileStorage;
+import org.cloudfoundry.multiapps.controller.persistence.services.AwsS3ObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.AzureObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.GcpObjectStoreFileStorage;
 import org.cloudfoundry.multiapps.controller.persistence.services.JCloudsObjectStoreFileStorage;
+import org.cloudfoundry.multiapps.controller.persistence.services.resilience.AliCloudTransientErrorClassifier;
 import org.cloudfoundry.multiapps.controller.persistence.services.resilience.AwsTransientErrorClassifier;
 import org.cloudfoundry.multiapps.controller.persistence.services.resilience.AzureTransientErrorClassifier;
 import org.cloudfoundry.multiapps.controller.persistence.services.resilience.GcpTransientErrorClassifier;
-import org.cloudfoundry.multiapps.controller.persistence.services.resilience.JCloudsTransientErrorClassifier;
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.cloudfoundry.multiapps.controller.web.Constants;
 import org.cloudfoundry.multiapps.controller.web.Messages;
@@ -27,12 +34,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -65,6 +66,8 @@ class ObjectStoreSelectorFactoryTest {
     private AwsS3ObjectStoreFileStorage awsS3ObjectStoreFileStorage;
     @Mock
     private AzureObjectStoreFileStorage azureObjectStoreFileStorage;
+    @Mock
+    private AliObjectStoreFileStorage aliObjectStoreFileStorage;
     @Mock
     private UploadDurationTracker uploadDurationTracker;
 
@@ -135,6 +138,19 @@ class ObjectStoreSelectorFactoryTest {
             .testConnection();
     }
 
+    @Test
+    void testObjectStoreCreationWhenEnvIsValidForAli() {
+        mockCfService();
+        when(applicationConfiguration.getObjectStoreClientType()).thenReturn(Constants.ALIBABA);
+
+        ObjectStoreSelectorFactory selector = createSelector();
+
+        assertInstanceOf(AliObjectStoreFileStorage.class, selector.fileStorage());
+        assertInstanceOf(AliCloudTransientErrorClassifier.class, selector.classifier());
+        verify(aliObjectStoreFileStorage)
+            .testConnection();
+    }
+
     static Stream<Arguments> testObjectStoreCreationFallsBackToFirstReachableProviderWhenEnvIsInvalid() {
         return Stream.of(
             // @formatter:off
@@ -168,10 +184,9 @@ class ObjectStoreSelectorFactoryTest {
                                                                    .testConnection();
 
         ObjectStoreSelectorFactory selector = createSelector();
-
-        assertInstanceOf(JCloudsObjectStoreFileStorage.class, selector.fileStorage());
-        assertInstanceOf(JCloudsTransientErrorClassifier.class, selector.classifier());
-        verify(jCloudsObjectStoreFileStorage)
+        assertInstanceOf(AliObjectStoreFileStorage.class, selector.fileStorage());
+        assertInstanceOf(AliCloudTransientErrorClassifier.class, selector.classifier());
+        verify(aliObjectStoreFileStorage)
             .testConnection();
     }
 
@@ -249,6 +264,8 @@ class ObjectStoreSelectorFactoryTest {
     void testObjectStoreCreationWhenAllProvidersFail() {
         mockCfService();
         doThrow(new IllegalStateException("Cannot create object store")).when(awsS3ObjectStoreFileStorage)
+                                                                        .testConnection();
+        doThrow(new IllegalStateException("Cannot create object store")).when(aliObjectStoreFileStorage)
                                                                         .testConnection();
         doThrow(new IllegalStateException("Cannot create object store")).when(jCloudsObjectStoreFileStorage)
                                                                         .testConnection();
@@ -329,6 +346,11 @@ class ObjectStoreSelectorFactoryTest {
         @Override
         protected AwsS3ObjectStoreFileStorage createAwsS3FileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
             return ObjectStoreSelectorFactoryTest.this.awsS3ObjectStoreFileStorage;
+        }
+
+        @Override
+        protected AliObjectStoreFileStorage createAliFileStorage(ObjectStoreServiceInfo objectStoreServiceInfo) {
+            return ObjectStoreSelectorFactoryTest.this.aliObjectStoreFileStorage;
         }
 
     }
