@@ -4,6 +4,7 @@ import java.util.Map;
 
 import jakarta.inject.Named;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
+import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceKeyCredentialResolver;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceUtil;
@@ -20,6 +21,7 @@ public class ResolveBindingCredentialReferencesStep extends SyncFlowableStep {
     protected StepPhase executeStep(ProcessContext context) {
         Map<String, Object> bindingParameters = context.getVariable(Variables.SERVICE_BINDING_PARAMETERS);
         if (bindingParameters == null || bindingParameters.isEmpty()) {
+            getStepLogger().debug(Messages.NO_BINDING_CREDENTIAL_REFERENCES_TO_RESOLVE);
             return StepPhase.DONE;
         }
         CloudControllerClient client = context.getControllerClient();
@@ -29,6 +31,9 @@ public class ResolveBindingCredentialReferencesStep extends SyncFlowableStep {
         Map<String, Object> resolvedBindingParameters = resolver.resolveReferencesInMap(bindingParameters);
 
         context.setVariable(Variables.SERVICE_BINDING_PARAMETERS, resolvedBindingParameters);
+        CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
+        String serviceInstanceName = context.getVariable(Variables.SERVICE_TO_UNBIND_BIND);
+        getStepLogger().debug(Messages.RESOLVED_BINDING_CREDENTIAL_REFERENCES, app != null ? app.getName() : null, serviceInstanceName);
         return StepPhase.DONE;
     }
 

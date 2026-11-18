@@ -23,6 +23,11 @@ class ResolveBindingCredentialReferencesStepTest extends SyncFlowableStepTest<Re
 
     @Test
     void testResolvesCredentialReferenceInBindingParameters() {
+        context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR,
+                            DeploymentDescriptor.createV3()
+                                                .setId("test-id")
+                                                .setResources(List.of(Resource.createV3()
+                                                                              .setName(REFERENCED_RESOURCE))));
         context.setVariable(Variables.SERVICE_BINDING_PARAMETERS,
                             Map.of("issuer",
                                    "{ds/" + REFERENCED_RESOURCE + "/service-keys." + REFERENCED_KEY + ".credentials.issuer}",
@@ -40,6 +45,10 @@ class ResolveBindingCredentialReferencesStepTest extends SyncFlowableStepTest<Re
 
     @Test
     void testNoOpWhenNoReferences() {
+        context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR,
+                            DeploymentDescriptor.createV3()
+                                                .setId("test-id")
+                                                .setResources(List.of()));
         context.setVariable(Variables.SERVICE_BINDING_PARAMETERS, Map.of("app-identifier", "my-app-identifier"));
 
         step.execute(execution);

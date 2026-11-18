@@ -10,7 +10,7 @@ import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationExcepti
 import org.cloudfoundry.multiapps.controller.client.facade.CloudServiceBrokerException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
+import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Resource;
@@ -24,14 +24,8 @@ public final class ServiceUtil {
 
     public static Map<String, String> buildServiceInstanceNamesByRelationship(DeploymentDescriptor descriptor) {
         Map<String, String> serviceInstanceNames = new HashMap<>();
-        if (descriptor == null) {
-            return serviceInstanceNames;
-        }
         for (Resource resource : descriptor.getResources()) {
-            Object serviceName = resource.getParameters()
-                                         .get(SupportedParameters.SERVICE_NAME);
-            serviceInstanceNames.put(resource.getName(),
-                                     serviceName instanceof String ? (String) serviceName : resource.getName());
+            serviceInstanceNames.put(resource.getName(), NameUtil.getServiceInstanceNameOrDefault(resource));
         }
         return serviceInstanceNames;
     }

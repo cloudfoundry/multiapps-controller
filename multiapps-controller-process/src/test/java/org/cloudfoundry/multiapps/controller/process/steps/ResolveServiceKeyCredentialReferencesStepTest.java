@@ -23,6 +23,11 @@ class ResolveServiceKeyCredentialReferencesStepTest extends SyncFlowableStepTest
 
     @Test
     void testResolvesCredentialReferenceInServiceKeyToProcess() {
+        context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR,
+                            DeploymentDescriptor.createV3()
+                                                .setId("test-id")
+                                                .setResources(List.of(Resource.createV3()
+                                                                              .setName(REFERENCED_RESOURCE))));
         CloudServiceKey keyToProcess = buildKey("caas-v2-key", "caas-v2",
                                                 Map.of("issuer",
                                                        "{ds/" + REFERENCED_SERVICE_INSTANCE + "/service-keys." + REFERENCED_KEY
@@ -41,6 +46,10 @@ class ResolveServiceKeyCredentialReferencesStepTest extends SyncFlowableStepTest
 
     @Test
     void testNoOpWhenNoCredentialReferences() {
+        context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR,
+                            DeploymentDescriptor.createV3()
+                                                .setId("test-id")
+                                                .setResources(List.of()));
         CloudServiceKey keyToProcess = buildKey("caas-v2-key", "caas-v2", Map.of("app-identifier", "caas-coll-client"));
         context.setVariable(Variables.SERVICE_KEY_TO_PROCESS, keyToProcess);
 

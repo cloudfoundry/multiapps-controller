@@ -834,8 +834,11 @@ public class Messages {
     public static final String PARSE_NULL_STRING_ERROR = "Cannot parse null string";
     public static final String INVALID_BOOLEAN_VALUE = "Invalid boolean value: must be 'true' or 'false'";
     public static final String DISABLE_AUTOSCALER_LABEL_CONTENT = "Disabled_by_MTA_operation_{0}";
-    public static final String UNABLE_TO_RESOLVE_SERVICE_KEY_CREDENTIAL_REFERENCE = "Unable to resolve service key credential reference \"{0}\": field \"{1}\" was not found in the credentials of service key \"{2}\" of service instance \"{3}\"";
+    public static final String UNABLE_TO_RESOLVE_SERVICE_KEY_CREDENTIAL_REFERENCE = "Unable to resolve service key credential reference \"{0}\": field \"{1}\" was not found in the credentials of service key \"{2}\" for service instance \"{3}\"";
     public static final String ERROR_RESOLVING_BINDING_CREDENTIAL_REFERENCES = "Error while resolving service key credential references in service binding parameters";
+    public static final String NO_BINDING_CREDENTIAL_REFERENCES_TO_RESOLVE = "No service binding parameters to resolve service key credential references in";
+    public static final String RESOLVED_BINDING_CREDENTIAL_REFERENCES = "Resolved service key credential references in binding parameters between application \"{0}\" and service instance \"{1}\"";
+    public static final String RESOLVING_SERVICE_KEY_CREDENTIAL_REFERENCES = "Resolving service key credential references in the credentials of service key \"{0}\"";
 
     protected Messages() {
     }

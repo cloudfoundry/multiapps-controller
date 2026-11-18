@@ -48,19 +48,18 @@ public class ServiceKeyCredentialResolver {
         }
         Map<String, Object> resolved = new LinkedHashMap<>(values);
         for (Map.Entry<String, Object> entry : values.entrySet()) {
-            if (!isServiceKeyCredentialReference(entry.getValue())) {
-                continue;
+            if (isServiceKeyCredentialReference(entry.getValue())) {
+                resolved.put(entry.getKey(), resolveReference((String) entry.getValue()));
             }
-            resolved.put(entry.getKey(), resolveReference((String) entry.getValue()));
         }
         return resolved;
     }
 
     private boolean isServiceKeyCredentialReference(Object value) {
-        if (!(value instanceof String stringValue) || !stringValue.matches(DynamicParameterUtil.REGEX_PATTERN_FOR_DYNAMIC_PARAMETERS)) {
-            return false;
+        if (value instanceof String stringValue && stringValue.matches(DynamicParameterUtil.REGEX_PATTERN_FOR_DYNAMIC_PARAMETERS)) {
+            return DynamicParameterUtil.isServiceKeyCredentialReference(DynamicParameterUtil.getParameterName(stringValue));
         }
-        return DynamicParameterUtil.isServiceKeyCredentialReference(DynamicParameterUtil.getParameterName(stringValue));
+        return false;
     }
 
     private Object resolveReference(String reference) {

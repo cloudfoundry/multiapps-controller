@@ -23,6 +23,7 @@ public class ResolveServiceKeyCredentialReferencesStep extends SyncFlowableStep 
         CloudServiceKey serviceKeyToProcess = context.getVariable(Variables.SERVICE_KEY_TO_PROCESS);
         CloudControllerClient client = context.getControllerClient();
 
+        getStepLogger().debug(Messages.RESOLVING_SERVICE_KEY_CREDENTIAL_REFERENCES, serviceKeyToProcess.getName());
         DeploymentDescriptor descriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
         Map<String, String> serviceInstanceNamesByRelationship = ServiceUtil.buildServiceInstanceNamesByRelationship(descriptor);
         ServiceKeyCredentialResolver resolver = new ServiceKeyCredentialResolver(client, serviceInstanceNamesByRelationship);

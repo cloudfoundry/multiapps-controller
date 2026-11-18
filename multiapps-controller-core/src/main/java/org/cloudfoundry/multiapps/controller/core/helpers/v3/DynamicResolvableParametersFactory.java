@@ -63,9 +63,13 @@ public class DynamicResolvableParametersFactory
     private void addDynamicResolvableParametersFromServiceKeysConfig(Set<DynamicResolvableParameter> dynamicResolvableParameters,
                                                                      Map<String, Object> parameters) {
         Object serviceKeys = parameters.get(SupportedParameters.SERVICE_KEYS);
-        if (!(serviceKeys instanceof List<?> serviceKeysList)) {
-            return;
+        if (serviceKeys instanceof List<?> serviceKeysList) {
+            addDynamicResolvableParametersFromServiceKeys(dynamicResolvableParameters, serviceKeysList);
         }
+    }
+
+    private void addDynamicResolvableParametersFromServiceKeys(Set<DynamicResolvableParameter> dynamicResolvableParameters,
+                                                               List<?> serviceKeysList) {
         for (Object serviceKey : serviceKeysList) {
             if (serviceKey instanceof Map<?, ?> serviceKeyMap) {
                 addDynamicResolvableParametersFromConfig(dynamicResolvableParameters, serviceKeyMap.get(SupportedParameters.SERVICE_KEY_CONFIG));
@@ -74,15 +78,14 @@ public class DynamicResolvableParametersFactory
     }
 
     private void addDynamicResolvableParametersFromConfig(Set<DynamicResolvableParameter> dynamicResolvableParameters, Object config) {
-        if (!(config instanceof Map<?, ?> configMap)) {
-            return;
+        if (config instanceof Map<?, ?> configMap) {
+            List<String> configStringValues = configMap.values()
+                                                       .stream()
+                                                       .filter(String.class::isInstance)
+                                                       .map(String.class::cast)
+                                                       .collect(Collectors.toList());
+            addDynamicResolvableParameter(dynamicResolvableParameters, configStringValues);
         }
-        List<String> configStringValues = configMap.values()
-                                                   .stream()
-                                                   .filter(String.class::isInstance)
-                                                   .map(String.class::cast)
-                                                   .collect(Collectors.toList());
-        addDynamicResolvableParameter(dynamicResolvableParameters, configStringValues);
     }
 
 }
