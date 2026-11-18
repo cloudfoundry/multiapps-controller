@@ -1,6 +1,8 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.client.facade.CloudControllerException;
@@ -8,13 +10,24 @@ import org.cloudfoundry.multiapps.controller.client.facade.CloudOperationExcepti
 import org.cloudfoundry.multiapps.controller.client.facade.CloudServiceBrokerException;
 import org.cloudfoundry.multiapps.controller.client.facade.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
+import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.springframework.http.HttpStatus;
 
 public final class ServiceUtil {
 
     private ServiceUtil() {
 
+    }
+
+    public static Map<String, String> buildServiceInstanceNamesByRelationship(DeploymentDescriptor descriptor) {
+        Map<String, String> serviceInstanceNames = new HashMap<>();
+        for (Resource resource : descriptor.getResources()) {
+            serviceInstanceNames.put(resource.getName(), NameUtil.getServiceInstanceNameOrDefault(resource));
+        }
+        return serviceInstanceNames;
     }
 
     public static List<CloudServiceKey> getExistingServiceKeys(CloudControllerClient client, CloudServiceInstanceExtended service,
