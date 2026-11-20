@@ -26,6 +26,7 @@ public class Constants {
         public static final String MTA_ID = "mtaId";
         public static final String NAMESPACE = "namespace";
         public static final String MTA_NAME = "name";
+        public static final String FORMAT = "format";
 
     }
 
@@ -62,6 +63,8 @@ public class Constants {
         }
 
         public static final String MTA = "/{" + RequestVariables.MTA_ID + "}";
+        public static final String MTA_GRAPH = MTA + "/graph";
+        public static final String DESCRIPTOR_GRAPH = "/graph";
         public static final String OPERATION = "/{" + PathVariables.OPERATION_ID + "}";
         public static final String OPERATION_LOGS = OPERATION + "/logs";
         public static final String OPERATION_LOG_CONTENT = OPERATION_LOGS + "/{" + PathVariables.LOG_ID + "}/content";

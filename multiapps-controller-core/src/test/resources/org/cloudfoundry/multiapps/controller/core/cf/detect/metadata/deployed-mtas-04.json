@@ -50,6 +50,7 @@
         "moduleName": "mta-module-2",
         "boundMtaServices": [],
         "providedDependencyNames": [],
+      "requiredDependencyNames": [],
         "productizationState": "LIVE"
       }
     ],

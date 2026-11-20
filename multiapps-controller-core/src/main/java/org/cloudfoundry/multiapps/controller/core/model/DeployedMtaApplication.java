@@ -18,6 +18,8 @@ public abstract class DeployedMtaApplication extends CloudApplication {
 
     public abstract List<String> getProvidedDependencyNames();
 
+    public abstract List<String> getRequiredDependencyNames();
+
     @Value.Default
     public ProductizationState getProductizationState() {
         return ProductizationState.LIVE;
