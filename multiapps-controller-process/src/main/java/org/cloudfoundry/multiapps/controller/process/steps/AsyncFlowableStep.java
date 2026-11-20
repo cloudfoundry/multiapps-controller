@@ -12,6 +12,9 @@ public abstract class AsyncFlowableStep extends SyncFlowableStep {
     protected StepPhase executeStep(ProcessContext context) throws Exception {
         StepPhase stepPhase = context.getVariable(Variables.STEP_PHASE);
         if (stepPhase == StepPhase.POLL) {
+            if (Boolean.TRUE.equals(context.getVariable(Variables.DRY_RUN))) {
+                return StepPhase.DONE;
+            }
             return executeStepExecution(context);
         }
         context.setVariable(Variables.ASYNC_STEP_EXECUTION_INDEX, DEFAULT_STEP_EXECUTION_INDEX);

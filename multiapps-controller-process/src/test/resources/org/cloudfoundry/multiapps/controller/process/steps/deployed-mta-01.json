@@ -9,6 +9,7 @@
       "moduleName": "node-hello-world-db",
       "boundMtaServices": [],
       "providedDependencyNames": [],
+      "requiredDependencyNames": [],
       "productizationState": "LIVE"
     },
     {
@@ -16,6 +17,7 @@
       "moduleName": "node-hello-world-backend",
       "boundMtaServices": [],
       "providedDependencyNames": [],
+      "requiredDependencyNames": [],
       "productizationState": "LIVE"
     },
     {
@@ -23,6 +25,7 @@
       "moduleName": "node-hello-world",
       "boundMtaServices": [],
       "providedDependencyNames": [],
+      "requiredDependencyNames": [],
       "productizationState": "LIVE"
     }
   ],

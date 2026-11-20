@@ -39,6 +39,7 @@
         <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
         <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
         <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
+        <flowable:in source="dryRun" target="dryRun"></flowable:in>
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
         <flowable:in source="externalLoggingServiceConfigurations" target="externalLoggingServiceConfigurations"></flowable:in>
       </extensionElements>

@@ -59,6 +59,9 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public StepPhase executeAsyncStep(ProcessContext context) throws FileStorageException {
+        if (Boolean.TRUE.equals(context.getVariable(Variables.DRY_RUN))) {
+            return StepPhase.DONE;
+        }
         CloudApplicationExtended applicationToProcess = context.getVariable(Variables.APP_TO_PROCESS);
         getStepLogger().info(Messages.UPLOADING_APP, applicationToProcess.getName());
 

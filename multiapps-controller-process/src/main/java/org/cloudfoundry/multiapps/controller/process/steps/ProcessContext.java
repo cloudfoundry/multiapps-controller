@@ -8,6 +8,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvid
 import org.cloudfoundry.multiapps.controller.core.security.serialization.DynamicSecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerializationFactory;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.client.DryRunCloudControllerClient;
 import org.cloudfoundry.multiapps.controller.process.client.LoggingCloudControllerClient;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.Variable;
@@ -42,7 +43,7 @@ public class ProcessContext {
         CloudControllerClient delegate = clientProvider.getControllerClient(userGuid, spaceGuid, correlationId);
         Set<String> secretParameters = VariableHandling.get(execution, Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
         DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(secretParameters);
-        return new LoggingCloudControllerClient(delegate, stepLogger, dynamicSecureSerialization);
+        return wrapForDryRunIfEnabled(new LoggingCloudControllerClient(delegate, stepLogger, dynamicSecureSerialization));
     }
 
     public CloudControllerClient getControllerClient(String spaceGuid) {
@@ -51,7 +52,14 @@ public class ProcessContext {
         CloudControllerClient delegate = clientProvider.getControllerClient(userGuid, spaceGuid, correlationId);
         Set<String> secretParameters = VariableHandling.get(execution, Variables.SECURE_EXTENSION_DESCRIPTOR_PARAMETER_NAMES);
         DynamicSecureSerialization dynamicSecureSerialization = SecureSerializationFactory.ofAdditionalValues(secretParameters);
-        return new LoggingCloudControllerClient(delegate, stepLogger, dynamicSecureSerialization);
+        return wrapForDryRunIfEnabled(new LoggingCloudControllerClient(delegate, stepLogger, dynamicSecureSerialization));
+    }
+
+    private CloudControllerClient wrapForDryRunIfEnabled(CloudControllerClient client) {
+        if (Boolean.TRUE.equals(getVariable(Variables.DRY_RUN))) {
+            return new DryRunCloudControllerClient(client, this);
+        }
+        return client;
     }
 
     public <T> T getRequiredVariable(Variable<T> variable) {

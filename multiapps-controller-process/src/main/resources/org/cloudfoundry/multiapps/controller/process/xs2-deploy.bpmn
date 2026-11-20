@@ -74,11 +74,17 @@
     <serviceTask id="incrementServiceBrokerSubscribersToRestartIndexTask" name="Increment Index" flowable:async="true" flowable:delegateExpression="${incrementIndexStep}"></serviceTask>
     <sequenceFlow id="flow117" sourceRef="incrementServiceBrokerSubscribersToRestartIndexTask" targetRef="areAllServiceBrokerSubscribersRestartedGateway"></sequenceFlow>
     <callActivity id="deployModulesSequential" name="Deploy Modules Sequentially" flowable:async="true" calledElement="${moduleDeployProcessGetter.get(moduleToDeploy, execution)}" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:fallbackToDefaultTenant="false">
+      <extensionElements>
+        <flowable:in source="dryRun" target="dryRun"></flowable:in>
+      </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="true" flowable:collection="modulesToDeploy" flowable:elementVariable="moduleToDeploy">
         <extensionElements></extensionElements>
       </multiInstanceLoopCharacteristics>
     </callActivity>
     <callActivity id="deployModulesParallel" name="Deploy Modules In Parallel" flowable:async="true" calledElement="${moduleDeployProcessGetter.get(moduleToDeploy, execution)}" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+      <extensionElements>
+        <flowable:in source="dryRun" target="dryRun"></flowable:in>
+      </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="modulesToIterateInParallel" flowable:elementVariable="moduleToDeploy">
         <extensionElements></extensionElements>
       </multiInstanceLoopCharacteristics>
@@ -117,6 +123,7 @@
         <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
         <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
         <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
+        <flowable:in source="dryRun" target="dryRun"></flowable:in>
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
         <flowable:in source="externalLoggingServiceConfigurations" target="externalLoggingServiceConfigurations"></flowable:in>
         <flowable:in source="stepPhase" target="stepPhase"></flowable:in>
@@ -148,6 +155,7 @@
         <flowable:in source="liveMtaColor" target="liveMtaColor"></flowable:in>
         <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
         <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
+        <flowable:in source="dryRun" target="dryRun"></flowable:in>
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
         <flowable:in source="processId" target="processId"></flowable:in>
         <flowable:in source="useLastOperationForServiceBindingDeletion" target="useLastOperationForServiceBindingDeletion"></flowable:in>
@@ -196,6 +204,7 @@
         <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
         <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
         <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
+        <flowable:in source="dryRun" target="dryRun"></flowable:in>
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
         <flowable:in source="stepPhase" target="stepPhase"></flowable:in>
         <flowable:in source="batchToProcess" target="batchToProcess"></flowable:in>
@@ -253,6 +262,7 @@
         <flowable:in source="isSecurityEnabled" target="isSecurityEnabled"></flowable:in>
         <flowable:in source="secureExtensionDescriptorParameterNames" target="secureExtensionDescriptorParameterNames"></flowable:in>
         <flowable:in source="isDisposableUserProvidedServiceEnabled" target="isDisposableUserProvidedServiceEnabled"></flowable:in>
+        <flowable:in source="dryRun" target="dryRun"></flowable:in>
         <flowable:in source="disposableUserProvidedServiceName" target="disposableUserProvidedServiceName"></flowable:in>
         <flowable:in source="mtaId" target="mtaId"></flowable:in>
         <flowable:in source="externalLoggingServiceConfigurations" target="externalLoggingServiceConfigurations"></flowable:in>

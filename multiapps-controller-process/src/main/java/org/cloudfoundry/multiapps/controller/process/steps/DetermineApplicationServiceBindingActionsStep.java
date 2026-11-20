@@ -37,6 +37,11 @@ public class DetermineApplicationServiceBindingActionsStep extends SyncFlowableS
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
+        if (Boolean.TRUE.equals(context.getVariable(Variables.DRY_RUN))) {
+            context.setVariable(Variables.SHOULD_UNBIND_SERVICE_FROM_APP, false);
+            context.setVariable(Variables.SHOULD_BIND_SERVICE_TO_APP, false);
+            return StepPhase.DONE;
+        }
         CloudControllerClient client = context.getControllerClient();
         CloudServiceBinding serviceBindingToDelete = context.getVariable(Variables.SERVICE_BINDING_TO_DELETE);
         CloudApplicationExtended appToProcess = context.getVariable(Variables.APP_TO_PROCESS);

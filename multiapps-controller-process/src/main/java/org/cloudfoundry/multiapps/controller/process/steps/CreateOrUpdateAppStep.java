@@ -66,6 +66,20 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ProcessContext context) throws FileStorageException {
+        if (Boolean.TRUE.equals(context.getVariable(Variables.DRY_RUN))) {
+            CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
+            CloudControllerClient client = context.getControllerClient();
+            CloudApplication existingApp = client.getApplication(app.getName(), false);
+            context.setVariable(Variables.EXISTING_APP, existingApp);
+            var cs = new org.cloudfoundry.multiapps.controller.process.client.DryRunChangeSet();
+            if (existingApp == null) {
+                cs.appsCreate.add(app.getName());
+            } else {
+                cs.appsUpdate.add(app.getName());
+            }
+            context.setVariable(Variables.DRY_RUN_CHANGE_SET, cs);
+            return StepPhase.DONE;
+        }
         CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
         CloudControllerClient client = context.getControllerClient();
         CloudApplication existingApp = client.getApplication(app.getName(), false);

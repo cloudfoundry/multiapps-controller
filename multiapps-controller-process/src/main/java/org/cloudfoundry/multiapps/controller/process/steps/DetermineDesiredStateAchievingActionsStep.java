@@ -33,6 +33,10 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
+        if (Boolean.TRUE.equals(context.getVariable(Variables.DRY_RUN))) {
+            context.setVariable(Variables.APP_STATE_ACTIONS_TO_EXECUTE, new ArrayList<>());
+            return StepPhase.DONE;
+        }
         String appName = context.getVariable(Variables.APP_TO_PROCESS)
                                 .getName();
         CloudControllerClient client = context.getControllerClient();

@@ -29,6 +29,9 @@ public abstract class ServiceStep extends AsyncFlowableStep {
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) {
         CloudServiceInstanceExtended serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
+        if (Boolean.TRUE.equals(context.getVariable(Variables.DRY_RUN))) {
+            return StepPhase.DONE;
+        }
         OperationExecutionState executionState = executeOperation(context, context.getControllerClient(), serviceToProcess);
         if (executionState == OperationExecutionState.FINISHED) {
             return StepPhase.DONE;
