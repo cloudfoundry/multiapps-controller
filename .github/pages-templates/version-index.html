@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MTA REST API - Version Index</title>
+  <style>
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; margin:0; color:#333; }
+    nav { background:#765DBC; padding:12px 24px; display:flex; align-items:center; gap:20px; }
+    nav a { color:#fff; text-decoration:none; font-size:14px; }
+    nav a:hover { text-decoration:underline; }
+    nav .brand { font-weight:bold; font-size:16px; margin-right:auto; }
+    .container { max-width:800px; margin:40px auto; padding:0 24px; }
+    h1 { color:#765DBC; }
+    h2 { color:#555; margin-top:32px; }
+    ul { list-style:none; padding:0; }
+  </style>
+</head>
+<body>
+  <nav>
+    <span class="brand">MultiApps Controller</span>
+    <a href="../">Home</a>
+    <a href="https://github.com/cloudfoundry/multiapps-controller" target="_blank" rel="noopener">GitHub</a>
+  </nav>
+  <div class="container">
+    <h1>API Reference</h1>
+    <p>Select an API version to view its interactive documentation:</p>
+    <h2>API v1</h2>
+    <p style="color:#666;margin-top:0;">
+      The primary API — provides the full set of capabilities to deploy, list and remove MTAs.
+    </p>
+    <ul>
+__V1_CARDS__    </ul>
+    <h2>API v2</h2>
+    <p style="color:#666;margin-top:0;">
+      A complementary API that currently only provides an improved listing of MTAs. For all other operations, use v1.
+    </p>
+    <ul>
+__V2_CARDS__    </ul>
+    <p style="margin-top:32px;font-size:13px;color:#888;">
+      The MTA REST API follows semantic versioning. A new version is published whenever
+      the API contract changes. Older versions remain available for reference.
+    </p>
+  </div>
+</body>
+</html>
