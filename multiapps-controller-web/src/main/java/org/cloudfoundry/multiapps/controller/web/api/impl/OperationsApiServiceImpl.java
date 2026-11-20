@@ -274,6 +274,8 @@ public class OperationsApiServiceImpl implements OperationsApiService {
                                                   .spaceId(spaceGuid)
                                                   .singleResult();
             operation = operationsHelper.addErrorType(operation);
+            operation = operationsHelper.addDryRunResult(operation);
+            operation = operationsHelper.addOutputs(operation);
             return operationsHelper.releaseLockIfNeeded(operation);
         } catch (NoResultException e) {
             throw new NotFoundException(e, Messages.OPERATION_0_NOT_FOUND, operationId);
